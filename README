@@ -1,0 +1,16 @@
+X13.wireless
+===========
+
+Hardware and Firmware section for project X13.Home.
+
+Automation System oriented to "Smart House" over MQTT(S) protocol
+
+Wireless Client and Gateway, work in ISM band - 433/868/915 MHz with transceivers
+from Microchip MRF49XA(Analog RFM12 from HopeRF), and CC1101 from TI.
+
+Compatibility List:
+    Arduino + RFM12 Shield
+    Arduino + CC1101 Shield
+    JeeNode  http://jeelabs.com/products/jeenode
+    panSTamp http://www.panstamp.com/
+    busware CSM http://busware.de/tiki-index.php?page=CSM
