@@ -375,12 +375,10 @@ uint8_t * rf_GetBuf(void)
     if(cc11v_rxHead == cc11v_rxTail)
         return NULL;
     
-    uint8_t tmpTail;
-    tmpTail = cc11v_rxTail;
-    cc11v_rxTail++;
+    uint8_t * pRet = (uint8_t *)cc11v_pRxBuf[cc11v_rxTail++];
     if(cc11v_rxTail >= RF_RX_BUF_SIZE)
         cc11v_rxTail -= RF_RX_BUF_SIZE;
-    return cc11v_pRxBuf[tmpTail];
+    return pRet;
 }
 
 uint8_t rf_GetNodeID(void)
