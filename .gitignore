@@ -1,1 +1,12 @@
-
+/Firmware/Debug/*
+/Firmware/Gate_JN/*
+/Firmware/Gate_PS/*
+/Firmware/Gate_UN/*
+/Firmware/Node_JN/*
+/Firmware/Node_PS/*
+/Firmware/Node_UN/*
+/Firmware/TestRF_JN/*
+/Firmware/TestRF_PS/*
+/Firmware/TestRF_UN/*
+TcfTransactionLog.csv
+/Firmware/Devices.atsuo

@@ -13,6 +13,8 @@ See LICENSE.txt file for license details.
 #include "config.h"
 #include "util.h"
 
+#define POOL_TMR_FREQ_FAST  (POOL_TMR_FREQ/4 - 1)
+
 static MQTTS_VAR_t vMQTTS;
 
 static uint16_t mqtts_new_msgid(void)
@@ -109,7 +111,7 @@ static uint8_t MQTTS_ToBuf(MQ_t * pBuf)
         if(vMQTTS.fHead == vMQTTS.fTail)
         {
             vMQTTS.Tretry = 0;
-            vMQTTS.pfCnt = (POOL_TMR_FREQ/10 - 1);       // 100 mS
+            vMQTTS.pfCnt = POOL_TMR_FREQ_FAST;
         }
 
         vMQTTS.fBuf[vMQTTS.fHead] = ppBuf;
@@ -429,7 +431,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                     MQTTS_Push(pBuf);
                 }
 
-                vMQTTS.pfCnt = ((POOL_TMR_FREQ/10) - 1);
+                vMQTTS.pfCnt = POOL_TMR_FREQ_FAST;
             }
             break;
 #ifdef ASLEEP
