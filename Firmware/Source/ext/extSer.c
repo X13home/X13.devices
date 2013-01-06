@@ -188,5 +188,29 @@ static uint8_t serRegisterOD(indextable_t *pIdx)
 // Delete Object
 static void serDeleteOD(subidx_t * pSubidx)
 {
+#ifdef EXTSER_TX_USED
+    if(pSubidx->Type == ObjSerTx)
+    {
+        SER_DISABLE_TX();
+
+        pSubidx->Place = objDout;
+        pSubidx->Type = objPinNPN;
+        pSubidx->Base = SER_PIN_TX;
+    }
+    else
+#endif  // EXTSER_TX_USED
+#ifdef  EXTSER_RX_USED
+    if(pSubidx->Type == ObjSerRx)
+    {
+        SER_DISABLE_RX();
+
+        pSubidx->Place = objDin;
+        pSubidx->Type = objPinNPN;
+        pSubidx->Base = SER_PIN_RX;
+    }
+    else
+#endif  //  EXTSER_RX_USED
+        return;
+    dioDeleteOD(pSubidx);
 }
 

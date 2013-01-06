@@ -300,7 +300,7 @@ static void mqtts_send_connect()        // Send  CONNECT
         ipBuf += pBuf->mq.Length;
         *(ipBuf++) = '_';
         pBuf->mq.Length++;
-            pBuf->mq.Length += sprinthex(ipBuf, rf_GetNodeID());
+        pBuf->mq.Length += sprinthex(ipBuf, rf_GetNodeID());
     }
     pBuf->mq.Length += MQTTS_SIZEOF_MSG_CONNECT;
     pBuf->mq.MsgType = MQTTS_MSGTYP_CONNECT;
@@ -537,11 +537,10 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
                     // Publish Device Type
                     if((rf_GetNodeID() != 0xFF) && (vMQTTS.MsgID == 0))
                     {
-                        uint8_t size = MQTTS_SIZEOF_CLIENTID - 1;
-                        uint8_t clientid[MQTTS_SIZEOF_CLIENTID];
-                        ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &size, clientid);
+                        pBuf->mq.Length = MQTTS_SIZEOF_CLIENTID - 1;
+                        ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &pBuf->mq.Length, (uint8_t *)&pBuf->mq.m.raw);
                         MQTTS_Publish(0, objDeviceTyp, MQTTS_FL_QOS1 | MQTTS_FL_TOPICID_PREDEF,
-                                      size, clientid);
+                                      pBuf->mq.Length, (uint8_t *)&pBuf->mq.m.raw);
                     }
                 }
                 else
@@ -599,10 +598,12 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
             tmp = mqtts_check_msgid(pBuf->mq.m.publish.MsgId);
 
             if(tmp == 0)   // New message
+            {
                 vMQTTS.ReturnCode = WriteOD(SWAPWORD(pBuf->mq.m.publish.TopicId),
                                             pBuf->mq.m.publish.Flags,
                                             pBuf->mq.Length - MQTTS_SIZEOF_MSG_PUBLISH,
                                             (uint8_t *)&pBuf->mq.m.publish.Data);
+            }
             else if((!(pBuf->mq.m.publish.Flags & MQTTS_FL_DUP)) || (tmp > 1))
                 break;
 
@@ -628,7 +629,6 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
 //        case MQTTS_MSGTYP_PUBREC:
 //        case MQTTS_MSGTYP_PUBREL:
 //        case MQTTS_MSGTYP_SUBSCRIBE:
-//        case MQTTS_MSGTYP_SUBACK:
         case MQTTS_MSGTYP_SUBACK:
             if((vMQTTS.Status == MQTTS_STATUS_CONNECT) &&
                (vMQTTS.fBuf[vMQTTS.fTail]->mq.MsgType == MQTTS_MSGTYP_SUBSCRIBE) &&
