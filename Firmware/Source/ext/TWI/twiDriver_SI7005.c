@@ -58,47 +58,39 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
     switch(si7005_stat)
     {
         case 0:
-            if(twi_bus_busy)
+            if(twim_access)
                 return 0;
             si7005_stat = 1;
-            twi_bus_busy = 1;
         case 1:             // Start Conversion, Temperature
         case 7:
-            twi_trv_buf[0] = SI7005_REG_CONFIG;
-            twi_trv_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE);
-            twiExch_ISR(SI7005_ADDR, TW_WRITE, 2);
+            twim_buf[0] = SI7005_REG_CONFIG;
+            twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE);
+            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
             break;
         // !! Conversion Time 35mS - Normal / 18 mS - Fast
         case 3:     // Read Busy Flag
         case 9:
         case 16:
-            twi_trv_buf[0] = SI7005_REG_STATUS;
-            twiExch_ISR(SI7005_ADDR, TW_WRITE | TW_SEQUENTIAL, 1);
-            break;
-        case 4:
-        case 10:
-        case 17:
-            twiExch_ISR(SI7005_ADDR, TW_READ, 1);
+            twim_buf[0] = SI7005_REG_STATUS;
+            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 1, 
+                         (uint8_t *)twim_buf);
             break;
         case 5:
         case 11:
         case 18:
-            if(twi_trv_buf[0] & SI7005_STATUS_NOT_READY)           // Busy
+            if(twim_buf[0] & SI7005_STATUS_NOT_READY)           // Busy
             {
                 si7005_stat -= 2;
                 return 0;
             }
-            twi_trv_buf[0] = SI7005_REG_DATA;
-            twiExch_ISR(SI7005_ADDR, TW_WRITE | TW_SEQUENTIAL, 1);
-            break;
-        case 6:
-        case 12:
-        case 19:
-            twiExch_ISR(SI7005_ADDR, TW_READ, 2);
+
+            twim_buf[0] = SI7005_REG_DATA;
+            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 2, 
+                         (uint8_t *)twim_buf);
             break;
         case 13:
             {
-            uint16_t val = ((uint16_t)twi_trv_buf[0]<<5) | (twi_trv_buf[1]>>3);
+            uint16_t val = ((uint16_t)twim_buf[0]<<5) | (twim_buf[1]>>3);
             val *= 5;
             val >>=3;
             val -= 500;
@@ -111,9 +103,9 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
             }
             break;
         case 14:        // Start Conversion, Humidity
-            twi_trv_buf[0] = SI7005_REG_CONFIG;
-            twi_trv_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
-            twiExch_ISR(SI7005_ADDR, TW_WRITE, 2);
+            twim_buf[0] = SI7005_REG_CONFIG;
+            twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
+            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
             break;
     }
     si7005_stat++;
@@ -126,8 +118,8 @@ static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
     if(si7005_stat == 21)
     {
         si7005_stat++;
-        twi_bus_busy = 0;
-        uint16_t val = ((uint16_t)twi_trv_buf[0]<<4) | (twi_trv_buf[1]>>4);
+        twim_access = 0;
+        uint16_t val = ((uint16_t)twim_buf[0]<<4) | (twim_buf[1]>>4);
         val *= 5;
         val >>=3;
         val -= 240;
@@ -142,14 +134,10 @@ static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
 
 static uint8_t twi_SI7005_Config(void)
 {
-    uint8_t reg = SI7005_REG_ID;
-    if(twiExch(SI7005_ADDR, TW_WRITE | TW_SEQUENTIAL, 1, &reg) != TW_SUCCESS)
-    {
-        twiSendStop();
-        return 0;
-    }
-    if((twiExch(SI7005_ADDR, TW_READ, 1, &reg) != TW_SUCCESS) ||        // Communication error
-       (reg != SI7005_ID_SI7005))                                       // Bad device
+    twim_buf[0] = SI7005_REG_ID;
+    if((twimExch(SI7005_ADDR, (TWIM_READ | TWIM_WRITE | TWIM_SEQ), 1, 1, (uint8_t *)twim_buf) != 
+                                         TW_SUCCESS) ||     // Communication error
+       (twim_buf[0] != SI7005_ID_SI7005))                   // Bad device ID
         return 0;
 
     si7005_stat = 0;
