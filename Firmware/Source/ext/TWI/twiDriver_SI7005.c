@@ -2,7 +2,7 @@
 Copyright (c) 2011-2012 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-https://github.com/X13home
+http://X13home.github.com/
 
 BSD License
 See LICENSE.txt file for license details.
@@ -62,35 +62,41 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
                 return 0;
             si7005_stat = 1;
         case 1:             // Start Conversion, Temperature
-        case 7:
+        case 6:
             twim_buf[0] = SI7005_REG_CONFIG;
             twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE);
             twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
             break;
         // !! Conversion Time 35mS - Normal / 18 mS - Fast
-        case 3:     // Read Busy Flag
+        case 4:     // Read Busy Flag
         case 9:
-        case 16:
+        case 14:
             twim_buf[0] = SI7005_REG_STATUS;
             twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 1, 
                          (uint8_t *)twim_buf);
             break;
         case 5:
-        case 11:
-        case 18:
+        case 10:
+        case 15:
             if(twim_buf[0] & SI7005_STATUS_NOT_READY)           // Busy
             {
-                si7005_stat -= 2;
+                si7005_stat--;
                 return 0;
             }
-
+            // Read Data
             twim_buf[0] = SI7005_REG_DATA;
             twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 2, 
                          (uint8_t *)twim_buf);
             break;
-        case 13:
+        case 11:                                                // Calculate & test temperature
             {
             uint16_t val = ((uint16_t)twim_buf[0]<<5) | (twim_buf[1]>>3);
+
+            // Start Conversion, Humidity
+            twim_buf[0] = SI7005_REG_CONFIG;
+            twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
+            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
+
             val *= 5;
             val >>=3;
             val -= 500;
@@ -102,11 +108,6 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
             }
             }
             break;
-        case 14:        // Start Conversion, Humidity
-            twim_buf[0] = SI7005_REG_CONFIG;
-            twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
-            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
-            break;
     }
     si7005_stat++;
 
@@ -115,10 +116,10 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
 
 static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
 {
-    if(si7005_stat == 21)
+    if(si7005_stat == 17)
     {
         si7005_stat++;
-        twim_access = 0;
+        twim_access = 0;        // Bus Free
         uint16_t val = ((uint16_t)twim_buf[0]<<4) | (twim_buf[1]>>4);
         val *= 5;
         val >>=3;
@@ -134,10 +135,10 @@ static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
 
 static uint8_t twi_SI7005_Config(void)
 {
-    twim_buf[0] = SI7005_REG_ID;
-    if((twimExch(SI7005_ADDR, (TWIM_READ | TWIM_WRITE | TWIM_SEQ), 1, 1, (uint8_t *)twim_buf) != 
+    uint8_t reg = SI7005_REG_ID;
+    if((twimExch(SI7005_ADDR, (TWIM_READ | TWIM_WRITE | TWIM_SEQ), 1, 1, &reg) != 
                                          TW_SUCCESS) ||     // Communication error
-       (twim_buf[0] != SI7005_ID_SI7005))                   // Bad device ID
+       (reg != SI7005_ID_SI7005))                           // Bad device ID
         return 0;
 
     si7005_stat = 0;

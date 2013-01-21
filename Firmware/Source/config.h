@@ -82,9 +82,9 @@ See LICENSE.txt file for license details.
 
 // TWI Section
 // TWI Drivers
-//#define TWI_USE_BMP085          1       // TWI Driver Bosh BMP085 - Temperature/Pressure
+#define TWI_USE_BMP085          1       // TWI Driver Bosh BMP085 - Temperature/Pressure
 //#define TWI_USE_HIH61XX         1       // TWI Driver Honeywell HIH-61xx - Temperature/Humidity
-#define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
+//#define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
 //End TWI Section
 
 #if (defined UNODE)

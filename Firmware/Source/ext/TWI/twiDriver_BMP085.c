@@ -78,36 +78,26 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
     
     switch(bmp085_stat)
     {
-        case 0:         
-            if(twi_bus_busy)
+        case 0:
+            if(twim_access)
                 return 0;
             bmp085_stat = 1;
-            twi_bus_busy = 1;
-        case 1:         // Start Conversion, Temperature
-        case 4:
-            twi_trv_buf[0] = BMP085_CTRL_MEAS_REG;
-            twi_trv_buf[1] = BMP085_T_MEASURE;
-            twiExch_ISR(BMP085_ADDR, TW_WRITE, 2);
+        case 1:             // Start dummy Conversion, Temperature
+        case 3:             // Start Conversion, Temperature
+            twim_buf[0] = BMP085_CTRL_MEAS_REG;
+            twim_buf[1] = BMP085_T_MEASURE;
+            twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
             break;
         // !! ut Conversion time 4,5 mS
-        case 2:         // Get dummy ut
-        case 5:         // Get ut
-        // !! up Conversion time on ultra high resolution (BMP085_OSS = 3) 25,5 mS
-        case 10:        // Get dummy up
-        case 14:
-            twi_trv_buf[0] = BMP085_ADC_OUT_MSB_REG;            // Select ADC out register
-            twiExch_ISR(BMP085_ADDR, TW_WRITE, 1);
+        case 2:             // Get dummy ut
+        case 4:             // Get ut
+            twim_buf[0] = BMP085_ADC_OUT_MSB_REG;            // Select ADC out register
+            twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, 
+                                                                        (uint8_t *)twim_buf);
             break;
-        case 3:
-        case 6:
-            twiExch_ISR(BMP085_ADDR, TW_READ, 2);         // Read ADC ut
-            break;
-        case 11:
-        case 15:
-            twiExch_ISR(BMP085_ADDR, TW_READ, 3);         // Read ADC up
-            break;
-        case 7:         // Get uncompensated temperature, and normalize
-            ut = ((uint16_t)twi_trv_buf[0]<<8) | twi_trv_buf[1];
+        case 5:             // Get uncompensated temperature, and normalize
+            ut = ((uint16_t)twim_buf[0]<<8) | twim_buf[1];
+
             // Calculate temperature
             x1 = (((int32_t)ut - bmp085_calib.ac6) * bmp085_calib.ac5) >> 15;
             x2 = ((int32_t)bmp085_calib.mc << 11) / (x1 + bmp085_calib.md);
@@ -121,11 +111,18 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
                 return 1;
             }
             break;
-        case 8:        // Start Conversion, Pressure
-        case 12:
-            twi_trv_buf[0] = BMP085_CTRL_MEAS_REG;
-            twi_trv_buf[1] = BMP085_P_MEASURE + (BMP085_OSS<<6);
-            twiExch_ISR(BMP085_ADDR, TW_WRITE, 2);
+        case 6:             // Start dummy conversion, Pressure
+        case 9:             // Start conversion, Pressure
+            twim_buf[0] = BMP085_CTRL_MEAS_REG;
+            twim_buf[1] = BMP085_P_MEASURE + (BMP085_OSS<<6);
+            twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
+            break;
+        // !! up Conversion time on ultra high resolution (BMP085_OSS = 3) 25,5 mS
+        case 8:             // Get dummy up
+        case 11:            // Get up
+            twim_buf[0] = BMP085_ADC_OUT_MSB_REG;            // Select ADC out register
+            twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 3,
+                                                                        (uint8_t *)twim_buf);
             break;
     }
     bmp085_stat++;
@@ -134,13 +131,13 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
 
 static uint8_t twi_BMP085_Pool2(subidx_t * pSubidx)
 {
-    if(bmp085_stat == 17)
+    if(bmp085_stat == 13)
     {
         bmp085_stat++;
-        twi_bus_busy = 0;
+        twim_access = 0;    // Bus Free
         
-        uint32_t up = (((uint32_t)twi_trv_buf[0]<<16) | ((uint32_t)twi_trv_buf[1]<<8) |
-                       ((uint32_t)twi_trv_buf[2]))>>(8-BMP085_OSS);
+        uint32_t up = (((uint32_t)twim_buf[0]<<16) | ((uint32_t)twim_buf[1]<<8) |
+                       ((uint32_t)twim_buf[2]))>>(8-BMP085_OSS);
                        
         int32_t b6 = bmp085_b5 - 4000;
         //  calculate B3
@@ -180,15 +177,14 @@ static uint8_t twi_BMP085_Pool2(subidx_t * pSubidx)
 static uint8_t twi_BMP085_Config(void)
 {
     uint8_t reg = BMP085_CHIP_ID_REG;
-    if((twiExch(BMP085_ADDR, TW_WRITE, 1, &reg) != TW_SUCCESS) ||
-       (twiExch(BMP085_ADDR, TW_READ,  1, &reg) != TW_SUCCESS) ||
-       (reg != BMP085_CHIP_ID))
+    if((twimExch(BMP085_ADDR, (TWIM_READ | TWIM_WRITE), 1, 1, &reg) != 
+                                                                TW_SUCCESS) ||  // Communication error
+       (reg != BMP085_CHIP_ID))                                                 // Bad device ID
         return 0;
 
     // readout bmp085 calibparam structure
-    reg = BMP085_PROM_START__ADDR;
-    twiExch(BMP085_ADDR, TW_WRITE, 1, &reg);
-    twiExch(BMP085_ADDR, TW_READ,  22, (uint8_t *)&bmp085_calib);
+    bmp085_calib.ac1 = BMP085_PROM_START__ADDR;
+    twimExch(BMP085_ADDR, (TWIM_READ | TWIM_WRITE), 1, 22, (uint8_t *)&bmp085_calib);
 
     bmp085_stat = 0;
     bmp085_oldtemp = 0;

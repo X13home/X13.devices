@@ -2,7 +2,7 @@
 Copyright (c) 2011-2012 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-https://github.com/X13home
+http://X13home.github.com/
 
 BSD License
 See LICENSE.txt file for license details.
@@ -18,8 +18,6 @@ See LICENSE.txt file for license details.
 #define TWIM_WRITE      2           // Write Data
 #define TWIM_SEQ        4           // Sequential Read - Not send stop after write access.
 #define TWIM_BUSY       8           // Bus Busy
-
-#define TW_SEQUENTIAL   2                           // Not send Stop sequence.
 
 // Start TWI HAL
 #define twiSendStop()   TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO)
@@ -39,7 +37,7 @@ volatile static uint8_t twim_access;                // access mode & busy flag
 static uint8_t twim_bytes2write;                    // bytes to write
 static uint8_t twim_bytes2read;                     // bytes to read
 volatile static uint8_t * twim_ptr;                 // pointer to data buffer
-volatile static uint8_t twim_buf[4];                // temporary buffer
+static uint8_t twim_buf[4];                         // temporary buffer
 
 // Read/Write data from/to buffer
 static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf)
@@ -49,6 +47,8 @@ static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t rea
     twim_bytes2write = write; 
     twim_bytes2read = read;
     twim_ptr = pBuf;
+    
+    uint8_t pos;
 
     while(twim_access & (TWIM_WRITE | TWIM_READ))
     {
@@ -75,12 +75,10 @@ static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t rea
             return TWSR;                            // If NACK received return TWSR
         }
 
-        uint8_t pos, len;
         if(twim_access & TWIM_WRITE)
         {
-            len = twim_bytes2write;
             pos = 0;
-            while(len--)
+            while(pos < twim_bytes2write)
             {
                 // Send one byte to the bus.
                 TWDR = twim_ptr[pos++];
@@ -92,25 +90,28 @@ static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t rea
                     return TWSR;
                 }
             }
-            twim_access &= ~TWIM_WRITE;
+
             if(!(twim_access & TWIM_SEQ))
                 twiSendStop();                          // Send stop
+
+            twim_access &= ~(TWIM_WRITE | TWIM_SEQ);
         }
         else                    // Read
         {
-            len = twim_bytes2read;
             pos = 0;
-            while(len--)
+            while(pos < twim_bytes2read)
             {
                 // Wait for TWINT to receive one byte from the slave and send ACK. 
                 // If this is the last byte the master will send NACK to tell the slave 
                 //  that it shall stop transmitting.
-                TWCR = (1<<TWINT) | (1<<TWEN) | (len ? (1<<TWEA) : 0);
+                TWCR = (1<<TWINT) | (1<<TWEN) | ((pos + 1) < twim_bytes2read ? (1<<TWEA) : 0);
                 while(!(TWCR & (1<<TWINT)));            //  Wait for TWI interrupt flag set
                 twim_ptr[pos++] = TWDR;
             }
-            twim_access &= ~TWIM_READ;
+
             twiSendStop();                              // Send stop
+
+            twim_access &= ~TWIM_READ;
         }
     }
 
@@ -156,12 +157,13 @@ ISR(TWI_vect)
             }
             else    // End transmittion
             {
-                if(!(twim_access & TW_SEQUENTIAL))
+                if(!(twim_access & TWIM_SEQ))
                     TWCR = (1<<TWEN) |          // TWI Interface enabled
                            (1<<TWINT) |         // Disable TWI Interrupt and clear the flag
                            (1<<TWSTO);          // Initiate a STOP condition.
                            
-                twim_access &= ~TWIM_WRITE;
+                twim_access &= ~(TWIM_WRITE | TWIM_SEQ);
+
                 if(twim_access & TWIM_READ)
                     TWCR = (1<<TWEN) |          // TWI Interface enabled.
                       (1<<TWIE) | (1<<TWINT) |  // Enable TWI Interupt and clear the flag.
