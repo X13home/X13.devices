@@ -1,7 +1,7 @@
-X13.wireless
+X13.devices
 ===========
 
-Hardware and Firmware section for project X13.Home.
+Firmware section for project X13.Home.
 
 Automation System oriented to "Smart House" over MQTT(S) protocol
 
