@@ -5,8 +5,6 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Gateway", "Gateway.cproj", 
 EndProject
 Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Node", "Node.cproj", "{54A3F7EA-E736-4581-B2A7-C7ABE20F5E56}"
 EndProject
-Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "TestRF", "TestRF.cproj", "{889AA70D-A525-46DB-9656-3F104F1C759F}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		JeeNode|AVR = JeeNode|AVR
@@ -26,12 +24,6 @@ Global
 		{54A3F7EA-E736-4581-B2A7-C7ABE20F5E56}.panSTamp|AVR.Build.0 = Node_PS|AVR
 		{54A3F7EA-E736-4581-B2A7-C7ABE20F5E56}.uNode|AVR.ActiveCfg = Node_UN|AVR
 		{54A3F7EA-E736-4581-B2A7-C7ABE20F5E56}.uNode|AVR.Build.0 = Node_UN|AVR
-		{889AA70D-A525-46DB-9656-3F104F1C759F}.JeeNode|AVR.ActiveCfg = TestRF_JN|AVR
-		{889AA70D-A525-46DB-9656-3F104F1C759F}.JeeNode|AVR.Build.0 = TestRF_JN|AVR
-		{889AA70D-A525-46DB-9656-3F104F1C759F}.panSTamp|AVR.ActiveCfg = TestRF_PS|AVR
-		{889AA70D-A525-46DB-9656-3F104F1C759F}.panSTamp|AVR.Build.0 = TestRF_PS|AVR
-		{889AA70D-A525-46DB-9656-3F104F1C759F}.uNode|AVR.ActiveCfg = TestRF_UN|AVR
-		{889AA70D-A525-46DB-9656-3F104F1C759F}.uNode|AVR.Build.0 = TestRF_UN|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

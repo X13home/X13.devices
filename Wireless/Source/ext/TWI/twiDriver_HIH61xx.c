@@ -2,7 +2,7 @@
 Copyright (c) 2011-2012 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-https://github.com/X13home
+http://X13home.github.com/
 
 BSD License
 See LICENSE.txt file for license details.
@@ -39,24 +39,23 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
 {
     if(hih61xx_stat == 0)  // Start Conversion
     {
-        if(twi_bus_busy)
+        if(twim_access)
             return 0;
         hih61xx_stat = 1;
-        twi_bus_busy = 1;
-        twiExch_ISR(HIH61XX_TWI_ADDR, TW_WRITE, 0);
+        twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_WRITE), 0, 0, NULL);
     }
     // !!Conversion Time > 35 mS
     else if(hih61xx_stat == 4)
-        twiExch_ISR(HIH61XX_TWI_ADDR, TW_READ, 4);
+        twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_READ), 0, 4, (uint8_t *)twim_buf);
     else if(hih61xx_stat == 5)
     {
-        if((twi_trv_buf[0] & 0xC0) != 0)   // data invalid
+        if((twim_buf[0] & 0xC0) != 0)   // data invalid
         {
             hih61xx_stat--;
             return 0;
         }
         
-        uint16_t temp = ((((uint16_t)twi_trv_buf[2])<<6) | (twi_trv_buf[3]>>2)) & 0x3FFF;
+        uint16_t temp = ((((uint16_t)twim_buf[2])<<6) | (twim_buf[3]>>2)) & 0x3FFF;
         temp = ((uint32_t)temp * 825)>>13;
         temp -= 400;
         if(temp != hih61xx_oldtemp)
@@ -75,9 +74,9 @@ static uint8_t twi_HIH61xx_Pool2(subidx_t * pSubidx)
 {
     if(hih61xx_stat == 7)
     {
-        twi_bus_busy = 0;
+        twim_access = 0;        // Bus Free
         hih61xx_stat++;
-        uint16_t humi = (((uint16_t)twi_trv_buf[0]<<4) | (twi_trv_buf[1]>>4)) & 0x3FF;
+        uint16_t humi = (((uint16_t)twim_buf[0]<<4) | (twim_buf[1]>>4)) & 0x3FF;
         humi++;
         humi *= 25;
         uint8_t tmp = humi>>8;
@@ -92,7 +91,7 @@ static uint8_t twi_HIH61xx_Pool2(subidx_t * pSubidx)
 
 static uint8_t twi_HIH61xx_Config(void)
 {
-    if(twiExch(HIH61XX_TWI_ADDR, TW_WRITE, 0, NULL) != TW_SUCCESS)
+    if(twimExch(HIH61XX_TWI_ADDR, TWIM_WRITE, 0, 0, NULL) != TW_SUCCESS)    // Communication error
         return 0;
 
     hih61xx_stat = 0;
