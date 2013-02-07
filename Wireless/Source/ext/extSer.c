@@ -1,10 +1,10 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-https://github.com/X13home
+http://X13home.github.com
 
-BSD License
+BSD New License
 See LICENSE.txt file for license details.
 */
 
@@ -15,14 +15,14 @@ static uint8_t serCurrSpeed;
 #ifdef EXTSER_TX_USED
 // TX Section
 static uint8_t serTxBuf[MQTTS_MSG_SIZE];        // Tx Buffer
-volatile static uint8_t serTxPos;               // Current Tx position
-volatile static uint8_t serTxLen;               // Bytes to send
+static uint8_t serTxPos;                        // Current Tx position
+static uint8_t serTxLen;                        // Bytes to send
 #endif  //  EXTSER_TX_USED
 #ifdef  EXTSER_RX_USED
 // RX Section
 static uint8_t serRxPosOld;                     // Old Rx Position
 volatile static uint8_t serRxPos;               // Current Rx position
-volatile static uint8_t serRxBuf[MQTTS_MSG_SIZE];        // Rx Buffer
+static uint8_t serRxBuf[MQTTS_MSG_SIZE];        // Rx Buffer
 #endif  //  EXTSER_RX_USED
 
 #define SER_MAX_BASE            4

@@ -1,10 +1,10 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com/
+http://X13home.github.com
 
-BSD License
+BSD New License
 See LICENSE.txt file for license details.
 */
 
@@ -39,7 +39,7 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
 {
     if(hih61xx_stat == 0)  // Start Conversion
     {
-        if(twim_access)
+        if(twim_access & TWIM_BUSY)
             return 0;
         hih61xx_stat = 1;
         twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_WRITE), 0, 0, NULL);

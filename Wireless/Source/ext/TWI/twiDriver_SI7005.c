@@ -1,10 +1,10 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com/
+http://X13home.github.com
 
-BSD License
+BSD New License
 See LICENSE.txt file for license details.
 */
 
@@ -58,7 +58,7 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
     switch(si7005_stat)
     {
         case 0:
-            if(twim_access)
+            if(twim_access & TWIM_BUSY)
                 return 0;
             si7005_stat = 1;
         case 1:             // Start Conversion, Temperature

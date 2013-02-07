@@ -1,17 +1,17 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com/
+http://X13home.github.com
 
-BSD License
+BSD New License
 See LICENSE.txt file for license details.
 */
 
 // TWI Driver LM75, Temperature
 
 // Outs
-// Tw(addr) ADC Register
+// Tw(addr | pos) ADC Register (Temp * 256)
 
 #define LM75_START_ADDR             0x48
 #define LM75_STOP_ADDR              0x4F
@@ -47,79 +47,36 @@ static uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 
 static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
 {
-    uint8_t  * pStat;
-    pStat = &lm75_stat[pSubidx->Base & (LM75_MAX_DEV - 1)];
+    uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
 
-    switch(*pStat)
+    switch(lm75_stat[base])
     {
         case 0:
-            if(twim_access)
+            if(twim_access & TWIM_BUSY)
                 return 0;
-            *pStat = 1;
+            lm75_stat[base] = 1;
+        case 1:
+            twim_buf[0] = LM75_REG_TEMP;
+            twimExch_ISR(lm75_addr[base], (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 2,
+                                                                    (uint8_t *)twim_buf);
             break;
-    }
-
-    *pStat++;
-    return 0;
-
-/*
-    switch(si7005_stat)
-    {
-        case 0:
-            if(twim_access)
-                return 0;
-            si7005_stat = 1;
-        case 1:             // Start Conversion, Temperature
-        case 6:
-            twim_buf[0] = SI7005_REG_CONFIG;
-            twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE);
-            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
-            break;
-        // !! Conversion Time 35mS - Normal / 18 mS - Fast
-        case 4:     // Read Busy Flag
-        case 9:
-        case 14:
-            twim_buf[0] = SI7005_REG_STATUS;
-            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 1, 
-                         (uint8_t *)twim_buf);
-            break;
-        case 5:
-        case 10:
-        case 15:
-            if(twim_buf[0] & SI7005_STATUS_NOT_READY)           // Busy
+        case 2:
             {
-                si7005_stat--;
-                return 0;
-            }
-            // Read Data
-            twim_buf[0] = SI7005_REG_DATA;
-            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 2, 
-                         (uint8_t *)twim_buf);
-            break;
-        case 11:                                                // Calculate & test temperature
-            {
-            uint16_t val = ((uint16_t)twim_buf[0]<<5) | (twim_buf[1]>>3);
+            uint16_t val = ((uint16_t)twim_buf[0]<<8) | (twim_buf[1]);
+            twim_access = 0;        // Bus Free
 
-            // Start Conversion, Humidity
-            twim_buf[0] = SI7005_REG_CONFIG;
-            twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
-            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
-
-            val *= 5;
-            val >>=3;
-            val -= 500;
-            if(val != si7005_oldTemp)
+            if(val != lm75_oldVal[base])
             {
-                si7005_oldTemp = val;
-                si7005_stat++;
+                lm75_oldVal[base] = val;
+                lm75_stat[base]++;
                 return 1;
             }
             }
             break;
     }
 
-    twim_access = 0;        // Bus Free
-*/
+    lm75_stat[base]++;
+    return 0;
 }
 
 static uint8_t twi_LM75_Config(void)
@@ -135,23 +92,25 @@ static uint8_t twi_LM75_Config(void)
 
     index.sidx.Place = objTWI;                      // Object TWI
     index.sidx.Type =  objInt16;                    // Variables Type -  Int16
-    
+
     while((addr <= LM75_STOP_ADDR) && (pos < LM75_MAX_DEV))
     {
-        if(twimExch(addr, TWIM_WRITE, 0, 0, NULL) == TW_SUCCESS)
+        twim_buf[0] = LM75_REG_CONF;
+        twim_buf[1] = 0;    
+
+        if(twimExch(addr, TWIM_WRITE, 2, 0, twim_buf) == TW_SUCCESS)
         {
             lm75_stat[pos] = 0x80;
             lm75_addr[pos] = addr;
             lm75_oldVal[pos] = 0;
-            
+
             // Register variable
-            index.sidx.Base = ((uint16_t)addr<<8);  // Device addr
+            index.sidx.Base = ((uint16_t)addr<<8) | pos;
             if(RegistIntOD(&index) != MQTTS_RET_ACCEPTED)
                 break;
             pos++;
         }
         addr++;
     }
-
     return pos;
 }

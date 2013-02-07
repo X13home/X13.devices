@@ -1,23 +1,23 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-https://github.com/X13home
+http://X13home.github.com
 
-BSD License
+BSD New License
 See LICENSE.txt file for license details.
 */
 
 // Extensions - Analog Inputs
 
-volatile static uint8_t aiBase[EXTAI_MAXPORT_NR];
+static uint8_t aiBase[EXTAI_MAXPORT_NR];
 static uint8_t aiTimeout[EXTAI_MAXPORT_NR];
 static uint16_t aiOldVal[EXTAI_MAXPORT_NR];
-volatile static uint16_t aiActVal[EXTAI_MAXPORT_NR];
+static uint16_t aiActVal[EXTAI_MAXPORT_NR];
 
 static uint16_t ai_busy_mask;
-volatile static uint8_t ai_isPos, ai_isCnt;
-volatile static uint16_t ai_Summ;
+static uint8_t ai_isPos, ai_isCnt;
+static uint16_t ai_Summ;
 
 static uint16_t aiApin2Mask(uint8_t apin)
 {

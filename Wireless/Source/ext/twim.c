@@ -1,10 +1,10 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com/
+http://X13home.github.com
 
-BSD License
+BSD New License
 See LICENSE.txt file for license details.
 */
 
@@ -14,30 +14,21 @@ See LICENSE.txt file for license details.
 
 #define TW_SUCCESS      0xFF
 
-#define TWIM_READ       1           // Read Data
-#define TWIM_WRITE      2           // Write Data
-#define TWIM_SEQ        4           // Sequential Read - Not send stop after write access.
-#define TWIM_BUSY       8           // Bus Busy
+#define TWIM_READ       1               // Read Data
+#define TWIM_WRITE      2               // Write Data
+#define TWIM_SEQ        4               // Sequential Read - Not send stop after write access.
+#define TWIM_BUSY       8               // Bus Busy
 
 // Start TWI HAL
 #define twiSendStop()   TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO)
 
 // Local Variables
-/*
-static uint8_t twi_trv_addr;
-static uint8_t twi_trv_access;
-static uint8_t twi_trv_len;
-volatile uint8_t twi_trv_buf[4];
-
-static uint8_t twi_bus_busy;
-*/
-/// new version
-static uint8_t twim_addr;                           // Device address
-volatile static uint8_t twim_access;                // access mode & busy flag
-static uint8_t twim_bytes2write;                    // bytes to write
-static uint8_t twim_bytes2read;                     // bytes to read
-volatile static uint8_t * twim_ptr;                 // pointer to data buffer
-static uint8_t twim_buf[4];                         // temporary buffer
+static uint8_t twim_addr;               // Device address
+volatile static uint8_t twim_access;    // access mode & busy flag
+static uint8_t twim_bytes2write;        // bytes to write
+static uint8_t twim_bytes2read;         // bytes to read
+volatile static uint8_t * twim_ptr;     // pointer to data buffer
+static uint8_t twim_buf[4];             // temporary buffer
 
 // Read/Write data from/to buffer
 static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf)
@@ -84,7 +75,9 @@ static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t rea
                 TWDR = twim_ptr[pos++];
                 TWCR = (1<<TWINT) | (1<<TWEN);          //  Clear int flag to send byte
                 while(!(TWCR & (1<<TWINT)));            //  Wait for TWI interrupt flag set
-                if(TWSR != TW_MT_DATA_ACK)              //  If NACK received return TWSR
+
+                if((pos < twim_bytes2write) &&          // Not Last Byte
+                    (TWSR != TW_MT_DATA_ACK))           //  If NACK received return TWSR
                 {
                     twiSendStop();                      // Send stop
                     return TWSR;
@@ -216,6 +209,10 @@ ISR(TWI_vect)
 #include "twi/twiDriver_SI7005.c"
 #endif  //  TWI_USE_SI7005
 
+#ifdef TWI_USE_LM75
+#include "twi/twiDriver_LM75.c"
+#endif  //  TWI_USE_LM75
+
 static void twiClean()
 {
     twim_access = 0;
@@ -248,6 +245,9 @@ static void twiConfig(void)
 #endif
 #ifdef TWI_USE_SI7005
     cnt += twi_SI7005_Config();
+#endif
+#ifdef TWI_USE_LM75
+    cnt += twi_LM75_Config();
 #endif
 
     if(cnt == 0)

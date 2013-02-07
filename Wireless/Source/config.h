@@ -1,10 +1,10 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-https://github.com/X13home
+http://X13home.github.com
 
-BSD License
+BSD New License
 See LICENSE.txt file for license details.
 */
 
@@ -73,18 +73,18 @@ See LICENSE.txt file for license details.
 #define RF_TX_POOL_SIZE         4
 //#define RF_BASE_FREQ            433920000UL
 #define RF_BASE_FREQ            868300000UL
-//#define RF_BASE_FREQ            868950000UL
+//#define RF_BASE_FREQ            869000000UL
 //#define RF_BASE_FREQ            915000000UL
 
 // Gateway UART Section
-#define UART_RX_QUEUE_SIZE      4       // receive buffers
 #define UART_TX_QUEUE_SIZE      4       // send buffers
 
 // TWI Section
 // TWI Drivers
 //#define TWI_USE_BMP085          1       // TWI Driver Bosh BMP085 - Temperature/Pressure
-#define TWI_USE_HIH61XX         1       // TWI Driver Honeywell HIH-61xx - Temperature/Humidity
-#define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
+//#define TWI_USE_HIH61XX         1       // TWI Driver Honeywell HIH-61xx - Temperature/Humidity
+//#define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
+#define TWI_USE_LM75            1       // TWI Driver, LM75 - Temperature
 //End TWI Section
 
 #if (defined UNODE)

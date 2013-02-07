@@ -1,10 +1,10 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-https://github.com/X13home
+http://X13home.github.com
 
-BSD License
+BSD New License
 See LICENSE.txt file for license details.
 */
 
@@ -79,7 +79,7 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
     switch(bmp085_stat)
     {
         case 0:
-            if(twim_access)
+            if(twim_access & TWIM_BUSY)
                 return 0;
             bmp085_stat = 1;
         case 1:             // Start dummy Conversion, Temperature
