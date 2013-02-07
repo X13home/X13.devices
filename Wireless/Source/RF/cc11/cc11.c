@@ -18,16 +18,14 @@ See LICENSE.txt file for license details.
 #define CC11_RF_POWER   0x50
 
 // Constants
-static uint8_t  cc11s_Channel = 0xFF;
-static uint16_t cc11s_Group = 0;
-static uint8_t  cc11s_NodeID = 0;
+static uint8_t              cc11s_Channel = 0xFF;
+static uint16_t             cc11s_Group = 0;
+static uint8_t              cc11s_NodeID = 0;
 // ISR Variables
-volatile static uint8_t     cc11v_State;                    // Internal State
-volatile static uint8_t     cc11v_rxHead;
-         static uint8_t     cc11v_rxTail;
-volatile static uint8_t   * cc11v_pRxBuf[RF_RX_BUF_SIZE];   // Pointers to received data
+volatile static uint8_t     cc11v_State;        // Internal State
+volatile static uint8_t   * cc11v_pRxBuf;       // Pointer to received data
 #ifdef RF_USE_RSSI
-volatile static uint8_t     cc11v_RSSI;         // Actual RSSI
+static uint8_t              cc11v_RSSI;         // Actual RSSI
 #endif  //  RF_USE_RSSI
 // Pool variables
 static uint8_t              cc11v_ChanBusy;
@@ -41,11 +39,7 @@ const PROGMEM uint8_t cc11config[][2] =
     {CC11_IOCFG0,   CC11_GDO_SYNC},     // GDO0 - Asserts when sync word has been sent/received, and de-asserts at the end of the packet.
     {CC11_FIFOTHR,  0x47},              // ADC_RETENTION, RX Attenuation: 0 dB, FIFO Threshold 33/32 bytes 
     {CC11_PKTLEN,   0x3D},              // default packet length 61 byte
-#ifndef RF_MONITOR
     {CC11_PKTCTRL1, 0x06},              // Append Status, Check Address and Broadcast
-#else   //  RF_MONITOR
-    {CC11_PKTCTRL1, 0x04},              // Append Status, No adress check
-#endif  //  RF_MONITOR    
     {CC11_PKTCTRL0, 0x05},              // CRC calculation: enable, variable packet length
     {CC11_FSCTRL1,  0x06},              // IF = 152,3 kHz
     {CC11_FREQ2,    CC11_DEFVAL_FREQ2}, // Set default carrier frequency
@@ -188,11 +182,7 @@ ISR(RF_INT_vect)
                     (tmp & 0x80) ||                             // or Overflow
                     (tmp > (MQTTS_MSG_SIZE + 3)))               // or Packet is too Big
                     break;
-#ifndef RF_MONITOR
                 frameLen -= 4;
-#else   //  RF_MONITOR
-                frameLen -= 1;
-#endif  //  RF_MONITOR
                 uint8_t * pTmp;
                 pTmp = (uint8_t *)mqAssert();
                 if(pTmp == NULL)                                // No Memory
@@ -203,12 +193,8 @@ ISR(RF_INT_vect)
                 RF_WAIT_LOW_MISO();                             // Wait until MISO goes low
                 RF_SPI_DATA = CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO;
                 while(RF_SPI_BISY);
-#ifndef RF_MONITOR
                 cc11_spiExch(0);                                // Read Length
                 cc11_spiExch(0);                                // Read Destination addr
-#else   //  RF_MONITOR
-                frameLen--;
-#endif  //  RF_MONITOR
                 for(i = 0; i < frameLen; i++)                   // Read Payload
                 {
                     tmp = cc11_spiExch(0);
@@ -219,42 +205,16 @@ ISR(RF_INT_vect)
                 i = cc11_spiExch(0);                            // Read LQI 
                 RF_RELEASE();                                   // Release CC1101
                 
-                uint8_t tmpHead;
-                tmpHead = cc11v_rxHead + 1;
-                if(tmpHead >= RF_RX_BUF_SIZE)
-                    tmpHead -= RF_RX_BUF_SIZE;
-
-#ifndef RF_MONITOR
-                if((i & CC11_LQI_CRC_OK) &&                     // is CRC Ok ?
-                   (tmpHead != cc11v_rxTail))                   // buffer not overfloved
+                if(i & CC11_LQI_CRC_OK)                         // is CRC Ok ?
                 {
                     //cc11v_Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);    // int8_t frequency offset
 #ifdef RF_USE_RSSI
                     cc11v_RSSI = tmp;
 #endif  //  RF_USE_RSSI
-
-                    cc11v_pRxBuf[cc11v_rxHead] = pTmp;
-                    cc11v_rxHead = tmpHead;
+                    cc11v_pRxBuf = pTmp;
                 }
                 else
-                    mqRelease((MQ_t *)pTmp);                    // Bad CRC or overflow
-#else   //  RF_MONITOR
-                if(i & CC11_LQI_CRC_OK)                         // is CRC Ok ?
-                {
-                    //cc11v_Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);    // int8_t frequency offset
-                    pTmp[frameLen] = 0x80;
-                }
-                else
-                    pTmp[frameLen] = 0x00;
-
-#ifdef RF_USE_RSSI
-                cc11v_RSSI = tmp;
-#endif  //  RF_USE_RSSI
-                pTmp[0]++;
-                cc11v_pRxBuf[cc11v_rxHead] = pTmp;
-                cc11v_rxHead = tmpHead;
-                break;
-#endif  //  RF_MONITOR
+                    mqRelease((MQ_t *)pTmp);                    // Bad CRC
             }
             break;
         case RF_TRVTXHDR:
@@ -335,11 +295,9 @@ void rf_Initialize(void)
 
     // Init Internal variables
     cc11v_State = RF_TRVIDLE;
-    cc11v_rxHead = 0;
-    cc11v_rxTail = 0;
+    cc11v_pRxBuf = NULL;
     cc11v_txHead = 0;
     cc11v_txTail = 0;
-    
     cc11v_ChanBusy = 0;
 
     RF_ENABLE_IRQ();                        // configure interrupt controller
@@ -372,12 +330,11 @@ uint8_t rf_GetRSSI(void)
 
 uint8_t * rf_GetBuf(void)
 {
-    if(cc11v_rxHead == cc11v_rxTail)
+    if(cc11v_pRxBuf == NULL)
         return NULL;
-    
-    uint8_t * pRet = (uint8_t *)cc11v_pRxBuf[cc11v_rxTail++];
-    if(cc11v_rxTail >= RF_RX_BUF_SIZE)
-        cc11v_rxTail -= RF_RX_BUF_SIZE;
+
+    uint8_t * pRet = (uint8_t *)cc11v_pRxBuf;
+    cc11v_pRxBuf = NULL;
     return pRet;
 }
 
@@ -388,8 +345,8 @@ uint8_t rf_GetNodeID(void)
 
 void rf_Send(uint8_t * pBuf)
 {
-    if((cc11v_txTail == cc11v_txHead) &&                        // Buffer is empty
-       (cc11v_State == RF_TRVRXIDLE) &&                     // State is RxIdle
+    if((cc11v_txTail == cc11v_txHead) &&                                            // Buffer is empty
+       (cc11v_State == RF_TRVRXIDLE) &&                                             // State is RxIdle
        (cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA))  // Channel Clear
     {
         cc11_send(pBuf);

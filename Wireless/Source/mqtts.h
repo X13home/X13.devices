@@ -370,10 +370,6 @@ typedef struct
 
 typedef struct
 {
-#ifdef RF_MONITOR
-    uint8_t         len;
-    uint8_t         dest;
-#endif
     uint8_t         addr;
     MQTTS_MESSAGE_t mq;
 }MQ_t;

@@ -1,0 +1,12 @@
+Version 2.3
+7.Feb.2013
+
+Optimized data, removed unnecessary volatile variables.
+Changed TWI API
+Added TWI driver LM75
+Removed Test_RF Project and test options
+
+====================================================================================================
+
+Version 2.2
+Public Release.
