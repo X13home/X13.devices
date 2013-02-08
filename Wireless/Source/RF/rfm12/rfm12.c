@@ -16,19 +16,15 @@ static uint16_t             rfm12s_Group = 0;
 static uint8_t              rfm12s_NodeID = 0;
 
 // ISR Section
-volatile static uint8_t     rfm12v_RfLen;       // Packet Length
-volatile static uint16_t    rfm12v_RfCRC;       // actual CRC
-volatile static uint8_t   * rfm12v_pRfBuf;      // RF buffer
-volatile static uint8_t     rfm12v_Pos;         // Position
+static uint8_t              rfm12v_RfLen;       // Packet Length
+static uint8_t            * rfm12v_pRfBuf;      // RF buffer
+static uint8_t              rfm12v_Pos;         // Position
 
 // Process variables
 volatile static uint8_t     rfm12v_State;       // Actual Status
-    
-// Pool variables
-volatile static uint8_t     rfm12v_rxHead;
-static uint8_t              rfm12v_rxTail;
-volatile static uint8_t   * rfm12v_pRxBuf[RF_RX_BUF_SIZE];
+volatile static uint8_t   * rfm12v_pRxBuf;      // The received data
 
+// Pool variables
 static uint8_t              rfm12v_ChanBusy;
 static uint8_t              rfm12v_txHead;
 static uint8_t              rfm12v_txTail;
@@ -97,7 +93,7 @@ static uint8_t rfm12_get_fifo(void)
 }
 
 // Switch to TX State
-static void rfm12_send(volatile uint8_t * pBuf)
+static void rfm12_send(uint8_t * pBuf)
 {
     TxLEDon();
     rfm12_control(RFM12_IDLE_MODE);
@@ -114,6 +110,8 @@ ISR(RF_INT_vect)
 {
     if(RF_STAT_IRQ)                         // Pin Change Interrupt, activated on BOTH edges
         return;
+        
+    static uint16_t    rfm12v_RfCRC;       // actual CRC
         
     uint16_t intstat = rfm12_get_status();
     uint8_t ch;
@@ -137,18 +135,12 @@ ISR(RF_INT_vect)
                 rfm12v_RfCRC = 0xFFFF;
                 rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
                 rfm12v_State = RF_TRVRXHDR;
-#ifndef RF_MONITOR
                 rfm12v_RfLen = ch - 1;      // Packet length(hdr + data), w/o CRC
-#else   //  RF_MONITOR
-                rfm12v_RfLen = ch + 1;
-#endif  //  RF_MONITOR
                 rfm12v_Pos = 0;
                 return;
             case RF_TRVRXHDR:               // Destination Addr
                 ch = rfm12_get_fifo();
-#ifndef RF_MONITOR
                 if((ch == 0) || (ch == rfm12s_NodeID))
-#endif
                 {
                     uint8_t * pTmp;
                     pTmp = (uint8_t *)mqAssert();
@@ -156,10 +148,6 @@ ISR(RF_INT_vect)
                         break;
 
                     rfm12v_pRfBuf = pTmp;
-#ifdef RF_MONITOR
-                    rfm12v_pRfBuf[rfm12v_Pos++] = rfm12v_RfLen;
-                    rfm12v_pRfBuf[rfm12v_Pos++] = ch;
-#endif  //  RF_MONITOR
                     RxLEDon();
                     rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
                     rfm12v_State = RF_TRVRXDATA;
@@ -192,33 +180,13 @@ ISR(RF_INT_vect)
                     if(ch == bTmp)
                     {
 //                        rfm12v_Foffs = (uint8_t)(intstat & 0x1F)<<3;	// int8_t frequency offset
-#ifdef RF_MONITOR
-                        rfm12v_pRfBuf[--rfm12v_Pos] = 0x80;  // CRC Ok
-#endif  //  RF_MONITOR
-
-                        rfm12v_pRxBuf[rfm12v_rxHead] = rfm12v_pRfBuf;
-                        rfm12v_rxHead++;
-                        if(rfm12v_rxHead >= RF_RX_BUF_SIZE)
-                            rfm12v_rxHead -=RF_RX_BUF_SIZE;
+                        rfm12v_pRxBuf = rfm12v_pRfBuf;
                         break;
                     }
-#ifndef RF_MONITOR
                 }
                 // Bad CRC
                 mqRelease((MQ_t *)rfm12v_pRfBuf);
                 break;
-#else   //  RF_MONITOR
-                    rfm12v_Pos--;
-                }
-                rfm12v_pRfBuf[rfm12v_Pos] = 0;      // Bad CRC
-
-                rfm12v_pRxBuf[rfm12v_rxHead] = rfm12v_pRfBuf;
-                rfm12v_rxHead++;
-                if(rfm12v_rxHead >= RF_RX_BUF_SIZE)
-                    rfm12v_rxHead -=RF_RX_BUF_SIZE;
-
-                break;
-#endif  //  RF_MONITOR
                 // End Rx Section
                 // Start Tx Section
             case RF_TRVTXHDR:
@@ -382,8 +350,8 @@ void rf_Initialize(void)
     rfm12v_State = RF_TRVIDLE;
     rfm12_control(RFM12_IDLE_MODE);
     
-    rfm12v_rxHead = 0;
-    rfm12v_rxTail = 0;
+    rfm12v_pRxBuf = NULL;
+
     rfm12v_txHead = 0;
     rfm12v_txTail = 0;
     rfm12v_ChanBusy = 0;
@@ -417,14 +385,11 @@ uint8_t rf_GetRSSI(void)
 // Get received data
 uint8_t * rf_GetBuf(void)
 {
-    if(rfm12v_rxHead == rfm12v_rxTail)
+    if(rfm12v_pRxBuf == NULL)
         return NULL;
-
-    uint8_t tmpTail = rfm12v_rxTail;
-    rfm12v_rxTail++;
-    if(rfm12v_rxTail >= RF_RX_BUF_SIZE)
-        rfm12v_rxTail -= RF_RX_BUF_SIZE;
-    return (uint8_t *)rfm12v_pRxBuf[tmpTail];
+    uint8_t * pRet =  (uint8_t  *)rfm12v_pRxBuf;
+    rfm12v_pRxBuf = NULL;
+    return pRet;
 }
 
 uint8_t rf_GetNodeID(void)

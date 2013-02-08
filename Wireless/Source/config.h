@@ -43,9 +43,6 @@ See LICENSE.txt file for license details.
 #define RF_USE_RSSI             1       // Get RSSI info, only for CC1101
 #define OD_DEFAULT_GROUP        0x2DD4  // Set RF default group(Synchro word)
 #define OD_DEFAULT_ADDR         0x07    // if defined, then use this default address, else: 0xFF - DHCP
-// Test option, do not use on a production system
-#define RF_MONITOR              0   // !! Used only with TestRF project. Set RF to Monitor mode
-#define RF_BEACON               1   // !! Used only with TestRF project. Enable Beacon
 
 // Extensions
 #define EXTDIO_USED             1       // Use Digital Inputs/Outputs
@@ -69,7 +66,6 @@ See LICENSE.txt file for license details.
 #define OD_DEFAULT_TASLEEP      0       // Sleep Time, default - always online.
 
 // RF Section
-#define RF_RX_BUF_SIZE          2
 #define RF_TX_POOL_SIZE         4
 //#define RF_BASE_FREQ            433920000UL
 #define RF_BASE_FREQ            868300000UL

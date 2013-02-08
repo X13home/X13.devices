@@ -35,7 +35,6 @@ See LICENSE.txt file for license details.
 
 // Process variables
 static uint8_t  lm75_stat[LM75_MAX_DEV];
-static uint8_t  lm75_addr[LM75_MAX_DEV];
 static int16_t  lm75_oldVal[LM75_MAX_DEV];
 
 static uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
@@ -57,7 +56,7 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
             lm75_stat[base] = 1;
         case 1:
             twim_buf[0] = LM75_REG_TEMP;
-            twimExch_ISR(lm75_addr[base], (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 2,
+            twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 2,
                                                                     (uint8_t *)twim_buf);
             break;
         case 2:
@@ -101,7 +100,6 @@ static uint8_t twi_LM75_Config(void)
         if(twimExch(addr, TWIM_WRITE, 2, 0, twim_buf) == TW_SUCCESS)
         {
             lm75_stat[pos] = 0x80;
-            lm75_addr[pos] = addr;
             lm75_oldVal[pos] = 0;
 
             // Register variable
