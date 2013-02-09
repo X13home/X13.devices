@@ -131,30 +131,32 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
 
 static uint8_t twi_BMP085_Pool2(subidx_t * pSubidx)
 {
+    uint32_t up, b4, b7;
+    int32_t b6, x1, x2, x3, b3, p;
+
     if(bmp085_stat == 13)
     {
         bmp085_stat++;
         twim_access = 0;    // Bus Free
         
-        uint32_t up = (((uint32_t)twim_buf[0]<<16) | ((uint32_t)twim_buf[1]<<8) |
+        up = (((uint32_t)twim_buf[0]<<16) | ((uint32_t)twim_buf[1]<<8) |
                        ((uint32_t)twim_buf[2]))>>(8-BMP085_OSS);
                        
-        int32_t b6 = bmp085_b5 - 4000;
+        b6 = bmp085_b5 - 4000;
         //  calculate B3
-        int32_t x1 = (b6 * b6)>>12;
+        x1 = (b6 * b6)>>12;
         x1 *= bmp085_calib.b2;
         x1 >>= 11;
-        int32_t x2 = bmp085_calib.ac2 * b6;
+        x2 = bmp085_calib.ac2 * b6;
         x2 >>= 11;
-        int32_t x3 = x1 + x2;
-        int32_t b3 = (((((int32_t)bmp085_calib.ac1) * 4 + x3) << BMP085_OSS) + 2) >> 2;
+        x3 = x1 + x2;
+        b3 = (((((int32_t)bmp085_calib.ac1) * 4 + x3) << BMP085_OSS) + 2) >> 2;
         // calculate B4
         x1 = (bmp085_calib.ac3 * b6) >> 13;
         x2 = (bmp085_calib.b1 * ((b6*b6) >> 12)) >> 16;
         x3 = ((x1 + x2) + 2) >> 2;
-        uint32_t b4 = (bmp085_calib.ac4 * (uint32_t)(x3 + 32768)) >> 15;
-        uint32_t b7 = ((uint32_t)(up - b3) * (50000>>BMP085_OSS));
-        int32_t p;
+        b4 = (bmp085_calib.ac4 * (uint32_t)(x3 + 32768)) >> 15;
+        b7 = ((uint32_t)(up - b3) * (50000>>BMP085_OSS));
         if(b7 < 0x80000000)
             p = (b7 << 1) / b4;
         else
