@@ -2,6 +2,8 @@ Version 2.3a
 
 Start OWI development
 
+RFM12 aggressive pool method
+
 ====================================================================================================
 
 Version 2.3

@@ -417,6 +417,7 @@ void rf_Send(uint8_t * pBuf)
         {
             rfm12v_pTxPool[rfm12v_txHead] = pBuf;
             rfm12v_txHead = tmpHead;
+            rfm12v_ChanBusy = (rfm12s_NodeID>>4) + 1;
         }
     }
 }
@@ -428,19 +429,14 @@ void rf_Pool(void)
         rf_Initialize();
     else if((rfm12v_State == RF_TRVRXIDLE) && (rfm12v_txTail != rfm12v_txHead))
     {
-        if(rfm12v_ChanBusy)
-        {
+        if((rfm12_get_status() & RFM12_STATUS_RSSI) && (rfm12v_ChanBusy != 0))
             rfm12v_ChanBusy--;
-        }
-        else if(rfm12_get_status() & RFM12_STATUS_RSSI)
-        {
-            rfm12v_ChanBusy = rfm12s_NodeID>>4;
-        }
         else
         {
             rfm12_send(rfm12v_pTxPool[rfm12v_txTail]);
             if(++rfm12v_txTail >= RF_TX_POOL_SIZE)
                 rfm12v_txTail -= RF_TX_POOL_SIZE;
+            rfm12v_ChanBusy = (rfm12s_NodeID>>4) + 1;
         }
     }
     else if(rfm12v_State == RF_TRVIDLE)
