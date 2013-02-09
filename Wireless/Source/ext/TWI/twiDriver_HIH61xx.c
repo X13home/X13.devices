@@ -98,26 +98,35 @@ static uint8_t twi_HIH61xx_Config(void)
     hih61xx_oldhumi = 0;
     hih61xx_oldtemp = 0;
 
-    indextable_t index;
     // Register variables
-    index.cbRead  =  &twi_HIH61xx_Read;
-    index.cbWrite =  NULL;
-    index.cbPool  =  &twi_HIH61xx_Pool1;
-
-    index.sidx.Place = objTWI;                  // Object TWI
-    index.sidx.Type =  objInt16;                // Variables Type -  UInt16
-    index.sidx.Base = (HIH61XX_TWI_ADDR<<8);    // Device addr
-    
-    if(RegistIntOD(&index) != MQTTS_RET_ACCEPTED)
+    indextable_t * pIndex1;
+    pIndex1 = getFreeIdxOD();
+    if(pIndex1 == NULL)
         return 0;
 
-    // Register variable 2
-    index.cbPool  =  &twi_HIH61xx_Pool2;
-    index.sidx.Type =  objUInt8;                // Variables Type -  UInt32
-    index.sidx.Base++;
+    pIndex1->Index = 0;
+    pIndex1->cbRead  =  &twi_HIH61xx_Read;
+    pIndex1->cbWrite =  NULL;
+    pIndex1->cbPool  =  &twi_HIH61xx_Pool1;
+    pIndex1->sidx.Place = objTWI;                   // Object TWI
+    pIndex1->sidx.Type =  objInt16;                 // Variables Type -  UInt16
+    pIndex1->sidx.Base = (HIH61XX_TWI_ADDR<<8);     // Device addr
 
-    if(RegistIntOD(&index) != MQTTS_RET_ACCEPTED)
+    indextable_t * pIndex2;
+    pIndex2 = getFreeIdxOD();
+    if(pIndex2 == NULL)
+    {
+        pIndex1->Index = 0xFFFF;                    // Free Index
         return 0;
+    }
+
+    pIndex2->Index = 0;
+    pIndex2->cbRead  =  &twi_HIH61xx_Read;
+    pIndex2->cbWrite =  NULL;
+    pIndex2->cbPool  =  &twi_HIH61xx_Pool2;
+    pIndex2->sidx.Place = objTWI;                   // Object TWI
+    pIndex2->sidx.Type =  objUInt8;
+    pIndex2->sidx.Base = (HIH61XX_TWI_ADDR<<8) + 1; // Device addr
 
     return 2;
 }

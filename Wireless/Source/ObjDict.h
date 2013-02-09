@@ -87,7 +87,8 @@ typedef struct
 void InitOD(void);
 void CleanOD(void);
 
-uint8_t RegistIntOD(indextable_t * pIdx);
+//uint8_t RegistIntOD(indextable_t * pIdx);
+indextable_t * getFreeIdxOD(void);
 uint8_t RegisterOD(MQ_t *pBuf);
 void RegAckOD(uint16_t index);
 

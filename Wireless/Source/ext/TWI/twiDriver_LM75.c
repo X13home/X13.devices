@@ -82,15 +82,8 @@ static uint8_t twi_LM75_Config(void)
 {
     uint8_t addr = LM75_START_ADDR;
     uint8_t pos = 0;
-
-    indextable_t index;
     
-    index.cbRead  =  &twi_lm75_Read;
-    index.cbWrite =  NULL;
-    index.cbPool  =  &twi_lm75_Pool;
-
-    index.sidx.Place = objTWI;                      // Object TWI
-    index.sidx.Type =  objInt16;                    // Variables Type -  Int16
+    indextable_t * pIndex;
 
     while((addr <= LM75_STOP_ADDR) && (pos < LM75_MAX_DEV))
     {
@@ -103,9 +96,18 @@ static uint8_t twi_LM75_Config(void)
             lm75_oldVal[pos] = 0;
 
             // Register variable
-            index.sidx.Base = ((uint16_t)addr<<8) | pos;
-            if(RegistIntOD(&index) != MQTTS_RET_ACCEPTED)
+            pIndex = getFreeIdxOD();
+            if(pIndex == NULL)
                 break;
+            
+            pIndex->Index = 0;
+            pIndex->cbRead  =  &twi_lm75_Read;
+            pIndex->cbWrite =  NULL;
+            pIndex->cbPool  =  &twi_lm75_Pool;
+            pIndex->sidx.Place = objTWI;                   // Object TWI
+            pIndex->sidx.Type =  objInt16;                 // Variables Type -  UInt16
+            pIndex->sidx.Base = ((uint16_t)addr<<8) | pos;
+
             pos++;
         }
         addr++;

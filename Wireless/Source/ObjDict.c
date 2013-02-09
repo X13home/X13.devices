@@ -57,31 +57,29 @@ const PROGMEM indextable_t listPredefOD[] =
 
 // Local Variables
 static indextable_t ListOD[OD_MAX_INDEX_LIST];                          // Object's List
+static indextable_t tObjectOD;                                          // Temporary Object
 static uint8_t idxUpdate, idxSubscr;                                    // Pool variable
 
 // Search Object by Index
-static uint8_t scanIndexOD(uint16_t index, uint8_t topic, indextable_t * pIndex)
+static indextable_t * scanIndexOD(uint16_t index, uint8_t topic)
 {
     uint16_t i = 0;
     if(topic == MQTTS_FL_TOPICID_NORM)
     {
         for(i = 0; (i < OD_MAX_INDEX_LIST) && (ListOD[i].Index != 0xFFFF) ; i++)
             if(ListOD[i].Index == index)
-            {
-                memcpy(pIndex, &ListOD[i], sizeof(indextable_t));
-                return 1;
-            }
+                return &ListOD[i]; 
     }
     else if(topic == MQTTS_FL_TOPICID_PREDEF)
     {
         for(i = 0; i < sizeof(listPredefOD)/sizeof(indextable_t); i++)
         {
-            memcpy_P(pIndex, &listPredefOD[i], sizeof(indextable_t));
-            if(pIndex->Index == index)
-                return 1;
+            memcpy_P(&tObjectOD, &listPredefOD[i], sizeof(indextable_t));
+            if(tObjectOD.Index == index)
+                return &tObjectOD;
         }
     }
-    return 0;
+    return NULL;
 }
 
 // delete object
@@ -208,20 +206,13 @@ void CleanOD(void)
 }
 
 // Register PnP objects
-uint8_t RegistIntOD(indextable_t * pIdx)
+indextable_t * getFreeIdxOD(void)
 {
     uint8_t id;
-    pIdx->Index = 0;        // Not registered
-
     for(id = 0; id < OD_MAX_INDEX_LIST; id++)
-    {
         if(ListOD[id].Index == 0xFFFF)
-        {
-            ListOD[id] = *pIdx;
-            return MQTTS_RET_ACCEPTED;
-        }
-    }
-    return MQTTS_RET_REJ_INV_ID;
+            return &ListOD[id];
+    return NULL;
 }
 
 uint8_t RegisterOD(MQ_t *pBuf)
@@ -317,22 +308,22 @@ void RegAckOD(uint16_t index)
 
 uint8_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf)
 {
-    indextable_t Index;
-    if(scanIndexOD(Id, Flags & MQTTS_FL_TOPICID_MASK, &Index) == 0)
+    indextable_t * pIndex = scanIndexOD(Id, Flags & MQTTS_FL_TOPICID_MASK);
+    if(pIndex == NULL)
         return MQTTS_RET_REJ_INV_ID;
-    if(Index.cbRead == NULL)
+    if(pIndex->cbRead == NULL)
         return MQTTS_RET_REJ_NOT_SUPP;
-    return (Index.cbRead)(&Index.sidx, pLen, pBuf);
+    return (pIndex->cbRead)(&pIndex->sidx, pLen, pBuf);
 }
 
 uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
 {
-    indextable_t Index;
-    if(scanIndexOD(Id, Flags & MQTTS_FL_TOPICID_MASK, &Index) == 0)
+    indextable_t * pIndex = scanIndexOD(Id, Flags & MQTTS_FL_TOPICID_MASK);
+    if(pIndex == NULL)
         return MQTTS_RET_REJ_INV_ID;
-    if(Index.cbWrite == NULL)
+    if(pIndex->cbWrite == NULL)
         return MQTTS_RET_REJ_NOT_SUPP;
-    return (Index.cbWrite)(&Index.sidx, Len, pBuf);
+    return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
 
 uint16_t PoolOD(void)
