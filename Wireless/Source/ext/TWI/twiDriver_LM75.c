@@ -47,6 +47,7 @@ static uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
 {
     uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
+    uint16_t val;
 
     switch(lm75_stat[base])
     {
@@ -60,17 +61,16 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
                                                                     (uint8_t *)twim_buf);
             break;
         case 2:
-            {
-            uint16_t val = ((uint16_t)twim_buf[0]<<8) | (twim_buf[1]);
-            twim_access = 0;        // Bus Free
+            val = ((uint16_t)twim_buf[0]<<8) | (twim_buf[1]);
+            lm75_stat[base]++;
 
             if(val != lm75_oldVal[base])
             {
                 lm75_oldVal[base] = val;
-                lm75_stat[base]++;
                 return 1;
             }
-            }
+        case 3:
+            twim_access = 0;        // Bus Free
             break;
     }
 

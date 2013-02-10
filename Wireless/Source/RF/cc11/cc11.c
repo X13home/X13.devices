@@ -116,7 +116,7 @@ static uint8_t cc11_readReg(uint8_t Addr)
 }
 
 // Send data
-static void cc11_send(volatile uint8_t * pBuf)
+static void cc11_send(uint8_t * pBuf)
 {
     TxLEDon();
     cc11_cmdStrobe(CC11_SIDLE);                     // Switch to Idle state
@@ -362,6 +362,7 @@ void rf_Send(uint8_t * pBuf)
         {
             cc11v_pTxPool[cc11v_txHead] = pBuf;
             cc11v_txHead = tmpHead;
+            cc11v_ChanBusy = (cc11s_NodeID>>4) + 1;
         }
     }
 }
@@ -370,19 +371,17 @@ void rf_Pool(void)
 {
     if((cc11v_State == RF_TRVRXIDLE) && (cc11v_txTail != cc11v_txHead)) // Send Buffer not empty
     {
-        if(cc11v_ChanBusy)
+        if(!(cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA) &&
+            (cc11v_ChanBusy != 0))
         {
             cc11v_ChanBusy--;
-        }
-        else if(!(cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA))
-        {
-            cc11v_ChanBusy = cc11s_NodeID>>4;
         }
         else
         {
             cc11_send(cc11v_pTxPool[cc11v_txTail]);
             if(++cc11v_txTail >= RF_TX_POOL_SIZE)
                 cc11v_txTail -= RF_TX_POOL_SIZE;
+            cc11v_ChanBusy = (cc11s_NodeID>>4) + 1;
         }
     }
     else if(cc11v_State == RF_TRVIDLE)

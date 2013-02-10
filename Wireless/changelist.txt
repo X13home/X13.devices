@@ -1,9 +1,7 @@
 Version 2.3a
 
-Start OWI development
-
-RFM12 aggressive pool method
-Object dictionary changes
+RF aggressive pool method
+Changed OD API
 
 ====================================================================================================
 
