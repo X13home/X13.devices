@@ -75,6 +75,15 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
 {
     uint16_t ut;
     int32_t x1,x2;
+
+    if(twim_access & TWIM_ERROR)
+    {
+        bmp085_stat = 0x80;
+        return 0;
+    }
+
+    if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
+        return 0;
     
     switch(bmp085_stat)
     {
@@ -137,11 +146,9 @@ static uint8_t twi_BMP085_Pool2(subidx_t * pSubidx)
     if(bmp085_stat == 13)
     {
         bmp085_stat++;
-        twim_access = 0;    // Bus Free
-        
         up = (((uint32_t)twim_buf[0]<<16) | ((uint32_t)twim_buf[1]<<8) |
                        ((uint32_t)twim_buf[2]))>>(8-BMP085_OSS);
-                       
+        twim_access = 0;    // Bus Free
         b6 = bmp085_b5 - 4000;
         //  calculate B3
         x1 = (b6 * b6)>>12;

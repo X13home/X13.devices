@@ -49,6 +49,15 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
     uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
     uint16_t val;
 
+    if(twim_access & TWIM_ERROR)
+    {
+        lm75_stat[base] = 0x80;
+        return 0;
+    }
+    
+    if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
+        return 0;
+
     switch(lm75_stat[base])
     {
         case 0:

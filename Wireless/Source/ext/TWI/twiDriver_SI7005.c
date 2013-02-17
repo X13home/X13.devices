@@ -44,7 +44,6 @@ static uint16_t si7005_oldHumi;
 
 static uint8_t twi_SI7005_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    
     *pLen = 2;
     if(pSubidx->Base & 1)   // Read Humidity
         *(uint16_t *)pBuf = si7005_oldHumi;
@@ -55,6 +54,15 @@ static uint8_t twi_SI7005_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 
 static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
 {
+    if(twim_access & TWIM_ERROR)
+    {
+        si7005_stat = 0x80;
+        return 0;
+    }
+    
+    if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
+        return 0;
+
     switch(si7005_stat)
     {
         case 0:
