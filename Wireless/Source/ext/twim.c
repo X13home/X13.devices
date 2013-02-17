@@ -18,6 +18,7 @@ See LICENSE.txt file for license details.
 #define TWIM_WRITE      2               // Write Data
 #define TWIM_SEQ        4               // Sequential Read - Not send stop after write access.
 #define TWIM_BUSY       8               // Bus Busy
+#define TWIM_ERROR      0x10            // Bus Error
 
 // Start TWI HAL
 #define twiSendStop()   TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO)
@@ -29,11 +30,13 @@ static uint8_t twim_bytes2write;        // bytes to write
 static uint8_t twim_bytes2read;         // bytes to read
 volatile static uint8_t * twim_ptr;     // pointer to data buffer
 static uint8_t twim_buf[4];             // temporary buffer
+static uint8_t twim_last_stat;          // Last ISR Status
+static uint8_t twim_busy_cnt;           // Bus busy & error counter
 
 // Read/Write data from/to buffer
 static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf)
 {
-    twim_addr = addr;
+    twim_addr = (addr<<1);
     twim_access = access;
     twim_bytes2write = write; 
     twim_bytes2read = read;
@@ -53,9 +56,9 @@ static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t rea
         }
 
         if(twim_access & TWIM_WRITE)
-            TWDR = (twim_addr<<1) | TW_WRITE;
+            TWDR = twim_addr | TW_WRITE;
         else
-            TWDR = (twim_addr<<1) | TW_READ;
+            TWDR = twim_addr | TW_READ;
 
         TWCR = (1<<TWINT) | (1<<TWEN);              // Clear int flag to send byte
         while(!(TWCR & (1<<TWINT)));                // Wait for TWI interrupt flag set
@@ -115,7 +118,10 @@ static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t rea
 // Read/Write data with ISR & callback functions
 static void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf)
 {
-    twim_addr = addr;
+    if(TWIM_ERROR & twim_access)
+        return;
+
+    twim_addr = (addr<<1);
     twim_access = access;
     twim_bytes2write = write; 
     twim_bytes2read = read;
@@ -129,15 +135,16 @@ static void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t re
 ISR(TWI_vect)
 {
     static uint8_t twi_ptr;
-    switch(TWSR)
+    twim_last_stat = TWSR;
+    switch(twim_last_stat)
     {
         case TW_START:                          // START has been transmitted  
         case TW_REP_START:                      // Repeated START has been transmitted
             twi_ptr = 0;
             if(twim_access & TWIM_WRITE)
-                TWDR = (twim_addr<<1) | TW_WRITE;
+                TWDR = twim_addr | TW_WRITE;
             else
-                TWDR = (twim_addr<<1) | TW_READ;
+                TWDR = twim_addr | TW_READ;
             TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT);
             break;
         case TW_MT_SLA_ACK:                     // SLA+W has been tramsmitted and ACK received
@@ -151,10 +158,8 @@ ISR(TWI_vect)
             else    // End transmittion
             {
                 if(!(twim_access & TWIM_SEQ))
-                    TWCR = (1<<TWEN) |          // TWI Interface enabled
-                           (1<<TWINT) |         // Disable TWI Interrupt and clear the flag
-                           (1<<TWSTO);          // Initiate a STOP condition.
-                           
+                    twiSendStop();
+
                 twim_access &= ~(TWIM_WRITE | TWIM_SEQ);
 
                 if(twim_access & TWIM_READ)
@@ -176,23 +181,23 @@ ISR(TWI_vect)
             {
                 TWCR = (1<<TWEN) |              // TWI Interface enabled
                        (1<<TWIE) | (1<<TWINT);  // Enable TWI Interupt and clear the flag to read next byte
-            }    
-            break; 
+            }
+            break;
         case TW_MR_DATA_NACK:                   // Data byte has been received and NACK tramsmitted
             twim_ptr[twi_ptr++] = TWDR;
-            TWCR = (1<<TWEN) |                  // TWI Interface enabled
-                   (1<<TWINT) |                 // Disable TWI Interrupt and clear the flag
-                   (1<<TWSTO);                  // Initiate a STOP condition.
+            twiSendStop();
             twim_access &= ~TWIM_READ;
             break;
         case TW_MR_ARB_LOST:                    // Arbitration lost
             TWCR = (1<<TWEN) |                  // TWI Interface enabled
                    (1<<TWIE) | (1<<TWINT) |     // Enable TWI Interupt and clear the flag
                    (1<<TWSTA);                  // Initiate a (RE)START condition.
+            
             break;
         default:                                // Bus error
             TWCR = (1<<TWEN);                   // Enable TWI-interface and release TWI pins
                                                 // Disable Interupt
+            twim_access |= TWIM_ERROR;
     }
 }
 // End TWI HAL
@@ -216,6 +221,40 @@ ISR(TWI_vect)
 static void twiClean()
 {
     twim_access = 0;
+    twim_busy_cnt = 0;
+    twim_last_stat = 0;
+}
+
+static uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+{
+    *pLen = 1;
+    *pBuf = twim_last_stat;
+    return MQTTS_RET_ACCEPTED;
+}
+
+static uint8_t twim_pool(subidx_t * pSubidx)
+{
+    if(twim_access == 0)
+    {
+        twim_busy_cnt = 0;
+        return 0;
+    }
+
+    twim_busy_cnt++;
+    if(twim_busy_cnt == 0x80)   // bus busy too long
+    {
+        twim_access = TWIM_ERROR;
+        twiSendStop();
+        return 1;
+    }
+    else if(twim_busy_cnt == 0)
+    {
+        twim_last_stat = 0;
+        twim_access = 0;
+        return 1;
+    }
+
+    return 0;
 }
 
 // Check & configure TWI devices
@@ -233,9 +272,17 @@ static void twiConfig(void)
 
     TWI_ENABLE();
     
-    twim_access = 0;
-
+    twiClean();
+    
     uint8_t cnt = 0;
+    
+    indextable_t * pIndex;
+    
+    pIndex = getFreeIdxOD();
+    if(pIndex == NULL)
+        return;
+
+    pIndex->Index = 0;
 
 #ifdef TWI_USE_BMP085
     cnt += twi_BMP085_Config();
@@ -252,15 +299,24 @@ static void twiConfig(void)
 
     if(cnt == 0)
     {
+        pIndex->Index = 0xFFFF;
         TWI_DISABLE();
         return;
     }
 
-    indextable_t idx;
-    idx.sidx.Place = objDin;
-    idx.sidx.Type = objPinPNP;
-    idx.sidx.Base = TWI_PIN_SDA;
-    dioRegisterOD(&idx);
-    idx.sidx.Base = TWI_PIN_SCL;
-    dioRegisterOD(&idx);
+    pIndex->sidx.Place = objDin;
+    pIndex->sidx.Type = objPinPNP;
+    pIndex->sidx.Base = TWI_PIN_SDA;
+    dioRegisterOD(pIndex);
+    pIndex->sidx.Base = TWI_PIN_SCL;
+    dioRegisterOD(pIndex);
+
+    // Status Register
+    pIndex->cbRead  =  &twim_read;
+    pIndex->cbWrite =  NULL;
+    pIndex->cbPool  =  &twim_pool;
+    
+    pIndex->sidx.Place = objTWI;
+    pIndex->sidx.Type =  objUInt8;
+    pIndex->sidx.Base = 0;
 }

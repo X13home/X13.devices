@@ -37,6 +37,12 @@ static uint8_t twi_HIH61xx_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf
 
 static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
 {
+    if(twim_access & TWIM_ERROR)
+    {
+        hih61xx_stat = 0x80;
+        return 0;
+    }
+
     if(hih61xx_stat == 0)  // Start Conversion
     {
         if(twim_access & TWIM_BUSY)
