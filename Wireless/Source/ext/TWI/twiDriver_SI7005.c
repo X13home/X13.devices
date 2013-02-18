@@ -11,10 +11,12 @@ See LICENSE.txt file for license details.
 // TWI Driver Silicon Image Si7005, Temperature & Humidity
 
 // Outs
-// TW(addr) Temperature 0,1°C
-// TW(add + 1)    Humidity uncompensated  0,1%  RH(%)
+// TW(addr)     Temperature counter (TC)
+// TW(add + 1)  Humidity counter    (HC)
+// Temp°C  = (TC/16) - 50
+// RH = (HC/16) - 24
 // RH_lin = RH - (RH^2*-0,00393 + RH*0,4008 - 4,7844)
-// RH_C = RH_lin + (Temp(°C) - 30)*(RH_lin*0,0237 + 0,1973)
+// RH_Compens = RH_lin + (Temp(°C) - 30)*(RH_lin*0,0237 + 0,1973)
 
 #define SI7005_ADDR                 0x40
 
@@ -52,6 +54,15 @@ static uint8_t twi_SI7005_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
+static uint8_t twi_SI7005_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    if(pSubidx->Base & 1)   // Renew Humidity
+        si7005_oldHumi = *(uint16_t *)pBuf;
+    else                    // Renew Temperature
+        si7005_oldTemp = *(uint16_t *)pBuf;
+    return MQTTS_RET_ACCEPTED;
+}
+
 static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
 {
     if(twim_access & TWIM_ERROR)
@@ -59,7 +70,7 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
         si7005_stat = 0x80;
         return 0;
     }
-    
+
     if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
         return 0;
 
@@ -104,10 +115,9 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
             twim_buf[0] = SI7005_REG_CONFIG;
             twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
             twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
-
-            val *= 5;
-            val >>=3;
-            val -= 500;
+//            val *= 5;
+//            val >>=3;
+//            val -= 500;
             if(val != si7005_oldTemp)
             {
                 si7005_oldTemp = val;
@@ -127,11 +137,11 @@ static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
     if(si7005_stat == 17)
     {
         si7005_stat++;
-        twim_access = 0;        // Bus Free
         uint16_t val = ((uint16_t)twim_buf[0]<<4) | (twim_buf[1]>>4);
-        val *= 5;
-        val >>=3;
-        val -= 240;
+//        val *= 5;
+//        val >>=3;
+//        val -= 240;
+        twim_access = 0;        // Bus Free
         if(val != si7005_oldHumi)
         {
             si7005_oldHumi = val;
@@ -159,10 +169,9 @@ static uint8_t twi_SI7005_Config(void)
     if(pIndex1 == NULL)
         return 0;
 
-    
     pIndex1->Index = 0;
     pIndex1->cbRead  =  &twi_SI7005_Read;
-    pIndex1->cbWrite =  NULL;
+    pIndex1->cbWrite =  &twi_SI7005_Write;
     pIndex1->cbPool  =  &twi_SI7005_Pool1;
     pIndex1->sidx.Place = objTWI;                   // Object TWI
     pIndex1->sidx.Type =  objInt16;                 // Variables Type -  UInt16
@@ -179,7 +188,7 @@ static uint8_t twi_SI7005_Config(void)
 
     pIndex2->Index = 0;
     pIndex2->cbRead  =  &twi_SI7005_Read;
-    pIndex2->cbWrite =  NULL;
+    pIndex2->cbWrite =  &twi_SI7005_Write;
     pIndex2->cbPool  =  &twi_SI7005_Pool2;
     pIndex2->sidx.Place = objTWI;                   // Object TWI
     pIndex2->sidx.Type =  objUInt16;

@@ -37,6 +37,15 @@ static uint8_t twi_HIH61xx_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf
     return MQTTS_RET_ACCEPTED;
 }
 
+static uint8_t twi_HIH61xx_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    if(pSubidx->Base & 1)               // Renew Humidity
+        hih61xx_oldhumi = *pBuf;
+    else                                // Renew Temperature
+        hih61xx_oldtemp = *(uint16_t *)pBuf;
+    return MQTTS_RET_ACCEPTED;
+}
+
 static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
 {
     if(twim_access & TWIM_ERROR)
@@ -93,7 +102,7 @@ static uint8_t twi_HIH61xx_Pool2(subidx_t * pSubidx)
     if(hih61xx_stat == 7)
     {
         hih61xx_stat++;
-        uint8_t tmp = (twim_buf[0]<<2) | (twim_buf[1]>>6)
+        uint8_t tmp = (twim_buf[0]<<2) | (twim_buf[1]>>6);
         twim_access = 0;        // Bus Free
         if(tmp != hih61xx_oldhumi)
         {
@@ -121,7 +130,7 @@ static uint8_t twi_HIH61xx_Config(void)
 
     pIndex1->Index = 0;
     pIndex1->cbRead  =  &twi_HIH61xx_Read;
-    pIndex1->cbWrite =  NULL;
+    pIndex1->cbWrite =  &twi_HIH61xx_Write;
     pIndex1->cbPool  =  &twi_HIH61xx_Pool1;
     pIndex1->sidx.Place = objTWI;                   // Object TWI
     pIndex1->sidx.Type =  objInt16;                 // Variables Type -  UInt16
@@ -137,7 +146,7 @@ static uint8_t twi_HIH61xx_Config(void)
 
     pIndex2->Index = 0;
     pIndex2->cbRead  =  &twi_HIH61xx_Read;
-    pIndex2->cbWrite =  NULL;
+    pIndex2->cbWrite =  &twi_HIH61xx_Write;
     pIndex2->cbPool  =  &twi_HIH61xx_Pool2;
     pIndex2->sidx.Place = objTWI;                   // Object TWI
     pIndex2->sidx.Type =  objUInt8;

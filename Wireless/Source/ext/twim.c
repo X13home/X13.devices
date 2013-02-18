@@ -30,8 +30,10 @@ static uint8_t twim_bytes2write;        // bytes to write
 static uint8_t twim_bytes2read;         // bytes to read
 volatile static uint8_t * twim_ptr;     // pointer to data buffer
 static uint8_t twim_buf[4];             // temporary buffer
-volatile static uint8_t twim_last_stat; // Last ISR Status
-static uint8_t twim_busy_cnt;           // Bus busy & error counter
+
+// Diag & WD variables
+static uint8_t twim_addr_old;           // WatchDog addr
+static uint8_t twim_busy_cnt;           // Busy counter
 
 // Read/Write data from/to buffer
 static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf)
@@ -135,8 +137,7 @@ static void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t re
 ISR(TWI_vect)
 {
     static uint8_t twi_ptr;
-    twim_last_stat = TWSR;
-    switch(twim_last_stat)
+    switch(TWSR)
     {
         case TW_START:                          // START has been transmitted  
         case TW_REP_START:                      // Repeated START has been transmitted
@@ -192,7 +193,6 @@ ISR(TWI_vect)
             TWCR = (1<<TWEN) |                  // TWI Interface enabled
                    (1<<TWIE) | (1<<TWINT) |     // Enable TWI Interupt and clear the flag
                    (1<<TWSTA);                  // Initiate a (RE)START condition.
-            
             break;
         default:                                // Bus error
             TWCR = (1<<TWEN);                   // Enable TWI-interface and release TWI pins
@@ -221,14 +221,13 @@ ISR(TWI_vect)
 static void twiClean()
 {
     twim_access = 0;
-    twim_busy_cnt = 0;
-    twim_last_stat = 0;
+    twim_addr_old = 0;
 }
 
 static uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 1;
-    *pBuf = twim_last_stat;
+    *pBuf = (twim_addr_old>>1);
     return MQTTS_RET_ACCEPTED;
 }
 
@@ -236,6 +235,13 @@ static uint8_t twim_pool(subidx_t * pSubidx)
 {
     if(twim_access == 0)
     {
+        twim_addr_old = 0;
+        return 0;
+    }
+
+    if(twim_addr_old != twim_addr)
+    {
+        twim_addr_old = twim_addr;
         twim_busy_cnt = 0;
         return 0;
     }
@@ -243,17 +249,14 @@ static uint8_t twim_pool(subidx_t * pSubidx)
     twim_busy_cnt++;
     if(twim_busy_cnt == 0x80)   // bus busy too long
     {
-        if(!(twim_access & TWIM_ERROR))
-            twim_last_stat = 0xFF;
-
         twim_access = TWIM_ERROR;
         twiSendStop();
         return 1;
     }
     else if(twim_busy_cnt == 0)
     {
-        twim_last_stat = 0;
         twim_access = 0;
+        twim_addr_old = 0;
         return 1;
     }
 

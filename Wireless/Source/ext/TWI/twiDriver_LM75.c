@@ -44,6 +44,12 @@ static uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
+static uint8_t twi_lm75_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    lm75_oldVal[pSubidx->Base & (LM75_MAX_DEV - 1)] = *(uint16_t *)pBuf;
+    return MQTTS_RET_ACCEPTED;
+}
+
 static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
 {
     uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
@@ -111,7 +117,7 @@ static uint8_t twi_LM75_Config(void)
             
             pIndex->Index = 0;
             pIndex->cbRead  =  &twi_lm75_Read;
-            pIndex->cbWrite =  NULL;
+            pIndex->cbWrite =  &twi_lm75_Write;
             pIndex->cbPool  =  &twi_lm75_Pool;
             pIndex->sidx.Place = objTWI;                   // Object TWI
             pIndex->sidx.Type =  objInt16;                 // Variables Type -  UInt16

@@ -71,6 +71,15 @@ static uint8_t twi_BMP085_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
+static uint8_t twi_BMP085_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    if(pSubidx->Base & 1)               // Renew Pressure
+        bmp085_oldpress = *(uint32_t *)pBuf;
+    else                                // Renew Temperature
+        bmp085_oldtemp = *(uint16_t *)pBuf;
+    return MQTTS_RET_ACCEPTED;
+}
+
 static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
 {
     uint16_t ut;
@@ -84,12 +93,6 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
 
     if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
         return 0;
-    
-    if(twim_access & TWIM_ERROR)
-    {
-        bmp085_stat = 0x80;
-        return 0;
-    }
     
     switch(bmp085_stat)
     {
@@ -228,7 +231,7 @@ static uint8_t twi_BMP085_Config(void)
 
     pIndex1->Index = 0;
     pIndex1->cbRead  =  &twi_BMP085_Read;
-    pIndex1->cbWrite =  NULL;
+    pIndex1->cbWrite =  &twi_BMP085_Write;
     pIndex1->cbPool  =  &twi_BMP085_Pool1;
     pIndex1->sidx.Place = objTWI;               // Object TWI
     pIndex1->sidx.Type =  objInt16;             // Variables Type -  UInt16
@@ -244,7 +247,7 @@ static uint8_t twi_BMP085_Config(void)
 
     pIndex2->Index = 0;
     pIndex2->cbRead  =  &twi_BMP085_Read;
-    pIndex2->cbWrite =  NULL;
+    pIndex2->cbWrite =  &twi_BMP085_Write;
     pIndex2->cbPool  =  &twi_BMP085_Pool2;
     pIndex2->sidx.Place = objTWI;               // Object TWI
     pIndex2->sidx.Type =  objUInt32;            // Variables Type -  UInt32
