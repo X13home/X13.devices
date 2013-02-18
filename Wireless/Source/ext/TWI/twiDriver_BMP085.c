@@ -85,6 +85,12 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
     if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
         return 0;
     
+    if(twim_access & TWIM_ERROR)
+    {
+        bmp085_stat = 0x80;
+        return 0;
+    }
+    
     switch(bmp085_stat)
     {
         case 0:
