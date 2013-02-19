@@ -137,7 +137,7 @@ static void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t re
 ISR(TWI_vect)
 {
     static uint8_t twi_ptr;
-    switch(TWSR)
+    switch(TW_STATUS)
     {
         case TW_START:                          // START has been transmitted  
         case TW_REP_START:                      // Repeated START has been transmitted
@@ -155,19 +155,25 @@ ISR(TWI_vect)
                 TWDR = twim_ptr[twi_ptr++];
                 TWCR = (1<<TWEN) |              // TWI Interface enabled
                        (1<<TWIE) | (1<<TWINT);  // Enable TWI Interupt and clear the flag to send byte
+                break;
             }
-            else    // End transmittion
+        case TW_MT_DATA_NACK:                   // End transmittion
+            if(twi_ptr < twim_bytes2write)      // Error, not all data send
             {
-                if(!(twim_access & TWIM_SEQ))
-                    twiSendStop();
+                TWCR = (1<<TWEN);               // Enable TWI-interface and release TWI pins, Disable Interupt
+                twim_access |= TWIM_ERROR;
+                break;
+            }
 
-                twim_access &= ~(TWIM_WRITE | TWIM_SEQ);
+            if(!(twim_access & TWIM_SEQ))
+                twiSendStop();
 
-                if(twim_access & TWIM_READ)
+            twim_access &= ~(TWIM_WRITE | TWIM_SEQ);
+
+            if(twim_access & TWIM_READ)
                     TWCR = (1<<TWEN) |          // TWI Interface enabled.
                       (1<<TWIE) | (1<<TWINT) |  // Enable TWI Interupt and clear the flag.
                       (1<<TWSTA);               // Initiate a START condition.
-            }
             break;
         case TW_MR_DATA_ACK:                    // Data byte has been received and ACK tramsmitted
             twim_ptr[twi_ptr++] = TWDR;
@@ -189,13 +195,20 @@ ISR(TWI_vect)
             twiSendStop();
             twim_access &= ~TWIM_READ;
             break;
+/*
+        case TW_MT_SLA_NACK:
+        case TW_MR_SLA_NACK:
+            
         case TW_MR_ARB_LOST:                    // Arbitration lost
             TWCR = (1<<TWEN) |                  // TWI Interface enabled
                    (1<<TWIE) | (1<<TWINT) |     // Enable TWI Interupt and clear the flag
                    (1<<TWSTA);                  // Initiate a (RE)START condition.
             break;
-        default:                                // Bus error
-            TWCR = (1<<TWEN);                   // Enable TWI-interface and release TWI pins
+*/
+        default:                                // Error
+//            TWDR = 0xFF;
+//            twiSendStop();
+            TWCR = (1<<TWEN);                   // Enable TWI-interface and release TWI pins, Disable Interupt
                                                 // Disable Interupt
             twim_access |= TWIM_ERROR;
     }
@@ -247,18 +260,17 @@ static uint8_t twim_pool(subidx_t * pSubidx)
     }
 
     twim_busy_cnt++;
-    if(twim_busy_cnt == 0x80)   // bus busy too long
+    if((twim_access & (TWIM_ERROR | TWIM_WRITE | TWIM_READ)) > TWIM_ERROR)
+        twim_busy_cnt = 0xF0;
+
+    if(twim_busy_cnt == 0xF0)   // bus busy too long
     {
         twim_access = TWIM_ERROR;
         twiSendStop();
         return 1;
     }
     else if(twim_busy_cnt == 0)
-    {
         twim_access = 0;
-        twim_addr_old = 0;
-        return 1;
-    }
 
     return 0;
 }

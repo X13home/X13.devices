@@ -67,7 +67,8 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
 {
     if(twim_access & TWIM_ERROR)
     {
-        si7005_stat = 0x80;
+        if(si7005_stat != 0)
+            si7005_stat = 0x80;
         return 0;
     }
 

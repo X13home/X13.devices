@@ -12,7 +12,7 @@ See LICENSE.txt file for license details.
 
 // Outs
 // Tw(addr)   Temperature Counter(TC)
-//  TB(add+1)  Humidity Counter(HC)
+// TB(add+1)  Humidity Counter(HC)
 // T°C = (TC * 55 / 5461) - 40
 // RH% = HC * 20 / 51
 
@@ -50,7 +50,8 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
 {
     if(twim_access & TWIM_ERROR)
     {
-        hih61xx_stat = 0x80;
+        if(hih61xx_stat != 0)
+            hih61xx_stat = 0x80;
         return 0;
     }
     

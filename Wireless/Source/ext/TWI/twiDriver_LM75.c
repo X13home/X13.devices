@@ -57,7 +57,8 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
 
     if(twim_access & TWIM_ERROR)
     {
-        lm75_stat[base] = 0x80;
+        if(lm75_stat[base] != 0)
+            lm75_stat[base] = 0x80;
         return 0;
     }
     
