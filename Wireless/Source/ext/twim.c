@@ -114,6 +114,7 @@ static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t rea
     }
 
     twim_access = 0;
+    twim_addr = 0;
     return TW_SUCCESS;
 }
 
