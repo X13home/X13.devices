@@ -1,6 +1,6 @@
-Version 2.3a
-10.Feb.2013
+Version 2.4
 
+Added TWI Watchdog
 RF aggressive pool method
 Changed OD API
 

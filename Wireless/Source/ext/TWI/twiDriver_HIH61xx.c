@@ -51,7 +51,7 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
     if(twim_access & TWIM_ERROR)
     {
         if(hih61xx_stat != 0)
-            hih61xx_stat = 0x80;
+            hih61xx_stat = 0x40;
         return 0;
     }
     

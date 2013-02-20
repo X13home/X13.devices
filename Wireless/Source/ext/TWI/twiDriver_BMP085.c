@@ -88,7 +88,7 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
     if(twim_access & TWIM_ERROR)
     {
         if(bmp085_stat != 0)
-            bmp085_stat = 0x80;
+            bmp085_stat = 0x40;
         return 0;
     }
 
