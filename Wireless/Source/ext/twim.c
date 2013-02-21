@@ -231,6 +231,12 @@ static uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
+static uint8_t twim_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    twim_addr_old = *pBuf;
+    return MQTTS_RET_ACCEPTED;
+}
+
 static uint8_t twim_pool(subidx_t * pSubidx)
 {
     if(twim_access == 0)
@@ -323,7 +329,7 @@ static void twiConfig(void)
 
     // Status Register
     pIndex->cbRead  =  &twim_read;
-    pIndex->cbWrite =  NULL;
+    pIndex->cbWrite =  &twim_write;
     pIndex->cbPool  =  &twim_pool;
     
     pIndex->sidx.Place = objTWI;
