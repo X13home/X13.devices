@@ -306,6 +306,31 @@ void RegAckOD(uint16_t index)
     }
 }
 
+static uint8_t cvtSubidx2Len(subidx_t * pSubIdx)
+{
+    switch(pSubIdx->Place)
+    {
+        case objAin:
+            return 2;
+        case objDin:
+        case objDout:
+        case objPWM:
+        case objSer:
+            return 0;
+    }
+
+    switch(pSubIdx->Type)
+    {
+        case objInt16:
+        case objUInt16:
+            return 2;
+        case objInt32:
+        case objUInt32:
+            return 4;
+    }
+    return 0;
+}
+
 uint8_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf)
 {
     indextable_t * pIndex = scanIndexOD(Id, Flags & MQTTS_FL_TOPICID_MASK);
@@ -313,7 +338,28 @@ uint8_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf)
         return MQTTS_RET_REJ_INV_ID;
     if(pIndex->cbRead == NULL)
         return MQTTS_RET_REJ_NOT_SUPP;
-    return (pIndex->cbRead)(&pIndex->sidx, pLen, pBuf);
+    
+    uint8_t retval = (pIndex->cbRead)(&pIndex->sidx, pLen, pBuf);
+    
+    if((Flags & 0x80) && (retval == MQTTS_RET_ACCEPTED))    // Pack Object
+    {
+        uint8_t len;
+        len = cvtSubidx2Len(&pIndex->sidx);
+        if(len > 1)
+        {
+            while(len > 1)
+            {
+                if(((pBuf[len-1] == 0) && ((pBuf[len-2] & 0x80) == 0)) ||
+                    ((pBuf[len-1] == 0xFF) && ((pBuf[len-2] & 0x80) == 0x80)))
+                        len--;
+                else
+                    break;
+            }
+            *pLen = len;
+        }
+    }
+
+    return retval;
 }
 
 uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
@@ -323,6 +369,18 @@ uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
         return MQTTS_RET_REJ_INV_ID;
     if(pIndex->cbWrite == NULL)
         return MQTTS_RET_REJ_NOT_SUPP;
+
+    if(Flags & 0x80)    // Unpack Object
+    {
+        uint8_t len = cvtSubidx2Len(&pIndex->sidx);
+        if(len > Len)
+        {
+            uint8_t fill;
+            fill = (pBuf[Len-1] & 0x80) ? 0xFF: 0x00;
+            while(Len < len)
+                pBuf[Len++] = fill;
+        }
+    }
     return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
 

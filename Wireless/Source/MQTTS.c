@@ -600,7 +600,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
             if(tmp == 0)   // New message
             {
                 vMQTTS.ReturnCode = WriteOD(SWAPWORD(pBuf->mq.m.publish.TopicId),
-                                            pBuf->mq.m.publish.Flags,
+                                            pBuf->mq.m.publish.Flags | 0x80,
                                             pBuf->mq.Length - MQTTS_SIZEOF_MSG_PUBLISH,
                                             (uint8_t *)&pBuf->mq.m.publish.Data);
             }
