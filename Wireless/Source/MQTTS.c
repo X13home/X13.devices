@@ -295,7 +295,7 @@ static void mqtts_send_connect()        // Send  CONNECT
     ReadOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, &pBuf->mq.Length, ipBuf);
     if(pBuf->mq.Length < 2)     // Node Name not defined, use default name
     {
-        pBuf->mq.Length = MQTTS_SIZEOF_CLIENTID - 3;
+        pBuf->mq.Length = OD_DEV_TYP_LEN;
         ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &pBuf->mq.Length, ipBuf);
         ipBuf += pBuf->mq.Length;
         *(ipBuf++) = '_';
