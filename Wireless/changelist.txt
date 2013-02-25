@@ -1,18 +1,25 @@
+Version 2.4.0
+
+[*] Devise descriptor - obj. xFE00  25.Feb.2013
+
+====================================================================================================
+
 Version 2.4
 
-Added TWI Watchdog
-RF aggressive pool method
-Changed OD API
+[+] TWI Watchdog
+[*] RF aggressive pool method
+[*] OD API
 
 ====================================================================================================
 
 Version 2.3
 7.Feb.2013
 
-Optimized data, removed unnecessary volatile variables.
-Changed TWI API
-Added TWI driver LM75
-Removed Test_RF Project and test options
+[*] Optimized data
+[-] unnecessary volatile variables.
+[*] TWI API
+[+] TWI driver LM75
+[-] Test_RF Project and test options
 
 ====================================================================================================
 

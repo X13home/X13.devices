@@ -95,14 +95,9 @@ See LICENSE.txt file for license details.
 #include "uart.h"
 // End USART Section
 
-// Object's Dictionary Section
-#define OD_DEFAULT_TYP          {6,'U','_','G','a','t','e'}
 #define OD_DEFAULT_ADDR         0x07
-// End OD Section
 
 #else   //  !GATEWAY
-
-#define OD_DEFAULT_TYP          {6,'U','_','N','o','d','e'}
 
 // Serial Output
 #define SER_PIN_TX              25
@@ -119,6 +114,13 @@ See LICENSE.txt file for license details.
                                  if((UCSR0B & ((1<<TXEN0) | (1<<RXEN0))) == 0)      \
                                     PRR |= (1<<PRUSART0);}
 #endif  //  GATEWAY
+
+// Object's Dictionary Section
+#define OD_DEV_HWTYP_H          'U'
+#define OD_DEV_HWTYP_L          'N'
+#define OD_DEV_SWTYP_H          '1'
+#define OD_DEV_SWTYP_L          '0'
+// End OD Section
 
 // Timer Section
 #define POOL_TMR_FREQ           64     // Pool Frequency (Hz)

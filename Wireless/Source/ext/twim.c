@@ -226,7 +226,8 @@ ISR(TWI_vect)
 static void twiClean()
 {
     twim_access = 0;
-    twim_addr_old = 0xFF;
+    twim_addr = 0xFF;
+    twim_addr_old = 0;
 }
 
 static uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
@@ -294,11 +295,8 @@ static void twiConfig(void)
         return;
 
     TWI_ENABLE();
-    
-    twiClean();
-    
+
     uint8_t cnt = 0;
-    
     indextable_t * pIndex;
     
     pIndex = getFreeIdxOD();
@@ -326,6 +324,8 @@ static void twiConfig(void)
         TWI_DISABLE();
         return;
     }
+
+    twiClean();
 
     pIndex->sidx.Place = objDin;
     pIndex->sidx.Type = objPinPNP;

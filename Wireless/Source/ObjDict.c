@@ -34,8 +34,27 @@ uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 }
 #endif  //  ASLEEP
 
+#ifdef GATEWAY
+#define OD_DEV_NETTYP_H    'G'
+#define OD_DEV_NETTYP_L    'W'
+#else   //  Node
+#define OD_DEV_NETTYP_H    'N'
+#define OD_DEV_NETTYP_L    'D'
+#endif  //  GATEWAY
+
+
 // Predefined Object's 
-const PROGMEM uint8_t psDeviceTyp[] = OD_DEFAULT_TYP;
+const PROGMEM uint8_t psDeviceTyp[] = {10,
+                                        OD_DEV_NETTYP_H,        // Device Net Type
+                                        OD_DEV_NETTYP_L,
+                                        OD_DEV_HWTYP_H,         // Device Hardware Type
+                                        OD_DEV_HWTYP_L,
+                                        OD_DEV_SWTYP_H,         // Device Software Type
+                                        OD_DEV_SWTYP_L,
+                                        '.',                    // Delimiter
+                                        OD_DEV_SWVERSH,         // Software Version
+                                        OD_DEV_SWVERSM,
+                                        OD_DEV_SWVERSL};
 
 const PROGMEM indextable_t listPredefOD[] = 
 {
