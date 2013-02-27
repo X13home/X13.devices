@@ -57,6 +57,16 @@ See LICENSE.txt file for license details.
 // 30   PD6     P2-4(D6)    PWM1
 // 31   PD7     P2-3(D7)
 
+// Object's Dictionary Section
+#define OD_DEV_TYP_0            'P'
+#define OD_DEV_TYP_1            'S'
+#define OD_DEV_TYP_2            '2'
+#define OD_DEV_TYP_3            '0'
+#ifdef GATEWAY
+#define OD_DEFAULT_ADDR         0x07
+#endif  //  GATEWAY
+// End OD Section
+
 // Power Reduction
 #ifdef USE_RTC_OSC
 #define CONFIG_PRR()            {ACSR = (1<<ACD); \
@@ -96,8 +106,6 @@ See LICENSE.txt file for license details.
 #include "uart.h"
 // End USART Section
 
-#define OD_DEFAULT_ADDR         0x07
-
 #else   //  !GATEWAY
 
 // Serial Output
@@ -115,13 +123,6 @@ See LICENSE.txt file for license details.
                                  if((UCSR0B & ((1<<TXEN0) | (1<<RXEN0))) == 0)      \
                                     PRR |= (1<<PRUSART0);}
 #endif  //  GATEWAY
-
-// Object's Dictionary Section
-#define OD_DEV_HWTYP_H          'P'
-#define OD_DEV_HWTYP_L          'S'
-#define OD_DEV_SWTYP_H          '2'
-#define OD_DEV_SWTYP_L          '0'
-// End OD Section
 
 // Timer Section
 #define POOL_TMR_FREQ           64     // Pool Frequency (Hz)

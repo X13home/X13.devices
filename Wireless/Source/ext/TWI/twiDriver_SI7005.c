@@ -92,7 +92,7 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
         case 9:
         case 14:
             twim_buf[0] = SI7005_REG_STATUS;
-            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 1, 
+            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 1, 
                          (uint8_t *)twim_buf);
             break;
         case 5:
@@ -105,8 +105,8 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
             }
             // Read Data
             twim_buf[0] = SI7005_REG_DATA;
-            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 2, 
-                         (uint8_t *)twim_buf);
+            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, 
+                                (uint8_t *)twim_buf);
             break;
         case 11:                                                // Calculate & test temperature
             {
@@ -155,7 +155,7 @@ static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
 static uint8_t twi_SI7005_Config(void)
 {
     uint8_t reg = SI7005_REG_ID;
-    if((twimExch(SI7005_ADDR, (TWIM_READ | TWIM_WRITE | TWIM_SEQ), 1, 1, &reg) != 
+    if((twimExch(SI7005_ADDR, (TWIM_READ | TWIM_WRITE), 1, 1, &reg) != 
                                          TW_SUCCESS) ||     // Communication error
        (reg != SI7005_ID_SI7005))                           // Bad device ID
         return 0;

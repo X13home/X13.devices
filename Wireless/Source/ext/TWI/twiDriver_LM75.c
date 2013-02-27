@@ -73,7 +73,7 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
             lm75_stat[base] = 1;
         case 1:
             twim_buf[0] = LM75_REG_TEMP;
-            twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_SEQ | TWIM_WRITE | TWIM_READ), 1, 2,
+            twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2,
                                                                     (uint8_t *)twim_buf);
             break;
         case 2:

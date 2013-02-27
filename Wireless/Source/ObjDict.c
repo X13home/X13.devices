@@ -47,10 +47,10 @@ uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 const PROGMEM uint8_t psDeviceTyp[] = {10,
                                         OD_DEV_NETTYP_H,        // Device Net Type
                                         OD_DEV_NETTYP_L,
-                                        OD_DEV_HWTYP_H,         // Device Hardware Type
-                                        OD_DEV_HWTYP_L,
-                                        OD_DEV_SWTYP_H,         // Device Software Type
-                                        OD_DEV_SWTYP_L,
+                                        OD_DEV_TYP_0,           // Device HW/SW Type
+                                        OD_DEV_TYP_1,
+                                        OD_DEV_TYP_2,
+                                        OD_DEV_TYP_3,
                                         '.',                    // Delimiter
                                         OD_DEV_SWVERSH,         // Software Version
                                         OD_DEV_SWVERSM,
