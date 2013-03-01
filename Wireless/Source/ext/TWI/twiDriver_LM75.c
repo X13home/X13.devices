@@ -40,6 +40,14 @@ static int16_t  lm75_oldVal[LM75_MAX_DEV];
 static uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 2;
+/*
+        // Return T 0.1°C
+        int32_t temp = lm75_oldVal[pSubidx->Base & (LM75_MAX_DEV - 1)];
+        temp *= 5;
+//        temp /= 128;
+        temp >>= 7;
+        *(uint16_t *)pBuf = temp & 0xFFFF;
+*/
     *(uint16_t *)pBuf = lm75_oldVal[pSubidx->Base & (LM75_MAX_DEV - 1)];
     return MQTTS_RET_ACCEPTED;
 }

@@ -346,6 +346,11 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 break;
             }
             vMQTTS.Tretry = MQTTS_DEF_TSGW - 1;
+            
+            if(vMQTTS.Nretry)
+                vMQTTS.Nretry--;
+            else
+                SystemReset();
 #else  //  ASLEEP
             if(vMQTTS.Tretry)
             {
@@ -368,13 +373,14 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                         vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
                         return  MQTTS_POOL_STAT_AWAKE;          // WakeUp
                     }
-                    vMQTTS.Tretry = vMQTTS.Tasleep;             // Not found many times
+                    // Not found many times
+                    //vMQTTS.Tretry = vMQTTS.Tasleep;
+                    SystemReset();
                 }
                 break;
             }
             vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
             vMQTTS.Tretry = MQTTS_DEF_TSGW - 1;
-
 #endif  //  ASLEEP
             mqtts_send_search_gw();
             break;
@@ -387,16 +393,21 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 vMQTTS.Tretry--;
                 break;
             }
-#ifndef GATEWAY
+
             if(vMQTTS.Nretry)
                 vMQTTS.Nretry--;
+
             else
             {
+#ifdef GATEWAY
+                SystemReset();
+#else   //    NODE
                 vMQTTS.Nretry = MQTTS_DEF_NRETRY;
                 vMQTTS.Status = MQTTS_STATUS_SEARCHGW;
                 break;
+#endif  // GATEWAY
             }
-#endif  //  !GATEWAY
+            
             vMQTTS.Tretry = MQTTS_DEF_TCONNECT - 1;
             mqtts_send_connect();
             break;

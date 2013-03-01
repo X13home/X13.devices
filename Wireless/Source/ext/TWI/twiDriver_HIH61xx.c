@@ -28,11 +28,26 @@ static uint8_t twi_HIH61xx_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf
     {
         *pLen = 1;
         *pBuf = hih61xx_oldhumi;
+/*
+        // Return Humidity %
+        uint16_t humi = hih61xx_oldhumi;
+        humi *= 25;
+        humi >>= 8;
+        *pBuf = humi;
+*/
     }
     else                                // Read Temperature
     {
         *pLen = 2;
         *(uint16_t *)pBuf = hih61xx_oldtemp;
+/*
+        // Return T 0.1°C
+        uint32_t temp = hih61xx_oldtemp;
+        temp *= 825;
+        temp >>= 13;
+        temp -= 400;
+        *(uint16_t *)pBuf = temp & 0xFFFF;
+*/
     }
     return MQTTS_RET_ACCEPTED;
 }
