@@ -32,6 +32,9 @@ See LICENSE.txt file for license details.
 
 #define BMP085_OSS                  0       // oversampling settings [0 - Low Power / 3 - Ultra High resolution]
 
+#define BMP085_P_MIN_DELTA          20
+#define BMP085_T_MIN_DELTA          1
+
 typedef struct
 {
     // Calibration parameters
@@ -123,7 +126,10 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
             bmp085_b5 = x1 + x2;
 
             ut = (bmp085_b5 + 8)>>4;
-            if(ut != bmp085_oldtemp)
+            
+            x1 = ut > bmp085_oldtemp ? ut - bmp085_oldtemp : bmp085_oldtemp - ut;
+
+            if(x1 > BMP085_T_MIN_DELTA)
             {
                 bmp085_stat++;
                 bmp085_oldtemp = ut;
@@ -183,8 +189,9 @@ static uint8_t twi_BMP085_Pool2(subidx_t * pSubidx)
         x1 = (x1 * SMD500_PARAM_MG) >> 16;
         x2 = (p * SMD500_PARAM_MH) >> 16;
         p += (x1 + x2 + SMD500_PARAM_MI) >> 4;
-        
-        if(p != bmp085_oldpress)
+
+        up = p > bmp085_oldpress ? p - bmp085_oldpress : bmp085_oldpress - p;
+        if(up > BMP085_P_MIN_DELTA)
         {
             bmp085_oldpress = p;
             return 1;

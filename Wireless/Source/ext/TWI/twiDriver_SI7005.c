@@ -39,6 +39,9 @@ See LICENSE.txt file for license details.
 // ID Register
 #define SI7005_ID_SI7005            0x50
 
+#define SI7005_T_MIN_DELTA          5
+#define SI7005_H_MIN_DELTA          5
+
 // Process variables
 static uint8_t  si7005_stat;
 static uint16_t si7005_oldTemp;
@@ -49,28 +52,14 @@ static uint8_t twi_SI7005_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     *pLen = 2;
     if(pSubidx->Base & 1)   // Read Humidity
     {
-/*
         // Return uncompensated RH 0,1%
-        uint16_t val = si7005_oldHumi;
-        val *= 5;
-        val += 4;
-        val >>= 3;
-        val -= 240;
-        *(uint16_t *)pBuf = val;
-*/
+//        *(uint16_t *)pBuf = ((si7005_oldTemp * 5)>>3) - 240;
         *(uint16_t *)pBuf = si7005_oldHumi;
     }
     else                    // Read Temperature
     {
-/*
         // Return T 0.1°C
-        int16_t val = si7005_oldTemp;
-        val *= 5;
-        val += 4;
-        val >>=3;
-        val -= 500;
-        *(uint16_t *)pBuf = val;
-*/
+//        *(uint16_t *)pBuf = ((si7005_oldTemp * 5)>>3) - 500;
         *(uint16_t *)pBuf = si7005_oldTemp;
     }
     return MQTTS_RET_ACCEPTED;
@@ -138,7 +127,11 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
             twim_buf[0] = SI7005_REG_CONFIG;
             twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
             twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
-            if(val != si7005_oldTemp)
+            
+            uint16_t delta;
+            delta = val > si7005_oldTemp ? val - si7005_oldTemp : si7005_oldTemp - val;
+
+            if(delta > SI7005_T_MIN_DELTA)
             {
                 si7005_oldTemp = val;
                 si7005_stat++;
@@ -159,7 +152,11 @@ static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
         si7005_stat++;
         uint16_t val = ((uint16_t)twim_buf[0]<<4) | (twim_buf[1]>>4);
         twim_access = 0;        // Bus Free
-        if(val != si7005_oldHumi)
+        
+        uint16_t delta;
+        delta = val > si7005_oldHumi ? val - si7005_oldHumi : si7005_oldHumi - val;
+        
+        if(delta > SI7005_H_MIN_DELTA)
         {
             si7005_oldHumi = val;
             return 1;

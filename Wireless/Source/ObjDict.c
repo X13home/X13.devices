@@ -42,7 +42,6 @@ uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 #define OD_DEV_NETTYP_L    'D'
 #endif  //  GATEWAY
 
-
 // Predefined Object's 
 const PROGMEM uint8_t psDeviceTyp[] = {10,
                                         OD_DEV_NETTYP_H,        // Device Net Type
@@ -164,7 +163,7 @@ void InitOD(void)
         WriteOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); // Sleep Time
 #endif  //  ASLEEP
     }
-    
+
     // Clear listOD
     for(ucTmp = 0; ucTmp < OD_MAX_INDEX_LIST; ucTmp++)
         ListOD[ucTmp].Index = 0xFFFF;
@@ -221,7 +220,6 @@ void CleanOD(void)
     ReadOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, &Len, (uint8_t *)&uiTmp);
     mqtts_set_TASleep(uiTmp);
 #endif  //  ASLEEP
-    
 }
 
 // Register PnP objects
@@ -325,25 +323,31 @@ void RegAckOD(uint16_t index)
     }
 }
 
+// Convert Subindex to Length
 static uint8_t cvtSubidx2Len(subidx_t * pSubIdx)
 {
     switch(pSubIdx->Place)
     {
         case objAin:
             return 2;
+        case objPWM:
+            return 1;
         case objDin:
         case objDout:
-        case objPWM:
         case objSer:
             return 0;
     }
 
     switch(pSubIdx->Type)
     {
+        case objUInt8:
+            return 1;
         case objInt16:
+            return 0x82;
         case objUInt16:
             return 2;
         case objInt32:
+            return 0x84;
         case objUInt32:
             return 4;
     }
@@ -364,16 +368,29 @@ uint8_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf)
     {
         uint8_t len;
         len = cvtSubidx2Len(&pIndex->sidx);
-        if(len > 1)
+        
+        if(len & 0x80)      // Signed
         {
+            len &= 0x7F;
             while(len > 1)
             {
-                if(((pBuf[len-1] == 0) && ((pBuf[len-2] & 0x80) == 0)) ||
-                    ((pBuf[len-1] == 0xFF) && ((pBuf[len-2] & 0x80) == 0x80)))
+                if(((pBuf[len-1] == 0)    && ((pBuf[len-2] & 0x80) == 0)) ||
+                   ((pBuf[len-1] == 0xFF) && ((pBuf[len-2] & 0x80) == 0x80)))
                         len--;
                 else
                     break;
             }
+            *pLen = len;
+        }
+        else if(len > 0)    // Unisigned
+        {
+            if(pBuf[len - 1] & 0x80)
+            {
+                pBuf[len] = 0;
+                len++;
+            }
+            else while((len > 1) && (pBuf[len-1] == 0) && ((pBuf[len-2] & 0x80) == 0))
+                len--;
             *pLen = len;
         }
     }
@@ -391,7 +408,7 @@ uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
 
     if(Flags & 0x80)    // Unpack Object
     {
-        uint8_t len = cvtSubidx2Len(&pIndex->sidx);
+        uint8_t len = cvtSubidx2Len(&pIndex->sidx) & 0x7F;
         if(len > Len)
         {
             uint8_t fill;

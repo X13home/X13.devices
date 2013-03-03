@@ -346,7 +346,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 break;
             }
             vMQTTS.Tretry = MQTTS_DEF_TSGW - 1;
-            
+
             if(vMQTTS.Nretry)
                 vMQTTS.Nretry--;
             else
@@ -357,19 +357,23 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 vMQTTS.Tretry--;
                 if(vMQTTS.Tretry == (MQTTS_DEF_TSGW - 2))
                 {
+                    return MQTTS_POOL_STAT_ASLEEP;          // ASLeep
+/*
                     if(vMQTTS.Nretry)
                     {
                         if(vMQTTS.Tasleep != 0)
                             vMQTTS.Nretry--;
-                        return MQTTS_POOL_STAT_ASLEEP;          // ASLeep
+                        
                     }
                     vMQTTS.Nretry = MQTTS_DEF_NRETRY;
                     break;
+*/
                 }
                 else if(vMQTTS.Tretry == 0)
                 {
                     if(vMQTTS.Nretry)
                     {
+                        vMQTTS.Nretry--;
                         vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
                         return  MQTTS_POOL_STAT_AWAKE;          // WakeUp
                     }
@@ -396,7 +400,6 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
 
             if(vMQTTS.Nretry)
                 vMQTTS.Nretry--;
-
             else
             {
 #ifdef GATEWAY

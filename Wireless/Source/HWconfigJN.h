@@ -65,6 +65,8 @@ See LICENSE.txt file for license details.
 #endif  //  GATEWAY
 // End OD Section
 
+#define SystemReset()           {cli();RxLEDon();asm("jmp 0x0000");}
+
 // Power Reduction
 #define CONFIG_PRR()            {ACSR = (1<<ACD); \
                                  PRR = (1<<PRTWI) | (1<<PRTIM0) | (1<<PRTIM1) | \

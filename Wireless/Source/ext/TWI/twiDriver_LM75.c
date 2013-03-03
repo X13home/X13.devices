@@ -33,6 +33,8 @@ See LICENSE.txt file for license details.
 #define LM75_CONFIG_QS_QUE_4        0x10        // OS fault queue = 4
 #define LM75_CONFIG_QS_QUE_6        0x18        // OS fault queue = 6
 
+#define LM75_T_MIN_DELTA            64
+
 // Process variables
 static uint8_t  lm75_stat[LM75_MAX_DEV];
 static int16_t  lm75_oldVal[LM75_MAX_DEV];
@@ -40,13 +42,13 @@ static int16_t  lm75_oldVal[LM75_MAX_DEV];
 static uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 2;
+    // Return T 0.1°C
 /*
-        // Return T 0.1°C
-        int32_t temp = lm75_oldVal[pSubidx->Base & (LM75_MAX_DEV - 1)];
-        temp *= 5;
-//        temp /= 128;
-        temp >>= 7;
-        *(uint16_t *)pBuf = temp & 0xFFFF;
+    int32_t temp = lm75_oldVal[pSubidx->Base & (LM75_MAX_DEV - 1)];
+    temp *= 5;
+//    temp /= 128;
+    temp >>= 7;
+    *(uint16_t *)pBuf = temp & 0xFFFF;
 */
     *(uint16_t *)pBuf = lm75_oldVal[pSubidx->Base & (LM75_MAX_DEV - 1)];
     return MQTTS_RET_ACCEPTED;
@@ -61,7 +63,7 @@ static uint8_t twi_lm75_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
 {
     uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
-    uint16_t val;
+    uint16_t val, diff;
 
     if(twim_access & TWIM_ERROR)
     {
@@ -87,8 +89,10 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
         case 2:
             val = ((uint16_t)twim_buf[0]<<8) | (twim_buf[1]);
             lm75_stat[base]++;
+            
+            diff = val > lm75_oldVal[base] ? val - lm75_oldVal[base] : lm75_oldVal[base] - val;
 
-            if(val != lm75_oldVal[base])
+            if(diff > LM75_T_MIN_DELTA)
             {
                 lm75_oldVal[base] = val;
                 return 1;
