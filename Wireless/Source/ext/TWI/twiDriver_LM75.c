@@ -33,7 +33,7 @@ See LICENSE.txt file for license details.
 #define LM75_CONFIG_QS_QUE_4        0x10        // OS fault queue = 4
 #define LM75_CONFIG_QS_QUE_6        0x18        // OS fault queue = 6
 
-#define LM75_T_MIN_DELTA            64
+#define LM75_T_MIN_DELTA            63
 
 // Process variables
 static uint8_t  lm75_stat[LM75_MAX_DEV];
