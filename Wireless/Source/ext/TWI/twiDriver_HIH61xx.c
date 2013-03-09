@@ -18,6 +18,9 @@ See LICENSE.txt file for license details.
 
 #define HIH61XX_TWI_ADDR            0x27
 
+#define HIH61XX_T_MIN_DELTA         6
+#define HIH61XX_H_MIN_DELTA         1
+
 static uint8_t  hih61xx_stat;
 static uint8_t  hih61xx_oldhumi;
 static uint16_t hih61xx_oldtemp;
@@ -28,11 +31,19 @@ static uint8_t twi_HIH61xx_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf
     {
         *pLen = 1;
         *pBuf = hih61xx_oldhumi;
+        // Return Humidity %
+//        *pBuf = ((uint16_t)hih61xx_oldhumi*25)>>6;
     }
     else                                // Read Temperature
     {
         *pLen = 2;
         *(uint16_t *)pBuf = hih61xx_oldtemp;
+/*
+        // Return T 0.1°C
+        uint16_t temp = ((uint32_t)hih61xx_oldtemp * 825)>>13;
+        temp -= 400;
+        *(uint16_t *)pBuf = temp;
+*/
     }
     return MQTTS_RET_ACCEPTED;
 }
@@ -83,7 +94,9 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
 //        case 11:
             {
             uint16_t temp = ((((uint16_t)twim_buf[2])<<6) | (twim_buf[3]>>2)) & 0x3FFF;
-            if(temp != hih61xx_oldtemp)
+            uint16_t delta;
+            delta = temp > hih61xx_oldtemp ? temp - hih61xx_oldtemp : hih61xx_oldtemp - temp;
+            if(delta > HIH61XX_T_MIN_DELTA)
             {
                 hih61xx_oldtemp = temp;
                 hih61xx_stat++;
@@ -105,7 +118,9 @@ static uint8_t twi_HIH61xx_Pool2(subidx_t * pSubidx)
         hih61xx_stat++;
         uint8_t tmp = (twim_buf[0]<<2) | (twim_buf[1]>>6);
         twim_access = 0;        // Bus Free
-        if(tmp != hih61xx_oldhumi)
+        uint16_t delta;
+        delta = tmp > hih61xx_oldhumi ? tmp - hih61xx_oldhumi : hih61xx_oldhumi - tmp;
+        if(delta > HIH61XX_H_MIN_DELTA)
         {
             hih61xx_oldhumi = tmp;
             return 1;

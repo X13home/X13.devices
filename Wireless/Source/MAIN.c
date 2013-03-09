@@ -134,9 +134,9 @@ int main(void)
                     pPBuf = (uint8_t *)mqAssert();
                     if(pPBuf != NULL)
                     {
-                        bTmp = MQTTS_MSG_SIZE;
+                        bTmp = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
 
-                        ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM, &bTmp, pPBuf);
+                        ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
                         MQTTS_Publish(0, poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
                         mqRelease((MQ_t *)pPBuf);
                         poolIdx = 0xFFFF;

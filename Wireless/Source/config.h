@@ -65,6 +65,10 @@ See LICENSE.txt file for license details.
 #define OD_MAX_INDEX_LIST       12      // Size of identificators list
 #define OD_DEFAULT_TASLEEP      0       // Sleep Time, default - always online.
 
+#define OD_DEV_SWVERSH          '2'     // Software Version
+#define OD_DEV_SWVERSM          '4'
+#define OD_DEV_SWVERSL          '2'
+
 // RF Section
 #define RF_TX_POOL_SIZE         4
 //#define RF_BASE_FREQ            433920000UL

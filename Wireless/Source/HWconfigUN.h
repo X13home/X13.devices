@@ -56,6 +56,18 @@ See LICENSE.txt file for license details.
 // 30   PD6     SV1-17  PWM1
 // 31   PD7     SV1-18
 
+// Object's Dictionary Section
+#define OD_DEV_TYP_0            'U'
+#define OD_DEV_TYP_1            'N'
+#define OD_DEV_TYP_2            '1'
+#define OD_DEV_TYP_3            '0'
+#ifdef GATEWAY
+#define OD_DEFAULT_ADDR         0x07
+#endif  //  GATEWAY
+// End OD Section
+
+#define SystemReset()           {cli();RxLEDon();asm("jmp 0x0000");}
+
 // Power Reduction
 #ifdef USE_RTC_OSC
 #define CONFIG_PRR()            {ACSR = (1<<ACD); \
@@ -95,14 +107,7 @@ See LICENSE.txt file for license details.
 #include "uart.h"
 // End USART Section
 
-// Object's Dictionary Section
-#define OD_DEFAULT_TYP          {6,'U','_','G','a','t','e'}
-#define OD_DEFAULT_ADDR         0x07
-// End OD Section
-
 #else   //  !GATEWAY
-
-#define OD_DEFAULT_TYP          {6,'U','_','N','o','d','e'}
 
 // Serial Output
 #define SER_PIN_TX              25

@@ -295,7 +295,7 @@ static void mqtts_send_connect()        // Send  CONNECT
     ReadOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, &pBuf->mq.Length, ipBuf);
     if(pBuf->mq.Length < 2)     // Node Name not defined, use default name
     {
-        pBuf->mq.Length = MQTTS_SIZEOF_CLIENTID - 3;
+        pBuf->mq.Length = OD_DEV_TYP_LEN;
         ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &pBuf->mq.Length, ipBuf);
         ipBuf += pBuf->mq.Length;
         *(ipBuf++) = '_';
@@ -346,35 +346,45 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 break;
             }
             vMQTTS.Tretry = MQTTS_DEF_TSGW - 1;
+
+            if(vMQTTS.Nretry)
+                vMQTTS.Nretry--;
+            else
+                SystemReset();
 #else  //  ASLEEP
             if(vMQTTS.Tretry)
             {
                 vMQTTS.Tretry--;
                 if(vMQTTS.Tretry == (MQTTS_DEF_TSGW - 2))
                 {
+                    return MQTTS_POOL_STAT_ASLEEP;          // ASLeep
+/*
                     if(vMQTTS.Nretry)
                     {
                         if(vMQTTS.Tasleep != 0)
                             vMQTTS.Nretry--;
-                        return MQTTS_POOL_STAT_ASLEEP;          // ASLeep
+                        
                     }
                     vMQTTS.Nretry = MQTTS_DEF_NRETRY;
                     break;
+*/
                 }
                 else if(vMQTTS.Tretry == 0)
                 {
                     if(vMQTTS.Nretry)
                     {
+                        vMQTTS.Nretry--;
                         vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
                         return  MQTTS_POOL_STAT_AWAKE;          // WakeUp
                     }
-                    vMQTTS.Tretry = vMQTTS.Tasleep;             // Not found many times
+                    // Not found many times
+                    //vMQTTS.Tretry = vMQTTS.Tasleep;
+                    SystemReset();
                 }
                 break;
             }
             vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
             vMQTTS.Tretry = MQTTS_DEF_TSGW - 1;
-
 #endif  //  ASLEEP
             mqtts_send_search_gw();
             break;
@@ -387,16 +397,20 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 vMQTTS.Tretry--;
                 break;
             }
-#ifndef GATEWAY
+
             if(vMQTTS.Nretry)
                 vMQTTS.Nretry--;
             else
             {
+#ifdef GATEWAY
+                SystemReset();
+#else   //    NODE
                 vMQTTS.Nretry = MQTTS_DEF_NRETRY;
                 vMQTTS.Status = MQTTS_STATUS_SEARCHGW;
                 break;
+#endif  // GATEWAY
             }
-#endif  //  !GATEWAY
+            
             vMQTTS.Tretry = MQTTS_DEF_TCONNECT - 1;
             mqtts_send_connect();
             break;
@@ -600,7 +614,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
             if(tmp == 0)   // New message
             {
                 vMQTTS.ReturnCode = WriteOD(SWAPWORD(pBuf->mq.m.publish.TopicId),
-                                            pBuf->mq.m.publish.Flags,
+                                            pBuf->mq.m.publish.Flags | 0x80,
                                             pBuf->mq.Length - MQTTS_SIZEOF_MSG_PUBLISH,
                                             (uint8_t *)&pBuf->mq.m.publish.Data);
             }

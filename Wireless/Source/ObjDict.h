@@ -11,6 +11,8 @@ See LICENSE.txt file for license details.
 #ifndef _OBJ_DICT_H_
 #define _OBJ_DICT_H_
 
+#define OD_DEV_TYP_LEN  6
+
 // Predefined variables
 enum
 {
