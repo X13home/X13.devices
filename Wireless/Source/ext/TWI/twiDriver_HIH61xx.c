@@ -76,22 +76,18 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
                 return 0;
             hih61xx_stat = 1;
         case 1:
-//        case 6:
             twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_WRITE), 0, 0, NULL);
             break;
         case 4:         // !! The measurement cycle duration is typically 36.65 ms
-//        case 9:
             twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_READ), 0, 4, (uint8_t *)twim_buf);
             break;
         case 5:
-//        case 10:
             if((twim_buf[0] & 0xC0) != 0)   // data invalid
             {
                 hih61xx_stat--;
                 return 0;
             }
-//            break;
-//        case 11:
+
             {
             uint16_t temp = ((((uint16_t)twim_buf[2])<<6) | (twim_buf[3]>>2)) & 0x3FFF;
             uint16_t delta;
@@ -112,7 +108,6 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
 
 static uint8_t twi_HIH61xx_Pool2(subidx_t * pSubidx)
 {
-//    if(hih61xx_stat == 13)
     if(hih61xx_stat == 7)
     {
         hih61xx_stat++;
