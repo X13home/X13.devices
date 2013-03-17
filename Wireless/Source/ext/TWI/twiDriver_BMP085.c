@@ -11,8 +11,8 @@ See LICENSE.txt file for license details.
 // TWI Driver Bosh - BMP085, Pressure & Temperature
 
 // Outs
-//  Tw(addr) - Temperature      0,1°C
-//  Td(addr+1) - Pressure       0,01 hPa(mBar)
+//  Tw30464     - Temperature       0,1°C
+//  Td30464     - Pressure          0,01 hPa(mBar)
 
 #define BMP085_ADDR                 0x77
 
@@ -88,10 +88,14 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
     uint16_t ut;
     int32_t x1,x2;
 
-    if(twim_access & TWIM_ERROR)
+    if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
         if(bmp085_stat != 0)
+        {
             bmp085_stat = 0x40;
+            if(twim_access & TWIM_RELEASE)
+                twim_access = TWIM_RELEASE;
+        }
         return 0;
     }
 
@@ -108,14 +112,14 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
         case 3:             // Start Conversion, Temperature
             twim_buf[0] = BMP085_CTRL_MEAS_REG;
             twim_buf[1] = BMP085_T_MEASURE;
-            twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
+            twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf, NULL);
             break;
         // !! ut Conversion time 4,5 mS
         case 2:             // Get dummy ut
         case 4:             // Get ut
             twim_buf[0] = BMP085_ADC_OUT_MSB_REG;            // Select ADC out register
             twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, 
-                                                                        (uint8_t *)twim_buf);
+                                                                        (uint8_t *)twim_buf, NULL);
             break;
         case 5:             // Get uncompensated temperature, and normalize
             ut = ((uint16_t)twim_buf[0]<<8) | twim_buf[1];
@@ -140,14 +144,14 @@ static uint8_t twi_BMP085_Pool1(subidx_t * pSubidx)
         case 9:             // Start conversion, Pressure
             twim_buf[0] = BMP085_CTRL_MEAS_REG;
             twim_buf[1] = BMP085_P_MEASURE + (BMP085_OSS<<6);
-            twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
+            twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf, NULL);
             break;
         // !! up Conversion time on ultra high resolution (BMP085_OSS = 3) 25,5 mS
         case 8:             // Get dummy up
         case 11:            // Get up
             twim_buf[0] = BMP085_ADC_OUT_MSB_REG;            // Select ADC out register
             twimExch_ISR(BMP085_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 3,
-                                                                        (uint8_t *)twim_buf);
+                                                                        (uint8_t *)twim_buf, NULL);
             break;
     }
     bmp085_stat++;
@@ -237,7 +241,6 @@ static uint8_t twi_BMP085_Config(void)
     if(pIndex1 == NULL)
         return 0;
 
-    pIndex1->Index = 0;
     pIndex1->cbRead  =  &twi_BMP085_Read;
     pIndex1->cbWrite =  &twi_BMP085_Write;
     pIndex1->cbPool  =  &twi_BMP085_Pool1;
@@ -253,7 +256,6 @@ static uint8_t twi_BMP085_Config(void)
         return 0;
     }
 
-    pIndex2->Index = 0;
     pIndex2->cbRead  =  &twi_BMP085_Read;
     pIndex2->cbWrite =  &twi_BMP085_Write;
     pIndex2->cbPool  =  &twi_BMP085_Pool2;

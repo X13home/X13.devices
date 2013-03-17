@@ -11,8 +11,8 @@ See LICENSE.txt file for license details.
 // TWI Driver Silicon Image Si7005, Temperature & Humidity
 
 // Outs
-// TW(addr)     Temperature counter (TC)
-// TW(add + 1)  Humidity counter    (HC)
+// TW16384      Temperature counter (TC)
+// TW16385      Humidity counter    (HC)
 // Temp°C  = (TC/16) - 50
 // RH = (HC/16) - 24
 // RH_lin = RH - (RH^2*-0,00393 + RH*0,4008 - 4,7844)
@@ -76,10 +76,14 @@ static uint8_t twi_SI7005_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
 {
-    if(twim_access & TWIM_ERROR)
+    if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
         if(si7005_stat != 0)
+        {
             si7005_stat = 0x40;
+            if(twim_access & TWIM_RELEASE)
+                twim_access = TWIM_RELEASE;
+        }
         return 0;
     }
 
@@ -96,7 +100,7 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
         case 6:
             twim_buf[0] = SI7005_REG_CONFIG;
             twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE);
-            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
+            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf, NULL);
             break;
         // !! Conversion Time 35mS - Normal / 18 mS - Fast
         case 4:     // Read Busy Flag
@@ -104,7 +108,7 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
         case 14:
             twim_buf[0] = SI7005_REG_STATUS;
             twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 1, 
-                         (uint8_t *)twim_buf);
+                         (uint8_t *)twim_buf, NULL);
             break;
         case 5:
         case 10:
@@ -117,7 +121,7 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
             // Read Data
             twim_buf[0] = SI7005_REG_DATA;
             twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, 
-                                (uint8_t *)twim_buf);
+                                (uint8_t *)twim_buf, NULL);
             break;
         case 11:                                                // Calculate & test temperature
             {
@@ -126,7 +130,7 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
             // Start Conversion, Humidity
             twim_buf[0] = SI7005_REG_CONFIG;
             twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
-            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf);
+            twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf, NULL);
             
             uint16_t delta;
             delta = val > si7005_oldTemp ? val - si7005_oldTemp : si7005_oldTemp - val;
@@ -183,7 +187,6 @@ static uint8_t twi_SI7005_Config(void)
     if(pIndex1 == NULL)
         return 0;
 
-    pIndex1->Index = 0;
     pIndex1->cbRead  =  &twi_SI7005_Read;
     pIndex1->cbWrite =  &twi_SI7005_Write;
     pIndex1->cbPool  =  &twi_SI7005_Pool1;
@@ -200,7 +203,6 @@ static uint8_t twi_SI7005_Config(void)
         return 0;
     }
 
-    pIndex2->Index = 0;
     pIndex2->cbRead  =  &twi_SI7005_Read;
     pIndex2->cbWrite =  &twi_SI7005_Write;
     pIndex2->cbPool  =  &twi_SI7005_Pool2;

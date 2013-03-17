@@ -11,8 +11,8 @@ See LICENSE.txt file for license details.
 // TWI Driver Honeywell - HIH6130/HIH6131/HIH6120/HIH6121,  Humidity & Temperature
 
 // Outs
-// Tw(addr)   Temperature Counter(TC)
-// TB(add+1)  Humidity Counter(HC)
+// Tw9984       Temperature Counter(TC)
+// TB9985       Humidity Counter(HC)
 // T°C = (TC * 55 / 5461) - 40
 // RH% = HC * 20 / 51
 
@@ -59,10 +59,14 @@ static uint8_t twi_HIH61xx_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
 {
-    if(twim_access & TWIM_ERROR)
+    if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
         if(hih61xx_stat != 0)
+        {
             hih61xx_stat = 0x40;
+            if(twim_access & TWIM_RELEASE)
+                twim_access = TWIM_RELEASE;
+        }
         return 0;
     }
     
@@ -76,10 +80,10 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
                 return 0;
             hih61xx_stat = 1;
         case 1:
-            twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_WRITE), 0, 0, NULL);
+            twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_WRITE), 0, 0, NULL, NULL);
             break;
         case 4:         // !! The measurement cycle duration is typically 36.65 ms
-            twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_READ), 0, 4, (uint8_t *)twim_buf);
+            twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_READ), 0, 4, (uint8_t *)twim_buf, NULL);
             break;
         case 5:
             if((twim_buf[0] & 0xC0) != 0)   // data invalid
@@ -139,7 +143,6 @@ static uint8_t twi_HIH61xx_Config(void)
     if(pIndex1 == NULL)
         return 0;
 
-    pIndex1->Index = 0;
     pIndex1->cbRead  =  &twi_HIH61xx_Read;
     pIndex1->cbWrite =  &twi_HIH61xx_Write;
     pIndex1->cbPool  =  &twi_HIH61xx_Pool1;
@@ -155,7 +158,6 @@ static uint8_t twi_HIH61xx_Config(void)
         return 0;
     }
 
-    pIndex2->Index = 0;
     pIndex2->cbRead  =  &twi_HIH61xx_Read;
     pIndex2->cbWrite =  &twi_HIH61xx_Write;
     pIndex2->cbPool  =  &twi_HIH61xx_Pool2;

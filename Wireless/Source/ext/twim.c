@@ -18,6 +18,9 @@ See LICENSE.txt file for license details.
 #define TWIM_WRITE      2               // Write Data
 #define TWIM_BUSY       8               // Bus Busy
 #define TWIM_ERROR      0x10            // Bus Error
+#define TWIM_RELEASE    0x20            // Request to relase Bus
+
+typedef void (*cbTWI)(void);            // TWI ISR ready, Callback function
 
 // Local Variables
 static uint8_t twim_addr;               // Device address
@@ -26,6 +29,7 @@ static uint8_t twim_bytes2write;        // bytes to write
 static uint8_t twim_bytes2read;         // bytes to read
 volatile static uint8_t * twim_ptr;     // pointer to data buffer
 static uint8_t twim_buf[4];             // temporary buffer
+static cbTWI twim_callback;             // callback function
 
 // Diag & WD variables
 static uint8_t twim_addr_old;           // WatchDog addr
@@ -110,7 +114,7 @@ static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t rea
 }
 
 // Read/Write data with ISR
-static void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf)
+static void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf, cbTWI pCallback)
 {
     if(TWIM_ERROR & twim_access)
         return;
@@ -120,6 +124,7 @@ static void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t re
     twim_bytes2write = write; 
     twim_bytes2read = read;
     twim_ptr = pBuf;
+    twim_callback = pCallback;
 
     TWCR = (1<<TWEN) |                          // TWI Interface enabled.
            (1<<TWIE) | (1<<TWINT) |             // Enable TWI Interupt and clear the flag.
@@ -157,7 +162,11 @@ ISR(TWI_vect)
                       (1<<TWIE) | (1<<TWINT) |  // Enable TWI Interupt and clear the flag.
                       (1<<TWSTA);               // Initiate a START condition.
             else
+            {
                 TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop
+                if(twim_callback != NULL)
+                    (twim_callback)();
+            }
             break;
         case TW_MR_DATA_ACK:                    // Data byte has been received and ACK tramsmitted
             twim_ptr[twi_ptr++] = TWDR;
@@ -178,6 +187,8 @@ ISR(TWI_vect)
             twim_ptr[twi_ptr++] = TWDR;
             TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop
             twim_access &= ~TWIM_READ;
+            if(twim_callback != NULL)
+                (twim_callback)();
             break;
         default:                                // Error
             TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop, Disable Interupt
@@ -202,11 +213,16 @@ ISR(TWI_vect)
 #include "twi/twiDriver_LM75.c"
 #endif  //  TWI_USE_LM75
 
+#ifdef TWI_USE_SI114X
+#include "twi/twiDriver_Si114x.c"
+#endif  //  TWI_USE_SI114X
+
 static void twiClean()
 {
     twim_access = 0;
     twim_addr = 0xFF;
     twim_addr_old = 0;
+    twim_callback = NULL;
 }
 
 static uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
@@ -282,8 +298,6 @@ static void twiConfig(void)
     if(pIndex == NULL)
         return;
 
-    pIndex->Index = 0;
-
 #ifdef TWI_USE_BMP085
     cnt += twi_BMP085_Config();
 #endif
@@ -295,6 +309,9 @@ static void twiConfig(void)
 #endif
 #ifdef TWI_USE_LM75
     cnt += twi_LM75_Config();
+#endif
+#ifdef TWI_USE_SI114X
+    cnt += twi_SI114X_Config();
 #endif
 
     if(cnt == 0)

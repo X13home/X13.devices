@@ -228,7 +228,10 @@ indextable_t * getFreeIdxOD(void)
     uint8_t id;
     for(id = 0; id < OD_MAX_INDEX_LIST; id++)
         if(ListOD[id].Index == 0xFFFF)
+        {
+            ListOD[id].Index = 0;
             return &ListOD[id];
+        }
     return NULL;
 }
 

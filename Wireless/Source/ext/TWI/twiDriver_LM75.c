@@ -12,6 +12,10 @@ See LICENSE.txt file for license details.
 
 // Outs
 // Tw(addr | pos) ADC Register (Temp * 256)
+//  18432
+//  18688 - 18689
+//  ...
+//  20224 - 20231
 
 #define LM75_START_ADDR             0x48
 #define LM75_STOP_ADDR              0x4F
@@ -65,10 +69,14 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
     uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
     uint16_t val, diff;
 
-    if(twim_access & TWIM_ERROR)
+    if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
         if(lm75_stat[base] != 0)
+        {
             lm75_stat[base] = 0x40;
+            if(twim_access & TWIM_RELEASE)
+                twim_access = TWIM_RELEASE;
+        }
         return 0;
     }
     
@@ -84,7 +92,7 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
         case 1:
             twim_buf[0] = LM75_REG_TEMP;
             twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2,
-                                                                    (uint8_t *)twim_buf);
+                                                                    (uint8_t *)twim_buf, NULL);
             break;
         case 2:
             val = ((uint16_t)twim_buf[0]<<8) | (twim_buf[1]);
@@ -128,7 +136,6 @@ static uint8_t twi_LM75_Config(void)
             if(pIndex == NULL)
                 break;
             
-            pIndex->Index = 0;
             pIndex->cbRead  =  &twi_lm75_Read;
             pIndex->cbWrite =  &twi_lm75_Write;
             pIndex->cbPool  =  &twi_lm75_Pool;
