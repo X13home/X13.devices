@@ -12,85 +12,84 @@ See LICENSE.txt file for license details.
 #define _RFM23REG_H_
 
 // RFM23 Registers definition
-#define RFM23_DEVICE_TYPE                                 0x00    // Device Type Code
-#define RFM23_DEVICE_VERSION                              0x01    // Version Code
-#define RFM23_DEVICE_STATUS                               0x02    // Device Status
-#define RFM23_INTERRUPT_STATUS_1                          0x03    // Interrupt/Status 1
-#define RFM23_INTERRUPT_STATUS_2                          0x04    // Interrupt/Status 2
-#define RFM23_INTERRUPT_ENABLE_1                          0x05    // Interrupt Enable 1
-#define RFM23_INTERRUPT_ENABLE_2                          0x06    // Interrupt Enable 2
-#define RFM23_OPERATING_AND_FUNCTION_CONTROL_1            0x07    // Operating Mode and Function Control 1
-#define RFM23_OPERATING_AND_FUNCTION_CONTROL_2            0x08    // Operating Mode and Function Control 2
-#define RFM23_CRYSTAL_OSCILLATOR_LOAD_CAPACITANCE         0x09    // Crystal Oscillator Load Capacitance
-#define RFM23_MICROCONTROLLER_OUTPUT_CLOCK                0x0A    // Microcontroller Output Clock
-#define RFM23_GPIO0_CONFIGURATION                         0x0B    // GPIO0 Configuration
-#define RFM23_GPIO1_CONFIGURATION                         0x0C    // GPIO1 Configuration
-#define RFM23_GPIO2_CONFIGURATION                         0x0D    // GPIO2 Configuration
-#define RFM23_IO_PORT_CONFIGURATION                       0x0E    //  I/O Port Configuration
-#define RFM23_ADC_CONFIGURATION                           0x0F    // ADC Configuration
-#define RFM23_ADC_SENSOR_AMPLIFIER_OFFSET                 0x10    // ADC Sensor Amplifier Offset
-#define RFM23_ADC_VALUE                                   0x11    // ADC Value
-#define RFM23_TEMPERATURE_SENSOR_CONTROL                  0x12    // Temperature Sensor Calibration
-#define RFM23_TEMPERATURE_VALUE_OFFSET                    0x13    // Temperature Value Offset
-#define RFM23_WAKE_UP_TIMER_PERIOD_1                      0x14    // Wake-Up Timer Period 1
-#define RFM23_WAKE_UP_TIMER_PERIOD_2                      0x15    // Wake-Up Timer Period 2
-#define RFM23_WAKE_UP_TIMER_PERIOD_3                      0x16    // Wake-Up Timer Period 3
-#define RFM23_WAKE_UP_TIMER_VALUE_1                       0x17    // Wake-Up Timer Value 1
-#define RFM23_WAKE_UP_TIMER_VALUE_2                       0x18    // Wake-Up Timer Value 2
-#define RFM23_LOW-DUTY_CYCLE_MODE_DURATION                0x19    // Low-Duty Cycle Mode Duration
-#define RFM23_LOW_BATTERY_DETECTOR_THRESHOLD              0x1A    // Low Battery Detector Threshold
-#define RFM23_BATTERY_VOLTAGE_LEVEL                       0x1B    // Battery Voltage Level
-#define RFM23_IF_FILTER_BANDWIDTH                         0x1C    // IF Filter Bandwidth
-#define RFM23_AFC_LOOP_GEARSHIFT_OVERRIDE                 0x1D    // AFC Loop Gearshift Override
-#define RFM23_AFC_TIMING_CONTROL                          0x1E    // AFC Timing Control
-#define RFM23_CLOCK_RECOVERY_GEARSHIFT_OVERRIDE           0x1F    // Clock Recovery Gearshift Override
-#define RFM23_CLOCK_RECOVERY_OVERSAMPLING_RATIO           0x20    // Clock Recovery Oversampling Rate
-#define RFM23_CLOCK_RECOVERY_OFFSET_2                     0x21    // Clock Recovery Offset 2
-#define RFM23_CLOCK_RECOVERY_OFFSET_1                     0x22    // Clock Recovery Offset 1
-#define RFM23_CLOCK_RECOVERY_OFFSET_0                     0x23    // Clock Recovery Offset 0
-#define RFM23_CLOCK_RECOVERY_TIMING_LOOP_GAIN_1           0x24    // Clock Recovery Timing Loop Gain 1
-#define RFM23_CLOCK_RECOVERY_TIMING_LOOP_GAIN_0           0x25    // Clock Recovery Timing Loop Gain 0
-#define RFM23_RECEIVED_SIGNAL_STRENGTH_INDICATOR          0x26    // Received Signal Strength Indicator
-#define RFM23_RSSI_THRESHOLD                              0x27    // RSSI Threshold for Clear Channel Indicator
-#define RFM23_ANTENNA_DIVERSITY_REGISTER_1                0x28    // Antenna Diversity 1
-#define RFM23_ANTENNA_DIVERSITY_REGISTER_2                0x29    // Antenna Diversity 2
-#define RFM23_AFC_LIMITER                                 0x2A    // AFC Limiter
-#define RFM23_AFC_CORRECTION                              0x2B    // AFC Correction (MSBs)
-#define RFM23_OOK_COUNTER_VALUE_1                         0x2C    // OOK Counter Value 1
-#define RFM23_OOK_COUNTER_VALUE_2                         0x2D    // OOK Counter Value 2
-#define RFM23_SLICER_PEAK_HOLD                            0x2E    // Slicer Peak Holder
-#define RFM23_DATA_ACCESS_CONTROL                         0x30    // Data Access Control
+#define RFM23_DT                                          0x00    // Device Type Code, RO
+#define RFM23_VC                                          0x01    // Version Code, RO
+#define RFM23_STATUS                                      0x02    // Device Status, RO
+#define RFM23_IS1                                         0x03    // Interrupt/Status 1, RO
+#define RFM23_IS2                                         0x04    // Interrupt/Status 2, RO
+#define RFM23_IE1                                         0x05    // Interrupt Enable 1
+#define RFM23_IE2                                         0x06    // Interrupt Enable 2
+#define RFM23_OFC1                                        0x07    // Operating Mode and Function Control 1
+#define RFM23_OFC2                                        0x08    // Operating Mode and Function Control 2
+#define RFM23_XTALLC                                      0x09    // Crystal Oscillator Load Capacitance
+#define RFM23_MCO                                         0x0A    // Microcontroller Output Clock
+#define RFM23_GPIO0_CFG                                   0x0B    // GPIO0 Configuration
+#define RFM23_GPIO1_CFG                                   0x0C    // GPIO1 Configuration
+#define RFM23_GPIO2_CFG                                   0x0D    // GPIO2 Configuration
+#define RFM23_IO_CFG                                      0x0E    //  I/O Port Configuration
+#define RFM23_ADC_CCFG                                    0x0F    // ADC Configuration
+#define RFM23_ADCOFFS                                     0x10    // ADC Sensor Amplifier Offset
+#define RFM23_ADC                                         0x11    // ADC Value
+#define RFM23_TS_CTRL                                     0x12    // Temperature Sensor Calibration
+#define RFM23_TVOFFS                                      0x13    // Temperature Value Offset
+#define RFM23_WTR                                         0x14    // Wake-Up Timer Period 1
+#define RFM23_WTMH                                        0x15    // Wake-Up Timer Period 2
+#define RFM23_WTML                                        0x16    // Wake-Up Timer Period 3
+#define RFM23_WTVH                                        0x17    // Wake-Up Timer Value 1, RO
+#define RFM23_WTWL                                        0x18    // Wake-Up Timer Value 2, RO
+#define RFM23_LDC                                         0x19    // Low-Duty Cycle Mode Duration
+#define RFM23_LBDT                                        0x1A    // Low Battery Detector Threshold
+#define RFM23_VBAT                                        0x1B    // Battery Voltage Level, RO
+#define RFM23_IFFBW                                       0x1C    // IF Filter Bandwidth
+#define RFM23_AFC_LGO                                     0x1D    // AFC Loop Gearshift Override
+#define RFM23_AFC_TC                                      0x1E    // AFC Timing Control
+#define RFM23_CRGO                                        0x1F    // Clock Recovery Gearshift Override
+#define RFM23_RXOSR                                       0x20    // Clock Recovery Oversampling Rate
+#define RFM23_CRO2                                        0x21    // Clock Recovery Offset 2
+#define RFM23_NCOFFH                                      0x22    // Clock Recovery Offset 1
+#define RFM23_NVOFFL                                      0x23    // Clock Recovery Offset 0
+#define RFM23_CRTLG1                                      0x24    // Clock Recovery Timing Loop Gain 1
+#define RFM23_CRGAINL                                     0x25    // Clock Recovery Timing Loop Gain 0
+#define RFM23_RSSI                                        0x26    // Received Signal Strength Indicator, RO
+#define RFM23_RSSI_TH                                     0x27    // RSSI Threshold for Clear Channel Indicator
+#define RFM23_ADRSSI1                                     0x28    // Antenna Diversity 1
+#define RFM23_ADRSSI2                                     0x29    // Antenna Diversity 2
+#define RFM23_AFCLIM                                      0x2A    // AFC Limiter
+#define RFM23_AFC_CORRH                                   0x2B    // AFC Correction (MSBs)
+#define RFM23_OOK_CV1                                     0x2C    // OOK Counter Value 1
+#define RFM23_OOK_CV2                                     0x2D    // OOK Counter Value 2
+#define RFM23_SLPH                                        0x2E    // Slicer Peak Holder
+#define RFM23_DTAC                                        0x30    // Data Access Control
 #define RFM23_EZMAC_STATUS                                0x31    // EZMAC® Status
-#define RFM23_HEADER_CONTROL_1                            0x32    // Header Control 1
-#define RFM23_HEADER_CONTROL_2                            0x33    // Header Control 2
-#define RFM23_PREAMBLE_LENGTH                             0x34    // Preamble Length
-#define RFM23_PREAMBLE_DETECTION_CONTROL                  0x35    // Preamble Detection Control 1
-#define RFM23_SYNC_WORD_3                                 0x36    // Synchronization Word 3
-#define RFM23_SYNC_WORD_2                                 0x37    // Synchronization Word 2
-#define RFM23_SYNC_WORD_1                                 0x38    // Synchronization Word 1
-#define RFM23_SYNC_WORD_0                                 0x39    // Synchronization Word 0
-#define RFM23_TRANSMIT_HEADER_3                           0x3A    // Transmit Header 3
-#define RFM23_TRANSMIT_HEADER_2                           0x3B    // Transmit Header 2
-#define RFM23_TRANSMIT_HEADER_1                           0x3C    // Transmit Header 1
-#define RFM23_TRANSMIT_HEADER_0                           0x3D    // Transmit Header 0
-#define RFM23_TRANSMIT_PACKET_LENGTH                      0x3E    //  Packet Length
-#define RFM23_CHECK_HEADER_3                              0x3F    // Check Header 3
-#define RFM23_CHECK_HEADER_2                              0x40    // Check Header 2
-#define RFM23_CHECK_HEADER_1                              0x41    // Check Header 1
-#define RFM23_CHECK_HEADER_0                              0x42    // Check Header 0
-#define RFM23_HEADER_ENABLE_3                             0x43    // Header Enable 3
-#define RFM23_HEADER_ENABLE_2                             0x44    // Header Enable 2
-#define RFM23_HEADER_ENABLE_1                             0x45    // Header Enable 1
-#define RFM23_HEADER_ENABLE_0                             0x46    // Header Enable 0
-#define RFM23_RECEIVED_HEADER_3                           0x47
-#define RFM23_RECEIVED_HEADER_2                           0x48
-#define RFM23_RECEIVED_HEADER_1                           0x49
-#define RFM23_RECEIVED_HEADER_0                           0x4A
-#define RFM23_RECEIVED_PACKET_LENGTH                      0x4B
-#define RFM23_ADC8_CONTROL                                0x4F
-// EZRadioPro
-#define RFM23_ANALOG_TEST_BUS                             0x50
-#define RFM23_DIGITAL_TEST_BUS                            0x51
+#define RFM23_HDC1                                        0x32    // Header Control 1
+#define RFM23_HDC2                                        0x33    // Header Control 2
+#define RFM23_PREALEN                                     0x34    // Preamble Length
+#define RFM23_PREA_DC                                     0x35    // Preamble Detection Control 1
+#define RFM23_SYNC_HH                                     0x36    // Synchronization Word [31:24]
+#define RFM23_SYNC_HL                                     0x37    // Synchronization Word [23:16]
+#define RFM23_SYNC_LH                                     0x38    // Synchronization Word [15:8]
+#define RFM23_SYNC_LL                                     0x39    // Synchronization Word [7:0]
+#define RFM23_TXHD_HH                                     0x3A    // Transmit Header [31:24]
+#define RFM23_TXHD_HL                                     0x3B    // Transmit Header [23:16]
+#define RFM23_TXHD_LH                                     0x3C    // Transmit Header [15:8]
+#define RFM23_TXHD_LL                                     0x3D    // Transmit Header [7:0]
+#define RFM23_PKLEN                                       0x3E    //  Packet Length
+#define RFM23_CHHD_HH                                     0x3F    // Check Header [31:24]
+#define RFM23_CHHD_HL                                     0x40    // Check Header [23:16]
+#define RFM23_CHHD_LH                                     0x41    // Check Header [15:8]
+#define RFM23_CHHD_LL                                     0x42    // Check Header [7:0]
+#define RFM23_HDEN_HH                                     0x43    // Header Enable [31:24]
+#define RFM23_HDEN_HL                                     0x44    // Header Enable [23:16]
+#define RFM23_HDEN_LH                                     0x45    // Header Enable [15:8]
+#define RFM23_HDEN_LL                                     0x46    // Header Enable [7:0]
+#define RFM23_RXHD_HH                                     0x47    // Received Header [31:24] , RO
+#define RFM23_RXHD_HL                                     0x48    // Received Header [23:16] , RO
+#define RFM23_RXHD_LH                                     0x49    // Received Header [15:8] , RO
+#define RFM23_RXHD_LL                                     0x4A    // Received Header [7:0] , RO
+#define RFM23_RXPLEN                                      0x4B    // Received Packet Length, RO
+#define RFM23_ADC8                                        0x4F    // ADC8 Control
+#define RFM23_ATB                                         0x50    // ANALOG_TEST_BUS
+#define RFM23_DTB                                         0x51    // DIGITAL_TEST_BUS
 #define RFM23_TX_RAMP_CONTROL                             0x52
 #define RFM23_PLL_TUNE_TIME                               0x53
 #define RFM23_INVALID_PREAMBLE_THRESHOLD_AND_PA_MISC      0x54
@@ -105,49 +104,38 @@ See LICENSE.txt file for license details.
 #define RFM23_BLOCK_ENABLE_OVERRIDE_1                     0x5D
 #define RFM23_BLOCK_ENABLE_OVERRIDE_2                     0x5E
 #define RFM23_BLOCK_ENABLE_OVERRIDE_3                     0x5F
-// 
-#define RFM23_CHANNEL_FILTER_COEFFICIENT_ADDRESS          0x60
-// EZRadioPro
+#define RFM23_CHANNEL_FILTER_COEFFICIENT_ADDRESS          0x60    // Channel Filter Coefficient Address
 #define RFM23_CHANNEL_FILTER_COEFFICIENT_VALUE            0x61
-//
-#define RFM23_CRYSTAL_OSCILLATOR_CONTROL_TEST             0x62
-// EZRadioPro
+#define RFM23_CRYSTAL_OSCILLATOR_CONTROL_TEST             0x62    // Crystal Oscillator/Power-on-Reset Control
 #define RFM23_RC_OSCILLATOR_COARSE_CALIBRATION_OVERRIDE   0x63
 #define RFM23_RC_OSCILLATOR_FINE_CALIBRATION_OVERRIDE     0x64
 #define RFM23_LDO_CONTROL_OVERRIDE                        0x65
 #define RFM23_LDO_LEVEL_SETTING                           0x66
 #define RFM23_DELTASIGMA_ADC_TUNING_1                     0x67
 #define RFM23_DELTASIGMA_ADC_TUNING_2                     0x68
-//
-#define RFM23_AGC_OVERRIDE_1                              0x69
-// EZRadioPro
+#define RFM23_AGC_OVERRIDE_1                              0x69    // AGC Override 1
 #define RFM23_AGC_OVERRIDE_2                              0x6A
 #define RFM23_GFSK_FIR_FILTER_COEFFICIENT_ADDRESS         0x6B
 #define RFM23_GFSK_FIR_FILTER_COEFFICIENT_VALUE           0x6C
-//
-#define RFM23_TX_POWER                                    0x6D
-#define RFM23_TX_DATA_RATE_1                              0x6E
-#define RFM23_TX_DATA_RATE_0                              0x6F
-#define RFM23_MODULATION_MODE_CONTROL_1                   0x70
-#define RFM23_MODULATION_MODE_CONTROL_2                   0x71
-#define RFM23_FREQUENCY_DEVIATION                         0x72
-#define RFM23_FREQUENCY_OFFSET_1                          0x73
-#define RFM23_FREQUENCY_OFFSET_2                          0x74
-#define RFM23_FREQUENCY_BAND_SELECT                       0x75
-#define RFM23_NOMINAL_CARRIER_FREQUENCY_1                 0x76
-#define RFM23_NOMINAL_CARRIER_FREQUENCY_0                 0x77
-// EZRadioPro
+#define RFM23_TX_POWER                                    0x6D    //  TX Power
+#define RFM23_TXDR_H                                      0x6E    // TX Data Rate  [15:8]
+#define RFM23_TXDR_L                                      0x6F    // TX Data Rate [7:0]
+#define RFM23_MODULATION_MODE_CONTROL_1                   0x70    // Modulation Mode Control 1
+#define RFM23_MODULATION_MODE_CONTROL_2                   0x71    // Modulation Mode Control 2
+#define RFM23_FD                                          0x72    // Frequency Deviation
+#define RFM23_FO_L                                        0x73    // Frequency Offset [7:0]
+#define RFM23_FO_H                                        0x74    // Frequency Offset [9:8]
+#define RFM23_FREQUENCY_BAND_SELECT                       0x75    // Frequency Band Select
+#define RFM23_FC_H                                        0x76    //  Nominal Carrier Frequency MSB
+#define RFM23_FC_L                                        0x77    //  Nominal Carrier Frequency LSB
 #define RFM23_MISCELLANEOUS_SETTINGS                      0x78
-//
-#define RFM23_FREQUENCY_HOPPING_CHANNEL_SELECT            0x79
-#define RFM23_FREQUENCY_HOPPING_STEP_SIZE                 0x7A
-// EZRadioPro
+#define RFM23_FHCH                                        0x79    // Frequency Hopping Channel Select
+#define RFM23_FHS                                         0x7A    // Frequency Hopping Step Size
 #define RFM23_TURN_AROUND_AND_15_4_LENGTH_COMPLIANCE      0x7B
-//
-#define RFM23_TX_FIFO_CONTROL_1                           0x7C
-#define RFM23_TX_FIFO_CONTROL_2                           0x7D
-#define RFM23_RX_FIFO_CONTROL                             0x7E
-#define RFM23_FIFO_ACCESS                                 0x7F
+#define RFM23_TXAFTHR                                     0x7C    // TX FIFO Control 1
+#define RFM23_TXFAETHR                                    0x7D    // TX FIFO Control 2
+#define RFM23_RXAFTHR                                     0x7E    //  RX FIFO Control
+#define RFM23_FIFOD                                       0x7F    // FIFO Access
 
 //RFM23_DEVICE_TYPE @ 0x00
 #define RFM23_DT_MASK             0x1F
