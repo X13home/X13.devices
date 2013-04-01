@@ -49,6 +49,12 @@ typedef union
   uint8_t   c[4];
 }uL2C;
 
+typedef union
+{
+  uint16_t  i;
+  uint8_t   c[2];
+}uI2C;
+
 extern uint8_t macaddr[6];
 
 #ifdef ARP_MAC_resolver_client
@@ -133,42 +139,50 @@ static uint16_t checksum(uint8_t *buf, uint16_t len,uint8_t type)
   // type 0=ip , icmp
   //      1=udp
   //      2=tcp
-  uint32_t sum = 0;
+  uL2C  sum;
+  uI2C  cvt;
 
   if(type == 1)
   {
-    sum += IP_PROTO_UDP_V;  // protocol udp
+    sum.l = (IP_PROTO_UDP_V - 8);  // protocol udp
                             // the length here is the length of udp (data+header len)
                             // =length given to this function - (IP.scr+IP.dst length)
-    sum += len - 8;         // = real udp len
+    sum.l += len;           // = real udp len
   }
   else if(type == 2)
   {
-    sum += IP_PROTO_TCP_V;
+    sum.l = IP_PROTO_TCP_V;
                             // the length here is the length of tcp (data+header len)
                             // =length given to this function - (IP.scr+IP.dst length)
-    sum += len - 8;         // = real tcp len
+    sum.l += len - 8;         // = real tcp len
   }
+  else
+    sum.l = 0;
   
   // build the sum of 16bit words
   while(len > 1)
   {
-    sum += ((uint16_t)(*buf)<<8) | *(buf+1);
+    cvt.c[1] = *buf;
+    cvt.c[0] = *(buf + 1);
+    sum.l += cvt.i;
+
     buf += 2;
     len -= 2;
   }
   
   // if there is a byte left then add it (padded with zero)
   if(len)
-    sum += ((uint16_t)(*buf))<<8;
+  {
+    sum.l += ((uint16_t)(*buf))<<8;
+  }
 
   // now calculate the sum over the bytes in the sum
   // until the result is only 16bit long
-  while(sum >> 16)
-    sum = (sum & 0xFFFF) + (sum >> 16);
+  while(sum.i[1])
+    sum.l = sum.i[0] + sum.i[1];
 
   // build 1's complement:
-  return( (uint16_t) sum ^ 0xFFFF);
+  return(sum.i[0] ^ 0xFFFF);
 }
 
 #if defined (ALL_clients)
@@ -822,22 +836,26 @@ static uint8_t send_dhcp_discover(uint8_t *buf)
 // value for the message type as shown in the table above.
 static uint8_t dhcp_get_message_type(uint8_t *buf,uint16_t plen)
 {
-        uint16_t option_idx;
-        uint8_t option_len;
-        // the smallest option is 3 bytes
-        if (plen<(UDP_DATA_P+DHCP_OPTION_OFFSET+3)) return(0);
-        // options are coded in the form: option_type,option_len,option_val
-        option_idx=UDP_DATA_P+DHCP_OPTION_OFFSET;
-        while(option_idx+2 <plen ){
-                option_len=buf[option_idx+1];
-                if ((option_len<1) || ((option_idx + option_len + 1)> plen)) break;
-                if (buf[option_idx]==53){
-                        // found message type, return it:
-                        return(buf[option_idx+2]);
-                }
-                option_idx+=2+option_len;
-        }
-        return(0);
+  uint16_t option_idx;
+  uint8_t option_len;
+  // the smallest option is 3 bytes
+  if(plen < (UDP_DATA_P + DHCP_OPTION_OFFSET + 3))
+    return(0);
+  // options are coded in the form: option_type,option_len,option_val
+  option_idx = (UDP_DATA_P + DHCP_OPTION_OFFSET);
+  while((option_idx + 2) < plen)
+  {
+    option_len = buf[option_idx + 1];
+    if((option_len < 1) || ((option_idx + option_len + 1) > plen))
+      break;
+    if(buf[option_idx] == 53)
+    {
+      // found message type, return it:
+      return(buf[option_idx + 2]);
+    }
+    option_idx += 2 + option_len;
+  }
+  return(0);
 }
 
 // use this on DHCPACK or DHCPOFFER messages to read "your ip address"
@@ -938,9 +956,9 @@ static uint8_t dhcp_option_parser(uint8_t *buf,uint16_t plen)
         else
         {
           dhcp_opt_leasetime_minutes= ltime.i[0];
+          if(dhcp_opt_leasetime_minutes < 5)
+            dhcp_opt_leasetime_minutes = 5;
         }
-        if (dhcp_opt_leasetime_minutes < 5)
-          dhcp_opt_leasetime_minutes = 5;
         break;
 //    case 53: dhcp_opt_message_type=buf[option_idx+2];
 //      break;
@@ -1088,7 +1106,7 @@ uint16_t packetloop_dhcp_renewhandler(uint8_t *buf, uint16_t plen)
   {
     dhcp_sec_cnt=0;
     // count down unless the lease was infinite
-    if ((dhcp_opt_leasetime_minutes < 0xffff) && (dhcp_opt_leasetime_minutes>1))
+    if ((dhcp_opt_leasetime_minutes != 0xFFFF) && (dhcp_opt_leasetime_minutes != 0))
       dhcp_opt_leasetime_minutes--;
   }
 

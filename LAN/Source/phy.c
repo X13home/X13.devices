@@ -48,13 +48,23 @@ void LAN_Init(void)
 MQ_t * LAN_GetBuf(void)
 {
   uint16_t plen;
+  uint8_t type;
   plen = enc28j60PacketReceive(MAX_FRAMELEN, buf);
 #ifdef  DHCP_client
   // DHCP renew IP:
   plen = packetloop_dhcp_renewhandler(buf, plen);
 #endif  //  DHCP_client
+  type = packetloop_arp_icmp(buf, plen);
+  if(type == 1)       // Packet for us
+  {
+  }
+  else if(type == 2)  // Broadcast
+  {
+  }
+
+
 /*
-  uint8_t type;
+  
   type = 
 
 
