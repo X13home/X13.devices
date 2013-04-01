@@ -1,3 +1,5 @@
+*.atsuo
+TcfTransactionLog.csv
 /Wireless/Debug/*
 /Wireless/Gate_JN/*
 /Wireless/Gate_PS/*
@@ -8,5 +10,5 @@
 /Wireless/TestRF_JN/*
 /Wireless/TestRF_PS/*
 /Wireless/TestRF_UN/*
-TcfTransactionLog.csv
-/Wireless/*.atsuo
+/LAN/Debug/*
+/LAN/ENC28J60/*
