@@ -38,7 +38,7 @@ Based on
 #include "ip_arp_udp_tcp.h"
 
 #if defined (NTP_client) || defined (UDP_client) || defined (TCP_client) || defined (PING_client)
-#define ARP_MAC_resolver_client 1
+//#define ARP_MAC_resolver_client 1
 #define ALL_clients 1
 #endif
 
@@ -75,8 +75,8 @@ void (*client_arp_result_callback)(uint8_t*);
 // IP
 static uint8_t ipaddr[4] = {0,0,0,0};
 #ifdef ALL_clients
-static uint8_t ipnetmask[4]={255,255,255,255};
-static uint8_t iprouter[4]={0,0,0,0};   // Gateway IP
+//static uint8_t ipnetmask[4]={255,255,255,255};
+//static uint8_t iprouter[4]={0,0,0,0};   // Gateway IP
 static uint8_t ipid = 0x2;
 
 const char iphdr[] PROGMEM ={0x45, 0, 0, 0x82, 0, 0, 0x40, 0, 0x20};
@@ -107,7 +107,8 @@ static uint8_t dhcp_opt_server_id[4]={0,0,0,0}; // server ip
 static uint8_t dhcp_tid = 0;                    // Transaction ID
 static uint16_t dhcp_opt_leasetime_minutes = 0;
 const char dhcp_magic_cookies[] PROGMEM = {0x63, 0x82, 0x53, 0x63};
-const char dhcp_opt_req_lst[] PROGMEM = {53, 1, 1, 55, 2, 1, 3, 255};
+//const char dhcp_opt_req_lst[] PROGMEM = {53, 1, 1, 55, 2, 1, 3, 255};
+const char dhcp_opt_req_lst[] PROGMEM = {53, 1, 1, 255};
 const char dhcp_opt_53[] PROGMEM = {53, 1, 3};
 #endif  //  DHCP_client
 
@@ -134,7 +135,7 @@ const char dhcp_opt_53[] PROGMEM = {53, 1, 3};
 // http://www.netfor2.com/checksum.html
 // http://www.msc.uky.edu/ken/cs471/notes/chap3.htm
 // The RFC has also a C code example: http://www.faqs.org/rfcs/rfc1071.html
-static uint16_t checksum(uint8_t *buf, uint16_t len,uint8_t type)
+static uint16_t checksum(uint8_t *buf, uint16_t len, uint8_t type)
 {
   // type 0=ip , icmp
   //      1=udp
@@ -172,9 +173,7 @@ static uint16_t checksum(uint8_t *buf, uint16_t len,uint8_t type)
   
   // if there is a byte left then add it (padded with zero)
   if(len)
-  {
     sum.l += ((uint16_t)(*buf))<<8;
-  }
 
   // now calculate the sum over the bytes in the sum
   // until the result is only 16bit long
@@ -182,7 +181,7 @@ static uint16_t checksum(uint8_t *buf, uint16_t len,uint8_t type)
     sum.l = sum.i[0] + sum.i[1];
 
   // build 1's complement:
-  return(sum.i[0] ^ 0xFFFF);
+  return ~sum.i[0];
 }
 
 #if defined (ALL_clients)
@@ -480,53 +479,35 @@ static void make_tcp_ack_with_data_noflags(uint8_t *buf,uint16_t dlen)
 }
 */
 #if defined (UDP_server)
-// a udp server
-static void make_udp_reply_from_request_udpdat_ready(uint8_t *buf,uint16_t datalen,uint16_t port)
-{
-        uint16_t j;
-        make_eth(buf);
-        if (datalen>220){
-                datalen=220;
-        }
-        // total length field in the IP header must be set:
-        j=IP_HEADER_LEN+UDP_HEADER_LEN+datalen;
-        buf[IP_TOTLEN_H_P]=j>>8;
-        buf[IP_TOTLEN_L_P]=j& 0xff;
-        make_ip(buf);
-        // send to port:
-        //buf[UDP_DST_PORT_H_P]=port>>8;
-        //buf[UDP_DST_PORT_L_P]=port & 0xff;
-        // sent to port of sender and use "port" as own source:
-        buf[UDP_DST_PORT_H_P]=buf[UDP_SRC_PORT_H_P];
-        buf[UDP_DST_PORT_L_P]= buf[UDP_SRC_PORT_L_P];
-        buf[UDP_SRC_PORT_H_P]=port>>8;
-        buf[UDP_SRC_PORT_L_P]=port & 0xff;
-        // calculte the udp length:
-        j=UDP_HEADER_LEN+datalen;
-        buf[UDP_LEN_H_P]=j>>8;
-        buf[UDP_LEN_L_P]=j& 0xff;
-        // zero the checksum
-        buf[UDP_CHECKSUM_H_P]=0;
-        buf[UDP_CHECKSUM_L_P]=0;
-        j=checksum(&buf[IP_SRC_P], 16 + datalen,1);
-        buf[UDP_CHECKSUM_H_P]=j>>8;
-        buf[UDP_CHECKSUM_L_P]=j& 0xff;
-        enc28j60PacketSend(UDP_HEADER_LEN+IP_HEADER_LEN+ETH_HEADER_LEN+datalen,buf);
-}
-
 // you can send a max of 220 bytes of data because we use only one
 // byte for the data but udp messages are normally small.
-static void make_udp_reply_from_request(uint8_t *buf,char *data,uint8_t datalen,uint16_t port)
+void make_udp_reply_from_request(uint8_t *buf, uint8_t *data, uint8_t datalen, uint16_t port)
 {
-        uint8_t i=0;
-        // copy the data:
-        while(i<datalen){
-                buf[UDP_DATA_P+i]=data[i];
-                i++;
-        }
-        make_udp_reply_from_request_udpdat_ready(buf,datalen,port);
+  uint16_t j;
+  memcpy(&buf[UDP_DATA_P], data, datalen);
+  make_eth(buf);
+  // total length field in the IP header must be set:
+  j = IP_HEADER_LEN + UDP_HEADER_LEN + datalen;
+  buf[IP_TOTLEN_H_P] = j >> 8;
+  buf[IP_TOTLEN_L_P] = j & 0xFF;
+  make_ip(buf);
+  // sent to port of sender and use "port" as own source:
+  buf[UDP_DST_PORT_H_P] = buf[UDP_SRC_PORT_H_P];
+  buf[UDP_DST_PORT_L_P] = buf[UDP_SRC_PORT_L_P];
+  buf[UDP_SRC_PORT_H_P] = port>>8;
+  buf[UDP_SRC_PORT_L_P] = port & 0xFF;
+  // calculte the udp length:
+  j = UDP_HEADER_LEN + datalen;
+  buf[UDP_LEN_H_P] = j >> 8;
+  buf[UDP_LEN_L_P] = j & 0xFF;
+  // zero the checksum
+  buf[UDP_CHECKSUM_H_P] = 0;
+  buf[UDP_CHECKSUM_L_P] = 0;
+  j = checksum(&buf[IP_SRC_P], 16 + datalen, 1);
+  buf[UDP_CHECKSUM_H_P] = j>>8;
+  buf[UDP_CHECKSUM_L_P] = j & 0xFF;
+  enc28j60PacketSend(UDP_HEADER_LEN+IP_HEADER_LEN+ETH_HEADER_LEN+datalen,buf);
 }
-
 #endif // UDP_server
 
 #ifdef UDP_client
@@ -542,7 +523,6 @@ static void send_udp_prepare(uint8_t *buf,uint16_t sport, const uint8_t *dip, ui
 {
   memcpy(&buf[ETH_DST_MAC], dstmac, 6);
   memcpy(&buf[ETH_SRC_MAC], macaddr, 6);
-  
   buf[ETH_TYPE_H_P] = ETHTYPE_IP_H_V;
   buf[ETH_TYPE_L_P] = ETHTYPE_IP_L_V;
   memcpy_P(&buf[IP_P], iphdr, 9);
@@ -810,14 +790,13 @@ static void make_dhcp_message_template(uint8_t *buf)
 }
 
 // the answer to this message will come as a broadcast
-static uint8_t send_dhcp_discover(uint8_t *buf)
+void send_dhcp_discover(uint8_t *buf)
 {
   make_dhcp_message_template(buf);
   // option dhcp message type:
   memcpy_P(&buf[UDP_DATA_P + DHCP_OPTION_OFFSET], dhcp_opt_req_lst, sizeof(dhcp_opt_req_lst));
   // no padding
   send_udp_transmit(buf, (DHCP_OPTION_OFFSET + sizeof(dhcp_opt_req_lst)));
-  return 0;
 }
 
 // scan the options field for the message type field
@@ -838,9 +817,6 @@ static uint8_t dhcp_get_message_type(uint8_t *buf,uint16_t plen)
 {
   uint16_t option_idx;
   uint8_t option_len;
-  // the smallest option is 3 bytes
-  if(plen < (UDP_DATA_P + DHCP_OPTION_OFFSET + 3))
-    return(0);
   // options are coded in the form: option_type,option_len,option_val
   option_idx = (UDP_DATA_P + DHCP_OPTION_OFFSET);
   while((option_idx + 2) < plen)
@@ -858,24 +834,10 @@ static uint8_t dhcp_get_message_type(uint8_t *buf,uint16_t plen)
   return(0);
 }
 
-// use this on DHCPACK or DHCPOFFER messages to read "your ip address"
-static uint8_t dhcp_get_ipaddr(uint8_t *buf,uint16_t plen)
-{
-  // DHCP offer up to options section is at least 0x100 bytes
-  if((plen > 0x100) && (buf[UDP_DATA_P+16] !=0))
-  {
-    // we have a yiaddr
-    memcpy(ipaddr, buf+UDP_DATA_P+16, 4);
-    return(1);
-  }
-  
-  return(0);
-}
-
 // this will as well update ipaddr
 static uint8_t is_dhcp_msg_for_me(uint8_t *buf,uint16_t plen)
 {
-  if((plen > 0x100) &&
+  if((plen >= (UDP_DATA_P + DHCP_OPTION_OFFSET + 3)) &&   // the smallest option is 3 bytes
      (buf[UDP_SRC_PORT_L_P] == DHCP_SRV_SRC_PORT) &&
      (buf[UDP_DATA_P] == 2) && 
      (buf[UDP_DATA_P+5] == dhcp_tid) &&
@@ -886,15 +848,14 @@ static uint8_t is_dhcp_msg_for_me(uint8_t *buf,uint16_t plen)
 }
 
 // check if this message was part of a renew or 
-static uint8_t dhcp_is_renew_tid(uint8_t *buf,uint16_t plen)
+static uint8_t dhcp_is_renew_tid(uint8_t *buf)
 {
-  if((plen < 0x100) ||
-    (buf[UDP_DATA_P + 4] != 2))
-    return(0); // we did set first byte in transaction ID to 2 to indicate renew request. This trick makes the processing of the DHCPACK message easier.
-  return(1);
+  if(buf[UDP_DATA_P + 4] == 2)
+    return(1); // we did set first byte in transaction ID to 2 to indicate renew request. This trick makes the processing of the DHCPACK message easier.
+  return(0);
 }
 
-static uint8_t dhcp_option_parser(uint8_t *buf,uint16_t plen)
+void dhcp_option_parser(uint8_t *buf,uint16_t plen)
 {
   uint16_t option_idx;
   uint8_t option_len;
@@ -902,7 +863,7 @@ static uint8_t dhcp_option_parser(uint8_t *buf,uint16_t plen)
 
   // the smallest option is 3 bytes
   if(plen < (UDP_DATA_P + DHCP_OPTION_OFFSET + 3))
-    return(0);
+    return;
   // options are coded in the form: option_type,option_len,option_val
   option_idx = UDP_DATA_P + DHCP_OPTION_OFFSET;
   while((option_idx + 2) < plen)
@@ -916,14 +877,14 @@ static uint8_t dhcp_option_parser(uint8_t *buf,uint16_t plen)
       case 0:
         option_idx = plen; // stop loop, we are reading some padding bytes here (should not happen)
         break;
-      case 1:
+/*      case 1:
         if(option_len == 4)
           memcpy(ipnetmask, &buf[option_idx + 2], 4);
         break;
       case 3:
         if(option_len == 4)
           memcpy(iprouter, &buf[option_idx + 2], 4);
-        break;
+        break;*/
       // Lease time: throughout the protocol, times are to 
       // be represented in units of seconds.  The time value 
       // of 0xffffffff is reserved to represent "infinity". 
@@ -971,11 +932,10 @@ static uint8_t dhcp_option_parser(uint8_t *buf,uint16_t plen)
     }
     option_idx += 2 + option_len;
   }
-  return 1;
 }
 
 // the answer to this message will come as a broadcast
-static uint8_t send_dhcp_request(uint8_t *buf)
+void send_dhcp_request(uint8_t *buf)
 {
   make_dhcp_message_template(buf);
   // option dhcp message type:
@@ -1003,7 +963,6 @@ static uint8_t send_dhcp_request(uint8_t *buf)
   i += (sizeof(dhcp_opt_req_lst) - 3);
 
   send_udp_transmit(buf, DHCP_OPTION_OFFSET + i);
-  return(0);
 }
 
 // The renew procedure is described in rfc2131. 
@@ -1015,7 +974,7 @@ static uint8_t send_dhcp_request(uint8_t *buf)
 // various DHCP servers show that not all of them listen to
 // unicast. We send therefor a broadcast message but we expect
 // a unicast answer directly to our mac and IP.
-static uint8_t send_dhcp_renew_request(uint8_t *buf, uint8_t *yiaddr)
+void send_dhcp_renew_request(uint8_t *buf, uint8_t *yiaddr)
 {
   make_dhcp_message_template(buf);
   buf[UDP_DATA_P+4] = 2; // set first byte in transaction ID to 2 to indicate renew_request. This trick makes the processing of the DHCPACK message easier.
@@ -1028,9 +987,7 @@ static uint8_t send_dhcp_renew_request(uint8_t *buf, uint8_t *yiaddr)
   // no option paramter request list is needed at renew
   send_udp_transmit(buf,(DHCP_OPTION_OFFSET + sizeof(dhcp_opt_53) + 1));
   // we will get a unicast answer, reception of broadcast packets is turned off
-  return(0);
 }
-
 
 // Initial_tid can be a random number for every board. E.g the last digit
 // of the mac address. It is not so important that the number is random.
@@ -1068,7 +1025,7 @@ uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen, uint8
     // It's really a borderline case that we the the dhcp_is_renew_tid
     // function call for. It could only happen if the board is power cyceled 
     // during operation.
-    if(dhcp_is_renew_tid(buf,plen) == 1) // should have been initial tid, just return
+    if(dhcp_is_renew_tid(buf) == 1) // should have been initial tid, just return
       return(0);
    
     uint8_t cmd;
@@ -1076,7 +1033,10 @@ uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen, uint8
     if(cmd==2) // DHCPOFFER =2
     {
       dhcp_sec_cnt = 1;
-      dhcp_get_ipaddr(buf, plen);
+
+      if(buf[UDP_DATA_P+16] != 0) // we have a yiaddr
+        memcpy(ipaddr, buf+UDP_DATA_P+16, 4);
+
       dhcp_option_parser(buf, plen);
 
       // answer offer with a request:
@@ -1125,7 +1085,7 @@ uint16_t packetloop_dhcp_renewhandler(uint8_t *buf, uint16_t plen)
   if(is_dhcp_msg_for_me(buf, plen))  // we check the dhcp_renew_tid because if 
   {
     if((dhcp_get_message_type(buf,plen) == 5) &&    // DHCPACK = 5, success, DHCPACK, we have the IP
-       (dhcp_is_renew_tid(buf, plen)))
+       (dhcp_is_renew_tid(buf)))
     { 
       dhcp_option_parser(buf,plen); // get new lease time, it will as well GW and netmask but those should not change
     }
