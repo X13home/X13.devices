@@ -135,7 +135,7 @@ void InitOD(void)
 {
     // Check Settings
     uint8_t ucTmp;
-    uint8_t Len;
+    uint8_t Len = 1;
     
     ReadOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, &Len, &ucTmp);
     if(ucTmp == 0xFF)                                                           // Not Configured
@@ -211,13 +211,13 @@ uint8_t RegisterOD(MQ_t *pBuf)
     // Convert Topic Name to IDX record.
     subidx_t Subidx;
     uint8_t *pTopicName;
-    pTopicName = (uint8_t *)&pBuf->mq.m.regist.TopicName;
+    pTopicName = (uint8_t *)&pBuf->m.regist.TopicName;
     Subidx.Place = *(pTopicName++);
     Subidx.Type = *(pTopicName++);
 
     uint8_t i;
     uint16_t val = 0;
-    uint8_t Len = pBuf->mq.Length;
+    uint8_t Len = pBuf->Length;
     for(i = MQTTS_SIZEOF_MSG_REGISTER + 2; i < Len; i++)
     {
         uint8_t ch = *(pTopicName++);
@@ -235,7 +235,7 @@ uint8_t RegisterOD(MQ_t *pBuf)
     if(RetVal != MQTTS_RET_ACCEPTED)
         return RetVal;
 
-    uint16_t TopicId = SWAPWORD(pBuf->mq.m.regist.TopicId);
+    uint16_t TopicId = SWAPWORD(pBuf->m.regist.TopicId);
         
     // Get Last Index OD
     uint8_t id = 0;

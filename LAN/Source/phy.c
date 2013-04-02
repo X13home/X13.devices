@@ -76,9 +76,9 @@ MQ_t * LAN_GetBuf(void)
       }
       
       plen -= UDP_DATA_P;
-      if((plen > sizeof(MQTTS_MESSAGE_t)) || ((pTmp = mqAssert()) == NULL))
+      if((plen > sizeof(MQ_t)) || ((pTmp = mqAssert()) == NULL))
         return NULL;
-      memcpy(&pTmp->mq, &buf[UDP_DATA_P], plen);
+      memcpy(pTmp, &buf[UDP_DATA_P], plen);
       return pTmp;
     }
   }
@@ -88,7 +88,7 @@ MQ_t * LAN_GetBuf(void)
 
 void LAN_Send(MQ_t * pBuf)
 {
-  if(pBuf->mq.MsgType == MQTTS_MSGTYP_SEARCHGW)
+  if(pBuf->MsgType == MQTTS_MSGTYP_SEARCHGW)
   {
     uint8_t i = 0;
     while(i < 4)
@@ -102,9 +102,9 @@ void LAN_Send(MQ_t * pBuf)
   }
   send_udp_prepare(buf, MQTTS_UDP_PORT, gwip, MQTTS_UDP_PORT, gwmac);
   
-  uint16_t datalen = pBuf->mq.Length;
+  uint16_t datalen = pBuf->Length;
 
-  memcpy(&buf[UDP_DATA_P], &pBuf->mq, datalen);
+  memcpy(&buf[UDP_DATA_P], pBuf, datalen);
   mqRelease(pBuf);
   
   send_udp_transmit(buf, datalen);

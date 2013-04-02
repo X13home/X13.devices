@@ -368,13 +368,7 @@ typedef struct
         sMQTTS_MSG_WILLMSGRESP_t    willmsgresp;
         sMQTTS_MSG_FORWARD_t        forward;
     } m;
-} MQTTS_MESSAGE_t;
-
-typedef struct
-{
-    uint8_t         addr;
-    MQTTS_MESSAGE_t mq;
-}MQ_t;
+} MQ_t;
 
 // Local Variables
 // Current Status
