@@ -6,24 +6,11 @@ http://X13home.github.com
 
 BSD New License
 See LICENSE.txt file for license details.
+
+Based on IPstack for AVR from Guido Socher
 */
 
-/*********************************************
- * vim:sw=8:ts=8:si:et
- * To use the above modeline in vim you must have "set modeline" in your .vimrc
- * Author: Guido Socher 
- * Copyright:LGPL V2
- * See http://www.gnu.org/licenses/old-licenses/lgpl-2.0.html
- *
- * Based on the enc28j60.c file from the AVRlib library by Pascal Stang.
- * For AVRlib See http://www.procyonengineering.com/
- * Used with explicit permission of Pascal Stang.
- *
- * Title: Microchip ENC28J60 Ethernet Interface Driver
- * Chip type           : ATMEGA88/ATMEGA168/ATMEGA328/ATMEGA644 with ENC28J60
- *********************************************/
-
- #include "../../HWconfigENC.h"
+#include "../../HWconfigENC.h"
 #include "enc28j60.h"
 
 static uint8_t Enc28j60Bank;
@@ -172,15 +159,6 @@ void enc28j60Init(uint8_t* macaddr)
   enc28j60Write(ETXNDL, TXSTOP_INIT & 0xFF);
   enc28j60Write(ETXNDH, TXSTOP_INIT >> 8);
  // do bank 1 stuff, packet filter:
-        // For broadcast packets we allow only ARP packtets
-        // All other packets should be unicast only for our mac (MAADR)
-        //
-        // The pattern to match on is therefore
-        // Type     ETH.DST
-        // ARP      BROADCAST
-        // 06 08 -- ff ff ff ff ff ff -> ip checksum for theses bytes=f7f9
-        // in binary these poitions are:11 0000 0011 1111
-        // This is hex 303F->EPMM0=0x3f,EPMM1=0x30
   enc28j60Write(ERXFCON, ERXFCON_UCEN | ERXFCON_CRCEN | ERXFCON_PMEN);
   enc28j60Write(EPMM0, 0x3f);
   enc28j60Write(EPMM1, 0x30);
