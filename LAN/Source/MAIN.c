@@ -26,23 +26,21 @@ int main(void)
     CONFIG_PRR();
     // Initialize Memory manager
     mqInit();
-/*
     // Initialize Object's Dictionary
     InitOD();
     // Init MQTTS
     MQTTS_Init();
-*/
+
     // Initialise  variables
     iPool = 0;
 
     MQ_t * pRBuf = NULL;        // LAN Buffer
-/*
     MQ_t * pMBuf = NULL;        // MQTTS Buffer
     uint8_t * pPBuf = NULL;     // Publish Buffer
     
     uint8_t bTmp;
     uint16_t poolIdx = 0xFFFF;
-*/
+
     // Initialize Task Planer
     InitTimer();
     // configure Sleep controller & enable interrupts
@@ -55,52 +53,43 @@ int main(void)
     while(1)
     {
       pRBuf = LAN_GetBuf();
-      if(pRBuf != NULL)
+      if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
         mqRelease(pRBuf);
-    
-/*
-        pRBuf = (MQ_t *)rf_GetBuf();
-        if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
-            mqRelease(pRBuf);
+        
+      pMBuf = MQTTS_Get();
+      if(pMBuf != NULL)
+        LAN_Send(pMBuf);
+        
+      if(iPool & IPOOL_USR)
+      {
+        iPool &= ~IPOOL_USR;
 
-        pMBuf = MQTTS_Get();
-        if(pMBuf != NULL)
-            rf_Send((uint8_t *)pMBuf);
-
-        if(iPool & IPOOL_USR)
+        bTmp = MQTTS_GetStatus();
+        if(bTmp == MQTTS_STATUS_CONNECT)
         {
-            iPool &= ~IPOOL_USR;
+          if(poolIdx == 0xFFFF)
+            poolIdx = PoolOD();
             
-            rf_Pool();
-
-            bTmp = MQTTS_GetStatus();
-            if(bTmp == MQTTS_STATUS_CONNECT)
+          if(poolIdx != 0xFFFF)
+          {
+            // Publish
+            pPBuf = (uint8_t *)mqAssert();
+            if(pPBuf != NULL)
             {
-                if(poolIdx == 0xFFFF)
-                    poolIdx = PoolOD();
-            
-                if(poolIdx != 0xFFFF)
-                {
-                    // Publish
-                    pPBuf = (uint8_t *)mqAssert();
-                    if(pPBuf != NULL)
-                    {
-                        bTmp = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
-
-                        ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
-                        MQTTS_Publish(0, poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
-                        mqRelease((MQ_t *)pPBuf);
-                        poolIdx = 0xFFFF;
-                    }
-                }
+              bTmp = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
+              
+              ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
+              MQTTS_Publish(poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
+              mqRelease((MQ_t *)pPBuf);
+              poolIdx = 0xFFFF;
             }
-
-            bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
+          }
         }
-        sleep_mode();
-*/
-    }
 
+        bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
+      }
+//      sleep_mode();
+    }
 }
 
 ISR(TIMER_ISR)

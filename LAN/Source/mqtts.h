@@ -18,6 +18,8 @@ See LICENSE.txt file for license details.
 
 #define MQTTS_DEF_PROTOCOLID    0x01
 
+#define MQTTS_UDP_PORT          1883
+
 //#define MQTTS_DEF_MSGID_DELTA   10      // delta between last & actual messages ID
 
 #ifndef SWAPWORD
@@ -433,9 +435,9 @@ MQ_t * MQTTS_Get(void);
 #ifdef ASLEEP
 void mqtts_set_TASleep(uint16_t tasleep);
 #endif  //  ASLEEP
-uint8_t MQTTS_Publish(uint8_t Addr, uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * ipBuf);
-uint8_t MQTTS_Subscribe(uint8_t Addr, uint8_t Flags, uint8_t Size, uint8_t * ipBuf);
-uint8_t MQTTS_Register(uint8_t Addr,uint16_t TopicID, uint8_t Size, uint8_t * ipBuf);
+uint8_t MQTTS_Publish(uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * ipBuf);
+uint8_t MQTTS_Subscribe(uint8_t Flags, uint8_t Size, uint8_t * ipBuf);
+uint8_t MQTTS_Register(uint16_t TopicID, uint8_t Size, uint8_t * ipBuf);
 
 void MQTTS_Init(void);
 uint8_t MQTTS_Pool(uint8_t wakeup);

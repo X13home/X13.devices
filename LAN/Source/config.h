@@ -35,10 +35,7 @@ See LICENSE.txt file for license details.
 
 #include "mqtts.h"
 #include "mqMEM.h"
-/*
 #include "objdict.h"
-#include "rf.h"
-*/
 #include "phy.h"
 
 #endif  // _CONFIG_H

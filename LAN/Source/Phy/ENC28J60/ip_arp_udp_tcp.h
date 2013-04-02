@@ -209,6 +209,9 @@ extern void dhcp_get_my_ip(uint8_t *assigend_yiaddr,uint8_t *assigend_netmask, u
 
 */
 
+void send_udp_prepare(uint8_t *buf,uint16_t sport, const uint8_t *dip, uint16_t dport,const uint8_t *dstmac);
+void send_udp_transmit(uint8_t *buf,uint16_t datalen);
+
 uint8_t packetloop_arp_icmp(uint8_t *buf, uint16_t plen);
 
 // Initial_tid can be a random number for every board. E.g the last digit

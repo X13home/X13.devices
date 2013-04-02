@@ -519,7 +519,7 @@ void make_udp_reply_from_request(uint8_t *buf, uint8_t *data, uint8_t datalen, u
 // 2) You just allocate a large enough buffer for you data and you call send_udp and nothing else
 // needs to be done.
 //
-static void send_udp_prepare(uint8_t *buf,uint16_t sport, const uint8_t *dip, uint16_t dport,const uint8_t *dstmac)
+void send_udp_prepare(uint8_t *buf,uint16_t sport, const uint8_t *dip, uint16_t dport,const uint8_t *dstmac)
 {
   memcpy(&buf[ETH_DST_MAC], dstmac, 6);
   memcpy(&buf[ETH_SRC_MAC], macaddr, 6);
@@ -549,7 +549,7 @@ static void send_udp_prepare(uint8_t *buf,uint16_t sport, const uint8_t *dip, ui
   buf[UDP_CHECKSUM_L_P] = 0;
 }
 
-static void send_udp_transmit(uint8_t *buf,uint16_t datalen)
+void send_udp_transmit(uint8_t *buf,uint16_t datalen)
 {
   uint16_t tmp16;
   tmp16 = IP_HEADER_LEN + UDP_HEADER_LEN + datalen;
