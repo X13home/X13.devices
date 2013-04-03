@@ -30,6 +30,8 @@ int main(void)
     InitOD();
     // Init MQTTS
     MQTTS_Init();
+    // Init Interconnection Interface & Load Configuration
+    PHY_Init();
 
     // Initialise  variables
     iPool = 0;
@@ -47,18 +49,18 @@ int main(void)
     set_sleep_mode(SLEEP_MODE_IDLE);    // Standby, Idle
     sei();                              // Enable global interrupts
 
-    // Init LAN
-    LAN_Init();
+    // 
+    PHY_Start();
 
     while(1)
     {
-      pRBuf = LAN_GetBuf();
+      pRBuf = PHY_GetBuf();
       if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
         mqRelease(pRBuf);
         
       pMBuf = MQTTS_Get();
       if(pMBuf != NULL)
-        LAN_Send(pMBuf);
+        PHY_Send(pMBuf);
         
       if(iPool & IPOOL_USR)
       {
@@ -97,5 +99,5 @@ ISR(TIMER_ISR)
   if(!(iPool & IPOOL_SLEEP))
     iPool |= IPOOL_USR;
         
-  LanPool();
+  PHY_Pool();
 }

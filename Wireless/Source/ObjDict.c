@@ -454,7 +454,7 @@ uint16_t PoolOD(void)
         idxSubscr--;
         if(idxSubscr == 0)  //  Send Subscribe '+'
         {
-            uint8_t ch = '+';
+            uint8_t ch = '#';
             MQTTS_Subscribe(0, MQTTS_FL_QOS1, 1, &ch);
         }
     }

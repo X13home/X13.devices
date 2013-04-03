@@ -17,7 +17,17 @@ See LICENSE.txt file for license details.
 enum
 {
     objDeviceTyp    = 0xFE00,
+    objRFNodeId     = 0xFE01,   //  _DeviceAddr
+    objRFGroup      = 0xFE02,   //  _BGroupID
+    objRFChannel    = 0xFE03,   //  _WChannel
     objNodeName     = 0xFE04,   //  _sName
+    objTAsleep      = 0xFE05,   //  _WSleepTime
+    objRSSI         = 0xFE08,   //  _BRSSI
+    objMACAddr      = 0xFE10,   //
+    objIPAddr       = 0xFE11,   //
+    objIPMask       = 0xFE12,   //
+    objIPRouter     = 0xFE13,   //
+    objIPBroker     = 0xFE14    //
 }eObjList;
 
 enum

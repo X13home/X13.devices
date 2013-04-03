@@ -15,10 +15,22 @@ See LICENSE.txt file for license details.
 #include "ext.h"
 
 // EEPROM Object's
+#ifdef RF_NODE
 const uint8_t  EEMEM ee_NodeID = 0xFF;                                  // Device Addr
 const uint16_t EEMEM ee_GroupID = 0xFFFF;                               // Group ID
 const uint8_t  EEMEM ee_Channel = 0xFF;                                 // Channel
+#endif  //  RF_NODE
+
+#ifdef LAN_NODE
+const uint8_t  EEMEM ee_MAC_Addr[]  = {0x06, 0x00,0x04,0xA3,0x00,0x00,0x01};
+const uint8_t  EEMEM ee_IP_Addr[]   = {0xFF,0xFF,0xFF,0xFF};
+const uint8_t  EEMEM ee_IP_Mask[]   = {0xFF,0xFF,0xFF,0xFF};
+const uint8_t  EEMEM ee_IP_Router[] = {0xFF,0xFF,0xFF,0xFF};
+const uint8_t  EEMEM ee_IP_Broker[] = {0xFF,0xFF,0xFF,0xFF};
+#endif  //  LAN_NODE
+
 const uint8_t  EEMEM ee_NodeName[MQTTS_SIZEOF_CLIENTID-1] = {0};
+
 #ifdef ASLEEP
 const uint16_t EEMEM ee_TAsleep = 0;                                    // Sleep Time
 #endif  //  ASLEEP
@@ -33,6 +45,29 @@ uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return eepromWriteOD(pSubidx, Len, pBuf);
 }
 #endif  //  ASLEEP
+
+#ifdef LAN_NODE
+uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+  uint8_t tmp, i, epnt, valid = 0;
+  epnt = Len - 1;
+  for(i = 0; i < epnt; i++)
+  {
+    tmp = pBuf[i];
+    pBuf[i] = pBuf[epnt];
+    pBuf[epnt] = tmp;
+    epnt--;
+    
+    if(tmp != 0)
+      valid = 1;
+  }
+
+  if(valid)
+    return eepromWriteOD(pSubidx, Len, pBuf);
+  else
+    return MQTTS_RET_REJ_CONG;
+}
+#endif  //  LAN_NODE
 
 #ifdef GATEWAY
 #define OD_DEV_NETTYP_H    'G'
@@ -59,12 +94,33 @@ const PROGMEM indextable_t listPredefOD[] =
 {
     {{objPROGMEM, objString, (uint16_t)&psDeviceTyp},
         objDeviceTyp, (cbRead_t)&progmemReadOD, NULL, NULL},
+#ifdef RF_NODE
+    {{objEEMEM, objUInt8, (uint16_t)&ee_GroupID},
+        objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+    {{objEEMEM, objUInt16, (uint16_t)&ee_NodeID},
+        objRFGroup, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+    {{objEEMEM, objUInt8, (uint16_t)&ee_Channel},
+        objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+#endif  //  RF_NODE
     {{objEEMEM, objString, (uint16_t)&ee_NodeName},
         objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #ifdef ASLEEP
     {{objEEMEM, objUInt16, (uint16_t)&ee_TAsleep},
         objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL}
-#endif  //  ASLEEP
+#endif  //  ASLEEP        
+#ifdef LAN_NODE
+    {{objEEMEM, objArray, (uint16_t)&ee_MAC_Addr},
+        objMACAddr, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+    {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Addr},
+        objIPAddr, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+    {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Mask},
+        objIPMask, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+    {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Router},
+        objIPRouter, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+    {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Broker},
+        objIPBroker, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+#endif  //  LAN_NODE
+
 };
 
 // Local Variables
@@ -134,14 +190,43 @@ static void deleteIndexOD(uint8_t id)
 void InitOD(void)
 {
     // Check Settings
-    uint8_t ucTmp;
-    uint8_t Len = 1;
-    
+    uint8_t ucTmp, Len;
+    Len = 1;
+
     ReadOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, &Len, &ucTmp);
     if(ucTmp == 0xFF)                                                           // Not Configured
     {
         ucTmp = 0;
         WriteOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, 0, &ucTmp);                   // Device Name
+#ifdef RF_NODE
+        uint16_t  uiTmp;
+#ifdef OD_DEFAULT_ADDR
+        ucTmp = OD_DEFAULT_ADDR;
+#else   //  OD_DEFAULT_ADDR
+        ucTmp = 0xFF;       // DHCP
+#endif  //  OD_DEFAULT_ADDR
+        WriteOD(objRFNodeId, MQTTS_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);           // Node Id
+        ucTmp = 0;
+        WriteOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, 0, &ucTmp);                   // Device Name
+        uiTmp = OD_DEFAULT_GROUP;
+        WriteOD(objRFGroup, MQTTS_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); // Group Id
+        ucTmp = OD_DEFAULT_CHANNEL;
+        WriteOD(objRFChannel, MQTTS_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);          // Channel
+#ifdef ASLEEP
+        uiTmp = OD_DEFAULT_TASLEEP;
+        WriteOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); // Sleep Time
+#endif  //  ASLEEP
+#endif  //  RF_NODE
+#ifdef LAN_NODE
+        uint32_t  ulTmp;
+        uint8_t   defMAC[] = {0x01, 0x00, 0x00, 0xA3, 0x04, 0x00};
+        WriteOD(objMACAddr, MQTTS_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);     // Default MAC
+        ulTmp = 0xFFFFFFFF;
+        WriteOD(objIPAddr, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP - use DHCP
+        WriteOD(objIPMask, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP Mask - use DHCP
+        WriteOD(objIPRouter, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);     // Default IP Gateway - use DHCP
+        WriteOD(objIPBroker, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);     // Default IP Broker
+#endif  //  LAN_NODE
     }
 
     // Clear listOD
@@ -186,6 +271,8 @@ void CleanOD(void)
             break;
         else
             ListOD[ucTmp].Index = 0;
+            
+    PHY_LoadConfig();
 
 #ifdef ASLEEP
     ReadOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, &Len, (uint8_t *)&uiTmp);
@@ -390,6 +477,9 @@ uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
             while(Len < len)
                 pBuf[Len++] = fill;
         }
+
+        if(len)
+          Len = len;
     }
     return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
@@ -425,7 +515,7 @@ uint16_t PoolOD(void)
         idxSubscr--;
         if(idxSubscr == 0)  //  Send Subscribe '+'
         {
-            uint8_t ch = '+';
+            uint8_t ch = '#';
             MQTTS_Subscribe(MQTTS_FL_QOS1, 1, &ch);
         }
     }

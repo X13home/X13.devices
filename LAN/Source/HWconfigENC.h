@@ -73,4 +73,24 @@ See LICENSE.txt file for license details.
 #define ENC_IRQ_CFG()       {}
 // End ENC28J60 Section
 
+// Digital IO's
+#define EXTDIO_MAXPORT_NR       2           // Number of digital Ports
+
+#define PORTNUM2                0
+#define PORTDDR2                DDRC
+#define PORTOUT2                PORTC
+#define PORTIN2                 PINC
+#define PORT2MASK               0xC0        // PC0-PC5
+
+#define PORTNUM3                1
+#define PORTDDR3                DDRD
+#define PORTOUT3                PORTD
+#define PORTIN3                 PIND
+
+#ifdef GATEWAY
+#define PORT3MASK               0x07
+#else   //  GATEWAY
+#define PORT3MASK               0x04
+#endif  //  GATEWAY
+
 #endif

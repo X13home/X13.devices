@@ -56,6 +56,7 @@ typedef union
 }uI2C;
 
 extern uint8_t macaddr[6];
+extern uint8_t ipaddr[4];
 
 #ifdef ARP_MAC_resolver_client
 // ARP
@@ -73,7 +74,7 @@ void (*client_arp_result_callback)(uint8_t*);
 #endif    //  ARP_MAC_resolver_client
 
 // IP
-static uint8_t ipaddr[4] = {0,0,0,0};
+
 #ifdef ALL_clients
 //static uint8_t ipnetmask[4]={255,255,255,255};
 //static uint8_t iprouter[4]={0,0,0,0};   // Gateway IP
@@ -105,7 +106,7 @@ static volatile uint8_t dhcp_sec_cnt = 0;       // Second counts
 static uint8_t dhcp_opt_server_id[4]={0,0,0,0}; // server ip
 //static uint8_t dhcp_opt_message_type=0;
 static uint8_t dhcp_tid = 0;                    // Transaction ID
-static uint16_t dhcp_opt_leasetime_minutes = 0;
+static uint16_t dhcp_opt_leasetime_minutes = 0xFFFF;
 const char dhcp_magic_cookies[] PROGMEM = {0x63, 0x82, 0x53, 0x63};
 //const char dhcp_opt_req_lst[] PROGMEM = {53, 1, 1, 55, 2, 1, 3, 255};
 const char dhcp_opt_req_lst[] PROGMEM = {53, 1, 1, 255};
@@ -950,7 +951,7 @@ void send_dhcp_request(uint8_t *buf)
     i += 6;
   }
   
-  if(ipaddr[0] != 0)
+  if(ipaddr[0] != 0xFF)
   {
     buf[UDP_DATA_P+DHCP_OPTION_OFFSET+i]=0x32; // 50=requested IP address
     buf[UDP_DATA_P+DHCP_OPTION_OFFSET+i+1]=4; // len
