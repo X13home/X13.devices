@@ -11,10 +11,11 @@ See LICENSE.txt file for license details.
 // MQTT-S Library
 
 #include "config.h"
-#include "util.h"
+#include "phy.h"
+//#include "util.h"
 
 #define POOL_TMR_FREQ_FAST  (POOL_TMR_FREQ/4 - 1)
-#define rf_GetNodeID()  10
+//#define rf_GetNodeID()  10
 
 static MQTTS_VAR_t vMQTTS;
 
@@ -270,7 +271,7 @@ static void mqtts_send_connect()        // Send  CONNECT
         ipBuf += pBuf->Length;
         *(ipBuf++) = '_';
         pBuf->Length++;
-        pBuf->Length += sprinthex(ipBuf, rf_GetNodeID());
+        pBuf->Length += PHY_BuildName(ipBuf);
     }
     pBuf->Length += MQTTS_SIZEOF_MSG_CONNECT;
     pBuf->MsgType = MQTTS_MSGTYP_CONNECT;
@@ -514,7 +515,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
                     vMQTTS.inMsgId = 0;
 
                     // Publish Device Type
-                    if((rf_GetNodeID() != 0xFF) && (vMQTTS.MsgID == 0))
+                    if(/*(rf_GetNodeID() != 0xFF) && */(vMQTTS.MsgID == 0))
                     {
                         pBuf->Length = MQTTS_SIZEOF_CLIENTID - 1;
                         ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &pBuf->Length, (uint8_t *)&pBuf->m.raw);

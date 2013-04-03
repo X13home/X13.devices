@@ -1,20 +1,60 @@
 #include "config.h"
+#include "util.h"
 
-#if (defined ENC28J60)
+#ifdef LAN_NODE
+
+#ifdef ENC28J60
 #include "Phy\ENC28J60\ip_arp_udp_tcp.h"
 #include "Phy\ENC28J60\enc28j60.h"
 #include "Phy\ENC28J60\net.h"
+#endif  //  ENC28J60
 
-uint8_t macaddr[] = {0x00,0x04,0xA3,0x00,0x00,0x01}; // Microchip
+uint8_t macaddr[6];
+uint8_t ipaddr[4];
 
-static uint8_t gwip[] = {0xFF,0xFF,0xFF,0xFF};
+static uint8_t gwip[] =  {0xFF,0xFF,0xFF,0xFF};
 static uint8_t gwmac[] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 
 // eth/ip buffer:
 static uint8_t buf[MAX_FRAMELEN];
+#endif  //  LAN_NODE
 
-void LanPool(void)
+void PHY_Init(void)
 {
+#ifdef ENC28J60
+  //initialize enc28j60
+  enc28j60Init(macaddr);
+#endif
+}
+
+void PHY_LoadConfig(void)
+{
+  uint8_t Len;
+
+#ifdef RF_NODE
+  // (Re)Load RF Configuration
+  uint16_t uiTmp;
+  uint8_t channel, NodeID;
+  Len = sizeof(uint16_t);
+  // Load config data
+  ReadOD(objRFGroup, MQTTS_FL_TOPICID_PREDEF,   &Len, (uint8_t *)&uiTmp);
+  ReadOD(objRFNodeId, MQTTS_FL_TOPICID_PREDEF,  &Len, &NodeID);
+  ReadOD(objRFChannel, MQTTS_FL_TOPICID_PREDEF, &Len, &channel);
+  rf_LoadCfg(channel, uiTmp, NodeID);
+#endif  //  RF_NODE
+
+#ifdef LAN_NODE
+  Len = 6;
+  ReadOD(objMACAddr, MQTTS_FL_TOPICID_PREDEF, &Len, (uint8_t *)macaddr);
+  Len = 4;
+  ReadOD(objIPAddr, MQTTS_FL_TOPICID_PREDEF, &Len, (uint8_t *)ipaddr);
+//  ReadOD(objIPBroker, MQTTS_FL_TOPICID_PREDEF, &Len, (uint8_t *)gwip);
+#endif  //  LAN_NODE
+}
+
+void PHY_Pool(void)
+{
+#ifdef LAN_NODE
   static uint8_t PoolCnt = POOL_TMR_FREQ;
 
   if(PoolCnt)
@@ -24,34 +64,37 @@ void LanPool(void)
     PoolCnt = POOL_TMR_FREQ;
     ip_arp_sec_tick();
   }
+#endif  //  LAN_NODE
 }
 
-void LAN_Init(void)
+void PHY_Start(void)
 {
-  //initialize enc28j60
-  enc28j60Init(macaddr);
-
-#ifdef  DHCP_client
-  // DHCP handling. Get the initial IP
-  uint8_t i;
-  uint16_t plen;
-
-  i = 0;
-  while(i == 0)
-  {
-    plen = enc28j60PacketReceive(MAX_FRAMELEN, buf);
-    i = packetloop_dhcp_initial_ip_assignment(buf, plen, macaddr[5]);
-  }
-#else
+#ifdef LAN_NODE
   while (enc28j60linkup()==0)
     _delay_ms(250);
+
+#ifdef  DHCP_client
+  if(ipaddr[0] == 0xFF)
+  {
+    // DHCP handling. Get the initial IP
+    uint8_t i;
+    uint16_t plen;
+
+    i = 0;
+    while(i == 0)
+    {
+      plen = enc28j60PacketReceive(MAX_FRAMELEN, buf);
+      i = packetloop_dhcp_initial_ip_assignment(buf, plen, macaddr[5]);
+    }
+  }
 #endif  //  DHCP_client
+#endif  //  LAN_NODE
 }
 
-MQ_t * LAN_GetBuf(void)
+MQ_t * PHY_GetBuf(void)
 {
+#ifdef LAN_NODE
   uint16_t plen;
-  uint8_t type;
   MQ_t * pTmp;
   
   plen = enc28j60PacketReceive(MAX_FRAMELEN, buf);
@@ -59,7 +102,7 @@ MQ_t * LAN_GetBuf(void)
   // DHCP renew IP:
   plen = packetloop_dhcp_renewhandler(buf, plen);
 #endif  //  DHCP_client
-  if((type = packetloop_arp_icmp(buf, plen)) != 0)    // 1 - Unicast, 2 - Broadcast
+  if(packetloop_arp_icmp(buf, plen))    // 1 - Unicast, 2 - Broadcast
   {
     if((buf[UDP_DST_PORT_H_P] == (MQTTS_UDP_PORT >> 8)) &&
        (buf[UDP_DST_PORT_L_P] == (MQTTS_UDP_PORT & 0xFF)))
@@ -82,12 +125,13 @@ MQ_t * LAN_GetBuf(void)
       return pTmp;
     }
   }
-
+#endif  //  LAN_NODE
   return NULL;
 }
 
-void LAN_Send(MQ_t * pBuf)
+void PHY_Send(MQ_t * pBuf)
 {
+#ifdef LAN_NODE
   if(pBuf->MsgType == MQTTS_MSGTYP_SEARCHGW)
   {
     uint8_t i = 0;
@@ -108,6 +152,17 @@ void LAN_Send(MQ_t * pBuf)
   mqRelease(pBuf);
   
   send_udp_transmit(buf, datalen);
+#endif  //  LAN_NODE
 }
 
-#endif  //  (defined ENC28J60)
+uint8_t PHY_BuildName(uint8_t * pBuf)
+{
+#ifdef LAN_NODE
+  sprinthex(&pBuf[0], ipaddr[0]);
+  sprinthex(&pBuf[2], ipaddr[1]);
+  sprinthex(&pBuf[4], ipaddr[2]);
+  sprinthex(&pBuf[6], ipaddr[3]);
+
+  return 8;
+#endif  //  LAN_NODE
+}
