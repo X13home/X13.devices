@@ -164,14 +164,14 @@ void mqtts_set_TASleep(uint16_t tasleep)
 
 uint8_t MQTTS_Publish(uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
 {
-    uint8_t mSize = Size + MQTTS_SIZEOF_MSG_PUBLISH + 1;
+    uint8_t mSize = Size + MQTTS_SIZEOF_MSG_PUBLISH;
     if(mSize > sizeof(MQ_t))
         return -1;
     
     MQ_t * pBuf = mqAssert();
     if(pBuf != NULL)    // no memory
     {
-        pBuf->Length = mSize - 1;
+        pBuf->Length = mSize;
         pBuf->MsgType = MQTTS_MSGTYP_PUBLISH;
         pBuf->m.publish.Flags = Flags;
         pBuf->m.publish.TopicId = SWAPWORD(TopicID);
@@ -185,14 +185,14 @@ uint8_t MQTTS_Publish(uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * i
 
 uint8_t MQTTS_Subscribe(uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
 {
-    uint8_t mSize = Size + MQTTS_SIZEOF_MSG_SUBSCRIBE + 1;
+    uint8_t mSize = Size + MQTTS_SIZEOF_MSG_SUBSCRIBE;
     if(mSize > sizeof(MQ_t))
         return -1;
 
     MQ_t * pBuf = mqAssert();
     if(pBuf != NULL)
     {
-        pBuf->Length = mSize - 1;
+        pBuf->Length = mSize;
         pBuf->MsgType = MQTTS_MSGTYP_SUBSCRIBE;
         pBuf->m.subscribe.Flags = Flags;
         pBuf->m.subscribe.MsgId = mqtts_new_msgid();
@@ -205,14 +205,14 @@ uint8_t MQTTS_Subscribe(uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
 
 uint8_t MQTTS_Register(uint16_t TopicID, uint8_t Size, uint8_t * ipBuf)
 {
-    uint8_t mSize = Size + MQTTS_SIZEOF_MSG_REGISTER + 1;
+    uint8_t mSize = Size + MQTTS_SIZEOF_MSG_REGISTER;
     if(mSize > sizeof(MQ_t))
         return -1;
 
     MQ_t * pBuf = mqAssert();
     if(pBuf != NULL)
     {
-        pBuf->Length = mSize - 1;
+        pBuf->Length = mSize;
         pBuf->MsgType = MQTTS_MSGTYP_REGISTER;
         pBuf->m.regist.TopicId = SWAPWORD(TopicID);
         pBuf->m.regist.MsgId =  mqtts_new_msgid();

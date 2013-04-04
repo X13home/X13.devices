@@ -1,14 +1,10 @@
 #include "config.h"
 #include "util.h"
 
+#ifdef RF_NODE
+#endif  //  RF_NODE
+
 #ifdef LAN_NODE
-
-#ifdef ENC28J60
-#include "Phy\ENC28J60\ip_arp_udp_tcp.h"
-#include "Phy\ENC28J60\enc28j60.h"
-#include "Phy\ENC28J60\net.h"
-#endif  //  ENC28J60
-
 uint8_t macaddr[6];
 uint8_t ipaddr[4];
 
