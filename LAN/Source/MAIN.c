@@ -96,8 +96,6 @@ int main(void)
 
 ISR(TIMER_ISR)
 {
-  if(!(iPool & IPOOL_SLEEP))
-    iPool |= IPOOL_USR;
-        
+  iPool |= IPOOL_USR;
   PHY_Pool();
 }

@@ -12,10 +12,8 @@ See LICENSE.txt file for license details.
 
 #include "config.h"
 #include "phy.h"
-//#include "util.h"
 
 #define POOL_TMR_FREQ_FAST  (POOL_TMR_FREQ/4 - 1)
-//#define rf_GetNodeID()  10
 
 static MQTTS_VAR_t vMQTTS;
 

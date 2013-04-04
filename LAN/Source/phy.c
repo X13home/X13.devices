@@ -56,13 +56,13 @@ void PHY_LoadConfig(void)
 void PHY_Pool(void)
 {
 #ifdef LAN_NODE
-  static uint8_t PoolCnt = POOL_TMR_FREQ;
+  static uint8_t PoolCnt = POOL_TMR_FREQ - 1;
 
   if(PoolCnt)
     PoolCnt--;
   else
   {
-    PoolCnt = POOL_TMR_FREQ;
+    PoolCnt = POOL_TMR_FREQ - 1;
     ip_arp_sec_tick();
   }
 #endif  //  LAN_NODE
@@ -71,9 +71,6 @@ void PHY_Pool(void)
 void PHY_Start(void)
 {
 #ifdef LAN_NODE
-  while (enc28j60linkup()==0)
-    _delay_ms(250);
-
 #ifdef  DHCP_client
   if(ipaddr[0] == 0xFF)
   {
@@ -88,6 +85,9 @@ void PHY_Start(void)
       i = packetloop_dhcp_initial_ip_assignment(buf, plen, macaddr[5]);
     }
   }
+#else
+  while (enc28j60linkup()==0)
+    _delay_ms(250);
 #endif  //  DHCP_client
 #endif  //  LAN_NODE
 }

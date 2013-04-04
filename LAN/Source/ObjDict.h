@@ -17,21 +17,21 @@ See LICENSE.txt file for license details.
 enum
 {
   // Global Settings
-  objNodeName     = 0xFF00, // String
-  objTAsleep      = 0xFF01, // UIint16
+  objNodeName     = 0xFF00, // _sName<String>
+  objTAsleep      = 0xFF01, // cfg/XD_SleepTime<UIint16>
   // RF Node
-  objRFNodeId     = 0xFF10, // UInt8
-  objRFGroup      = 0xFF11, // UInt16
-  objRFChannel    = 0xFF12, // UInt8
-  objRSSI         = 0xFF13, // UInt8
+  objRFNodeId     = 0xFF10, // cfg/XD_DeviceAddr<UInt8>
+  objRFGroup      = 0xFF11, // cfg/XD_GroupID<UInt16>
+  objRFChannel    = 0xFF12, // cfg/XD_Channel<UInt8>
+  objRSSI         = 0xFF13, // cfg/XD_RSSI<UInt8>
   // Lan Node 
-  objMACAddr      = 0xFF20, // Array - Len 6
-  objIPAddr       = 0xFF21, // UInt32
-  objIPMask       = 0xFF22, // UInt32
-  objIPRouter     = 0xFF23, // UInt32
-  objIPBroker     = 0xFF24, // UInt32
+  objMACAddr      = 0xFF20, // cfg/XD_MACAddr - Array - Len 6
+  objIPAddr       = 0xFF21, // cfg/XD_IPAddr<UInt32>
+  objIPMask       = 0xFF22, // cfg/XD_IPMask<UInt32>
+  objIPRouter     = 0xFF23, // cfg/XD_IPRouter<UInt32>
+  objIPBroker     = 0xFF24, // cfg/XD_IPBroker<UInt32>
   // Read Only Variables
-  objDeviceTyp    = 0xFFC0  // String
+  objDeviceTyp    = 0xFFC0  // _declarer<String>
 }eObjList;
 
 enum
