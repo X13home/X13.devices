@@ -41,6 +41,46 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'ENC28J60' ">
     <ToolchainSettings>
       <AvrGcc>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>F_CPU=12500000UL</Value>
+            <Value>ENC28J60=1</Value>
+            <Value>EXTDIO_USED=1</Value>
+            <Value>EXTPWM_USED=1</Value>
+            <Value>EXTAI_USED=1</Value>
+            <Value>EXTSER_TX_USED=1</Value>
+            <Value>EXTSER_RX_USED=1</Value>
+            <Value>TWI_USED=1</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</avrgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>m</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.linker.optimization.GarbageCollectUnusedSections>True</avrgcc.linker.optimization.GarbageCollectUnusedSections>
+        <avrgcc.linker.optimization.RelaxBranches>True</avrgcc.linker.optimization.RelaxBranches>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
+    </ToolchainSettings>
+    <OutputFileName>ENC28J60</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'JNODE' ">
+    <ToolchainSettings>
+      <AvrGcc>
   <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
   <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
   <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
@@ -49,8 +89,8 @@
   <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
   <avrgcc.compiler.symbols.DefSymbols>
     <ListValues>
-      <Value>F_CPU=12500000UL</Value>
-      <Value>ENC28J60=1</Value>
+      <Value>F_CPU=16000000UL</Value>
+      <Value>JEENODE=1</Value>
       <Value>EXTDIO_USED=1</Value>
       <Value>EXTPWM_USED=1</Value>
       <Value>EXTAI_USED=1</Value>
@@ -75,8 +115,9 @@
   <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
 </AvrGcc>
     </ToolchainSettings>
-    <OutputFileName>ENC28J60</OutputFileName>
+    <OutputFileName>JNODE</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputPath>bin\JNODE\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Source\eeprom.c">
@@ -100,10 +141,7 @@
     <Compile Include="Source\phy.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\Phy\ENC28J60\enc28j60.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\ENC28J60\ip_arp_udp_tcp.c">
+    <Compile Include="Source\Phy\RFM12\rfm12.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\util.c">
@@ -113,7 +151,7 @@
   <ItemGroup>
     <Folder Include="Source" />
     <Folder Include="Source\Phy" />
-    <Folder Include="Source\Phy\ENC28J60" />
+    <Folder Include="Source\Phy\RFM12" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

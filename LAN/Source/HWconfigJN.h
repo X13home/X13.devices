@@ -8,8 +8,10 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-#ifndef _HWCONFIG_ENC_H
-#define _HWCONFIG_ENC_H
+// Hardware definitions, JeeNode - Arduino + RFM12
+
+#ifndef _HWCONFIG_JN_H
+#define _HWCONFIG_JN_H
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -19,56 +21,56 @@ See LICENSE.txt file for license details.
 #include <avr/sleep.h>
 
 #include <util/crc16.h>
-#include <util/delay.h>
 
 #include <stdlib.h>
 #include <string.h>
 
-// Hardware definitions LAN Node + ENC28J60
-
+// jeeNode/Arduino
+// http://jeelabs.org, http://arduino.cc 
 // 0 - 7    PORTA - not exist
 // PORTB
-// --   PB0     --      LED
-// --   PB1     -- 
-// --   PB2     --      PHY_CSN
-// --   PB3     ISP-4   PHY_MOSI
-// --   PB4     ISP-1   PHY_MISO
-// --   PB5     ISP-3   PHY_SCK
-// --   PB6     --      CLK_IN
-// --   PB7     --
+// --   PB0     ISP-7   LEDR
+// --   PB1     ISP-8   LEDG
+// --   PB2     --      RF_CSN
+// --   PB3     ISP-4   RF_MOSI
+// --   PB4     ISP-1   RF_MISO
+// --   PB5     ISP-3   RF_SCK
+// --   PB6     --      OSC
+// --   PB7     --      OSC
 // PORT C
-// 16   PC0     SV1-3   Ain0
-// 17   PC1     SV1-4   Ain1
-// 18   PC2     SV1-5   Ain2
-// 19   PC3     SV1-6   Ain3
-// 20   PC4     SV1-7   SDA/Ain4
-// 21   PC5     SV1-8 - SCL/Ain5
+// 16   PC0     P1-AIO  Ain0
+// 17   PC1     P2-AIO  Ain1
+// 18   PC2     P3-AIO  Ain2
+// 19   PC3     P4-AIO  Ain3
+// 20   PC4     SDA     SDA
+// 21   PC5     SCL -   SCL
 // --   PC6     ISP-5   RESET
-// --   --      Ain6
-// --   --      SV1-1   Ain7
 // PORT D
-// 24   PD0     SV1-11  RXD - On gateway busy
-// 25   PD1     SV1-12  TXD - On gateway busy
-// 26   PD2     SV1-13  IRQ 0
-// 27   PD3     SV1-14  IRQ 1
-// 28   PD4     SV1-15
-// 29   PD5     SV1-16  PWM0
-// 30   PD6     SV1-17  PWM1
-// 31   PD7     SV1-18
+// 24   PD0     RXD     RXD - On gateway busy
+// 25   PD1     TXD     TXD - On gateway busy
+// 26   PD2     --      RF_IRQ
+// 27   PD3     P1-4 IRQ  IRQ 1
+// 28   PD4     P1-DIO
+// 29   PD5     P2-DIO  PWM0
+// 30   PD6     P3-DIO  PWM1
+// 31   PD7     P4-DIO
 
 // Object's Dictionary Section
-#define OD_DEV_TYP_0        'L'
-#define OD_DEV_TYP_1        'N'
-#define OD_DEV_TYP_2        '0'
-#define OD_DEV_TYP_3        '0'
+#define OD_DEV_TYP_0            'J'
+#define OD_DEV_TYP_1            'N'
+#define OD_DEV_TYP_2            'v'
+#define OD_DEV_TYP_3            '6'
+#ifdef GATEWAY
+#define OD_DEFAULT_ADDR         0x07
+#endif  //  GATEWAY
 // End OD Section
 
-#define SystemReset()           {cli();asm("jmp 0x0000");}
+#define SystemReset()           {cli();RxLEDon();asm("jmp 0x0000");}
 
 // Power Reduction
 #define CONFIG_PRR()            {ACSR = (1<<ACD); \
-                                PRR = (1<<PRTWI) | (1<<PRTIM0) | (1<<PRTIM1) | \
-                                (1<<PRUSART0) | (1<<PRADC);}
+                                 PRR = (1<<PRTWI) | (1<<PRTIM0) | (1<<PRTIM1) | \
+                                 (1<<PRUSART0) | (1<<PRADC);}
 // USART Section
 // ATMEGA 168PA
 #ifndef USART_RX_vect
@@ -120,9 +122,12 @@ See LICENSE.txt file for license details.
 #define POOL_TMR_FREQ           64     // Pool Frequency (Hz)
 #define TIMER_ISR               TIMER2_COMPA_vect
 #define InitTimer()             {TCCR2A = (1<<WGM21); TCNT2 = 0;            \
-                                OCR2A = ((F_CPU/1024/POOL_TMR_FREQ)-1);    \
-                                TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
-                                TCCR2B =(1<<WGM22) | (7<<CS20);}
+                                 OCR2A = ((F_CPU/1024/POOL_TMR_FREQ)-1);    \
+                                 TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
+                                 TCCR2B =(1<<WGM22) | (7<<CS20);}
+#define config_sleep_wdt()      {wdt_reset(); MCUSR &= ~(1<<WDRF);                      \
+                                 WDTCSR |= (1<<WDCE) | (1<<WDE); WDTCSR = (6<<WDP0);    \
+                                 WDTCSR |= (1<<WDIF); WDTCSR |= (1<<WDIE);}
 // End Timer Section
 
 // Digital IO's
@@ -164,8 +169,9 @@ See LICENSE.txt file for license details.
 // Analog Inputs
 #define EXTAI_PORT_NUM          PORTNUM2    // PORTC Analog Inputs
 #define EXTAI_CHN_MASK          0x0F
-#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
-#define EXTAI_MAXPORT_NR        8          // ADC0-ADC5, ADC7, Vbg
+#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 6, 0xFF}
+#define EXTAI_MAXPORT_NR        7          // ADC0-ADC5, ADC7, Vbg
+
 
 #define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; ADCSRA = (1<<ADEN) | \
                                         (1<<ADSC) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);}
@@ -181,33 +187,54 @@ See LICENSE.txt file for license details.
 #define TWI_DISABLE()           {TWCR = 0; PRR |= (1<<PRTWI);}
 // End TWI
 
-// ENC28J60 Section
-#define ENC_DDR                 DDRB
-#define ENC_PORT                PORTB
-#define ENC_PIN_SS              PORTB2
-#define ENC_PIN_MOSI            PORTB3
-#define ENC_PIN_MISO            PORTB4
-#define ENC_PIN_SCK             PORTB5
+// RF Section
+#define RF_DDR                  DDRB
+#define RF_PORT                 PORTB
+#define RF_LEDR                 PORTB0
+#define RF_LEDG                 PORTB1
+#define RF_PIN_SS               PORTB2
+#define RF_PIN_MOSI             PORTB3
+#define RF_PIN_MISO             PORTB4
+#define RF_PIN_SCK              PORTB5
 
-// PIN IRQ is not used, but for compatibility with another board
-#define ENC_IRQ_DDR             DDRD
-#define ENC_IRQ_PORT            PORTD
-#define ENC_IRQ_PORTIN          PIND
-#define ENC_IRQ_PIN             PORTD2
+#define TxLEDon()               RF_PORT |= (1<<RF_LEDR);
+#define RxLEDon()               RF_PORT |= (1<<RF_LEDG);
+#define LEDsOff()               RF_PORT &= ~((1<<RF_LEDR) | (1<<RF_LEDG));
 
-#define ENC_PORT_INIT()     {ENC_PORT |= (1<<ENC_PIN_SS); ENC_DDR  &= ~(1<<ENC_PIN_MISO);         \
-                             ENC_DDR  |= (1<<ENC_PIN_SCK) | (1<<ENC_PIN_MOSI) | (1<<ENC_PIN_SS);  \
-                             ENC_IRQ_DDR &= ~(1<<ENC_IRQ_PIN); ENC_IRQ_PORT |= (1<<ENC_IRQ_PIN); }
-#define ENC_SELECT()        ENC_PORT &= ~(1<<ENC_PIN_SS)
-#define ENC_RELEASE()       ENC_PORT |= (1<<ENC_PIN_SS)
+#define RF_PORT_INIT()          {RF_PORT = (1<<RF_PIN_SS) | (1<<RF_LEDR);       \
+                                 RF_DDR = (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) |     \
+                                         (1<<RF_PIN_SS) | (1<<RF_LEDR) | (1<<RF_LEDG);}
 
-#define ENC_SPI_INIT()          {SPCR = (1<<SPE)|(1<<MSTR); SPSR |= (1<<SPI2X);}
-#define ENC_SPI_DATA            SPDR
-#define ENC_SPI_BISY            (!(SPSR &(1<<SPIF)))
-// End ENC28J60 Section
+#define RF_SELECT()             RF_PORT &= ~(1<<RF_PIN_SS)
+#define RF_RELEASE()            RF_PORT |= (1<<RF_PIN_SS)
 
-#include "Phy/ENC28J60/ip_arp_udp_tcp.h"
-#include "Phy/ENC28J60/enc28j60.h"
-#include "Phy/ENC28J60/net.h"
+#define RF_SPI_DATA             SPDR
+#define RF_SPI_BISY             (!(SPSR &(1<<SPIF)))
+
+#if (F_CPU > 10000000UL)
+
+#define RF_SPI_INIT()           {SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0); SPSR = (1<<SPI2X);}
+
+#define RF_SPI_SLOW()           SPCR |= (1<<SPR0)
+#define RF_SPI_FAST()           SPCR &= ~(1<<SPR0)
+
+#else   //  (F_CPU <= 10000000UL)
+
+#define RF_SPI_INIT()           {SPCR = (1<<SPE) | (1<<MSTR); SPSR = 0;}
+
+#define RF_SPI_SLOW()           SPSR = 0
+#define RF_SPI_FAST()           SPSR = (1<<SPI2X)
+
+#endif  //  (F_CPU > 10000000UL)
+
+#define RF_IRQ_CFG()            {DDRD &= ~(1<<PORTD2); PORTD |= (1<<PORTD2); EICRA = (0<<ISC00);}
+#define RF_STAT_IRQ             (PIND & (1<<PORTD2))
+
+#define RF_INT_vect             INT0_vect
+
+#define RF_ENABLE_IRQ()         EIMSK = (1<<INT0);      // INT0 int enable
+#define RF_DISABLE_IRQ()        EIMSK = 0;              // INT0 disable
+
+#include "Phy/RFM12/rfm12.h"
 
 #endif

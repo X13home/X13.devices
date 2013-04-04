@@ -6,10 +6,13 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		ENC28J60|AVR = ENC28J60|AVR
+		JNODE|AVR = JNODE|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{0B4CCD66-6DBA-43E9-ACC2-B8CDD5461B20}.ENC28J60|AVR.ActiveCfg = ENC28J60|AVR
 		{0B4CCD66-6DBA-43E9-ACC2-B8CDD5461B20}.ENC28J60|AVR.Build.0 = ENC28J60|AVR
+		{0B4CCD66-6DBA-43E9-ACC2-B8CDD5461B20}.JNODE|AVR.ActiveCfg = JNODE|AVR
+		{0B4CCD66-6DBA-43E9-ACC2-B8CDD5461B20}.JNODE|AVR.Build.0 = JNODE|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
