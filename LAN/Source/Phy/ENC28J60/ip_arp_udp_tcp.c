@@ -43,6 +43,7 @@ static uint8_t arpip_state = 0;
 #define ARP_REQ_REQUEST   0x20
 
 static uint8_t arpip[4];                // IP to find via arp
+
 const char arpreqhdr[] PROGMEM ={0,1,8,0,6,4,0,1};
 
 // This function will be called if we ever get a result back from the
@@ -76,7 +77,7 @@ static volatile uint8_t dhcp_sec_cnt = 0;       // Second counts
 static uint8_t dhcp_opt_server_id[4]={0,0,0,0}; // server ip
 //static uint8_t dhcp_opt_message_type=0;
 static uint8_t dhcp_tid = 0;                    // Transaction ID
-static uint16_t dhcp_opt_leasetime_minutes = 0xFFFF;
+static uint16_t dhcp_opt_renewtime_minutes = 0xFFFF;
 const char dhcp_magic_cookies[] PROGMEM = {0x63, 0x82, 0x53, 0x63};
 //const char dhcp_opt_req_lst[] PROGMEM = {53, 1, 1, 55, 2, 1, 3, 255};
 const char dhcp_opt_req_lst[] PROGMEM = {53, 1, 1, 255};
@@ -157,30 +158,18 @@ static uint16_t checksum(uint8_t *buf, uint16_t len, uint8_t type)
 
 #if defined (ALL_clients)
 /*
-static void client_ifconfig(uint8_t *ip,uint8_t *netmask)
-{
-        uint8_t i;
-        if (ip){
-                i=0;while(i<4){ipaddr[i]=ip[i];i++;}
-        }
-        if (netmask){
-                i=0;while(i<4){ipnetmask[i]=netmask[i];i++;}
-        }
-}
-*/
-/*
 // returns 1 if destip must be routed via the GW. Returns 0 if destip is on the local LAN
 static uint8_t route_via_gw(uint8_t *destip)
 {
-	uint8_t i=0;
-        // we have to start at the left side of the IP:
-	while(i<4){
-		if ((destip[i] & ipnetmask[i]) != (ipaddr[i] & ipnetmask[i])){
-			return(1);
-		}
-		i++;
-	}
-	return(0);
+  uint8_t i=0;
+  // we have to start at the left side of the IP:
+  while(i<4)
+  {
+    if((destip[i] & ipnetmask[i]) != (ipaddr[i] & ipnetmask[i]))
+      return(1);
+    i++;
+  }
+  return(0);
 }
 */
 #endif  //  (ALL_clients)
@@ -264,14 +253,6 @@ static void make_echo_reply_from_request(uint8_t *buf,uint16_t len)
 }
 
 #ifdef UDP_client
-// -------------------- send a spontanious UDP packet to a server 
-// There are two ways of using this:
-// 1) you call send_udp_prepare, you fill the data yourself into buf starting at buf[UDP_DATA_P], 
-// you send the packet by calling send_udp_transmit
-//
-// 2) You just allocate a large enough buffer for you data and you call send_udp and nothing else
-// needs to be done.
-//
 void send_udp_prepare(uint8_t *buf,uint16_t sport, const uint8_t *dip, uint16_t dport,const uint8_t *dstmac)
 {
   memcpy(&buf[ETH_DST_MAC], dstmac, 6);
@@ -344,19 +325,16 @@ static void client_arp_whohas(uint8_t *buf, uint8_t *ip_we_search)
   memcpy(&buf[ETH_ARP_DST_IP_P], ip_we_search, 4);
   memcpy(&buf[ETH_ARP_SRC_IP_P], ipaddr, 4);
 
-  enc28j60PacketSend(0x2A,buf); // 0x2A=42=len of packet
+  enc28j60PacketSend(42, buf);
 }
 
-/*
 // return zero when current transaction is finished
 static uint8_t get_mac_with_arp_wait(void)
 {
-        if (arpip_state == WGW_HAVE_MAC){
-                return(0);
-        }
-        return(1);
+  if(arpip_state == ARP_REQ_READY)
+    return 0;
+  return 1;
 }
-*/
 
 // reference_number is something that is just returned in the callback
 // to make matching and waiting for a given ip/mac address pair easier
@@ -369,7 +347,6 @@ void get_mac_with_arp(uint8_t *ip, void (*arp_result_callback)(uint8_t *mac))
   arpip_state = (ARP_REQ_ARMED | ARP_REQ_REQUEST);
   memcpy(arpip, ip, 4);
 }
-
 #endif  // ARP_MAC_resolver_client
 
 uint8_t packetloop_arp_icmp(uint8_t *buf, uint16_t plen)
@@ -617,35 +594,30 @@ void dhcp_option_parser(uint8_t *buf,uint16_t plen)
       // The max lease time size is therefore 32 bit. 
       // The code for this option is 51, and its length is 4
       // as per RFC 1533.
-      case 51: 
-        if(option_len != 4)
+      case 51:
+        if(option_len == 4)
         {
-          dhcp_opt_leasetime_minutes = 1440; // just to have a reasonable value: 1 day
-          break;
-        }
-        ltime.c[0] = buf[option_idx + 5];
-        ltime.c[1] = buf[option_idx + 4];
-        ltime.c[2] = buf[option_idx + 3];
-        ltime.c[3] = buf[option_idx + 2];
+          ltime.c[0] = buf[option_idx + 5];
+          ltime.c[1] = buf[option_idx + 4];
+          ltime.c[2] = buf[option_idx + 3];
+          ltime.c[3] = buf[option_idx + 2];
 
-        if(ltime.l == 0xffffffff)
-        {
-          // lease time is infinity
-          dhcp_opt_leasetime_minutes=0xffff;
-          break; // end of switch
-        }
-        
-        ltime.l >>= 6; // an inexpesive way to divide by 64 (which is roughly equal to divide by 60)
-        if(ltime.l > 0xfffd)
-        { //0xffff is not handeled here because of the above break
-          dhcp_opt_leasetime_minutes=0xfffd;
+          if(ltime.l == 0xFFFFFFFF)
+          {
+            dhcp_opt_renewtime_minutes = 0xFFFF;
+            break; // end of switch
+          }
+          
+          ltime.l >>= 7; // Renew Time is usualy half of Lease Time
+          if(ltime.l > 0xFFFE)
+            ltime.l = 0xFFFE;
         }
         else
-        {
-          dhcp_opt_leasetime_minutes= ltime.i[0];
-          if(dhcp_opt_leasetime_minutes < 5)
-            dhcp_opt_leasetime_minutes = 5;
-        }
+          ltime.l = 1440; // 24 * 60 min
+
+        dhcp_opt_renewtime_minutes = ltime.i[0];
+        if(dhcp_opt_renewtime_minutes < 5)
+          dhcp_opt_renewtime_minutes = 5;
         break;
 //    case 53: dhcp_opt_message_type=buf[option_idx+2];
 //      break;
@@ -727,20 +699,22 @@ void send_dhcp_renew_request(uint8_t *buf, uint8_t *yiaddr)
 uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen, uint8_t initial_tid)
 {
   if(!enc28j60linkup()) // do nothing if the link is down
-    return(0);
-
-  if(plen==0)
   {
-    if(dhcp_sec_cnt == 0)
+    dhcp_sec_cnt = 0;
+    return(0);
+  }
+
+  if(plen == 0)
+  {
+    if(dhcp_sec_cnt < 2)
     {
-      dhcp_sec_cnt++;
-      dhcp_tid = initial_tid;
+      dhcp_sec_cnt = 28;
+      dhcp_tid = initial_tid - 1;
       enc28j60EnableBroadcast();
-      send_dhcp_discover(buf);
     }
-    else if(dhcp_sec_cnt > 30)
+    else if(dhcp_sec_cnt > 31)
     {
-      dhcp_sec_cnt = 1;
+      dhcp_sec_cnt = 2;
       dhcp_tid++;
       send_dhcp_discover(buf);
     }
@@ -758,7 +732,7 @@ uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen, uint8
     cmd = dhcp_get_message_type(buf, plen);
     if(cmd==2) // DHCPOFFER =2
     {
-      dhcp_sec_cnt = 1;
+      dhcp_sec_cnt = 2;
 
       if(buf[UDP_DATA_P+16] != 0) // we have a yiaddr
         memcpy(ipaddr, buf+UDP_DATA_P+16, 4);
@@ -770,7 +744,7 @@ uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen, uint8
     }
     else if(cmd==5) // DHCPACK = 5, success, we have the IP
     {
-      dhcp_sec_cnt = 1;
+      dhcp_sec_cnt = 2;
       enc28j60DisableBroadcast();
       return(1);
     }
@@ -788,21 +762,21 @@ uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen, uint8
 uint16_t packetloop_dhcp_renewhandler(uint8_t *buf, uint16_t plen)
 {
   // we let it run a bit faster than once every minute because it is better this expires too early than too late
-  if(dhcp_sec_cnt > 59)
+  if(dhcp_sec_cnt > 73)
   {
-    dhcp_sec_cnt=0;
+    dhcp_sec_cnt = 0;
     // count down unless the lease was infinite
-    if ((dhcp_opt_leasetime_minutes != 0xFFFF) && (dhcp_opt_leasetime_minutes != 0))
-      dhcp_opt_leasetime_minutes--;
+    if ((dhcp_opt_renewtime_minutes != 0xFFFF) && (dhcp_opt_renewtime_minutes != 0))
+      dhcp_opt_renewtime_minutes--;
   }
 
   if(plen == 0)
   {
-    if((dhcp_opt_leasetime_minutes < 3) && enc28j60linkup())
+    if((dhcp_opt_renewtime_minutes < 3) && enc28j60linkup())
     {
       dhcp_tid++;
       send_dhcp_renew_request(buf, ipaddr);
-      dhcp_opt_leasetime_minutes = 5; // repeat in two minutes if no answer
+      dhcp_opt_renewtime_minutes = 5; // repeat in two minutes if no answer
     }
     return(0);
   }
