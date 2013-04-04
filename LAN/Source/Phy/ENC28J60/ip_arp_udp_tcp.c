@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.github.com
@@ -7,40 +7,17 @@ http://X13home.github.com
 BSD New License
 See LICENSE.txt file for license details.
 
-Based on
+Based on IPstack for AVR from Guido Socher and Pascal Stang
 */
-/*********************************************
- * vim:sw=8:ts=8:si:et
- * To use the above modeline in vim you must have "set modeline" in your .vimrc
- *
- * Author: Guido Socher 
- * Copyright:LGPL V2
- * See http://www.gnu.org/licenses/old-licenses/lgpl-2.0.html
- *
- * IP, Arp, UDP and TCP functions.
- *
- * The TCP implementation uses some size optimisations which are valid
- * only if all data can be sent in one single packet. This is however
- * not a big limitation for a microcontroller as you will anyhow use
- * small web-pages. The web server must send the entire web page in one
- * packet. The client "web browser" as implemented here can also receive
- * large pages.
- *
- * Chip type           : ATMEGA88/168/328/644 with ENC28J60
- *********************************************/
-#include <avr/io.h>
+
 #include <avr/pgmspace.h>
 #include <string.h>
-#include <ctype.h>
-#include <stdlib.h>
 #include "net.h"
 #include "enc28j60.h"
 #include "ip_arp_udp_tcp.h"
 
-#if defined (NTP_client) || defined (UDP_client) || defined (TCP_client) || defined (PING_client)
 //#define ARP_MAC_resolver_client 1
 #define ALL_clients 1
-#endif
 
 typedef union
 {
@@ -87,7 +64,6 @@ const char iphdr[] PROGMEM ={0x45, 0, 0, 0x82, 0, 0, 0x40, 0, 0x20};
 // 0, 0     - Identification
 // 0x40, 0  - Flags:  Don't Fragment | Fragment Offset
 // 0x20     - Time To Live(Hops) - 32 Sec.
-
 #endif    //    ALL_clients
 
 // DHCP
@@ -95,12 +71,6 @@ const char iphdr[] PROGMEM ={0x45, 0, 0, 0x82, 0, 0, 0x40, 0, 0x20};
 #ifndef UDP_client
 #error "ERROR: you need to enable UDP_client support in ip_config.h to use the DHCP client"
 #endif
-
-// DHCP_OPTION_OFFSET is a relative to UDP_DATA_P
-#define DHCP_OPTION_OFFSET 240
-#define MAGIC_COOKIE_P 236
-#define DHCP_SRV_SRC_PORT 67
-#define DHCP_SRV_DST_PORT 68
 
 static volatile uint8_t dhcp_sec_cnt = 0;       // Second counts
 static uint8_t dhcp_opt_server_id[4]={0,0,0,0}; // server ip
@@ -214,19 +184,6 @@ static uint8_t route_via_gw(uint8_t *destip)
 }
 */
 #endif  //  (ALL_clients)
-/*
-static uint8_t check_ip_message_is_from(uint8_t *buf,uint8_t *ip)
-{
-        uint8_t i=0;
-        while(i<4){
-                if(buf[IP_SRC_P+i]!=ip[i]){
-                        return(0);
-                }
-                i++;
-        }
-        return(1);
-}
-*/
 
 static uint8_t eth_type_is_arp_and_my_ip(uint8_t *buf,uint16_t len)
 {
@@ -278,63 +235,6 @@ static void make_ip(uint8_t *buf)
   fill_ip_hdr_checksum(buf);
 }
 
-/*
-// swap seq and ack number and count ack number up
-static void step_seq(uint8_t *buf,uint16_t rel_ack_num,uint8_t cp_seq)
-{
-        uint8_t i;
-        uint8_t tseq;
-        i=4;
-        // sequence numbers:
-        // add the rel ack num to SEQACK
-        while(i>0){
-                rel_ack_num=buf[TCP_SEQ_H_P+i-1]+rel_ack_num;
-                tseq=buf[TCP_SEQACK_H_P+i-1];
-                buf[TCP_SEQACK_H_P+i-1]=0xff&rel_ack_num;
-                if (cp_seq){
-                        // copy the acknum sent to us into the sequence number
-                        buf[TCP_SEQ_H_P+i-1]=tseq;
-                }else{
-                        buf[TCP_SEQ_H_P+i-1]= 0; // some preset value
-                }
-                rel_ack_num=rel_ack_num>>8;
-                i--;
-        }
-}
-*/
-/*
-// make a return tcp header from a received tcp packet
-// rel_ack_num is how much we must step the seq number received from the
-// other side. We do not send more than 765 bytes of text (=data) in the tcp packet.
-// No mss is included here.
-//
-// After calling this function you can fill in the first data byte at TCP_OPTIONS_P+4
-// If cp_seq=0 then an initial sequence number is used (should be use in synack)
-// otherwise it is copied from the packet we received
-static void make_tcphead(uint8_t *buf,uint16_t rel_ack_num,uint8_t cp_seq)
-{
-        uint8_t i;
-        // copy ports:
-        i=buf[TCP_DST_PORT_H_P];
-        buf[TCP_DST_PORT_H_P]=buf[TCP_SRC_PORT_H_P];
-        buf[TCP_SRC_PORT_H_P]=i;
-        //
-        i=buf[TCP_DST_PORT_L_P];
-        buf[TCP_DST_PORT_L_P]=buf[TCP_SRC_PORT_L_P];
-        buf[TCP_SRC_PORT_L_P]=i;
-        step_seq(buf,rel_ack_num,cp_seq);
-        // zero the checksum
-        buf[TCP_CHECKSUM_H_P]=0;
-        buf[TCP_CHECKSUM_L_P]=0;
-        // no options:
-        // 20 bytes:
-        // The tcp header length is only a 4 bit field (the upper 4 bits).
-        // It is calculated in units of 4 bytes.
-        // E.g 20 bytes: 20/4=6 => 0x50=header len field
-        buf[TCP_HEADER_LEN_P]=0x50;
-}
-*/
-
 static void make_arp_answer_from_request(uint8_t *buf)
 {
   make_eth(buf);
@@ -362,154 +262,6 @@ static void make_echo_reply_from_request(uint8_t *buf,uint16_t len)
   buf[ICMP_CHECKSUM_P]+=0x08;
   enc28j60PacketSend(len,buf);
 }
-/*
-// do some basic length calculations 
-static uint16_t get_tcp_data_len(uint8_t *buf)
-{
-        int16_t i;
-        i=(((int16_t)buf[IP_TOTLEN_H_P])<<8)|(buf[IP_TOTLEN_L_P]&0xff);
-        i-=IP_HEADER_LEN;
-        i-=(buf[TCP_HEADER_LEN_P]>>4)*4; // generate len in bytes;
-        if (i<=0){
-                i=0;
-        }
-        return((uint16_t)i);
-}
-*/
-/*
-// fill in tcp data at position pos. pos=0 means start of
-// tcp data. Returns the position at which the string after
-// this string could be filled.
-static uint16_t fill_tcp_data_p(uint8_t *buf,uint16_t pos, const char *progmem_s)
-{
-        char c;
-        // fill in tcp data at position pos
-        //
-        // with no options the data starts after the checksum + 2 more bytes (urgent ptr)
-        while ((c = pgm_read_byte(progmem_s++))) {
-                buf[TCP_CHECKSUM_L_P+3+pos]=c;
-                pos++;
-        }
-        return(pos);
-}
-*/
-/*
-// fill a binary string of len data into the tcp packet
-static uint16_t fill_tcp_data_len(uint8_t *buf,uint16_t pos, const uint8_t *s, uint8_t len)
-{
-        // fill in tcp data at position pos
-        //
-        // with no options the data starts after the checksum + 2 more bytes (urgent ptr)
-        while (len) {
-                buf[TCP_CHECKSUM_L_P+3+pos]=*s;
-                pos++;
-                s++;
-                len--;
-        }
-        return(pos);
-}
-*/
-/*
-// fill in tcp data at position pos. pos=0 means start of
-// tcp data. Returns the position at which the string after
-// this string could be filled.
-static uint16_t fill_tcp_data(uint8_t *buf,uint16_t pos, const char *s)
-{
-        return(fill_tcp_data_len(buf,pos,(uint8_t*)s,strlen(s)));
-}
-*/
-/*
-// Make just an ack packet with no tcp data inside
-// This will modify the eth/ip/tcp header 
-static void make_tcp_ack_from_any(uint8_t *buf,int16_t datlentoack,uint8_t addflags)
-{
-        uint16_t j;
-        make_eth(buf);
-        // fill the header:
-        buf[TCP_FLAGS_P]=TCP_FLAGS_ACK_V|addflags;
-        if (addflags==TCP_FLAGS_RST_V){
-                make_tcphead(buf,datlentoack,1); 
-        }else{
-                if (datlentoack==0){
-                        // if there is no data then we must still acknoledge one packet
-                        datlentoack=1;
-                }
-                // normal case, ack the data:
-                make_tcphead(buf,datlentoack,1); // no options
-        }
-        // total length field in the IP header must be set:
-        // 20 bytes IP + 20 bytes tcp (when no options) 
-        j=IP_HEADER_LEN+TCP_HEADER_LEN_PLAIN;
-        buf[IP_TOTLEN_H_P]=j>>8;
-        buf[IP_TOTLEN_L_P]=j& 0xff;
-        make_ip(buf);
-        // use a low window size otherwise we have to have
-        // timers and can not just react on every packet.
-        buf[TCP_WIN_SIZE]=0x4; // 1024=0x400, 1280=0x500 2048=0x800 768=0x300
-        buf[TCP_WIN_SIZE+1]=0;
-        // calculate the checksum, len=8 (start from ip.src) + TCP_HEADER_LEN_PLAIN + data len
-        j=checksum(&buf[IP_SRC_P], 8+TCP_HEADER_LEN_PLAIN,2);
-        buf[TCP_CHECKSUM_H_P]=j>>8;
-        buf[TCP_CHECKSUM_L_P]=j& 0xff;
-        enc28j60PacketSend(IP_HEADER_LEN+TCP_HEADER_LEN_PLAIN+ETH_HEADER_LEN,buf);
-}
-*/
-/*
-// dlen is the amount of tcp data (http data) we send in this packet
-// You can use this function only immediately after make_tcp_ack_from_any
-// This is because this function will NOT modify the eth/ip/tcp header except for
-// length and checksum
-// You must set TCP_FLAGS before calling this
-static void make_tcp_ack_with_data_noflags(uint8_t *buf,uint16_t dlen)
-{
-        uint16_t j;
-        // total length field in the IP header must be set:
-        // 20 bytes IP + 20 bytes tcp (when no options) + len of data
-        j=IP_HEADER_LEN+TCP_HEADER_LEN_PLAIN+dlen;
-        buf[IP_TOTLEN_H_P]=j>>8;
-        buf[IP_TOTLEN_L_P]=j& 0xff;
-        fill_ip_hdr_checksum(buf);
-        // zero the checksum
-        buf[TCP_CHECKSUM_H_P]=0;
-        buf[TCP_CHECKSUM_L_P]=0;
-        // calculate the checksum, len=8 (start from ip.src) + TCP_HEADER_LEN_PLAIN + data len
-        j=checksum(&buf[IP_SRC_P], 8+TCP_HEADER_LEN_PLAIN+dlen,2);
-        buf[TCP_CHECKSUM_H_P]=j>>8;
-        buf[TCP_CHECKSUM_L_P]=j& 0xff;
-        enc28j60PacketSend(IP_HEADER_LEN+TCP_HEADER_LEN_PLAIN+dlen+ETH_HEADER_LEN,buf);
-}
-*/
-#if defined (UDP_server)
-// you can send a max of 220 bytes of data because we use only one
-// byte for the data but udp messages are normally small.
-void make_udp_reply_from_request(uint8_t *buf, uint8_t *data, uint8_t datalen, uint16_t port)
-{
-  uint16_t j;
-  memcpy(&buf[UDP_DATA_P], data, datalen);
-  make_eth(buf);
-  // total length field in the IP header must be set:
-  j = IP_HEADER_LEN + UDP_HEADER_LEN + datalen;
-  buf[IP_TOTLEN_H_P] = j >> 8;
-  buf[IP_TOTLEN_L_P] = j & 0xFF;
-  make_ip(buf);
-  // sent to port of sender and use "port" as own source:
-  buf[UDP_DST_PORT_H_P] = buf[UDP_SRC_PORT_H_P];
-  buf[UDP_DST_PORT_L_P] = buf[UDP_SRC_PORT_L_P];
-  buf[UDP_SRC_PORT_H_P] = port>>8;
-  buf[UDP_SRC_PORT_L_P] = port & 0xFF;
-  // calculte the udp length:
-  j = UDP_HEADER_LEN + datalen;
-  buf[UDP_LEN_H_P] = j >> 8;
-  buf[UDP_LEN_L_P] = j & 0xFF;
-  // zero the checksum
-  buf[UDP_CHECKSUM_H_P] = 0;
-  buf[UDP_CHECKSUM_L_P] = 0;
-  j = checksum(&buf[IP_SRC_P], 16 + datalen, 1);
-  buf[UDP_CHECKSUM_H_P] = j>>8;
-  buf[UDP_CHECKSUM_L_P] = j & 0xFF;
-  enc28j60PacketSend(UDP_HEADER_LEN+IP_HEADER_LEN+ETH_HEADER_LEN+datalen,buf);
-}
-#endif // UDP_server
 
 #ifdef UDP_client
 // -------------------- send a spontanious UDP packet to a server 
@@ -566,26 +318,6 @@ void send_udp_transmit(uint8_t *buf,uint16_t datalen)
   buf[UDP_CHECKSUM_H_P] = tmp16 >> 8;
   enc28j60PacketSend(UDP_HEADER_LEN + IP_HEADER_LEN + ETH_HEADER_LEN + datalen, buf);
 }
-
-/*
-static void send_udp(uint8_t *buf,char *data,uint8_t datalen,uint16_t sport, const uint8_t *dip, uint16_t dport,const uint8_t *dstmac)
-{
-        send_udp_prepare(buf,sport, dip, dport,dstmac);
-        uint8_t i=0;
-        // limit the length:
-        if (datalen>220){
-                datalen=220;
-        }
-        // copy the data:
-        i=0;
-        while(i<datalen){
-                buf[UDP_DATA_P+i]=data[i];
-                i++;
-        }
-        //
-        send_udp_transmit(buf,datalen);
-}
-*/
 #endif // UDP_client
 
 #if ARP_MAC_resolver_client
@@ -639,13 +371,6 @@ void get_mac_with_arp(uint8_t *ip, void (*arp_result_callback)(uint8_t *mac))
 }
 
 #endif  // ARP_MAC_resolver_client
-
-/*
-static void register_ping_rec_callback(void (*callback)(uint8_t *srcip))
-{
-        icmp_callback=callback;
-}
-*/
 
 uint8_t packetloop_arp_icmp(uint8_t *buf, uint16_t plen)
 {

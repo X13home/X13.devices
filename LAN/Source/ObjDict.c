@@ -92,8 +92,12 @@ const PROGMEM uint8_t psDeviceTyp[] = {10,
 
 const PROGMEM indextable_t listPredefOD[] = 
 {
-    {{objPROGMEM, objString, (uint16_t)&psDeviceTyp},
-        objDeviceTyp, (cbRead_t)&progmemReadOD, NULL, NULL},
+    {{objEEMEM, objString, (uint16_t)&ee_NodeName},
+        objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+#ifdef ASLEEP
+    {{objEEMEM, objUInt16, (uint16_t)&ee_TAsleep},
+        objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL}
+#endif  //  ASLEEP
 #ifdef RF_NODE
     {{objEEMEM, objUInt8, (uint16_t)&ee_GroupID},
         objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
@@ -102,12 +106,6 @@ const PROGMEM indextable_t listPredefOD[] =
     {{objEEMEM, objUInt8, (uint16_t)&ee_Channel},
         objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #endif  //  RF_NODE
-    {{objEEMEM, objString, (uint16_t)&ee_NodeName},
-        objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
-#ifdef ASLEEP
-    {{objEEMEM, objUInt16, (uint16_t)&ee_TAsleep},
-        objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL}
-#endif  //  ASLEEP        
 #ifdef LAN_NODE
     {{objEEMEM, objArray, (uint16_t)&ee_MAC_Addr},
         objMACAddr, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
@@ -120,7 +118,8 @@ const PROGMEM indextable_t listPredefOD[] =
     {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Broker},
         objIPBroker, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
 #endif  //  LAN_NODE
-
+    {{objPROGMEM, objString, (uint16_t)&psDeviceTyp},
+        objDeviceTyp, (cbRead_t)&progmemReadOD, NULL, NULL},
 };
 
 // Local Variables

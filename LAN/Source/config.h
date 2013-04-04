@@ -18,7 +18,7 @@ See LICENSE.txt file for license details.
 #define PANSTAMP                1       // Select Board panSTamp( Arduino + CC1101 Shield)
 
 #define RF_NODE                 1       // used RF Interconnection Interface
-#define LAN_NODE                1       // used LAN Onterconnection Interface
+#define LAN_NODE                1       // used LAN Interconnection Interface
 
 #define GATEWAY                 1       // Build Gateway, otherwise build Node
 
@@ -68,14 +68,50 @@ See LICENSE.txt file for license details.
 #define OD_MAX_INDEX_LIST       12      // Size of identificators list
 #define OD_DEFAULT_TASLEEP      0       // Sleep Time, default - always online.
 
-#define OD_DEV_SWVERSH          '0'     // Software Version
-#define OD_DEV_SWVERSM          '0'
-#define OD_DEV_SWVERSL          '1'
+#define OD_DEV_SWVERSH          '2'     // Software Version
+#define OD_DEV_SWVERSM          '5'
+#define OD_DEV_SWVERSL          'a'
 
-#if (defined ENC28J60)
+// RF Section
+#define RF_TX_POOL_SIZE         4
+//#define RF_BASE_FREQ            433920000UL
+#define RF_BASE_FREQ            868300000UL
+//#define RF_BASE_FREQ            869000000UL
+//#define RF_BASE_FREQ            915000000UL
+
+// Gateway UART Section
+#define UART_TX_QUEUE_SIZE      4       // send buffers
+
+// TWI Section
+// TWI Drivers
+#define TWI_USE_BMP085          1       // TWI Driver Bosh BMP085 - Temperature/Pressure
+#define TWI_USE_HIH61XX         1       // TWI Driver Honeywell HIH-61xx - Temperature/Humidity
+#define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
+#define TWI_USE_LM75            1       // TWI Driver, LM75 - Temperature
+//#define TWI_USE_SI114X          1       // TWI Driver, Si114x - proximity/ambient light
+//End TWI Section
+
+#if (defined UNODE)
+  #define RF_NODE               1
+  #include "HWconfigUN.h"     // Hardware uNode vers. 1.0
+#elif (defined JEENODE)
+  #define RF_NODE               1
+  #include "HWconfigJN.h"     // Hardware JeeNode & Arduino
+#elif (defined PANSTAMP)
+  #define RF_NODE               1
+  #include "HWconfigPS.h"     // Hardware panSTamp
+#elif (defined ENC28J60)
   #define LAN_NODE              1
   #include "HWconfigENC.h"
-#endif  //  (defined ENC28J60)
+#else
+  #error Hardware configuration is not defined
+#endif
+
+#ifdef GATEWAY
+#ifdef ASLEEP
+#error Incompatible options 'GATEWAY' & 'ASLEEP'
+#endif  //  ASLEEP
+#endif  //  GATEWAY
 
 #include "mqtts.h"
 #include "mqMEM.h"

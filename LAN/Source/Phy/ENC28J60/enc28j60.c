@@ -7,7 +7,7 @@ http://X13home.github.com
 BSD New License
 See LICENSE.txt file for license details.
 
-Based on IPstack for AVR from Guido Socher
+Based on IPstack for AVR from Guido Socher and Pascal Stang
 */
 
 #include "../../HWconfigENC.h"
@@ -125,10 +125,8 @@ static void enc28j60PhyWrite(uint8_t address, uint16_t data)
 void enc28j60Init(uint8_t* macaddr)
 {
   // initialize I/O
-  ENC_DISABLE_IRQ();
   ENC_PORT_INIT();
   ENC_SPI_INIT();
-  ENC_IRQ_CFG();
 
   // perform system reset
   enc28j60WriteOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
@@ -290,8 +288,8 @@ uint16_t enc28j60PacketReceive(uint16_t maxlen, uint8_t* packet)
   }
   else
   {
-    if(len > (maxlen - 1))  // limit retrieve length
-      len = maxlen-1;
+    if(len > maxlen)  // limit retrieve length
+      len = maxlen;
     // copy the packet from the receive buffer
     enc28j60ReadBuffer(len, packet);
   }

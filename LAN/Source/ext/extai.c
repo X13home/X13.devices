@@ -28,34 +28,12 @@ static uint16_t aiApin2Mask(uint8_t apin)
     return retval;
 }
 
+const uint8_t aiBase2Apin[] PROGMEM = EXTAI_BASE_2_APIN;
+
 // Start HAL
 static uint8_t cvtBase2Apin(uint16_t base)
 {
-    uint8_t apin = base & EXTAI_CHN_MASK;
-    switch(apin)
-    {
-        case 0:         // PC0(ADC0)
-        case 1:
-        case 2:
-        case 3:
-        case 4:
-        case 5:         // PC5(ADC5)
-            return apin;
-#if (defined PANSTAMP) || (defined UNODE)
-        case 6:         // ADC6 - RSSI for uNode
-        case 7:         // ADC7
-        case 8:         // Temperature Sensor
-            return apin;
-        case 14:        // Vbg, Vcc = 1.1V * 1024 / Val
-            return 9;
-#else
-        case 8:         // Temperature Sensor
-            return 6;
-        case 14:        // Vbg, Vcc = 1.1V * 1024 / Val
-            return 7;
-#endif
-    }
-    return 0xFF;
+  return pgm_read_byte(&aiBase2Apin[base & EXTAI_CHN_MASK]);
 }
 
 static uint8_t checkAnalogBase(uint16_t base)
