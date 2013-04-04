@@ -16,7 +16,8 @@ static uint8_t gwip[] =  {0xFF,0xFF,0xFF,0xFF};
 static uint8_t gwmac[] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 
 // eth/ip buffer:
-static uint8_t buf[MAX_FRAMELEN];
+#define MAX_FRAME_BUF 350
+static uint8_t buf[MAX_FRAME_BUF];
 #endif  //  LAN_NODE
 
 void PHY_Init(void)
@@ -83,7 +84,7 @@ void PHY_Start(void)
     i = 0;
     while(i == 0)
     {
-      plen = enc28j60PacketReceive(MAX_FRAMELEN, buf);
+      plen = enc28j60PacketReceive(MAX_FRAME_BUF, buf);
       i = packetloop_dhcp_initial_ip_assignment(buf, plen, macaddr[5]);
     }
   }
@@ -97,7 +98,7 @@ MQ_t * PHY_GetBuf(void)
   uint16_t plen;
   MQ_t * pTmp;
   
-  plen = enc28j60PacketReceive(MAX_FRAMELEN, buf);
+  plen = enc28j60PacketReceive(MAX_FRAME_BUF, buf);
 #ifdef  DHCP_client
   // DHCP renew IP:
   plen = packetloop_dhcp_renewhandler(buf, plen);

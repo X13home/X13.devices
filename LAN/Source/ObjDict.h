@@ -16,18 +16,22 @@ See LICENSE.txt file for license details.
 // Predefined variables
 enum
 {
-    objDeviceTyp    = 0xFE00,
-    objRFNodeId     = 0xFE01,   //  _DeviceAddr
-    objRFGroup      = 0xFE02,   //  _BGroupID
-    objRFChannel    = 0xFE03,   //  _WChannel
-    objNodeName     = 0xFE04,   //  _sName
-    objTAsleep      = 0xFE05,   //  _WSleepTime
-    objRSSI         = 0xFE08,   //  _BRSSI
-    objMACAddr      = 0xFE10,   //
-    objIPAddr       = 0xFE11,   //
-    objIPMask       = 0xFE12,   //
-    objIPRouter     = 0xFE13,   //
-    objIPBroker     = 0xFE14    //
+  // Global Settings
+  objNodeName     = 0xFF00, // String
+  objTAsleep      = 0xFF01, // UIint16
+  // RF Node
+  objRFNodeId     = 0xFF10, // UInt8
+  objRFGroup      = 0xFF11, // UInt16
+  objRFChannel    = 0xFF12, // UInt8
+  objRSSI         = 0xFF13, // UInt8
+  // Lan Node 
+  objMACAddr      = 0xFF20, // Array - Len 6
+  objIPAddr       = 0xFF21, // UInt32
+  objIPMask       = 0xFF22, // UInt32
+  objIPRouter     = 0xFF23, // UInt32
+  objIPBroker     = 0xFF24, // UInt32
+  // Read Only Variables
+  objDeviceTyp    = 0xFFC0  // String
 }eObjList;
 
 enum
