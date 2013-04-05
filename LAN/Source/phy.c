@@ -84,7 +84,7 @@ void PHY_Start(void)
     while(i == 0)
     {
       plen = enc28j60PacketReceive(MAX_FRAME_BUF, buf);
-      i = packetloop_dhcp_initial_ip_assignment(buf, plen, macaddr[5]);
+      i = packetloop_dhcp_initial_ip_assignment(buf, plen);
     }
   }
 #else
@@ -94,7 +94,7 @@ void PHY_Start(void)
 #endif  //  LAN_NODE
 }
 
-MQ_t * PHY_GetBuf(uint8_t *pAddr)
+MQ_t * PHY_GetBuf(void)
 {
 #ifdef LAN_NODE
   uint16_t plen;
@@ -128,7 +128,7 @@ MQ_t * PHY_GetBuf(uint8_t *pAddr)
   return NULL;
 }
 
-void PHY_Send(MQ_t * pBuf, uint8_t *pAddr)
+void PHY_Send(MQ_t * pBuf)
 {
 #ifdef LAN_NODE
   if(pBuf->MsgType == MQTTS_MSGTYP_SEARCHGW)

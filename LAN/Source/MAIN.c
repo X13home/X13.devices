@@ -54,13 +54,13 @@ int main(void)
 
     while(1)
     {
-      pRBuf = PHY_GetBuf(NULL);
+      pRBuf = PHY_GetBuf();
       if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
         mqRelease(pRBuf);
         
       pMBuf = MQTTS_Get();
       if(pMBuf != NULL)
-        PHY_Send(pMBuf, NULL);
+        PHY_Send(pMBuf);
         
       if(iPool & IPOOL_USR)
       {

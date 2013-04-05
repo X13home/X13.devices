@@ -354,7 +354,7 @@ uint8_t packetloop_arp_icmp(uint8_t *buf, uint16_t plen)
 {
 #ifdef  DHCP_client
   // we let it run a bit faster than once every minute because it is better this expires too early than too late
-  if(dhcp_sec_cnt > 73)
+  if(dhcp_sec_cnt > 68)
   {
     dhcp_sec_cnt = 0;
     // count down unless the lease was infinite
@@ -491,7 +491,7 @@ static void make_dhcp_message_template(uint8_t *buf)
   i=0;
   while(i<3)
   {
-    buf[UDP_DATA_P + i + 5] = dhcp_tid;
+    buf[UDP_DATA_P + i + 5] = dhcp_tid ^ macaddr[i + 3];
     i++;
   }
   // 2 Number of Seconds
@@ -574,8 +574,8 @@ static uint8_t is_dhcp_msg_for_me(uint8_t *buf,uint16_t plen)
   if((plen >= (UDP_DATA_P + DHCP_OPTION_OFFSET + 3)) &&   // the smallest option is 3 bytes
      (buf[UDP_SRC_PORT_L_P] == DHCP_SRV_SRC_PORT) &&
      (buf[UDP_DATA_P] == 2) && 
-     (buf[UDP_DATA_P+5] == dhcp_tid) &&
-     (buf[UDP_DATA_P+6] == dhcp_tid))
+     (buf[UDP_DATA_P+5] == (dhcp_tid ^ macaddr[3])) &&
+     (buf[UDP_DATA_P+6] == (dhcp_tid ^ macaddr[4])))
         return(1);
 
   return(0);
@@ -727,7 +727,7 @@ static void send_dhcp_renew_request(uint8_t *buf, uint8_t *yiaddr)
 //
 // The function returns 1 once we have a valid IP. 
 // At this point you must not call the function again.
-uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen, uint8_t initial_tid)
+uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen)
 {
   if(!enc28j60linkup()) // do nothing if the link is down
   {
@@ -740,7 +740,10 @@ uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen, uint8
     if(dhcp_sec_cnt < 2)
     {
       dhcp_sec_cnt = 28;
-      dhcp_tid = initial_tid - 1;
+      uint8_t i = 0;
+      while(i < 5)
+        dhcp_tid += macaddr[i++];
+
       enc28j60EnableBroadcast();
     }
     else if(dhcp_sec_cnt > 31)
@@ -781,48 +784,6 @@ uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen, uint8
     }
   }
   return(0);
-}
-
-// Put the following function into your main packet loop.
-// returns plen of original packet if buf is not touched.
-// returns 0 if plen was originally zero. returns 0 if DHCP messages
-// was processed.
-// We don't need to expect changing IP addresses. We can stick
-// to the IP that we got once. The server has really no power to
-// do anything about that.
-uint16_t packetloop_dhcp_renewhandler(uint8_t *buf, uint16_t plen)
-{
-  // we let it run a bit faster than once every minute because it is better this expires too early than too late
-  if(dhcp_sec_cnt > 73)
-  {
-    dhcp_sec_cnt = 0;
-    // count down unless the lease was infinite
-    if ((dhcp_opt_renewtime_minutes != 0xFFFF) && (dhcp_opt_renewtime_minutes != 0))
-      dhcp_opt_renewtime_minutes--;
-  }
-
-  if(plen == 0)
-  {
-    if((dhcp_opt_renewtime_minutes < 3) && enc28j60linkup())
-    {
-      dhcp_tid++;
-      send_dhcp_renew_request(buf, ipaddr);
-      dhcp_opt_renewtime_minutes = 5; // repeat in two minutes if no answer
-    }
-    return(0);
-  }
-  else 
-  
-  if(is_dhcp_msg_for_me(buf, plen))  // we check the dhcp_renew_tid because if 
-  {
-    if((dhcp_get_message_type(buf,plen) == 5) &&    // DHCPACK = 5, success, DHCPACK, we have the IP
-       (dhcp_is_renew_tid(buf)))
-    { 
-      dhcp_option_parser(buf,plen); // get new lease time, it will as well GW and netmask but those should not change
-    }
-    return(0);
-  }
-  return(plen);
 }
 #endif  //  DHCP_client
 // === end of DHCP client
