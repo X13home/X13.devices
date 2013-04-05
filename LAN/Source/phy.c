@@ -4,7 +4,6 @@
 #ifdef RF_NODE
 uint8_t rf_dst_addr;
 uint8_t rf_src_addr;
-
 #endif  //  RF_NODE
 
 #ifdef LAN_NODE

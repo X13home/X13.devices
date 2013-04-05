@@ -98,7 +98,7 @@ See LICENSE.txt file for license details.
 #elif (defined PANSTAMP)
   #include "HWconfigPS.h"     // Hardware panSTamp
 #elif (defined ENC28J60)
-  #include "HWconfigENC.h"
+  #include "HWconfigENC.h"    // Hardware AVR + ENC28J60 on SPI
 #else
   #error Hardware configuration is not defined
 #endif
