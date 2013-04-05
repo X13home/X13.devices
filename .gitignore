@@ -12,3 +12,4 @@ TcfTransactionLog.csv
 /Wireless/TestRF_UN/*
 /LAN/Debug/*
 /LAN/ENC28J60/*
+/LAN/JNODE/*

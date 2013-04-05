@@ -11,6 +11,7 @@ See LICENSE.txt file for license details.
 // MRF49XA/RFM12 RF Tranceiver
 #include "../../config.h"
 
+#ifdef RFM12_EN
 // Constants
 static uint16_t             rfm12s_Channel = 0;
 static uint16_t             rfm12s_Group = 0;
@@ -443,3 +444,4 @@ void rf_Pool(void)
         rfm12_control(RFM12_RXFIFO_ENA);
     }
 }
+#endif  //  RFM12_EN
