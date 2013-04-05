@@ -494,7 +494,6 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
         case MQTTS_MSGTYP_GWINFO:
             if(vMQTTS.Status == MQTTS_STATUS_SEARCHGW)
             {
-                vMQTTS.GatewayID =  pBuf->m.gwinfo.GwId;
                 vMQTTS.Status = MQTTS_STATUS_OFFLINE;
                 vMQTTS.Tretry = 0;
             }
@@ -513,7 +512,11 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
                     vMQTTS.inMsgId = 0;
 
                     // Publish Device Type
-                    if(/*(rf_GetNodeID() != 0xFF) && */(vMQTTS.MsgID == 0))
+                    if(
+#ifdef  rf_GetNodeID
+                    (rf_GetNodeID() != 0xFF) &&
+#endif
+                    (vMQTTS.MsgID == 0))
                     {
                         pBuf->Length = MQTTS_SIZEOF_CLIENTID - 1;
                         ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &pBuf->Length, (uint8_t *)&pBuf->m.raw);

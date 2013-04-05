@@ -11,7 +11,7 @@ See LICENSE.txt file for license details.
 // MRF49XA/RFM12 RF Tranceiver
 #include "../../config.h"
 
-#ifdef RFM12_EN
+#ifdef _RFM12_H
 // Constants
 static uint16_t             rfm12s_Channel = 0;
 static uint16_t             rfm12s_Group = 0;
@@ -259,7 +259,7 @@ ISR(RF_INT_vect)
 
 // API
 // Load/Change configuration parameters
-void rf_LoadCfg(uint8_t Channel, uint16_t Group, uint8_t ID)
+void rfm12_LoadCfg(uint8_t Channel, uint16_t Group, uint8_t ID)
 {
     uint16_t chn = Channel;
 #if (RFM12_BAND == RFM12_BAND_433)
@@ -286,7 +286,7 @@ void rf_LoadCfg(uint8_t Channel, uint16_t Group, uint8_t ID)
 }
 
 // Initialize Hardware & configure
-void rf_Initialize(void)
+void rfm12_Initialize(void)
 {
     // HW Initialise
     RF_DISABLE_IRQ();
@@ -364,7 +364,7 @@ void rf_Initialize(void)
 }
 
 // Change state
-void rf_SetState(uint8_t state)
+void rfm12_SetState(uint8_t state)
 {
     if(state == RF_TRVASLEEP)
     {
@@ -379,7 +379,7 @@ void rf_SetState(uint8_t state)
 }
 
 // Get received data
-uint8_t * rf_GetBuf(uint8_t *pAddr)
+uint8_t * rfm12_GetBuf(uint8_t *pAddr)
 {
     if(rfm12v_pRxBuf == NULL)
         return NULL;
@@ -389,19 +389,19 @@ uint8_t * rf_GetBuf(uint8_t *pAddr)
     return pRet;
 }
 
-uint8_t rf_GetNodeID(void)
+uint8_t rfm12_GetNodeID(void)
 {
     return rfm12s_NodeID;
 }
 
 // Send data
-void rf_Send(uint8_t * pBuf, uint8_t Addr)
+void rfm12_Send(uint8_t * pBuf, uint8_t * pAddr)
 {
     if((rfm12v_txTail == rfm12v_txHead) &&                  // Buffer is empty
        (rfm12v_State == RF_TRVRXIDLE) &&                    // State is RxIdle
        ((rfm12_get_status() & RFM12_STATUS_RSSI) == 0))     // No carrier
     {
-        rfm12_send(pBuf, Addr);
+        rfm12_send(pBuf, *pAddr);
     }
     else
     {
@@ -412,7 +412,7 @@ void rf_Send(uint8_t * pBuf, uint8_t Addr)
             mqRelease((MQ_t *)pBuf);
         else
         {
-            rfm12v_TxAddr[rfm12v_txHead] = Addr;
+            rfm12v_TxAddr[rfm12v_txHead] = *pAddr;
             rfm12v_pTxPool[rfm12v_txHead] = pBuf;
             rfm12v_txHead = tmpHead;
             rfm12v_ChanBusy = (rfm12s_NodeID>>4) + 1;
@@ -421,10 +421,10 @@ void rf_Send(uint8_t * pBuf, uint8_t Addr)
 }
 
 // Periodical 
-void rf_Pool(void)
+void rfm12_Pool(void)
 {
     if(rfm12v_State == RF_TRVPOR)
-        rf_Initialize();
+        rfm12_Initialize();
     else if((rfm12v_State == RF_TRVRXIDLE) && (rfm12v_txTail != rfm12v_txHead))
     {
         if((rfm12_get_status() & RFM12_STATUS_RSSI) && (rfm12v_ChanBusy != 0))
@@ -444,4 +444,4 @@ void rf_Pool(void)
         rfm12_control(RFM12_RXFIFO_ENA);
     }
 }
-#endif  //  RFM12_EN
+#endif  //  _RFM12_H

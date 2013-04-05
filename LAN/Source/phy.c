@@ -2,6 +2,9 @@
 #include "util.h"
 
 #ifdef RF_NODE
+uint8_t rf_dst_addr;
+uint8_t rf_src_addr;
+
 #endif  //  RF_NODE
 
 #ifdef LAN_NODE
@@ -125,7 +128,14 @@ MQ_t * PHY_GetBuf(void)
     }
   }
 #endif  //  LAN_NODE
-  return NULL;
+#ifdef RF_NODE
+  MQ_t * pTmp;
+  pTmp = (MQ_t *)rf_GetBuf(&rf_src_addr);
+  if(pTmp->MsgType == MQTTS_MSGTYP_GWINFO)
+    rf_dst_addr = rf_src_addr;
+
+  return pTmp;
+#endif  //  RF_NODE
 }
 
 void PHY_Send(MQ_t * pBuf)
@@ -152,6 +162,12 @@ void PHY_Send(MQ_t * pBuf)
   
   send_udp_transmit(buf, datalen);
 #endif  //  LAN_NODE
+#ifdef RF_NODE
+  if(pBuf->MsgType == MQTTS_MSGTYP_SEARCHGW)
+    rf_dst_addr = 0;
+
+  rf_Send((uint8_t *)pBuf, &rf_dst_addr);
+#endif  //  RF_NODE
 }
 
 uint8_t PHY_BuildName(uint8_t * pBuf)
@@ -164,4 +180,8 @@ uint8_t PHY_BuildName(uint8_t * pBuf)
 
   return 8;
 #endif  //  LAN_NODE
+#ifdef RF_NODE
+  sprinthex(&pBuf[0], rf_GetNodeID());
+  return 2;
+#endif  //  RF_NODE
 }
