@@ -49,6 +49,10 @@ uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 #ifdef LAN_NODE
 uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
+  if(pSubidx->Base == (uint16_t)&ee_MAC_Addr)
+    while(Len < 6)
+      pBuf[Len++] = 0;
+
   uint8_t tmp, i, epnt, valid = 0;
   epnt = Len - 1;
   for(i = 0; i < epnt; i++)

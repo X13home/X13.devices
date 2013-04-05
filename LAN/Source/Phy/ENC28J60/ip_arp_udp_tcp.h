@@ -26,7 +26,7 @@ void send_udp_transmit(uint8_t *buf,uint16_t datalen);
 #ifdef DHCP_client
 // The function returns 1 once we have a valid IP. 
 // At this point you must not call the function again.
-uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf,uint16_t plen,uint8_t initial_tid);
+uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf,uint16_t plen);
 #endif  //  DHCP_client
 
 #endif /* IP_ARP_UDP_TCP_H */
