@@ -77,6 +77,12 @@ enum e_RF_TRVSTATE
     RF_TRVWKUP
 };
 
-void rf_LoadCfg(uint8_t Channel, uint16_t Group, uint8_t ID);
+void rfm12_LoadCfg(uint8_t Channel, uint16_t Group, uint8_t ID);
+void rfm12_Initialize(void);
+void rfm12_SetState(uint8_t state);
+uint8_t * rfm12_GetBuf(uint8_t *pAddr);
+uint8_t rfm12_GetNodeID(void);
+void rfm12_Send(uint8_t * pBuf, uint8_t * pAddr);
+void rfm12_Pool(void);
 
 #endif  //  _RFM12_H

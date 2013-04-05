@@ -400,9 +400,6 @@ enum e_MQTTS_POOL_STATUS
 
 typedef struct
 {
-#ifndef GATEWAY
-    uint8_t                 GatewayID;      // Gateway ID
-#endif  //  GATEWAY
     e_MQTTS_STATUS_t        Status;         // Actual status
     // Timeouts
     uint8_t                 pfCnt;

@@ -13,3 +13,4 @@ TcfTransactionLog.csv
 /LAN/Debug/*
 /LAN/ENC28J60/*
 /LAN/JNODE/*
+/LAN/UNODE/*
