@@ -206,6 +206,9 @@ See LICENSE.txt file for license details.
 #define ENC_SPI_BISY            (!(SPSR &(1<<SPIF)))
 // End ENC28J60 Section
 
+#define LAN_NODE              1
+#define ENC28J60_EN           1
+
 #include "Phy/ENC28J60/ip_arp_udp_tcp.h"
 #include "Phy/ENC28J60/enc28j60.h"
 #include "Phy/ENC28J60/net.h"

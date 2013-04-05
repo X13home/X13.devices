@@ -92,16 +92,12 @@ See LICENSE.txt file for license details.
 //End TWI Section
 
 #if (defined UNODE)
-  #define RF_NODE               1
   #include "HWconfigUN.h"     // Hardware uNode vers. 1.0
 #elif (defined JEENODE)
-  #define RF_NODE               1
   #include "HWconfigJN.h"     // Hardware JeeNode & Arduino
 #elif (defined PANSTAMP)
-  #define RF_NODE               1
   #include "HWconfigPS.h"     // Hardware panSTamp
 #elif (defined ENC28J60)
-  #define LAN_NODE              1
   #include "HWconfigENC.h"
 #else
   #error Hardware configuration is not defined

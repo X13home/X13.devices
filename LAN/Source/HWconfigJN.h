@@ -235,6 +235,9 @@ See LICENSE.txt file for license details.
 #define RF_ENABLE_IRQ()         EIMSK = (1<<INT0);      // INT0 int enable
 #define RF_DISABLE_IRQ()        EIMSK = 0;              // INT0 disable
 
+#define RF_NODE               1
+#define RFM12_EN              1
+
 #include "Phy/RFM12/rfm12.h"
 
 #endif

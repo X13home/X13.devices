@@ -22,6 +22,9 @@ void PHY_Init(void)
   //initialize enc28j60
   enc28j60Init(macaddr);
 #endif
+#ifdef RF_NODE
+  rf_Initialize();
+#endif  //  RF_NODE
 }
 
 void PHY_LoadConfig(void)
@@ -51,6 +54,9 @@ void PHY_LoadConfig(void)
 
 void PHY_Pool(void)
 {
+#ifdef RF_NODE
+  rf_Pool();
+#endif  // RF_NODE
 #ifdef LAN_NODE
   static uint8_t PoolCnt = POOL_TMR_FREQ - 1;
 
@@ -88,17 +94,13 @@ void PHY_Start(void)
 #endif  //  LAN_NODE
 }
 
-MQ_t * PHY_GetBuf(void)
+MQ_t * PHY_GetBuf(uint8_t *pAddr)
 {
 #ifdef LAN_NODE
   uint16_t plen;
   MQ_t * pTmp;
   
   plen = enc28j60PacketReceive(MAX_FRAME_BUF, buf);
-#ifdef  DHCP_client
-  // DHCP renew IP:
-  plen = packetloop_dhcp_renewhandler(buf, plen);
-#endif  //  DHCP_client
   if(packetloop_arp_icmp(buf, plen))    // 1 - Unicast, 2 - Broadcast
   {
     if((buf[UDP_DST_PORT_H_P] == (MQTTS_UDP_PORT >> 8)) &&
@@ -126,7 +128,7 @@ MQ_t * PHY_GetBuf(void)
   return NULL;
 }
 
-void PHY_Send(MQ_t * pBuf)
+void PHY_Send(MQ_t * pBuf, uint8_t *pAddr)
 {
 #ifdef LAN_NODE
   if(pBuf->MsgType == MQTTS_MSGTYP_SEARCHGW)

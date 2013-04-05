@@ -15,9 +15,11 @@ Based on IPstack for AVR from Guido Socher and Pascal Stang
 
 // a spontanious sending UDP client (needed as well for DNS and DHCP)
 #define UDP_client
-//#define UDP_server
 
 #define DHCP_client
+
+//#define ARP_MAC_resolver_client 1
+#define ALL_clients 1
 
 #endif /* IP_CONFIG_H */
 //@}

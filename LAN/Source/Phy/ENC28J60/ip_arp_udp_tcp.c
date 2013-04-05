@@ -10,14 +10,9 @@ See LICENSE.txt file for license details.
 Based on IPstack for AVR from Guido Socher and Pascal Stang
 */
 
-#include <avr/pgmspace.h>
-#include <string.h>
-#include "net.h"
-#include "enc28j60.h"
-#include "ip_arp_udp_tcp.h"
+#include "../../config.h"
 
-//#define ARP_MAC_resolver_client 1
-#define ALL_clients 1
+#ifdef ENC28J60_EN
 
 typedef union
 {
@@ -82,6 +77,12 @@ const char dhcp_magic_cookies[] PROGMEM = {0x63, 0x82, 0x53, 0x63};
 //const char dhcp_opt_req_lst[] PROGMEM = {53, 1, 1, 55, 2, 1, 3, 255};
 const char dhcp_opt_req_lst[] PROGMEM = {53, 1, 1, 255};
 const char dhcp_opt_53[] PROGMEM = {53, 1, 3};
+
+static void send_dhcp_renew_request(uint8_t *buf, uint8_t *yiaddr);
+static uint8_t is_dhcp_msg_for_me(uint8_t *buf,uint16_t plen);
+static uint8_t dhcp_get_message_type(uint8_t *buf,uint16_t plen);
+static uint8_t dhcp_is_renew_tid(uint8_t *buf);
+static void dhcp_option_parser(uint8_t *buf,uint16_t plen);
 #endif  //  DHCP_client
 
 // The Ip checksum is calculated over the ip header only starting
@@ -351,11 +352,22 @@ void get_mac_with_arp(uint8_t *ip, void (*arp_result_callback)(uint8_t *mac))
 
 uint8_t packetloop_arp_icmp(uint8_t *buf, uint16_t plen)
 {
-#ifdef ARP_MAC_resolver_client
+#ifdef  DHCP_client
+  // we let it run a bit faster than once every minute because it is better this expires too early than too late
+  if(dhcp_sec_cnt > 73)
+  {
+    dhcp_sec_cnt = 0;
+    // count down unless the lease was infinite
+    if ((dhcp_opt_renewtime_minutes != 0xFFFF) && (dhcp_opt_renewtime_minutes != 0))
+      dhcp_opt_renewtime_minutes--;
+  }
+#endif  //  DHCP_client
+
   //plen will be unequal to zero if there is a valid 
   // packet (without crc error):
   if(plen == 0)
   {
+#ifdef ARP_MAC_resolver_client
     if((arpip_state & (ARP_REQ_ARMED | ARP_REQ_REQUEST)) == (ARP_REQ_ARMED | ARP_REQ_REQUEST))
     {
       if(enc28j60linkup())
@@ -365,11 +377,21 @@ uint8_t packetloop_arp_icmp(uint8_t *buf, uint16_t plen)
       }
       else
         arpip_state = 0;
+      return 0;
     }
+#endif // ARP_MAC_resolver_client
+#ifdef  DHCP_client
+    if((dhcp_opt_renewtime_minutes < 3) && enc28j60linkup())
+    {
+      dhcp_tid++;
+      send_dhcp_renew_request(buf, ipaddr);
+      dhcp_opt_renewtime_minutes = 5; // repeat in two minutes if no answer
+      return 0;
+    }
+#endif  //    DHCP_client
     return 0;
   }
   else
-#endif // ARP_MAC_resolver_client
   // arp is broadcast if unknown but a host may also
   // verify the mac address by sending it to 
   // a unicast address.
@@ -392,7 +414,17 @@ uint8_t packetloop_arp_icmp(uint8_t *buf, uint16_t plen)
 #endif // ARP_MAC_resolver_client
     return(0);
   }
-
+#ifdef  DHCP_client
+  if(is_dhcp_msg_for_me(buf, plen))  // we check the dhcp_renew_tid because if 
+  {
+    if((dhcp_get_message_type(buf,plen) == 5) &&    // DHCPACK = 5, success, DHCPACK, we have the IP
+       (dhcp_is_renew_tid(buf)))
+    { 
+      dhcp_option_parser(buf,plen); // get new lease time, it will as well GW and netmask but those should not change
+    }
+    return(0);
+  }
+#endif
   // check if ip packets are for us:
   if(eth_type_is_ip_and_my_ip(buf,plen))
   {
@@ -404,7 +436,6 @@ uint8_t packetloop_arp_icmp(uint8_t *buf, uint16_t plen)
     }
     return 1; // Packet are for us
   }
-
   return 2; // maybe Broadcast
 }
 
@@ -493,7 +524,7 @@ static void make_dhcp_message_template(uint8_t *buf)
 }
 
 // the answer to this message will come as a broadcast
-void send_dhcp_discover(uint8_t *buf)
+static void send_dhcp_discover(uint8_t *buf)
 {
   make_dhcp_message_template(buf);
   // option dhcp message type:
@@ -558,7 +589,7 @@ static uint8_t dhcp_is_renew_tid(uint8_t *buf)
   return(0);
 }
 
-void dhcp_option_parser(uint8_t *buf,uint16_t plen)
+static void dhcp_option_parser(uint8_t *buf,uint16_t plen)
 {
   uint16_t option_idx;
   uint8_t option_len;
@@ -633,7 +664,7 @@ void dhcp_option_parser(uint8_t *buf,uint16_t plen)
 }
 
 // the answer to this message will come as a broadcast
-void send_dhcp_request(uint8_t *buf)
+static void send_dhcp_request(uint8_t *buf)
 {
   make_dhcp_message_template(buf);
   // option dhcp message type:
@@ -672,7 +703,7 @@ void send_dhcp_request(uint8_t *buf)
 // various DHCP servers show that not all of them listen to
 // unicast. We send therefor a broadcast message but we expect
 // a unicast answer directly to our mac and IP.
-void send_dhcp_renew_request(uint8_t *buf, uint8_t *yiaddr)
+static void send_dhcp_renew_request(uint8_t *buf, uint8_t *yiaddr)
 {
   make_dhcp_message_template(buf);
   buf[UDP_DATA_P+4] = 2; // set first byte in transaction ID to 2 to indicate renew_request. This trick makes the processing of the DHCPACK message easier.
@@ -808,4 +839,5 @@ void ip_arp_sec_tick(void)
 #endif  //  DHCP_client
 }
 
+#endif  //  ENC28J60_EN
 /* end of ip_arp_udp.c */
