@@ -14,3 +14,4 @@ TcfTransactionLog.csv
 /LAN/ENC28J60/*
 /LAN/JNODE/*
 /LAN/UNODE/*
+/LAN/PANSTAMP/*
