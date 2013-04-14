@@ -154,7 +154,8 @@ static uint8_t twi_SI114X_Config(void)
     twimExch(SI114X_ADDR, TWIM_WRITE, 2, 0, twim_buf);
 
     // Register variables
-    indextable_t * pIndex1, pIndex2;
+    indextable_t * pIndex1;
+	indextable_t * pIndex2;
     pIndex1 = getFreeIdxOD();
     if(pIndex1 == NULL)
         return 0;
@@ -180,7 +181,7 @@ static uint8_t twi_SI114X_Config(void)
     pIndex2->cbPool  =  &twi_SI114X_Pool;
     pIndex2->sidx.Place = objTWI;               // Object TWI
     pIndex2->sidx.Type =  objUInt16;            // Variables Type -  UInt16
-    pIndex2->sidx.Base = (SI114X_ADDR<<8 + 1);  // Device addr
+    pIndex2->sidx.Base = ((SI114X_ADDR<<8) + 1);  // Device addr
 
     return 1;
 }

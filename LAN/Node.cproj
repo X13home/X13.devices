@@ -129,7 +129,7 @@
         <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
-            <Value>F_CPU=16000000UL</Value>
+            <Value>F_CPU=8000000UL</Value>
             <Value>UNODE=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
