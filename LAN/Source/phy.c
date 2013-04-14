@@ -25,6 +25,7 @@ void PHY_Init(void)
   enc28j60Init(macaddr);
 #endif
 #ifdef RF_NODE
+  rf_dst_addr = 0;
   rf_Initialize();
 #endif  //  RF_NODE
 }
@@ -101,7 +102,7 @@ MQ_t * PHY_GetBuf(void)
 #ifdef LAN_NODE
   uint16_t plen;
   MQ_t * pTmp;
-  
+
   plen = enc28j60PacketReceive(MAX_FRAME_BUF, buf);
   if(packetloop_arp_icmp(buf, plen))    // 1 - Unicast, 2 - Broadcast
   {
@@ -126,11 +127,12 @@ MQ_t * PHY_GetBuf(void)
       return pTmp;
     }
   }
+  return NULL;
 #endif  //  LAN_NODE
 #ifdef RF_NODE
   MQ_t * pTmp;
   pTmp = (MQ_t *)rf_GetBuf(&rf_src_addr);
-  if(pTmp->MsgType == MQTTS_MSGTYP_GWINFO)
+  if((pTmp->MsgType == MQTTS_MSGTYP_GWINFO) && (rf_dst_addr == 0))
     rf_dst_addr = rf_src_addr;
 
   return pTmp;
