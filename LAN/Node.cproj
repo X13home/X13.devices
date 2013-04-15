@@ -268,10 +268,10 @@
     <Compile Include="Source\Phy\ENC28J60\enc28j60.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\Phy\ENC28J60\ip_arp_udp_tcp.c">
+    <Compile Include="Source\Phy\ENC28J60\ip_arp_udp.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\Phy\ENC28J60\ip_arp_udp_tcp.h">
+    <Compile Include="Source\Phy\ENC28J60\ip_arp_udp.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\Phy\ENC28J60\ip_config.h">

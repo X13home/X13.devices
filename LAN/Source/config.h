@@ -88,17 +88,17 @@ See LICENSE.txt file for license details.
 #define TWI_USE_HIH61XX         1       // TWI Driver Honeywell HIH-61xx - Temperature/Humidity
 #define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
 #define TWI_USE_LM75            1       // TWI Driver, LM75 - Temperature
-#define TWI_USE_SI114X          1       // TWI Driver, Si114x - proximity/ambient light
+//#define TWI_USE_SI114X          1       // TWI Driver, Si114x - proximity/ambient light
 //End TWI Section
 
 #if (defined UNODE)
-  #include "HWconfigUN.h"     // Hardware uNode vers. 1.0
+  #include "Phy/HWconfigUN.h"     // Hardware uNode vers. 1.0
 #elif (defined JEENODE)
-  #include "HWconfigJN.h"     // Hardware JeeNode & Arduino
+  #include "Phy/HWconfigJN.h"     // Hardware JeeNode & Arduino
 #elif (defined PANSTAMP)
-  #include "HWconfigPS.h"     // Hardware panSTamp
+  #include "Phy/HWconfigPS.h"     // Hardware panSTamp
 #elif (defined ENC28J60)
-  #include "HWconfigENC.h"    // Hardware AVR + ENC28J60 on SPI
+  #include "Phy/HWconfigENC.h"    // Hardware AVR + ENC28J60 on SPI
 #else
   #error Hardware configuration is not defined
 #endif

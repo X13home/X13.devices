@@ -350,7 +350,7 @@ void get_mac_with_arp(uint8_t *ip, void (*arp_result_callback)(uint8_t *mac))
 }
 #endif  // ARP_MAC_resolver_client
 
-uint8_t packetloop_arp_icmp(uint8_t *buf, uint16_t plen)
+uint8_t packetloop_lan(uint8_t *buf, uint16_t plen)
 {
 #ifdef  DHCP_client
   // we let it run a bit faster than once every minute because it is better this expires too early than too late
@@ -739,7 +739,7 @@ uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen)
   {
     if(dhcp_sec_cnt < 2)
     {
-      dhcp_sec_cnt = 28;
+      dhcp_sec_cnt = 25;
       uint8_t i = 0;
       while(i < 5)
         dhcp_tid += macaddr[i++];
@@ -788,7 +788,7 @@ uint8_t packetloop_dhcp_initial_ip_assignment(uint8_t *buf, uint16_t plen)
 #endif  //  DHCP_client
 // === end of DHCP client
 
-void ip_arp_sec_tick(void)
+void sec_tick_lan(void)
 {
 #ifdef ARP_MAC_resolver_client
   if((arpip_state & ARP_REQ_ARMED) && (arpip_state < (ARP_REQ_ARMED | ARP_REQ_REQUEST)))
