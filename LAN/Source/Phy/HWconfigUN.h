@@ -8,10 +8,10 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-// Hardware definitions, JeeNode - Arduino + RFM12
+// Hardware definitions uNode
 
-#ifndef _HWCONFIG_JN_H
-#define _HWCONFIG_JN_H
+#ifndef _HWCONFIG_UN_H
+#define _HWCONFIG_UN_H
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -25,12 +25,11 @@ See LICENSE.txt file for license details.
 #include <stdlib.h>
 #include <string.h>
 
-// jeeNode/Arduino
-// http://jeelabs.org, http://arduino.cc 
+// uNode Vers 1.0
 // 0 - 7    PORTA - not exist
 // PORTB
-// --   PB0     ISP-7   LEDR
-// --   PB1     ISP-8   LEDG
+// --   PB0     --      RF_IRQ
+// --   PB1     --      LED
 // --   PB2     --      RF_CSN
 // --   PB3     ISP-4   RF_MOSI
 // --   PB4     ISP-1   RF_MISO
@@ -38,28 +37,30 @@ See LICENSE.txt file for license details.
 // --   PB6     --      OSC
 // --   PB7     --      OSC
 // PORT C
-// 16   PC0     P1-AIO  Ain0
-// 17   PC1     P2-AIO  Ain1
-// 18   PC2     P3-AIO  Ain2
-// 19   PC3     P4-AIO  Ain3
-// 20   PC4     SDA     SDA
-// 21   PC5     SCL -   SCL
+// 16   PC0     SV1-3   Ain0
+// 17   PC1     SV1-4   Ain1
+// 18   PC2     SV1-5   Ain2
+// 19   PC3     SV1-6   Ain3
+// 20   PC4     SV1-7   SDA
+// 21   PC5     SV1-8 - SCL
 // --   PC6     ISP-5   RESET
+// --   --      RSSI    Ain6    *Optional
+// --   --      SV1-1   Ain7
 // PORT D
-// 24   PD0     RXD     RXD - On gateway busy
-// 25   PD1     TXD     TXD - On gateway busy
-// 26   PD2     --      RF_IRQ
-// 27   PD3     P1-4 IRQ  IRQ 1
-// 28   PD4     P1-DIO
-// 29   PD5     P2-DIO  PWM0
-// 30   PD6     P3-DIO  PWM1
-// 31   PD7     P4-DIO
+// 24   PD0     SV1-11  RXD - On gateway busy
+// 25   PD1     SV1-12  TXD - On gateway busy
+// 26   PD2     SV1-13  IRQ 0
+// 27   PD3     SV1-14  IRQ 1
+// 28   PD4     SV1-15
+// 29   PD5     SV1-16  PWM0
+// 30   PD6     SV1-17  PWM1
+// 31   PD7     SV1-18
 
 // Object's Dictionary Section
-#define OD_DEV_TYP_0            'J'
+#define OD_DEV_TYP_0            'U'
 #define OD_DEV_TYP_1            'N'
-#define OD_DEV_TYP_2            'v'
-#define OD_DEV_TYP_3            '6'
+#define OD_DEV_TYP_2            '1'
+#define OD_DEV_TYP_3            '0'
 #ifdef GATEWAY
 #define OD_DEFAULT_ADDR         0x07
 #endif  //  GATEWAY
@@ -145,9 +146,9 @@ See LICENSE.txt file for license details.
 #define PORTIN3                 PIND
 
 #ifdef GATEWAY
-#define PORT3MASK               0x07
+#define PORT3MASK               0x03
 #else   //  GATEWAY
-#define PORT3MASK               0x04
+#define PORT3MASK               0x00
 #endif  //  GATEWAY
 
 // PWM
@@ -169,8 +170,8 @@ See LICENSE.txt file for license details.
 // Analog Inputs
 #define EXTAI_PORT_NUM          PORTNUM2    // PORTC Analog Inputs
 #define EXTAI_CHN_MASK          0x0F
-#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 6, 0xFF}
-#define EXTAI_MAXPORT_NR        7          // ADC0-ADC5, ADC7, Vbg
+#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
+#define EXTAI_MAXPORT_NR        8          // ADC0-ADC5, ADC7, Vbg
 
 
 #define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; ADCSRA = (1<<ADEN) | \
@@ -190,20 +191,21 @@ See LICENSE.txt file for license details.
 // RF Section
 #define RF_DDR                  DDRB
 #define RF_PORT                 PORTB
-#define RF_LEDR                 PORTB0
-#define RF_LEDG                 PORTB1
+#define RF_PIN                  PINB
+#define RF_PIN_IRQ              PORTB0
+#define RF_LEDS                 PORTB1
 #define RF_PIN_SS               PORTB2
 #define RF_PIN_MOSI             PORTB3
 #define RF_PIN_MISO             PORTB4
 #define RF_PIN_SCK              PORTB5
 
-#define TxLEDon()               RF_PORT |= (1<<RF_LEDR);
-#define RxLEDon()               RF_PORT |= (1<<RF_LEDG);
-#define LEDsOff()               RF_PORT &= ~((1<<RF_LEDR) | (1<<RF_LEDG));
+#define TxLEDon()               RF_PORT &= ~(1<<RF_LEDS);
+#define RxLEDon()               RF_PORT &= ~(1<<RF_LEDS);
+#define LEDsOff()               RF_PORT |= (1<<RF_LEDS);
 
-#define RF_PORT_INIT()          {RF_PORT = (1<<RF_PIN_SS) | (1<<RF_LEDR);       \
-                                 RF_DDR = (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) |     \
-                                         (1<<RF_PIN_SS) | (1<<RF_LEDR) | (1<<RF_LEDG);}
+#define RF_PORT_INIT()          {RF_PORT = (1<<RF_PIN_SS) | (1<<RF_PIN_IRQ) | (1<<RF_LEDS); \
+                                 RF_DDR = (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) |              \
+                                          (1<<RF_PIN_SS) | (1<<RF_LEDS);}
 
 #define RF_SELECT()             RF_PORT &= ~(1<<RF_PIN_SS)
 #define RF_RELEASE()            RF_PORT |= (1<<RF_PIN_SS)
@@ -227,17 +229,20 @@ See LICENSE.txt file for license details.
 
 #endif  //  (F_CPU > 10000000UL)
 
-#define RF_IRQ_CFG()            {DDRD &= ~(1<<PORTD2); PORTD |= (1<<PORTD2); EICRA = (0<<ISC00);}
-#define RF_STAT_IRQ             (PIND & (1<<PORTD2))
+#define RF_STAT_IRQ             (RF_PIN & (1<<RF_PIN_IRQ))
+#define RF_IRQ_CFG()            PCICR = (1<<PCIE0)
 
-#define RF_INT_vect             INT0_vect
+#define RF_INT_vect             PCINT0_vect
 
-#define RF_ENABLE_IRQ()         EIMSK = (1<<INT0);      // INT0 int enable
-#define RF_DISABLE_IRQ()        EIMSK = 0;              // INT0 disable
+#define RF_ENABLE_IRQ()         PCMSK0 = (1<<RF_PIN_IRQ)
+#define RF_DISABLE_IRQ()        PCMSK0 = 0
 
-#define RF_NODE               1
+#define RF_NODE                 1
 
-#include "Phy/RFM12/rfm12.h"
+#define s_Addr                  uint8_t
+#define AddrBroadcast           0
+
+#include "RFM12/rfm12.h"
 
 #define rf_LoadCfg      rfm12_LoadCfg
 #define rf_Initialize   rfm12_Initialize
@@ -247,4 +252,4 @@ See LICENSE.txt file for license details.
 #define rf_Send         rfm12_Send
 #define rf_Pool         rfm12_Pool
 
-#endif
+#endif  // _HWCONFIG_UN_H

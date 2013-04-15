@@ -8,10 +8,10 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-// Hardware definitions uNode
+// Hardware definitions, panstamp - Arduino + CC1101
 
-#ifndef _HWCONFIG_UN_H
-#define _HWCONFIG_UN_H
+#ifndef _HWCONFIG_PS_H
+#define _HWCONFIG_PS_H
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -21,45 +21,47 @@ See LICENSE.txt file for license details.
 #include <avr/sleep.h>
 
 #include <util/crc16.h>
+#include <util/delay.h>
 
 #include <stdlib.h>
 #include <string.h>
 
-// uNode Vers 1.0
+// panSTamp V2.0
+// http://www.panstamp.com/
 // 0 - 7    PORTA - not exist
 // PORTB
-// --   PB0     --      RF_IRQ
-// --   PB1     --      LED
+// --   PB0     P1-2    LED_TX(Red)
+// --   PB1     P1-3    LED_RX(Green)
 // --   PB2     --      RF_CSN
-// --   PB3     ISP-4   RF_MOSI
-// --   PB4     ISP-1   RF_MISO
-// --   PB5     ISP-3   RF_SCK
+// --   PB3     P3-5    RF_MOSI
+// --   PB4     P3-4    RF_MISO
+// --   PB5     P3-2    RF_SCK
 // --   PB6     --      OSC
 // --   PB7     --      OSC
 // PORT C
-// 16   PC0     SV1-3   Ain0
-// 17   PC1     SV1-4   Ain1
-// 18   PC2     SV1-5   Ain2
-// 19   PC3     SV1-6   Ain3
-// 20   PC4     SV1-7   SDA
-// 21   PC5     SV1-8 - SCL
-// --   PC6     ISP-5   RESET
-// --   --      RSSI    Ain6    *Optional
-// --   --      SV1-1   Ain7
+// 16   PC0     P1-4(A0)   Ain0
+// 17   PC1     P1-5(A1)    Ain1
+// 18   PC2     P1-6(A2)    Ain2
+// 19   PC3     P1-8(A3)    Ain3
+// 20   PC4     P1-9(A4)    SDA
+// 21   PC5     P1-10(A5)   SCL
+// --   PC6     P2-12   RESET
+// --   --      P1-11(A6)   Ain6
+// --   --      P1-12(A7)   Ain7
 // PORT D
-// 24   PD0     SV1-11  RXD - On gateway busy
-// 25   PD1     SV1-12  TXD - On gateway busy
-// 26   PD2     SV1-13  IRQ 0
-// 27   PD3     SV1-14  IRQ 1
-// 28   PD4     SV1-15
-// 29   PD5     SV1-16  PWM0
-// 30   PD6     SV1-17  PWM1
-// 31   PD7     SV1-18
+// 24   PD0     P2-9(D0)    RXD - On gateway busy
+// 25   PD1     P2-8(D1)    TXD - On gateway busy
+// --   PD2     --      RF_IRQ
+// 27   PD3     P2-7(D3)    IRQ 1
+// 28   PD4     P2-6(D4)
+// 29   PD5     P2-5(D5)    PWM0
+// 30   PD6     P2-4(D6)    PWM1
+// 31   PD7     P2-3(D7)
 
 // Object's Dictionary Section
-#define OD_DEV_TYP_0            'U'
-#define OD_DEV_TYP_1            'N'
-#define OD_DEV_TYP_2            '1'
+#define OD_DEV_TYP_0            'P'
+#define OD_DEV_TYP_1            'S'
+#define OD_DEV_TYP_2            '2'
 #define OD_DEV_TYP_3            '0'
 #ifdef GATEWAY
 #define OD_DEFAULT_ADDR         0x07
@@ -69,9 +71,15 @@ See LICENSE.txt file for license details.
 #define SystemReset()           {cli();RxLEDon();asm("jmp 0x0000");}
 
 // Power Reduction
+#ifdef USE_RTC_OSC
+#define CONFIG_PRR()            {ACSR = (1<<ACD); \
+                                 PRR = (1<<PRTWI) | (1<<PRTIM0) | (1<<PRUSART0) | (1<<PRADC);}
+#else   //  USE_RTC_OSC
 #define CONFIG_PRR()            {ACSR = (1<<ACD); \
                                  PRR = (1<<PRTWI) | (1<<PRTIM0) | (1<<PRTIM1) | \
                                  (1<<PRUSART0) | (1<<PRADC);}
+#endif  //  USE_RTC_OSC
+
 // USART Section
 // ATMEGA 168PA
 #ifndef USART_RX_vect
@@ -122,6 +130,16 @@ See LICENSE.txt file for license details.
 // Timer Section
 #define POOL_TMR_FREQ           64     // Pool Frequency (Hz)
 #define TIMER_ISR               TIMER2_COMPA_vect
+
+#ifdef USE_RTC_OSC
+#define InitTimer()             {ASSR = (1<<AS2);                                   \
+                                 TCCR2A = (1<<WGM21); TCNT2 = 0;                    \
+                                 OCR2A = ((32768/8/POOL_TMR_FREQ)-1);               \
+                                 TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);          \
+                                 TCCR2B = (1<<WGM22) | (2 << CS20);                 \
+                                 while(ASSR & 0x1F);}
+#define config_sleep_rtc()      {TCCR2A = 0; TCCR2B = (5 << CS20); while(ASSR & 0x1F);}
+#else   //  USE_RTC_OSC
 #define InitTimer()             {TCCR2A = (1<<WGM21); TCNT2 = 0;            \
                                  OCR2A = ((F_CPU/1024/POOL_TMR_FREQ)-1);    \
                                  TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
@@ -129,16 +147,17 @@ See LICENSE.txt file for license details.
 #define config_sleep_wdt()      {wdt_reset(); MCUSR &= ~(1<<WDRF);                      \
                                  WDTCSR |= (1<<WDCE) | (1<<WDE); WDTCSR = (6<<WDP0);    \
                                  WDTCSR |= (1<<WDIF); WDTCSR |= (1<<WDIE);}
+#endif  //  USE_RTC_OSC
 // End Timer Section
 
 // Digital IO's
-#define EXTDIO_MAXPORT_NR       2           // Number of digital Ports
+#define EXTDIO_MAXPORT_NR       2       // Number of digital Ports
 
 #define PORTNUM2                0
 #define PORTDDR2                DDRC
 #define PORTOUT2                PORTC
 #define PORTIN2                 PINC
-#define PORT2MASK               0xC0        // PC0-PC5
+#define PORT2MASK               0xC0    // PC0-PC5
 
 #define PORTNUM3                1
 #define PORTDDR3                DDRD
@@ -146,9 +165,9 @@ See LICENSE.txt file for license details.
 #define PORTIN3                 PIND
 
 #ifdef GATEWAY
-#define PORT3MASK               0x03
+#define PORT3MASK               0x07    //  PD3-PD7
 #else   //  GATEWAY
-#define PORT3MASK               0x00
+#define PORT3MASK               0x04    //  PD0,PD1,PD3-PD7
 #endif  //  GATEWAY
 
 // PWM
@@ -170,12 +189,11 @@ See LICENSE.txt file for license details.
 // Analog Inputs
 #define EXTAI_PORT_NUM          PORTNUM2    // PORTC Analog Inputs
 #define EXTAI_CHN_MASK          0x0F
-#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
-#define EXTAI_MAXPORT_NR        8          // ADC0-ADC5, ADC7, Vbg
-
+#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 6, 7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 8, 0xFF}
+#define EXTAI_MAXPORT_NR        9          // ADC0-ADC7, Vbg
 
 #define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; ADCSRA = (1<<ADEN) | \
-                                        (1<<ADSC) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);}
+                                            (1<<ADSC) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);}
 #define DISABLE_ADC()           {ADCSRA = (1<<ADIF); ADMUX = 0x0F; PRR |= (1<<PRADC);}
 // End Analog Inputs
 
@@ -192,20 +210,20 @@ See LICENSE.txt file for license details.
 #define RF_DDR                  DDRB
 #define RF_PORT                 PORTB
 #define RF_PIN                  PINB
-#define RF_PIN_IRQ              PORTB0
-#define RF_LEDS                 PORTB1
+#define RF_LEDR                 PORTB0
+#define RF_LEDG                 PORTB1
 #define RF_PIN_SS               PORTB2
 #define RF_PIN_MOSI             PORTB3
 #define RF_PIN_MISO             PORTB4
 #define RF_PIN_SCK              PORTB5
 
-#define TxLEDon()               RF_PORT &= ~(1<<RF_LEDS);
-#define RxLEDon()               RF_PORT &= ~(1<<RF_LEDS);
-#define LEDsOff()               RF_PORT |= (1<<RF_LEDS);
+#define TxLEDon()               RF_PORT |= (1<<RF_LEDR);
+#define RxLEDon()               RF_PORT |= (1<<RF_LEDG);
+#define LEDsOff()               RF_PORT &= ~((1<<RF_LEDG) | (1<<RF_LEDR));
 
-#define RF_PORT_INIT()          {RF_PORT = (1<<RF_PIN_SS) | (1<<RF_PIN_IRQ) | (1<<RF_LEDS); \
-                                 RF_DDR = (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) |              \
-                                          (1<<RF_PIN_SS) | (1<<RF_LEDS);}
+#define RF_PORT_INIT()          {RF_PORT = (1<<RF_PIN_SS) | (1<<RF_PIN_MISO);                   \
+                                 RF_DDR = (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) | (1<<RF_PIN_SS) | \
+                                          (1<<RF_LEDR) | (1<<RF_LEDG);}
 
 #define RF_SELECT()             RF_PORT &= ~(1<<RF_PIN_SS)
 #define RF_RELEASE()            RF_PORT |= (1<<RF_PIN_SS)
@@ -213,40 +231,32 @@ See LICENSE.txt file for license details.
 #define RF_SPI_DATA             SPDR
 #define RF_SPI_BISY             (!(SPSR &(1<<SPIF)))
 
-#if (F_CPU > 10000000UL)
+#if (F_CPU > 13000000UL)
+#define RF_SPI_INIT()           {SPCR = (1<<SPE) | (1<<MSTR); SPSR = 0;}            // F_CPU/4
+#else   //  (F_CPU <= 13000000UL)
+#define RF_SPI_INIT()           {SPCR = (1<<SPE) | (1<<MSTR); SPSR = (1<<SPI2X);}   // F_CPU/2
+#endif  //  (F_CPU > 13000000UL)
 
-#define RF_SPI_INIT()           {SPCR = (1<<SPE) | (1<<MSTR) | (1<<SPR0); SPSR = (1<<SPI2X);}
+#define RF_IRQ_CFG()            {DDRD &= ~(1<<PORTD2); PORTD |= (1<<PORTD2);    \
+                                    EICRA = (1<<ISC00);}        // Interrupt on CHANGE state.
+#define RF_STAT_IRQ             (PIND & (1<<PORTD2))
+#define RF_INT_vect             INT0_vect
+#define RF_ENABLE_IRQ()         EIMSK = (1<<INT0);      // INT0 int enable
+#define RF_DISABLE_IRQ()        EIMSK = 0;              // INT0 disable
 
-#define RF_SPI_SLOW()           SPCR |= (1<<SPR0)
-#define RF_SPI_FAST()           SPCR &= ~(1<<SPR0)
+#define RF_NODE                 1
 
-#else   //  (F_CPU <= 10000000UL)
+#define s_Addr                  uint8_t
+#define AddrBroadcast           0
 
-#define RF_SPI_INIT()           {SPCR = (1<<SPE) | (1<<MSTR); SPSR = 0;}
+#include "CC11/cc11.h"
 
-#define RF_SPI_SLOW()           SPSR = 0
-#define RF_SPI_FAST()           SPSR = (1<<SPI2X)
+#define rf_LoadCfg      cc11_LoadCfg
+#define rf_Initialize   cc11_Initialize
+#define rf_SetState     cc11_SetState
+#define rf_GetBuf       cc11_GetBuf
+#define rf_GetNodeID    cc11_GetNodeID
+#define rf_Send         cc11_Send
+#define rf_Pool         cc11_Pool
 
-#endif  //  (F_CPU > 10000000UL)
-
-#define RF_STAT_IRQ             (RF_PIN & (1<<RF_PIN_IRQ))
-#define RF_IRQ_CFG()            PCICR = (1<<PCIE0)
-
-#define RF_INT_vect             PCINT0_vect
-
-#define RF_ENABLE_IRQ()         PCMSK0 = (1<<RF_PIN_IRQ)
-#define RF_DISABLE_IRQ()        PCMSK0 = 0
-
-#define RF_NODE               1
-
-#include "Phy/RFM12/rfm12.h"
-
-#define rf_LoadCfg      rfm12_LoadCfg
-#define rf_Initialize   rfm12_Initialize
-#define rf_SetState     rfm12_SetState
-#define rf_GetBuf       rfm12_GetBuf
-#define rf_GetNodeID    rfm12_GetNodeID
-#define rf_Send         rfm12_Send
-#define rf_Pool         rfm12_Pool
-
-#endif  // _HWCONFIG_UN_H
+#endif

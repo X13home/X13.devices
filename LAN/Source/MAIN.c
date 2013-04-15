@@ -43,6 +43,8 @@ int main(void)
     uint8_t bTmp;
     uint16_t poolIdx = 0xFFFF;
 
+    s_Addr sAddr;
+
     // Initialize Task Planer
     InitTimer();
     // configure Sleep controller & enable interrupts
@@ -54,13 +56,13 @@ int main(void)
 
     while(1)
     {
-      pRBuf = PHY_GetBuf();
-      if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
+      pRBuf = PHY_GetBuf(&sAddr);
+      if((pRBuf != NULL) && (MQTTS_Parser(pRBuf, &sAddr) == 0))
         mqRelease(pRBuf);
         
-      pMBuf = MQTTS_Get();
+      pMBuf = MQTTS_Get(&sAddr);
       if(pMBuf != NULL)
-        PHY_Send(pMBuf);
+        PHY_Send(pMBuf, &sAddr);
         
       if(iPool & IPOOL_USR)
       {

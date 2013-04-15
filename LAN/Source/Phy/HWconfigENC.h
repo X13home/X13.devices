@@ -209,8 +209,16 @@ See LICENSE.txt file for license details.
 #define LAN_NODE              1
 #define ENC28J60_EN           1
 
-#include "Phy/ENC28J60/ip_arp_udp_tcp.h"
-#include "Phy/ENC28J60/enc28j60.h"
-#include "Phy/ENC28J60/net.h"
+typedef struct
+{
+  uint8_t mac[6];
+  uint8_t ip[4];
+}s_Addr;
+
+#define AddrBroadcast {{0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}, {0xFF,0xFF,0xFF,0xFF}}
+
+#include "ENC28J60/ip_arp_udp.h"
+#include "ENC28J60/enc28j60.h"
+#include "ENC28J60/net.h"
 
 #endif

@@ -1,17 +1,9 @@
 #include "config.h"
 #include "util.h"
 
-#ifdef RF_NODE
-uint8_t rf_dst_addr;
-uint8_t rf_src_addr;
-#endif  //  RF_NODE
-
 #ifdef LAN_NODE
 uint8_t macaddr[6];
 uint8_t ipaddr[4];
-
-static uint8_t gwip[] =  {0xFF,0xFF,0xFF,0xFF};
-static uint8_t gwmac[] = {0xFF,0xFF,0xFF,0xFF,0xFF,0xFF};
 
 // eth/ip buffer:
 #define MAX_FRAME_BUF 350
@@ -25,7 +17,6 @@ void PHY_Init(void)
   enc28j60Init(macaddr);
 #endif
 #ifdef RF_NODE
-  rf_dst_addr = 0;
   rf_Initialize();
 #endif  //  RF_NODE
 }
@@ -68,7 +59,7 @@ void PHY_Pool(void)
   else
   {
     PoolCnt = POOL_TMR_FREQ - 1;
-    ip_arp_sec_tick();
+    sec_tick_lan();
   }
 #endif  //  LAN_NODE
 }
@@ -97,28 +88,20 @@ void PHY_Start(void)
 #endif  //  LAN_NODE
 }
 
-MQ_t * PHY_GetBuf(void)
+MQ_t * PHY_GetBuf(s_Addr * pSrcAddr)
 {
 #ifdef LAN_NODE
   uint16_t plen;
   MQ_t * pTmp;
 
   plen = enc28j60PacketReceive(MAX_FRAME_BUF, buf);
-  if(packetloop_arp_icmp(buf, plen))    // 1 - Unicast, 2 - Broadcast
+  if(packetloop_lan(buf, plen))    // 1 - Unicast, 2 - Broadcast
   {
     if((buf[UDP_DST_PORT_H_P] == (MQTTS_UDP_PORT >> 8)) &&
        (buf[UDP_DST_PORT_L_P] == (MQTTS_UDP_PORT & 0xFF)))
     {
-      if(gwip[0] == 0xFF)
-      {
-        if(buf[UDP_DATA_P + 1] == MQTTS_MSGTYP_GWINFO)
-        {
-          memcpy(gwmac, &buf[ETH_SRC_MAC], 6);
-          memcpy(gwip,  &buf[IP_SRC_P], 4);
-        }
-        else
-          return NULL;
-      }
+      memcpy(&pSrcAddr->mac, &buf[ETH_SRC_MAC], 6);
+      memcpy(&pSrcAddr->ip,  &buf[IP_SRC_P], 4);
       
       plen -= UDP_DATA_P;
       if((plen > sizeof(MQ_t)) || ((pTmp = mqAssert()) == NULL))
@@ -130,31 +113,14 @@ MQ_t * PHY_GetBuf(void)
   return NULL;
 #endif  //  LAN_NODE
 #ifdef RF_NODE
-  MQ_t * pTmp;
-  pTmp = (MQ_t *)rf_GetBuf(&rf_src_addr);
-  if((pTmp->MsgType == MQTTS_MSGTYP_GWINFO) && (rf_dst_addr == 0))
-    rf_dst_addr = rf_src_addr;
-
-  return pTmp;
+  return (MQ_t *)rf_GetBuf(pSrcAddr);
 #endif  //  RF_NODE
 }
 
-void PHY_Send(MQ_t * pBuf)
+void PHY_Send(MQ_t * pBuf, s_Addr * pDstAddr)
 {
 #ifdef LAN_NODE
-  if(pBuf->MsgType == MQTTS_MSGTYP_SEARCHGW)
-  {
-    uint8_t i = 0;
-    while(i < 4)
-    {
-      gwip[i] = 0xFF;
-      gwmac[i] = 0xFF;
-      i++;
-    }
-    gwmac[4] = 0xFF;
-    gwmac[5] = 0xFF;
-  }
-  send_udp_prepare(buf, MQTTS_UDP_PORT, gwip, MQTTS_UDP_PORT, gwmac);
+  send_udp_prepare(buf, MQTTS_UDP_PORT, pDstAddr->ip, MQTTS_UDP_PORT, pDstAddr->mac);
   
   uint16_t datalen = pBuf->Length;
 
@@ -164,10 +130,7 @@ void PHY_Send(MQ_t * pBuf)
   send_udp_transmit(buf, datalen);
 #endif  //  LAN_NODE
 #ifdef RF_NODE
-  if(pBuf->MsgType == MQTTS_MSGTYP_SEARCHGW)
-    rf_dst_addr = 0;
-
-  rf_Send((uint8_t *)pBuf, &rf_dst_addr);
+  rf_Send((uint8_t *)pBuf, pDstAddr);
 #endif  //  RF_NODE
 }
 

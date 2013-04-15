@@ -121,7 +121,7 @@ static uint8_t MQTTS_ToBuf(MQ_t * pBuf)
     return MQTTS_Push(pBuf);
 }
 
-MQ_t * MQTTS_Get(void)
+MQ_t * MQTTS_Get(s_Addr * psAddr)
 {
     if(vMQTTS.tail == vMQTTS.head)
         return NULL;
@@ -129,6 +129,12 @@ MQ_t * MQTTS_Get(void)
     vMQTTS.tail++;
     if(vMQTTS.tail >= MQTTS_SIZEOF_SEND_FIFO)
         vMQTTS.tail -= MQTTS_SIZEOF_SEND_FIFO;
+        
+    if(vMQTTS.buf[tmptail]->MsgType != MQTTS_MSGTYP_SEARCHGW)
+      memcpy(psAddr, &vMQTTS.sAddr, sizeof(s_Addr));
+    else
+      *psAddr = (s_Addr)AddrBroadcast;
+        
     return vMQTTS.buf[tmptail];
 }
 
@@ -470,7 +476,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
     return MQTTS_POOL_STAT_NOP;
 }
 
-uint8_t MQTTS_Parser(MQ_t * pBuf)
+uint8_t MQTTS_Parser(MQ_t * pBuf, s_Addr * psAddr)
 {
     uint8_t tmp;
     switch(pBuf->MsgType)
@@ -480,7 +486,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
             // Local Answer
             pBuf->Length = MQTTS_SIZEOF_MSG_GWINFO;
             pBuf->MsgType = MQTTS_MSGTYP_GWINFO;
-            pBuf->m.gwinfo.GwId = rf_GetNodeID();
+            pBuf->m.gwinfo.GwId = 1;
             MQTTS_Push(pBuf);
             return 1;
 #else   //  !GATEWAY
@@ -494,8 +500,9 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
         case MQTTS_MSGTYP_GWINFO:
             if(vMQTTS.Status == MQTTS_STATUS_SEARCHGW)
             {
-                vMQTTS.Status = MQTTS_STATUS_OFFLINE;
-                vMQTTS.Tretry = 0;
+              memcpy(&vMQTTS.sAddr, psAddr, sizeof(s_Addr));
+              vMQTTS.Status = MQTTS_STATUS_OFFLINE;
+              vMQTTS.Tretry = 0;
             }
             break;
 #endif  //  GATEWAY
