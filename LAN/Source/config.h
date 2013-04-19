@@ -98,7 +98,9 @@ See LICENSE.txt file for license details.
 #elif (defined PANSTAMP)
   #include "Phy/HWconfigPS.h"     // Hardware panSTamp
 #elif (defined ENC28J60)
-  #include "Phy/HWconfigENC.h"    // Hardware AVR + ENC28J60 on SPI
+  #include "Phy/HWconfigENC.h"    // Hardware MEGA328P + ENC28J60 on SPI
+#elif (defined WIZNET)
+  #include "Phy/HWconfigWIZ.h"    // Hardware MEGA328P + WIZ812MJ on SPI
 #else
   #error Hardware configuration is not defined
 #endif
