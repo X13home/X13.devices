@@ -5,6 +5,11 @@ Firmware section for project X13.Home
 
 Automation System oriented to "Smart House" over MQTT(S) protocol
 
-Wireless - Wireless Client and Gateway, work in ISM band - 433/868/915 MHz with transceivers
-           from Microchip MRF49XA(Analog RFM12 from HopeRF), and CC1101 from TI.
-LAN      - LAN Client with Phy - ENC28J60
+MQTT-S LAN Clients;
+LNEN    - Client with Phy - ENC28J60
+
+MQTT-S Wireless Clients;
+ISM band - 433/868/915;
+NDUN    - UNode(Arduino + RFM12/MRF49XA)
+NDPS    - panSTamp ( Arduino + CC1101)
+NDJN    - JeeNode(Arduino + RFM12/MRF49XA) 

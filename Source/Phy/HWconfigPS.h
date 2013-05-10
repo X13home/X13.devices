@@ -106,7 +106,7 @@ See LICENSE.txt file for license details.
 #define USART_BAUD              ((F_CPU/16/38400) - 1) // Baud = 38400, val = Fosc/(16 * baud) - 1
 #define USART_CONFIGURE()       {UCSR0B = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));  \
                                  UCSR0C = (3<<UCSZ00);}
-#include "uart.h"
+#include "../uart.h"
 // End USART Section
 
 #else   //  !GATEWAY

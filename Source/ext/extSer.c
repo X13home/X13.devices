@@ -22,7 +22,7 @@ static uint8_t serTxLen;                        // Bytes to send
 // RX Section
 static uint8_t serRxPosOld;                     // Old Rx Position
 volatile static uint8_t serRxPos;               // Current Rx position
-static uint8_t serRxBuf[MQTTS_MSG_SIZE];        // Rx Buffer
+volatile static uint8_t serRxBuf[MQTTS_MSG_SIZE];        // Rx Buffer
 #endif  //  EXTSER_RX_USED
 
 #define SER_MAX_BASE            4
@@ -49,7 +49,7 @@ ISR(USART_RX_vect)
 {
     uint8_t data = USART_DATA;
     if(serRxPos < (MQTTS_MSG_SIZE -1))
-        serRxBuf[++serRxPos] = data;
+        serRxBuf[serRxPos++] = data;
 }
 #endif  //  EXTSER_RX_USED
 // End HAL
@@ -81,7 +81,7 @@ static uint8_t serCheckIdx(subidx_t * pSubidx)
 #ifdef EXTSER_RX_USED
 static uint8_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    *pLen = ++serRxPos;
+    *pLen = serRxPos;
     memcpy(pBuf, (uint8_t *)serRxBuf, serRxPos);
     serRxPos = 0;
     serRxPosOld = 0;

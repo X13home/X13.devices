@@ -181,6 +181,10 @@ See LICENSE.txt file for license details.
 #define TWI_DISABLE()           {TWCR = 0; PRR |= (1<<PRTWI);}
 // End TWI
 
+#define LED_ON()                PORTB &= ~(1<<PORTB0)
+#define LED_OFF()               PORTB |= (1<<PORTB0);
+#define LED_TGL()               PORTB ^= (1<<PORTB0);
+
 // ENC28J60 Section
 #define ENC_DDR                 DDRB
 #define ENC_PORT                PORTB
@@ -195,8 +199,10 @@ See LICENSE.txt file for license details.
 #define ENC_IRQ_PORTIN          PIND
 #define ENC_IRQ_PIN             PORTD2
 
-#define ENC_PORT_INIT()     {ENC_PORT |= (1<<ENC_PIN_SS); ENC_DDR  &= ~(1<<ENC_PIN_MISO);         \
-                             ENC_DDR  |= (1<<ENC_PIN_SCK) | (1<<ENC_PIN_MOSI) | (1<<ENC_PIN_SS);  \
+#define ENC_PORT_INIT()     {ENC_PORT |= (1<<ENC_PIN_SS) | (1<<PORTB0); \
+                             ENC_DDR  &= ~(1<<ENC_PIN_MISO);         \
+                             ENC_DDR  |= (1<<ENC_PIN_SCK) | (1<<ENC_PIN_MOSI) | (1<<ENC_PIN_SS) | \
+                             (1<<PORTB0);  \
                              ENC_IRQ_DDR &= ~(1<<ENC_IRQ_PIN); ENC_IRQ_PORT |= (1<<ENC_IRQ_PIN); }
 #define ENC_SELECT()        ENC_PORT &= ~(1<<ENC_PIN_SS)
 #define ENC_RELEASE()       ENC_PORT |= (1<<ENC_PIN_SS)
