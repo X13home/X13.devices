@@ -12,6 +12,7 @@ See LICENSE.txt file for license details.
 
 volatile uint8_t iPool;
 #define IPOOL_USR   0x01
+#define IPOOL_CALIB 0x02
 
 int main(void) __attribute__((naked));
 int main(void)
@@ -30,11 +31,13 @@ int main(void)
     MQTTS_Init();
     // Init Interconnection Interface & Load Configuration
     PHY_Init();
+    InitUART(USART_BAUD);   //  Buad = 38400, fosc = 16M/ (16 * baud)  - 1
 
     // Initialise  variables
     iPool = 0;
-
-    MQ_t * pRBuf = NULL;        // LAN Buffer
+    
+    MQ_t * pUBuf = NULL;        // USART Buffer
+    MQ_t * pRBuf = NULL;        // RF Buffer
     MQ_t * pMBuf = NULL;        // MQTTS Buffer
     uint8_t * pPBuf = NULL;     // Publish Buffer
     
@@ -51,18 +54,12 @@ int main(void)
 
     // 
     PHY_Start();
-    
-    LED_ON();
 
     while(1)
     {
       pRBuf = PHY_GetBuf(&sAddr);
-      if(pRBuf != NULL)
-      {
-        
-        if(MQTTS_Parser(pRBuf, &sAddr) == 0)
-          mqRelease(pRBuf);
-      }
+      if((pRBuf != NULL) && (MQTTS_Parser(pRBuf, &sAddr) == 0))
+        mqRelease(pRBuf);
         
       pMBuf = MQTTS_Get(&sAddr);
       if(pMBuf != NULL)
@@ -75,8 +72,6 @@ int main(void)
         bTmp = MQTTS_GetStatus();
         if(bTmp == MQTTS_STATUS_CONNECT)
         {
-          LED_TGL();
-
           if(poolIdx == 0xFFFF)
             poolIdx = PoolOD();
             
@@ -98,12 +93,39 @@ int main(void)
 
         bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
       }
-//      sleep_mode();
     }
 }
 
 ISR(TIMER_ISR)
 {
-  iPool |= IPOOL_USR;
-  PHY_Pool();
+#ifdef USE_RTC_OSC
+#define BASE_TICK       (F_CPU/8/POOL_TMR_FREQ)
+#define BASE_TICK_MIN   (uint16_t)(BASE_TICK/1.005)
+#define BASE_TICK_MAX   (uint16_t)(BASE_TICK*1.005)
+
+//  Calibrate internal RC Osc
+// !!!! for ATMEGA xx8P only, used Timer 1
+  if(iPool & IPOOL_CALIB)
+  {
+    uint16_t tmp = TCNT1;
+    TCCR1B = 0;
+
+    if(tmp < BASE_TICK_MIN)         // Clock is running too slow
+      OSCCAL++;
+    else if(tmp > BASE_TICK_MAX)    // Clock is running too fast
+      OSCCAL--;
+
+    iPool &= ~IPOOL_CALIB;
+  }
+  else if(!(iPool & IPOOL_SLEEP))
+  {
+    TCNT1 = 0;
+    TCCR1B = (2<<CS10);
+    iPool |= IPOOL_CALIB;
+  }
+#endif  //  USE_RTC_OSC
+  {
+    iPool |= IPOOL_USR;
+    PHY_Pool();
+  }
 }

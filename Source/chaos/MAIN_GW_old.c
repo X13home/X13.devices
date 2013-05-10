@@ -15,11 +15,6 @@ volatile uint8_t iPool;
 #define IPOOL_CALIB 0x02
 #define IPOOL_SLEEP 0x04
 
-#ifdef ASLEEP
-void goToSleep(void);
-void wakeUp(void);
-#endif  //  ASLEEP
-
 int main(void) __attribute__((naked));
 int main(void)
 {
@@ -33,6 +28,7 @@ int main(void)
     mqInit();
     // Initialize Object's Dictionary
     InitOD();
+    InitUART(USART_BAUD);   //  Buad = 38400, fosc = 16M/ (16 * baud)  - 1
     // Init MQTTS
     MQTTS_Init();
     // Init RF
@@ -40,6 +36,7 @@ int main(void)
     // Initialise  variables
     iPool = 0;
     
+    MQ_t * pUBuf = NULL;        // USART Buffer
     MQ_t * pRBuf = NULL;        // RF Buffer
     MQ_t * pMBuf = NULL;        // MQTTS Buffer
     uint8_t * pPBuf = NULL;     // Publish Buffer
@@ -55,13 +52,38 @@ int main(void)
 
     while(1)
     {
+        pUBuf = (MQ_t *)uGetBuf();
+        if(pUBuf != NULL)
+        {
+            bTmp = pUBuf->addr;
+            if((bTmp == rf_GetNodeID()) || (bTmp == 0))
+            {
+                if(MQTTS_Parser(pUBuf) == 0)
+                {
+                    if((MQTTS_GetStatus() == MQTTS_STATUS_CONNECT) && (bTmp == 0))  // broadcast
+                        rf_Send((uint8_t *)pUBuf);
+                    else
+                        mqRelease(pUBuf);
+                }
+            }
+            else if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
+                rf_Send((uint8_t *)pUBuf);
+        }
+
         pRBuf = (MQ_t *)rf_GetBuf();
-        if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
-            mqRelease(pRBuf);
+        if(pRBuf != NULL)
+        {
+            if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
+            {
+                uPutBuf((uint8_t *)pRBuf);
+            }
+            else
+                mqRelease(pRBuf);
+        }
 
         pMBuf = MQTTS_Get();
         if(pMBuf != NULL)
-            rf_Send((uint8_t *)pMBuf);
+            uPutBuf((uint8_t *)pMBuf);
 
         if(iPool & IPOOL_USR)
         {
@@ -90,23 +112,9 @@ int main(void)
                     }
                 }
             }
-#ifdef ASLEEP
-            else if(bTmp == MQTTS_STATUS_AWAKE)
-            {
-                if(poolIdx == 0xFFFF)
-                    poolIdx = PoolOD();
-            }
-#endif  //  ASLEEP
 
             bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
-#ifdef ASLEEP
-            if(bTmp == MQTTS_POOL_STAT_ASLEEP)       // Sweet dreams
-                goToSleep();
-            else if(bTmp == MQTTS_POOL_STAT_AWAKE)   // Wake UP
-                wakeUp();
-#endif  //  ASLEEP
         }
-        sleep_mode();
     }
 }
 
@@ -142,39 +150,3 @@ ISR(TIMER_ISR)
 #endif  //  USE_RTC_OSC
         iPool |= IPOOL_USR;
 }
-
-#ifdef ASLEEP
-#ifndef USE_RTC_OSC
-ISR(WDT_vect)
-{
-    wdt_reset();
-    if(iPool & IPOOL_SLEEP)
-        iPool |= IPOOL_USR;
-}
-#endif  //  !USE_RTC_OSC
-
-void goToSleep(void)
-{
-    iPool = IPOOL_SLEEP;
-    rf_SetState(RF_TRVASLEEP);
-#ifdef USE_RTC_OSC
-    config_sleep_rtc();
-#else   // Use watchdog
-    config_sleep_wdt();
-#endif  //  USE_RTC_OSC
-    set_sleep_mode(SLEEP_MODE_PWR_SAVE);    // Standby, Power Save
-}
-
-void wakeUp(void)
-{
-    set_sleep_mode(SLEEP_MODE_IDLE);        // Standby, Idle
-    rf_SetState(RF_TRVWKUP);
-#ifdef USE_RTC_OSC
-    InitTimer();
-#else   // Use watchdog
-    wdt_reset();
-    wdt_disable();
-#endif  //  USE_RTC_OSC
-    iPool = 0;
-}
-#endif  //  ASLEEP

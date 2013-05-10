@@ -1,2 +1,13 @@
-*.atsuo
 TcfTransactionLog.csv
+makedep.mk
+Makefile
+*.atsuo
+*.eep
+*.elf
+*.lss
+*.map
+*.srec
+*.d
+*.o
+
+
