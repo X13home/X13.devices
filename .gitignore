@@ -1,17 +1,2 @@
 *.atsuo
 TcfTransactionLog.csv
-/Wireless/Debug/*
-/Wireless/Gate_JN/*
-/Wireless/Gate_PS/*
-/Wireless/Gate_UN/*
-/Wireless/Node_JN/*
-/Wireless/Node_PS/*
-/Wireless/Node_UN/*
-/Wireless/TestRF_JN/*
-/Wireless/TestRF_PS/*
-/Wireless/TestRF_UN/*
-/LAN/Debug/*
-/LAN/ENC28J60/*
-/LAN/JNODE/*
-/LAN/UNODE/*
-/LAN/PANSTAMP/*
