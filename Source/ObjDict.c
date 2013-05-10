@@ -100,7 +100,7 @@ const PROGMEM indextable_t listPredefOD[] =
         objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #ifdef ASLEEP
     {{objEEMEM, objUInt16, (uint16_t)&ee_TAsleep},
-        objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL}
+        objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
 #endif  //  ASLEEP
 #ifdef RF_NODE
     {{objEEMEM, objUInt8, (uint16_t)&ee_GroupID},
@@ -123,7 +123,7 @@ const PROGMEM indextable_t listPredefOD[] =
         objIPBroker, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
 #endif  //  LAN_NODE
     {{objPROGMEM, objString, (uint16_t)&psDeviceTyp},
-        objDeviceTyp, (cbRead_t)&progmemReadOD, NULL, NULL},
+        objDeviceTyp, (cbRead_t)&progmemReadOD, NULL, NULL}
 };
 
 // Local Variables
@@ -278,7 +278,9 @@ void CleanOD(void)
     PHY_LoadConfig();
 
 #ifdef ASLEEP
-    ReadOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, &Len, (uint8_t *)&uiTmp);
+	uint16_t uiTmp;
+	ucTmp = sizeof(uiTmp);
+    ReadOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, &ucTmp, (uint8_t *)&uiTmp);
     mqtts_set_TASleep(uiTmp);
 #endif  //  ASLEEP
 }

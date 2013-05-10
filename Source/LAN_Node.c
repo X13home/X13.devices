@@ -12,8 +12,6 @@ See LICENSE.txt file for license details.
 
 volatile uint8_t iPool;
 #define IPOOL_USR   0x01
-#define IPOOL_CALIB 0x02
-#define IPOOL_SLEEP 0x04
 
 int main(void) __attribute__((naked));
 int main(void)
