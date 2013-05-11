@@ -8,6 +8,8 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
+#error Sorry, but its doesn't work, wait a little bit.
+
 #include "config.h"
 
 volatile uint8_t iPool;
