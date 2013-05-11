@@ -11,99 +11,113 @@ See LICENSE.txt file for license details.
 #include "config.h"
 
 volatile uint8_t iPool;
-#define IPOOL_USR   0x01
+#define IPOOL_USR       0x01
+#define IPOOL_LED_ONL   0x10
+#define IPOOL_LED_CONN  0x20
 
 int main(void) __attribute__((naked));
 int main(void)
 {
-// Watchdog Stop
-    cli();
-    wdt_reset();
-    wdt_disable();
-    // Configure Power Reduction
-    CONFIG_PRR();
-    // Initialize Memory manager
-    mqInit();
-    // Initialize Object's Dictionary
-    InitOD();
-    // Init MQTTS
-    MQTTS_Init();
-    // Init Interconnection Interface & Load Configuration
-    PHY_Init();
+  // Watchdog Stop
+  cli();
+  wdt_reset();
+  wdt_disable();
+  // Configure Power Reduction
+  CONFIG_PRR();
+  // Initialize Memory manager
+  mqInit();
+  // Initialize Object's Dictionary
+  InitOD();
+  // Init MQTTS
+  MQTTS_Init();
+  // Init Interconnection Interface & Load Configuration
+  PHY_Init();
 
-    // Initialise  variables
-    iPool = 0;
+  // Initialise  variables
+  iPool = 0;
 
-    MQ_t * pRBuf = NULL;        // LAN Buffer
-    MQ_t * pMBuf = NULL;        // MQTTS Buffer
-    uint8_t * pPBuf = NULL;     // Publish Buffer
+  MQ_t * pRBuf = NULL;        // LAN Buffer
+  MQ_t * pMBuf = NULL;        // MQTTS Buffer
+  uint8_t * pPBuf = NULL;     // Publish Buffer
     
-    uint8_t bTmp;
-    uint16_t poolIdx = 0xFFFF;
+  uint8_t bTmp;
+  uint16_t poolIdx = 0xFFFF;
 
-    s_Addr sAddr;
+  s_Addr sAddr;
 
-    // Initialize Task Planer
-    InitTimer();
-    // configure Sleep controller & enable interrupts
-    set_sleep_mode(SLEEP_MODE_IDLE);    // Standby, Idle
-    sei();                              // Enable global interrupts
+  // Initialize Task Planer
+  InitTimer();
+  // configure Sleep controller & enable interrupts
+  set_sleep_mode(SLEEP_MODE_IDLE);    // Standby, Idle
+  sei();                              // Enable global interrupts
 
-    // 
-    PHY_Start();
-    
-    LED_ON();
+  // 
+  PHY_Start();
 
-    while(1)
+  iPool |= IPOOL_LED_ONL;
+
+  while(1)
+  {
+    if(((pRBuf = PHY_GetBuf(&sAddr)) != NULL) && (MQTTS_Parser(pRBuf, &sAddr) == 0))
+      mqRelease(pRBuf);
+
+    if((pMBuf = MQTTS_Get(&sAddr)) != NULL)
+      PHY_Send(pMBuf, &sAddr);
+
+    if(iPool & IPOOL_USR)
     {
-      pRBuf = PHY_GetBuf(&sAddr);
-      if(pRBuf != NULL)
-      {
-        
-        if(MQTTS_Parser(pRBuf, &sAddr) == 0)
-          mqRelease(pRBuf);
-      }
-        
-      pMBuf = MQTTS_Get(&sAddr);
-      if(pMBuf != NULL)
-        PHY_Send(pMBuf, &sAddr);
-        
-      if(iPool & IPOOL_USR)
-      {
-        iPool &= ~IPOOL_USR;
+      iPool &= ~IPOOL_USR;
 
-        bTmp = MQTTS_GetStatus();
-        if(bTmp == MQTTS_STATUS_CONNECT)
+      if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
+      {
+        iPool |= IPOOL_LED_CONN;
+        if(poolIdx == 0xFFFF)
+          poolIdx = PoolOD();
+
+        if(poolIdx != 0xFFFF)
         {
-          LED_TGL();
-
-          if(poolIdx == 0xFFFF)
-            poolIdx = PoolOD();
-            
-          if(poolIdx != 0xFFFF)
+          // Publish
+          pPBuf = (uint8_t *)mqAssert();
+          if(pPBuf != NULL)
           {
-            // Publish
-            pPBuf = (uint8_t *)mqAssert();
-            if(pPBuf != NULL)
-            {
-              bTmp = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
+            bTmp = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
               
-              ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
-              MQTTS_Publish(poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
-              mqRelease((MQ_t *)pPBuf);
-              poolIdx = 0xFFFF;
-            }
+            ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
+            MQTTS_Publish(poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
+            mqRelease((MQ_t *)pPBuf);
+            poolIdx = 0xFFFF;
           }
         }
-
-        bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
       }
-//      sleep_mode();
+      else
+        iPool &= ~IPOOL_LED_CONN;
+
+      bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
     }
+  }
 }
 
 ISR(TIMER_ISR)
 {
+  static uint8_t led_cnt = 0;
+
   iPool |= IPOOL_USR;
+
+  if(iPool & IPOOL_LED_ONL)
+  {
+    if(led_cnt)
+      led_cnt--;
+    else
+    {
+      LED_TGL();
+      if(iPool & IPOOL_LED_CONN)
+        led_cnt = (POOL_TMR_FREQ/16);  // 125mS Period
+      else
+        led_cnt = (POOL_TMR_FREQ/2);  // 1S Period
+    }
+  }
+  else
+    LED_OFF();
+
   PHY_Pool();
 }

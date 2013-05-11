@@ -8,7 +8,7 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-#error Sorry, but its doesn't work, wait a little bit.
+#error "Sorry, but its doesn't work, wait a little bit."
 
 #include "config.h"
 
@@ -38,7 +38,7 @@ int main(void)
     // Initialise  variables
     iPool = 0;
     
-    MQ_t * pUBuf = NULL;        // USART Buffer
+    //MQ_t * pUBuf = NULL;        // USART Buffer
     MQ_t * pRBuf = NULL;        // RF Buffer
     MQ_t * pMBuf = NULL;        // MQTTS Buffer
     uint8_t * pPBuf = NULL;     // Publish Buffer

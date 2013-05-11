@@ -37,6 +37,7 @@
         <ssl>False</ssl>
       </Channel>
     </com_atmel_avrdbg_tool_simulator>
+    <AsfVersion>3.5.0</AsfVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'GWJN' ">
     <ToolchainSettings>
