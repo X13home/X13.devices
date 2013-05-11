@@ -12,7 +12,7 @@ See LICENSE.txt file for license details.
 #define _UART_H
 
 void InitUART(uint16_t baudrate);
-uint8_t * uGetBuf(void);
-void uPutBuf(uint8_t *pBuf);
+uint8_t * uGetBuf(uint8_t * pAddr);
+void uPutBuf(uint8_t *pBuf, uint8_t * pAddr);
 
 #endif

@@ -37,16 +37,9 @@ int main(void)
     MQTTS_Init();
     // Init Interconnection Interface & Load Configuration
     PHY_Init();
-#ifdef GATEWAY
-    InitUART(USART_BAUD);   //  Buad = 38400, fosc = 16M/ (16 * baud)  - 1
-#endif  // GATEWAY
-
     // Initialise  variables
     iPool = 0;
     
-#ifdef GATEWAY
-    MQ_t * pUBuf = NULL;        // USART Buffer
-#endif  // GATEWAY
     MQ_t * pRBuf = NULL;        // RF Buffer
     MQ_t * pMBuf = NULL;        // MQTTS Buffer
     uint8_t * pPBuf = NULL;     // Publish Buffer
