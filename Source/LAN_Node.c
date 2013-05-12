@@ -92,7 +92,7 @@ int main(void)
       else
         iPool &= ~IPOOL_LED_CONN;
 
-      bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
+      MQTTS_Pool(poolIdx != 0xFFFF);
     }
   }
 }
