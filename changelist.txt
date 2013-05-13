@@ -1,5 +1,6 @@
 Version 2.5.0.beta1
 
+[*] RF-GW Connect BugFix                      13.Mai.2013
 [+] LAN Activity & Status LED on PB0          13.Mai.2013[*] Directory Structure                       13.Mai.2013
 [*] Merged LAN & Wireless Sources             10.Mai.2013
 [*] MQTT-S and PHY API                        15.Apr.2013

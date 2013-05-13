@@ -129,12 +129,15 @@ MQ_t * MQTTS_Get(s_Addr * psAddr)
     vMQTTS.tail++;
     if(vMQTTS.tail >= MQTTS_SIZEOF_SEND_FIFO)
         vMQTTS.tail -= MQTTS_SIZEOF_SEND_FIFO;
-        
-    if(vMQTTS.buf[tmptail]->MsgType != MQTTS_MSGTYP_SEARCHGW)
-      memcpy(psAddr, &vMQTTS.sAddr, sizeof(s_Addr));
-    else
+#ifdef GATEWAY
+    if(vMQTTS.buf[tmptail]->MsgType == MQTTS_MSGTYP_GWINFO)
+#else //  NODE
+    if(vMQTTS.buf[tmptail]->MsgType == MQTTS_MSGTYP_SEARCHGW)
+#endif
       *psAddr = (s_Addr)AddrBroadcast;
-        
+    else
+      memcpy(psAddr, &vMQTTS.sAddr, sizeof(s_Addr));
+
     return vMQTTS.buf[tmptail];
 }
 
@@ -151,6 +154,7 @@ static void MQTTS_Disconnect(void)
     vMQTTS.Status = MQTTS_STATUS_SEARCHGW;
 #else   // Gateway
     vMQTTS.Status = MQTTS_STATUS_OFFLINE;
+    vMQTTS.sAddr = rf_GetNodeID();
 #endif  // Gateway
     vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
     vMQTTS.Tretry = 0;
@@ -486,7 +490,12 @@ uint8_t MQTTS_Parser(MQ_t * pBuf, s_Addr * psAddr)
             // Local Answer
             pBuf->Length = MQTTS_SIZEOF_MSG_GWINFO;
             pBuf->MsgType = MQTTS_MSGTYP_GWINFO;
+#ifdef  rf_GetNodeID
+            pBuf->m.gwinfo.GwId = rf_GetNodeID();
+#else //  rf_GetNodeID not defined
             pBuf->m.gwinfo.GwId = 1;
+#endif  //  rf_GetNodeID
+
             MQTTS_Push(pBuf);
             return 1;
 #else   //  !GATEWAY
