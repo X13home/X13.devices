@@ -16,7 +16,7 @@ volatile uint8_t iPool;
 #define IPOOL_LED_CONN  0x20
 #define IPOOL_LED_ACT   0x40
 
-int main(void) __attribute__((naked));
+//int main(void) __attribute__((naked));    // !! For Atmel AVR Studio 6.1
 int main(void)
 {
   // Watchdog Stop

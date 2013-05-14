@@ -14,7 +14,7 @@ volatile uint8_t iPool;
 #define IPOOL_USR   0x01
 #define IPOOL_CALIB 0x02
 
-int main(void) __attribute__((naked));
+//int main(void) __attribute__((naked));  // !! For Atmel AVR Studio 6.1
 int main(void)
 {
 // Watchdog Stop
