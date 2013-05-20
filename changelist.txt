@@ -1,5 +1,6 @@
 Version 2.5.0.beta1
 
+[+] panStamp properties USE_RTC_OSC = 1       20.Mai.2013
 [*] Compatible with AVR Studio 6.1            14.Mai.2013
 [*] RF-GW Connect BugFix                      13.Mai.2013
 [+] LAN Activity & Status LED on PB0          13.Mai.2013[*] Directory Structure                       13.Mai.2013
