@@ -20,7 +20,7 @@ void goToSleep(void);
 void wakeUp(void);
 #endif  //  ASLEEP
 
-int main(void) __attribute__((naked));
+//int main(void) __attribute__((naked));    // ! Compatibility with AVR Studio 6.1
 int main(void)
 {
 // Watchdog Stop

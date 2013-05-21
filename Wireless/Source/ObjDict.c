@@ -416,6 +416,9 @@ uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
             while(Len < len)
                 pBuf[Len++] = fill;
         }
+
+        if(len)
+          Len = len;
     }
     return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
@@ -451,7 +454,7 @@ uint16_t PoolOD(void)
         idxSubscr--;
         if(idxSubscr == 0)  //  Send Subscribe '+'
         {
-            uint8_t ch = '+';
+            uint8_t ch = '#';
             MQTTS_Subscribe(0, MQTTS_FL_QOS1, 1, &ch);
         }
     }

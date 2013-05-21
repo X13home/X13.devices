@@ -1,3 +1,7 @@
+Version 2.4.3
+
+[*] Predefined variables compatible with develop version.
+====================================================================================================
 Version 2.4.2
 
 [+] System Watchdog         03.Mar.2013

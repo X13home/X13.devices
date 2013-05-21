@@ -67,7 +67,7 @@ See LICENSE.txt file for license details.
 
 #define OD_DEV_SWVERSH          '2'     // Software Version
 #define OD_DEV_SWVERSM          '4'
-#define OD_DEV_SWVERSL          '2'
+#define OD_DEV_SWVERSL          '3'
 
 // RF Section
 #define RF_TX_POOL_SIZE         4
