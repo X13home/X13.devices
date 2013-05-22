@@ -162,7 +162,7 @@ void mqtts_set_TASleep(uint16_t tasleep)
 }
 #endif  //  ASLEEP
 
-uint8_t MQTTS_Publish(uint8_t Addr, uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
+uint8_t MQTTS_Publish(uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
 {
     uint8_t mSize = Size + MQTTS_SIZEOF_MSG_PUBLISH + 1;
     if(mSize > sizeof(MQ_t))
@@ -171,15 +171,11 @@ uint8_t MQTTS_Publish(uint8_t Addr, uint16_t TopicID, uint8_t Flags, uint8_t Siz
     MQ_t * pBuf = mqAssert();
     if(pBuf != NULL)    // no memory
     {
-        if(Addr == 0)
 #ifdef GATEWAY
-            pBuf->addr = rf_GetNodeID();
+        pBuf->addr = rf_GetNodeID();
 #else   //  !GATEWAY
-            pBuf->addr = vMQTTS.GatewayID;
+        pBuf->addr = vMQTTS.GatewayID;
 #endif  //  GATEWAY
-        else
-            pBuf->addr = Addr;
-
         pBuf->mq.Length = mSize - 1;
         pBuf->mq.MsgType = MQTTS_MSGTYP_PUBLISH;
         pBuf->mq.m.publish.Flags = Flags;
@@ -192,7 +188,7 @@ uint8_t MQTTS_Publish(uint8_t Addr, uint16_t TopicID, uint8_t Flags, uint8_t Siz
     return -1;
 }
 
-uint8_t MQTTS_Subscribe(uint8_t Addr, uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
+uint8_t MQTTS_Subscribe(uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
 {
     uint8_t mSize = Size + MQTTS_SIZEOF_MSG_SUBSCRIBE + 1;
     if(mSize > sizeof(MQ_t))
@@ -201,15 +197,11 @@ uint8_t MQTTS_Subscribe(uint8_t Addr, uint8_t Flags, uint8_t Size, uint8_t * ipB
     MQ_t * pBuf = mqAssert();
     if(pBuf != NULL)
     {
-        if(Addr == 0)
 #ifdef GATEWAY
-            pBuf->addr = rf_GetNodeID();
+        pBuf->addr = rf_GetNodeID();
 #else   //  !GATEWAY
-            pBuf->addr = vMQTTS.GatewayID;
+        pBuf->addr = vMQTTS.GatewayID;
 #endif  //  GATEWAY
-        else
-            pBuf->addr = Addr;
-
         pBuf->mq.Length = mSize - 1;
         pBuf->mq.MsgType = MQTTS_MSGTYP_SUBSCRIBE;
         pBuf->mq.m.subscribe.Flags = Flags;
@@ -221,7 +213,7 @@ uint8_t MQTTS_Subscribe(uint8_t Addr, uint8_t Flags, uint8_t Size, uint8_t * ipB
     return -1;
 }
 
-uint8_t MQTTS_Register(uint8_t Addr,uint16_t TopicID, uint8_t Size, uint8_t * ipBuf)
+uint8_t MQTTS_Register(uint16_t TopicID, uint8_t Size, uint8_t * ipBuf)
 {
     uint8_t mSize = Size + MQTTS_SIZEOF_MSG_REGISTER + 1;
     if(mSize > sizeof(MQ_t))
@@ -230,14 +222,11 @@ uint8_t MQTTS_Register(uint8_t Addr,uint16_t TopicID, uint8_t Size, uint8_t * ip
     MQ_t * pBuf = mqAssert();
     if(pBuf != NULL)
     {
-        if(Addr == 0)
 #ifdef GATEWAY
-            pBuf->addr = rf_GetNodeID();
+        pBuf->addr = rf_GetNodeID();
 #else   //  !GATEWAY
-            pBuf->addr = vMQTTS.GatewayID;
+        pBuf->addr = vMQTTS.GatewayID;
 #endif  //  GATEWAY
-        else
-            pBuf->addr = Addr;
         pBuf->mq.Length = mSize - 1;
         pBuf->mq.MsgType = MQTTS_MSGTYP_REGISTER;
         pBuf->mq.m.regist.TopicId = SWAPWORD(TopicID);
@@ -530,7 +519,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
         case MQTTS_MSGTYP_GWINFO:
             if(vMQTTS.Status == MQTTS_STATUS_SEARCHGW)
             {
-                vMQTTS.GatewayID =  pBuf->mq.m.gwinfo.GwId;
+                vMQTTS.GatewayID =  pBuf->addr;
                 vMQTTS.Status = MQTTS_STATUS_OFFLINE;
                 vMQTTS.Tretry = 0;
             }
@@ -553,7 +542,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
                     {
                         pBuf->mq.Length = MQTTS_SIZEOF_CLIENTID - 1;
                         ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &pBuf->mq.Length, (uint8_t *)&pBuf->mq.m.raw);
-                        MQTTS_Publish(0, objDeviceTyp, MQTTS_FL_QOS1 | MQTTS_FL_TOPICID_PREDEF,
+                        MQTTS_Publish(objDeviceTyp, MQTTS_FL_QOS1 | MQTTS_FL_TOPICID_PREDEF,
                                       pBuf->mq.Length, (uint8_t *)&pBuf->mq.m.raw);
                     }
                 }

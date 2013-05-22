@@ -225,11 +225,14 @@ void CleanOD(void)
 // Register PnP objects
 indextable_t * getFreeIdxOD(void)
 {
-    uint8_t id;
-    for(id = 0; id < OD_MAX_INDEX_LIST; id++)
-        if(ListOD[id].Index == 0xFFFF)
-            return &ListOD[id];
-    return NULL;
+  uint8_t id;
+  for(id = 0; id < OD_MAX_INDEX_LIST; id++)
+    if(ListOD[id].Index == 0xFFFF)
+    {
+      ListOD[id].Index = 0;
+      return &ListOD[id];
+    }
+  return NULL;
 }
 
 uint8_t RegisterOD(MQ_t *pBuf)
@@ -434,7 +437,7 @@ uint16_t PoolOD(void)
             uint8_t Len;
 
             Len = extCvtIdx2TopicId(&ListOD[idxUpdate].sidx, iBuf);
-            if(MQTTS_Register(0, 0, Len, iBuf) == 0)
+            if(MQTTS_Register(0, Len, iBuf) == 0)
                 ListOD[idxUpdate].Index = 0xF000;
             return 0xFFFF;
         }
@@ -455,7 +458,7 @@ uint16_t PoolOD(void)
         if(idxSubscr == 0)  //  Send Subscribe '+'
         {
             uint8_t ch = '#';
-            MQTTS_Subscribe(0, MQTTS_FL_QOS1, 1, &ch);
+            MQTTS_Subscribe(MQTTS_FL_QOS1, 1, &ch);
         }
     }
     return 0xFFFF;

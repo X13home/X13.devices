@@ -30,11 +30,6 @@ static uint8_t              rfm12v_txHead;
 static uint8_t              rfm12v_txTail;
 static uint8_t            * rfm12v_pTxPool[RF_TX_POOL_SIZE];
 
-#ifdef RF_USE_RSSI
-extern void ai_Sel_RSSI(void);
-extern uint8_t ai_Get_RSSI(void);
-#endif  //  RF_USE_RSSI
-
 static void rfm12_CalcCRC(uint8_t data, uint16_t *pCRC)     // CRC Calculation compatible with cc1101
 {
     uint8_t i;
@@ -151,9 +146,6 @@ ISR(RF_INT_vect)
                     RxLEDon();
                     rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
                     rfm12v_State = RF_TRVRXDATA;
-#ifdef RF_USE_RSSI
-                    ai_Sel_RSSI();
-#endif  //  RF_USE_RSSI
                     return;
                 }
                 break;
@@ -378,7 +370,8 @@ void rf_SetState(uint8_t state)
 #ifdef RF_USE_RSSI
 uint8_t rf_GetRSSI(void)
 {
-    return ai_Get_RSSI();
+  #warning Sorry, but not implemented yet
+  return 0;
 }
 #endif
 

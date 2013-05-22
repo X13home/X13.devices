@@ -83,23 +83,8 @@ int main(void)
         pRBuf = (MQ_t *)rf_GetBuf();
         if(pRBuf != NULL)
         {
-#ifdef RF_USE_RSSI
-            bTmp = pRBuf->mq.MsgType;
-#endif  //  RF_USE_RSSI
-
             if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
-            {
                 uPutBuf((uint8_t *)pRBuf);
-
-#ifdef RF_USE_RSSI
-                if(bTmp == MQTTS_MSGTYP_PINGREQ)
-                {
-                    uint8_t rssi = rf_GetRSSI();
-                    MQTTS_Publish(pRBuf->addr, objRSSI,
-                        MQTTS_FL_QOS0 | MQTTS_FL_TOPICID_PREDEF, 1, &rssi);
-                }
-#endif  //  RF_USE_RSSI
-            }
             else
                 mqRelease(pRBuf);
         }
@@ -137,7 +122,7 @@ int main(void)
                         bTmp = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
 
                         ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
-                        MQTTS_Publish(0, poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
+                        MQTTS_Publish(poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
                         mqRelease((MQ_t *)pPBuf);
                         poolIdx = 0xFFFF;
                     }
