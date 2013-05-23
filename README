@@ -5,18 +5,22 @@ Firmware section for project X13.Home
 
 Automation System oriented to "Smart House" over MQTT(S) protocol
 
-./MQTTS
+MQTTS
   LAN Clients:
-      LNEN    Client with Phy - ENC28J60
+      LNNDEN    Client with Phy - ENC28J60
 
   Wireless Clients:
     ISM band - 433/868/915:
-      NDUN    UNode - Native Hardware
-      NDPS    panSTamp (Arduino + CC1101)
-      NDJN    JeeNode  (Arduino + RFM12/MRF49XA) 
+      RFNDUN    UNode - Native Hardware (ATMega328P + MRF49XA)
+      RFNDPS    panSTamp http://www.panstamp.com/ 
+                compatible with Arduino Uno/Nano + CC1101
+      RFNDJN    JeeNode http://jeelabs.com/products/jeenode
+                compatible with Arduino Uno/Nano + RFM12/MRF49XA
 
   Wireless Gateways:
     ISM band - 433/868/915:
-      GWUN    UNode - Native Hardware
-      GWPS    panSTamp (Arduino + CC1101)
-      GWJN    JeeNode  (Arduino + RFM12/MRF49XA) 
+      RFGWUN    UNode - Native Hardware
+      RFGWPS    panSTamp http://www.panstamp.com/ 
+                compatible with Arduino Uno/Nano + CC1101
+      RFGWJN    JeeNode http://jeelabs.com/products/jeenode
+                compatible with Arduino Uno/Nano + RFM12/MRF49XA
