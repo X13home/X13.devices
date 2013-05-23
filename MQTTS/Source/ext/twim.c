@@ -197,9 +197,9 @@ ISR(TWI_vect)
 }
 // End TWI HAL
 
-#ifdef TWI_USE_BMP085
-#include "twi/twiDriver_BMP085.c"
-#endif  //  TWI_USE_BMP085
+#ifdef TWI_USE_BMP180
+#include "twi/twiDriver_BMP180.c"
+#endif  //  TWI_USE_BMP180
 
 #ifdef TWI_USE_HIH61XX
 #include "twi/twiDriver_HIH61XX.c"
@@ -294,8 +294,8 @@ static void twiConfig(void)
     if(pIndex == NULL)
         return;
 
-#ifdef TWI_USE_BMP085
-    cnt += twi_BMP085_Config();
+#ifdef TWI_USE_BMP180
+    cnt += twi_BMP180_Config();
 #endif
 #ifdef TWI_USE_HIH61XX
     cnt += twi_HIH61xx_Config();

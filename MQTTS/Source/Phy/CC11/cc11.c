@@ -9,10 +9,8 @@ See LICENSE.txt file for license details.
 */
 
 // CC1101 RF Tranceiver
-#include "../../config.h"
 
-#ifdef _CC11_H
-
+#include <util/delay.h>
 #include "CC11_Reg.h"
 
 #define RF_WAIT_LOW_MISO()  while(RF_PIN & (1<<RF_PIN_MISO))
@@ -26,7 +24,6 @@ static uint8_t              cc11s_NodeID = 0;
 // ISR Variables
 volatile static uint8_t     cc11v_State;        // Internal State
 volatile static uint8_t   * cc11v_pRxBuf;       // Pointer to received data
-static uint8_t              cc11v_RfAddr;       // The received source address
 #ifdef RF_USE_RSSI
 static uint8_t              cc11v_RSSI;         // Actual RSSI
 #endif  //  RF_USE_RSSI
@@ -34,7 +31,6 @@ static uint8_t              cc11v_RSSI;         // Actual RSSI
 static uint8_t              cc11v_ChanBusy;
 static uint8_t              cc11v_txHead;
 static uint8_t              cc11v_txTail;
-static uint8_t              cc11v_TxAddr[RF_TX_POOL_SIZE];
 static uint8_t            * cc11v_pTxPool[RF_TX_POOL_SIZE];
 
 const PROGMEM uint8_t cc11config[][2] =
@@ -120,7 +116,7 @@ static uint8_t cc11_readReg(uint8_t Addr)
 }
 
 // Send data
-static void cc11_send(uint8_t * pBuf, uint8_t dstAddr)
+static void cc11_send(uint8_t * pBuf)
 {
     TxLEDon();
     cc11_cmdStrobe(CC11_SIDLE);                     // Switch to Idle state
@@ -128,7 +124,9 @@ static void cc11_send(uint8_t * pBuf, uint8_t dstAddr)
 
     // Fill Buffer
     uint8_t i, len;
-    len = ((MQ_t *)pBuf)->Length;
+    uint8_t * ipBuf;
+    len = ((MQ_t *)pBuf)->mq.Length;
+    ipBuf = (uint8_t *)(&((MQ_t *)pBuf)->mq);
     // Send burst
     RF_SELECT();                                    // Select CC1101
     RF_WAIT_LOW_MISO();                             // Wait until MISO goes low
@@ -136,13 +134,13 @@ static void cc11_send(uint8_t * pBuf, uint8_t dstAddr)
     while(RF_SPI_BISY);
     RF_SPI_DATA = len + 2;                          // Set data length at the first position of the TX FIFO
     while(RF_SPI_BISY);
-    RF_SPI_DATA = dstAddr;                          // Send destination addr
+    RF_SPI_DATA = ((MQ_t *)pBuf)->addr;             // Send destination addr
     while(RF_SPI_BISY);
     RF_SPI_DATA = cc11s_NodeID;                     // Send Source addr
     while(RF_SPI_BISY);
     for(i = 0; i < len; i++)                        // Send Payload
     {
-        RF_SPI_DATA = pBuf[i];
+        RF_SPI_DATA = ipBuf[i];
         while(RF_SPI_BISY);
     }
     RF_RELEASE();                                   // Release CC1101
@@ -184,7 +182,7 @@ ISR(RF_INT_vect)
                     (tmp & 0x80) ||                             // or Overflow
                     (tmp > (MQTTS_MSG_SIZE + 3)))               // or Packet is too Big
                     break;
-                frameLen -= 5;
+                frameLen -= 4;
                 uint8_t * pTmp;
                 pTmp = (uint8_t *)mqAssert();
                 if(pTmp == NULL)                                // No Memory
@@ -197,8 +195,6 @@ ISR(RF_INT_vect)
                 while(RF_SPI_BISY);
                 cc11_spiExch(0);                                // Read Length
                 cc11_spiExch(0);                                // Read Destination addr
-                cc11v_RfAddr = cc11_spiExch(0);                 // Read Source Addr;
-                
                 for(i = 0; i < frameLen; i++)                   // Read Payload
                 {
                     tmp = cc11_spiExch(0);
@@ -239,122 +235,131 @@ ISR(RF_INT_vect)
 }
 
 // API
-void cc11_LoadCfg(uint8_t Channel, uint16_t Group, uint8_t NodeID)
+void PHY_LoadConfig(void)
 {
-    if((cc11s_Group != 0) && (cc11s_Group != Group))
-    {
-        cc11_writeReg(CC11_SYNC1, Group>>8);
-        cc11_writeReg(CC11_SYNC0, Group & 0xFF);
-    }
-    cc11s_Group = Group;
+  // Load config data
+  uint8_t Channel, NodeID, Len = sizeof(uint16_t);
+  uint16_t Group;
+  
+  ReadOD(objRFGroup, MQTTS_FL_TOPICID_PREDEF,   &Len, (uint8_t *)&Group);
+  ReadOD(objRFNodeId, MQTTS_FL_TOPICID_PREDEF,  &Len, &NodeID);
+  ReadOD(objRFChannel, MQTTS_FL_TOPICID_PREDEF, &Len, &Channel);
 
-    if((cc11s_NodeID != 0) && (cc11s_NodeID != NodeID))
-        cc11_writeReg(CC11_ADDR, NodeID);
-    cc11s_NodeID = NodeID;
-    
-    // !!!  Channel Space = 200 kHz not 25
-    Channel >>= 3;
+  if((cc11s_Group != 0) && (cc11s_Group != Group))
+  {
+    cc11_writeReg(CC11_SYNC1, Group>>8);
+    cc11_writeReg(CC11_SYNC0, Group & 0xFF);
+  }
+  cc11s_Group = Group;
 
-    if((cc11s_Channel != 0xFF) && (cc11s_Channel != Channel))
-        cc11_writeReg(CC11_CHANNR, Channel);
-    cc11s_Channel = Channel;
+  if((cc11s_NodeID != 0) && (cc11s_NodeID != NodeID))
+    cc11_writeReg(CC11_ADDR, NodeID);
+  cc11s_NodeID = NodeID;
+
+  // !!!  Channel Space = 200 kHz not 25
+  Channel >>= 3;
+
+  if((cc11s_Channel != 0xFF) && (cc11s_Channel != Channel))
+    cc11_writeReg(CC11_CHANNR, Channel);
+  cc11s_Channel = Channel;
 }
 
-void cc11_Initialize(void)
+void PHY_Init(void)
 {
-    // HW Initialise
-    RF_DISABLE_IRQ();
-    RF_PORT_INIT();                     // Ports Init
-    RF_SPI_INIT();                      // init SPI controller
-    RF_IRQ_CFG();                       // init IRQ input 
-    // HW End
-    // Reset CC1101
-    _delay_us(5);
-    RF_SELECT();
-    _delay_us(10);
-    RF_RELEASE();
-    _delay_us(40);
-    RF_SELECT();
-    RF_WAIT_LOW_MISO();                 // Wait until MISO goes low
-    RF_SPI_DATA = CC11_SRES;
-    while(RF_SPI_BISY);                 // Wait until SPI operation is terminated
-    RF_WAIT_LOW_MISO();                 // Wait until MISO goes low
-    RF_RELEASE();
+  // HW Initialise
+  RF_DISABLE_IRQ();
+  RF_PORT_INIT();                     // Ports Init
+  RF_SPI_INIT();                      // init SPI controller
+  RF_IRQ_CFG();                       // init IRQ input 
+  // HW End
+  // Reset CC1101
+  _delay_us(5);
+  RF_SELECT();
+  _delay_us(10);
+  RF_RELEASE();
+  _delay_us(40);
+  RF_SELECT();
+  RF_WAIT_LOW_MISO();                 // Wait until MISO goes low
+  RF_SPI_DATA = CC11_SRES;
+  while(RF_SPI_BISY);                 // Wait until SPI operation is terminated
+  RF_WAIT_LOW_MISO();                 // Wait until MISO goes low
+  RF_RELEASE();
 
-    // Configure CC1101
-    uint8_t i;
-    for (i=0; i<(sizeof(cc11config)/sizeof(cc11config[0])); i++)
-      cc11_writeReg(pgm_read_byte(&cc11config[i][0]), pgm_read_byte(&cc11config[i][1]));
+  // Configure CC1101
+  uint8_t i;
+  for (i=0; i<(sizeof(cc11config)/sizeof(cc11config[0])); i++)
+    cc11_writeReg(pgm_read_byte(&cc11config[i][0]), pgm_read_byte(&cc11config[i][1]));
 
-    // Load Group ID(Synchro)
-    cc11_writeReg(CC11_SYNC1, cc11s_Group>>8);
-    cc11_writeReg(CC11_SYNC0, cc11s_Group & 0xFF);
-    // Load Device ID
-    cc11_writeReg(CC11_ADDR, cc11s_NodeID);
-    // Load Frequency channel
-    cc11_writeReg(CC11_CHANNR, cc11s_Channel);
+  // Load Group ID(Synchro)
+  cc11_writeReg(CC11_SYNC1, cc11s_Group>>8);
+  cc11_writeReg(CC11_SYNC0, cc11s_Group & 0xFF);
+  // Load Device ID
+  cc11_writeReg(CC11_ADDR, cc11s_NodeID);
+  // Load Frequency channel
+  cc11_writeReg(CC11_CHANNR, cc11s_Channel);
     
-    // Configure PATABLE, No Ramp
-    cc11_writeReg(CC11_PATABLE, CC11_RF_POWER);
+  // Configure PATABLE, No Ramp
+  cc11_writeReg(CC11_PATABLE, CC11_RF_POWER);
 
-    // Init Internal variables
-    cc11v_State = RF_TRVIDLE;
-    cc11v_pRxBuf = NULL;
-    cc11v_txHead = 0;
-    cc11v_txTail = 0;
-    cc11v_ChanBusy = 0;
+  // Init Internal variables
+  cc11v_State = RF_TRVIDLE;
+  cc11v_pRxBuf = NULL;
+  cc11v_txHead = 0;
+  cc11v_txTail = 0;
+  cc11v_ChanBusy = 0;
 
-    RF_ENABLE_IRQ();                        // configure interrupt controller
+  RF_ENABLE_IRQ();                        // configure interrupt controller
 }
 
+#ifdef ASLEEP
 // Change state
-void cc11_SetState(uint8_t state)
+void rf_SetState(uint8_t state)
 {
-    if(state == RF_TRVASLEEP)
-    {
-        // We need to enter the IDLE state first
-        cc11_cmdStrobe(CC11_SIDLE);
-        // Enter Power-down state
-        cc11_cmdStrobe(CC11_SPWD);
-        cc11v_State = RF_TRVASLEEP;
-    }
-    else if(state == RF_TRVWKUP)
-    {
-        cc11_cmdStrobe(CC11_SIDLE);
-        cc11v_State = RF_TRVIDLE;
-    }
+  if(state == RF_TRVASLEEP)
+  {
+    // We need to enter the IDLE state first
+    cc11_cmdStrobe(CC11_SIDLE);
+    // Enter Power-down state
+    cc11_cmdStrobe(CC11_SPWD);
+    cc11v_State = RF_TRVASLEEP;
+  }
+  else if(state == RF_TRVWKUP)
+  {
+    cc11_cmdStrobe(CC11_SIDLE);
+    cc11v_State = RF_TRVIDLE;
+  }
 }
+#endif  //  ASLEEP
 
 #ifdef RF_USE_RSSI
-uint8_t cc11_GetRSSI(void)
+uint8_t rf_GetRSSI(void)
 {
-    return cc11v_RSSI;
+  return cc11v_RSSI;
 }
 #endif
 
-uint8_t * cc11_GetBuf(uint8_t *pAddr)
-{
-    if(cc11v_pRxBuf == NULL)
-        return NULL;
-
-    *pAddr = cc11v_RfAddr;
-    uint8_t * pRet = (uint8_t *)cc11v_pRxBuf;
-    cc11v_pRxBuf = NULL;
-    return pRet;
-}
-
-uint8_t cc11_GetNodeID(void)
+uint8_t rf_GetNodeID(void)
 {
     return cc11s_NodeID;
 }
 
-void cc11_Send(uint8_t * pBuf, uint8_t * pAddr)
+MQ_t * PHY_GetBuf(void)
+{
+    if(cc11v_pRxBuf == NULL)
+        return NULL;
+
+    MQ_t * pRet = (MQ_t *)cc11v_pRxBuf;
+    cc11v_pRxBuf = NULL;
+    return pRet;
+}
+
+void PHY_Send(MQ_t * pBuf)
 {
     if((cc11v_txTail == cc11v_txHead) &&                                            // Buffer is empty
        (cc11v_State == RF_TRVRXIDLE) &&                                             // State is RxIdle
        (cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA))  // Channel Clear
     {
-        cc11_send(pBuf, *pAddr);
+        cc11_send((uint8_t *)pBuf);
     }
     else
     {
@@ -362,18 +367,17 @@ void cc11_Send(uint8_t * pBuf, uint8_t * pAddr)
         if(tmpHead >= RF_TX_POOL_SIZE)
             tmpHead -= RF_TX_POOL_SIZE;
         if(tmpHead == cc11v_txTail)                          // Overflow, packet droped
-            mqRelease((MQ_t *)pBuf);
+            mqRelease(pBuf);
         else
         {
-            cc11v_TxAddr[cc11v_txHead] = *pAddr;
-            cc11v_pTxPool[cc11v_txHead] = pBuf;
+            cc11v_pTxPool[cc11v_txHead] = (uint8_t *)pBuf;
             cc11v_txHead = tmpHead;
             cc11v_ChanBusy = (cc11s_NodeID>>4) + 1;
         }
     }
 }
 
-void cc11_Pool(void)
+void PHY_Pool(void)
 {
     if((cc11v_State == RF_TRVRXIDLE) && (cc11v_txTail != cc11v_txHead)) // Send Buffer not empty
     {
@@ -384,7 +388,7 @@ void cc11_Pool(void)
         }
         else
         {
-            cc11_send(cc11v_pTxPool[cc11v_txTail], cc11v_TxAddr[cc11v_txTail]);
+            cc11_send(cc11v_pTxPool[cc11v_txTail]);
             if(++cc11v_txTail >= RF_TX_POOL_SIZE)
                 cc11v_txTail -= RF_TX_POOL_SIZE;
             cc11v_ChanBusy = (cc11s_NodeID>>4) + 1;
@@ -399,5 +403,3 @@ void cc11_Pool(void)
         cc11v_State = RF_TRVRXIDLE;
     }
 }
-
-#endif  //   _CC11_H

@@ -12,9 +12,10 @@ See LICENSE.txt file for license details.
 
 volatile uint8_t iPool;
 #define IPOOL_USR   0x01
-#define IPOOL_CALIB 0x02
+#define IPOOL_LED_ONL   0x10
+#define IPOOL_LED_CONN  0x20
+#define IPOOL_LED_ACT   0x40
 
-//int main(void) __attribute__((naked));  // !! For Atmel AVR Studio 6.1
 int main(void)
 {
 // Watchdog Stop
@@ -29,69 +30,49 @@ int main(void)
   InitOD();
   // Init MQTTS
   MQTTS_Init();
-  // Init Interconnection Interface & Load Configuration
+  // Init PHY
   PHY_Init();
-  // Init UART
-  InitUART(USART_BAUD);   //  Buad = 38400, fosc = 16M/ (16 * baud)  - 1
   // Initialise  variables
   iPool = 0;
-
-  MQ_t * pUBuf = NULL;        // USART Buffer
+  
   MQ_t * pRBuf = NULL;        // RF Buffer
   MQ_t * pMBuf = NULL;        // MQTTS Buffer
   uint8_t * pPBuf = NULL;     // Publish Buffer
-
+    
   uint8_t objLen;
   uint16_t poolIdx = 0xFFFF;
-
-  s_Addr sAddr;
 
   // Initialize Task Planer
   InitTimer();
   // configure Sleep controller & enable interrupts
   set_sleep_mode(SLEEP_MODE_IDLE);    // Standby, Idle
   sei();                              // Enable global interrupts
-  // 
+  
   PHY_Start();
-
+  iPool |= IPOOL_LED_ONL;
+  
   while(1)
   {
-    pUBuf = (MQ_t *)uGetBuf(&sAddr);
-    if(pUBuf != NULL)
+    if((pRBuf = PHY_GetBuf()) != NULL)
     {
-      if((sAddr == rf_GetNodeID()) || (sAddr == 0))
-      {
-        if(MQTTS_Parser(pUBuf,&sAddr) == 0)
-        {
-          if((MQTTS_GetStatus() == MQTTS_STATUS_CONNECT) && (sAddr == 0))  // broadcast
-            PHY_Send(pUBuf, &sAddr);
-          else
-            mqRelease(pUBuf);
-        }
-      }
-      else if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
-        PHY_Send(pUBuf, &sAddr);
-    }
-
-    pRBuf = PHY_GetBuf(&sAddr);
-    if(pRBuf != NULL)
-    {
-      if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
-        uPutBuf((uint8_t *)pRBuf, &sAddr);
-      else
+      iPool |= IPOOL_LED_ACT;
+      if(MQTTS_Parser(pRBuf) == 0)
         mqRelease(pRBuf);
     }
 
-    pMBuf = MQTTS_Get(&sAddr);
-    if(pMBuf != NULL)
-      uPutBuf((uint8_t *)pMBuf, &sAddr);
-
+    if((pMBuf = MQTTS_Get()) != NULL)
+    {
+      iPool |= IPOOL_LED_ACT;
+      PHY_Send(pMBuf);
+    }
+    
     if(iPool & IPOOL_USR)
     {
       iPool &= ~IPOOL_USR;
 
       if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
       {
+        iPool |= IPOOL_LED_CONN;
         if(poolIdx == 0xFFFF)
           poolIdx = PoolOD();
 
@@ -102,7 +83,7 @@ int main(void)
           if(pPBuf != NULL)
           {
             objLen = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
-
+              
             ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &objLen, pPBuf);
             MQTTS_Publish(poolIdx, MQTTS_FL_QOS1, objLen, pPBuf);
             mqRelease((MQ_t *)pPBuf);
@@ -110,6 +91,9 @@ int main(void)
           }
         }
       }
+      else
+        iPool &= ~IPOOL_LED_CONN;
+
       MQTTS_Pool(poolIdx != 0xFFFF);
     }
   }
@@ -117,32 +101,42 @@ int main(void)
 
 ISR(TIMER_ISR)
 {
-#ifdef USE_RTC_OSC
-#define BASE_TICK       (F_CPU/8/POOL_TMR_FREQ)
-#define BASE_TICK_MIN   (uint16_t)(BASE_TICK/1.005)
-#define BASE_TICK_MAX   (uint16_t)(BASE_TICK*1.005)
+  static uint8_t led_cnt = 0;
 
-//  Calibrate internal RC Osc
-// !!!! for ATMEGA xx8P only, used Timer 1
-  if(iPool & IPOOL_CALIB)
+  iPool |= IPOOL_USR;
+  
+  PHY_Pool();
+
+  if(led_cnt)
   {
-    uint16_t tmp = TCNT1;
-    TCCR1B = 0;
-
-    if(tmp < BASE_TICK_MIN)         // Clock is running too slow
-      OSCCAL++;
-    else if(tmp > BASE_TICK_MAX)    // Clock is running too fast
-      OSCCAL--;
-
-    iPool &= ~IPOOL_CALIB;
+    led_cnt--;
   }
   else
   {
-    TCNT1 = 0;
-    TCCR1B = (2<<CS10);
-    iPool |= IPOOL_CALIB;
+    if(iPool & IPOOL_LED_ONL)
+    {
+      if(iPool & IPOOL_LED_CONN)
+      {
+        if(iPool & IPOOL_LED_ACT)     // Led blinks on Activity
+        {
+          LED_OFF();
+          iPool &= ~IPOOL_LED_ACT;
+        }
+        else
+          LED_ON();
+
+        led_cnt = (POOL_TMR_FREQ/32);  // 125mS Period
+      }
+      else                            // LED blinks slow when not connected to broker
+      {
+        led_cnt = (POOL_TMR_FREQ/4);  // 500mS Period
+        LED_TGL();
+      }
+    }
+    else                              // LED blinks fast wenn not connected to Net or/and DHCP
+    {
+      led_cnt = (POOL_TMR_FREQ/32);  // 125mS Period
+      LED_TGL();
+    }
   }
-#endif  //  USE_RTC_OSC
-  iPool |= IPOOL_USR;
-  PHY_Pool();
 }

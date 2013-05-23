@@ -8,11 +8,11 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-#ifndef _UART_H
-#define _UART_H
 
-void InitUART(uint16_t baudrate);
-uint8_t * uGetBuf(void);
-void uPutBuf(uint8_t *pBuf);
+#ifndef _ENCPHY_H
+#define _ENCPHY_H
 
-#endif
+#define rf_GetNodeID()  0
+void PHY_Start(void);
+
+#endif  //  _ENCPHY_H

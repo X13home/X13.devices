@@ -8,6 +8,11 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
+// Global configuration settings
+
+#ifndef _CONFIG_H
+#define _CONFIG_H
+
 /****   Available Options
 // Board configuration
 #define F_CPU                   8000000UL   // Main frequency
@@ -51,11 +56,6 @@ See LICENSE.txt file for license details.
 #define TWI_USED                1       // enable TWI, depence on EXTDIO_USED
 ****/
 
-// Global configuration settings
-
-#ifndef _CONFIG_H
-#define _CONFIG_H
-
 // Memory Manager
 #define MQMEM_SIZEOF_QUEUE      10      // Allocated memory buffers
 
@@ -70,7 +70,7 @@ See LICENSE.txt file for license details.
 
 #define OD_DEV_SWVERSH          '2'     // Software Version
 #define OD_DEV_SWVERSM          '5'
-#define OD_DEV_SWVERSL          '0'
+#define OD_DEV_SWVERSL          '1'
 
 // RF Section
 #define RF_TX_POOL_SIZE         4
@@ -84,20 +84,20 @@ See LICENSE.txt file for license details.
 
 // TWI Section
 // TWI Drivers
-#define TWI_USE_BMP085          1       // TWI Driver Bosh BMP085 - Temperature/Pressure
+#define TWI_USE_BMP180          1       // TWI Driver Bosh BMP180/BMP085 - Temperature/Pressure
 #define TWI_USE_HIH61XX         1       // TWI Driver Honeywell HIH-61xx - Temperature/Humidity
 #define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
 #define TWI_USE_LM75            1       // TWI Driver, LM75 - Temperature
 //End TWI Section
 
 #if (defined UNODE)
-  #include "Phy/HWconfigUN.h"     // Hardware uNode vers. 1.0
+  #include "Phy/HWconfigUN.h"           // Hardware uNode vers. 1.0
 #elif (defined JEENODE)
-  #include "Phy/HWconfigJN.h"     // Hardware JeeNode & Arduino + RFM12
+  #include "Phy/HWconfigJN.h"           // Hardware JeeNode & Arduino
 #elif (defined PANSTAMP)
-  #include "Phy/HWconfigPS.h"     // Hardware panSTamp & Arduino + CC1101
+  #include "Phy/HWconfigPS.h"           // Hardware panSTamp
 #elif (defined ENC28J60)
-  #include "Phy/HWconfigENC.h"    // Hardware MEGA328P + ENC28J60 on SPI
+  #include "Phy/HWconfigENC.h"          // Hardware MEGA328P + ENC28J60 on SPI
 #else
   #error Hardware configuration is not defined
 #endif

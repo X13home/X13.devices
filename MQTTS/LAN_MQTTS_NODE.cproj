@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.1</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
-    <ProjectGuid>{0b4ccd66-6dba-43e9-acc2-b8cdd5461b20}</ProjectGuid>
+    <ProjectGuid>{72a53c02-0597-49db-94ec-7c2b283fa8ab}</ProjectGuid>
     <avrdevice>ATmega328P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
@@ -12,49 +12,35 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>LAN_MQTTS</AssemblyName>
-    <Name>LAN_Node</Name>
-    <RootNamespace>LAN_MQTTS</RootNamespace>
+    <AssemblyName>LAN_MQTTS_NODE</AssemblyName>
+    <Name>LAN_MQTTS_NODE</Name>
+    <RootNamespace>LAN_MQTTS_NODE</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
     <OverrideVtorValue />
     <eraseonlaunchrule>0</eraseonlaunchrule>
-    <avrtoolinterface />
-    <avrtool>com.atmel.avrdbg.tool.simulator</avrtool>
-    <com_atmel_avrdbg_tool_simulator>
-      <ToolType xmlns="">com.atmel.avrdbg.tool.simulator</ToolType>
-      <ToolName xmlns="">AVR Simulator</ToolName>
-      <ToolNumber xmlns="">
-      </ToolNumber>
-      <KeepTimersRunning xmlns="">true</KeepTimersRunning>
-      <OverrideVtor xmlns="">false</OverrideVtor>
-      <OverrideVtorValue xmlns="">
-      </OverrideVtorValue>
-      <Channel xmlns="">
-        <host>127.0.0.1</host>
-        <port>1435</port>
-        <ssl>False</ssl>
-      </Channel>
-    </com_atmel_avrdbg_tool_simulator>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
+    <CacheFlash>true</CacheFlash>
+    <UncachedRange />
+    <BootSegment>2</BootSegment>
     <AsfFrameworkConfig>
       <framework-data xmlns="">
-  <options />
-  <configurations />
-  <files />
-  <documentation help="" />
-  <offline-documentation help="" />
-  <dependencies>
-    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.8.1" />
-  </dependencies>
-</framework-data>
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.8.1" />
+        </dependencies>
+      </framework-data>
     </AsfFrameworkConfig>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'LNEN' ">
-    <OutputFileName>LNEN</OutputFileName>
-    <OutputFileExtension>.elf</OutputFileExtension>
+  <PropertyGroup Condition=" '$(Configuration)' == 'LNNDEN' ">
     <ToolchainSettings>
-      <AvrGcc xmlns="">
+      <AvrGcc>
   <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
   <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
   <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
@@ -63,14 +49,14 @@
   <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
   <avrgcc.compiler.symbols.DefSymbols>
     <ListValues>
-      <Value>F_CPU=12500000UL</Value>
       <Value>ENC28J60=1</Value>
+      <Value>F_CPU=12500000UL</Value>
       <Value>EXTDIO_USED=1</Value>
-      <Value>EXTPWM_USED=1</Value>
       <Value>EXTAI_USED=1</Value>
+      <Value>TWI_USED=1</Value>
+      <Value>EXTPWD_USED=1</Value>
       <Value>EXTSER_TX_USED=1</Value>
       <Value>EXTSER_RX_USED=1</Value>
-      <Value>TWI_USED=1</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -86,30 +72,23 @@
   <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
 </AvrGcc>
     </ToolchainSettings>
+    <OutputFileName>LNNDEN</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Source\config.h">
-      <SubType>compile</SubType>
-    </Compile>
+    <Folder Include="Source" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Source\eeprom.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\eeprom.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\ext.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\LAN_Node.c">
+    <Compile Include="Source\main_lan.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\mqMEM.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\mqMEM.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\MQTTS.c">
@@ -121,44 +100,12 @@
     <Compile Include="Source\ObjDict.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\ObjDict.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Source\phy.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\phy.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\ENC28J60\enc28j60.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\ENC28J60\enc28j60.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\ENC28J60\ip_arp_udp.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\ENC28J60\ip_arp_udp.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\ENC28J60\ip_config.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\ENC28J60\net.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\util.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\util.h">
-      <SubType>compile</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Source" />
-    <Folder Include="Source\Phy" />
-    <Folder Include="Source\Phy\ENC28J60" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

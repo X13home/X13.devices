@@ -30,7 +30,6 @@ const uint8_t  EEMEM ee_IP_Broker[] = {0xFF,0xFF,0xFF,0xFF};
 #endif  //  LAN_NODE
 
 const uint8_t  EEMEM ee_NodeName[MQTTS_SIZEOF_CLIENTID-1] = {0};
-
 #ifdef ASLEEP
 const uint16_t EEMEM ee_TAsleep = 0;                                    // Sleep Time
 #endif  //  ASLEEP
@@ -96,34 +95,34 @@ const PROGMEM uint8_t psDeviceTyp[] = {10,
 
 const PROGMEM indextable_t listPredefOD[] = 
 {
-    {{objEEMEM, objString, (uint16_t)&ee_NodeName},
-        objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+  {{objEEMEM, objString, (uint16_t)&ee_NodeName},
+    objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #ifdef ASLEEP
-    {{objEEMEM, objUInt16, (uint16_t)&ee_TAsleep},
-        objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
+  {{objEEMEM, objUInt16, (uint16_t)&ee_TAsleep},
+    objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
 #endif  //  ASLEEP
 #ifdef RF_NODE
-    {{objEEMEM, objUInt8, (uint16_t)&ee_GroupID},
-        objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
-    {{objEEMEM, objUInt16, (uint16_t)&ee_NodeID},
-        objRFGroup, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
-    {{objEEMEM, objUInt8, (uint16_t)&ee_Channel},
-        objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+  {{objEEMEM, objUInt8, (uint16_t)&ee_GroupID},
+    objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+  {{objEEMEM, objUInt16, (uint16_t)&ee_NodeID},
+    objRFGroup, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+  {{objEEMEM, objUInt8, (uint16_t)&ee_Channel},
+    objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #endif  //  RF_NODE
 #ifdef LAN_NODE
-    {{objEEMEM, objArray, (uint16_t)&ee_MAC_Addr},
-        objMACAddr, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
-    {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Addr},
-        objIPAddr, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
-    {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Mask},
-        objIPMask, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
-    {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Router},
-        objIPRouter, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
-    {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Broker},
-        objIPBroker, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+  {{objEEMEM, objArray, (uint16_t)&ee_MAC_Addr},
+    objMACAddr, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+  {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Addr},
+    objIPAddr, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+  {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Mask},
+    objIPMask, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+  {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Router},
+    objIPRouter, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
+  {{objEEMEM, objUInt32, (uint16_t)&ee_IP_Broker},
+    objIPBroker, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteLANParm, NULL},
 #endif  //  LAN_NODE
-    {{objPROGMEM, objString, (uint16_t)&psDeviceTyp},
-        objDeviceTyp, (cbRead_t)&progmemReadOD, NULL, NULL}
+  {{objPROGMEM, objString, (uint16_t)&psDeviceTyp},
+    objDeviceTyp, (cbRead_t)&progmemReadOD, NULL, NULL}
 };
 
 // Local Variables
@@ -190,47 +189,48 @@ static void deleteIndexOD(uint8_t id)
     ListOD[id].Index = 0xFFFF;
 }
 
+
 void InitOD(void)
 {
-    // Check Settings
-    uint8_t ucTmp, Len;
-    Len = 1;
+  // Check Settings
+  uint8_t ucTmp, Len;
+  Len = 1;
 
-    ReadOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, &Len, &ucTmp);
-    if(ucTmp == 0xFF)                                                           // Not Configured
-    {
-        ucTmp = 0;
-        WriteOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, 0, &ucTmp);                   // Device Name
+  ReadOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, &Len, &ucTmp);
+  if(ucTmp == 0xFF)                                                           // Not Configured
+  {
+    ucTmp = 0;
+    WriteOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, 0, &ucTmp);                   // Device Name
 #ifdef RF_NODE
-        uint16_t  uiTmp;
+    uint16_t  uiTmp;
 #ifdef OD_DEFAULT_ADDR
-        ucTmp = OD_DEFAULT_ADDR;
+    ucTmp = OD_DEFAULT_ADDR;
 #else   //  OD_DEFAULT_ADDR
-        ucTmp = 0xFF;       // DHCP
+    ucTmp = 0xFF;       // DHCP
 #endif  //  OD_DEFAULT_ADDR
-        WriteOD(objRFNodeId, MQTTS_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);           // Node Id
-        ucTmp = 0;
-        WriteOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, 0, &ucTmp);                   // Device Name
-        uiTmp = OD_DEFAULT_GROUP;
-        WriteOD(objRFGroup, MQTTS_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); // Group Id
-        ucTmp = OD_DEFAULT_CHANNEL;
-        WriteOD(objRFChannel, MQTTS_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);          // Channel
+    WriteOD(objRFNodeId, MQTTS_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);           // Node Id
+    ucTmp = 0;
+    WriteOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, 0, &ucTmp);                   // Device Name
+    uiTmp = OD_DEFAULT_GROUP;
+    WriteOD(objRFGroup, MQTTS_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); // Group Id
+    ucTmp = OD_DEFAULT_CHANNEL;
+    WriteOD(objRFChannel, MQTTS_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);          // Channel
 #ifdef ASLEEP
-        uiTmp = OD_DEFAULT_TASLEEP;
-        WriteOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); // Sleep Time
+    uiTmp = OD_DEFAULT_TASLEEP;
+    WriteOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); // Sleep Time
 #endif  //  ASLEEP
 #endif  //  RF_NODE
 #ifdef LAN_NODE
-        uint32_t  ulTmp;
-        uint8_t   defMAC[] = {0x01, 0x00, 0x00, 0xA3, 0x04, 0x00};
-        WriteOD(objMACAddr, MQTTS_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);     // Default MAC
-        ulTmp = 0xFFFFFFFF;
-        WriteOD(objIPAddr, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP - use DHCP
-        WriteOD(objIPMask, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP Mask - use DHCP
-        WriteOD(objIPRouter, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);     // Default IP Gateway - use DHCP
-        WriteOD(objIPBroker, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);     // Default IP Broker
+    uint32_t  ulTmp;
+    uint8_t   defMAC[] = {0x01, 0x00, 0x00, 0xA3, 0x04, 0x00};
+    WriteOD(objMACAddr, MQTTS_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);     // Default MAC
+    ulTmp = 0xFFFFFFFF;
+    WriteOD(objIPAddr, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP - use DHCP
+    WriteOD(objIPMask, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP Mask - use DHCP
+    WriteOD(objIPRouter, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);     // Default IP Gateway - use DHCP
+    WriteOD(objIPBroker, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);     // Default IP Broker
 #endif  //  LAN_NODE
-    }
+  }
 
     // Clear listOD
     for(ucTmp = 0; ucTmp < OD_MAX_INDEX_LIST; ucTmp++)
@@ -264,38 +264,40 @@ void InitOD(void)
 
 void CleanOD(void)
 {
-    idxUpdate = 0;
-    idxSubscr = POOL_TMR_FREQ - 1;
+  idxUpdate = 0;
+  idxSubscr = POOL_TMR_FREQ - 1;
+
+  uint8_t ucTmp;
     
-    uint8_t ucTmp;
-    
-    for(ucTmp = 0; ucTmp < OD_MAX_INDEX_LIST; ucTmp++)
-        if(ListOD[ucTmp].Index == 0xFFFF)
-            break;
-        else
-            ListOD[ucTmp].Index = 0;
-            
-    PHY_LoadConfig();
+  for(ucTmp = 0; ucTmp < OD_MAX_INDEX_LIST; ucTmp++)
+    if(ListOD[ucTmp].Index == 0xFFFF)
+      break;
+  else
+    ListOD[ucTmp].Index = 0;
+
+  // (Re)Load PHY Configuration
+  PHY_LoadConfig();
 
 #ifdef ASLEEP
-	uint16_t uiTmp;
-	ucTmp = sizeof(uiTmp);
-    ReadOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, &ucTmp, (uint8_t *)&uiTmp);
-    mqtts_set_TASleep(uiTmp);
+  uint16_t uiTmp;
+  uint8_t Len = sizeof(uint16_t);
+
+  ReadOD(objTAsleep, MQTTS_FL_TOPICID_PREDEF, &Len, (uint8_t *)&uiTmp);
+  mqtts_set_TASleep(uiTmp);
 #endif  //  ASLEEP
 }
 
 // Register PnP objects
 indextable_t * getFreeIdxOD(void)
 {
-    uint8_t id;
-    for(id = 0; id < OD_MAX_INDEX_LIST; id++)
-        if(ListOD[id].Index == 0xFFFF)
-        {
-            ListOD[id].Index = 0;
-            return &ListOD[id];
-        }
-    return NULL;
+  uint8_t id;
+  for(id = 0; id < OD_MAX_INDEX_LIST; id++)
+    if(ListOD[id].Index == 0xFFFF)
+    {
+      ListOD[id].Index = 0;
+      return &ListOD[id];
+    }
+  return NULL;
 }
 
 uint8_t RegisterOD(MQ_t *pBuf)
@@ -303,13 +305,13 @@ uint8_t RegisterOD(MQ_t *pBuf)
     // Convert Topic Name to IDX record.
     subidx_t Subidx;
     uint8_t *pTopicName;
-    pTopicName = (uint8_t *)&pBuf->m.regist.TopicName;
+    pTopicName = (uint8_t *)&pBuf->mq.m.regist.TopicName;
     Subidx.Place = *(pTopicName++);
     Subidx.Type = *(pTopicName++);
 
     uint8_t i;
     uint16_t val = 0;
-    uint8_t Len = pBuf->Length;
+    uint8_t Len = pBuf->mq.Length;
     for(i = MQTTS_SIZEOF_MSG_REGISTER + 2; i < Len; i++)
     {
         uint8_t ch = *(pTopicName++);
@@ -327,7 +329,7 @@ uint8_t RegisterOD(MQ_t *pBuf)
     if(RetVal != MQTTS_RET_ACCEPTED)
         return RetVal;
 
-    uint16_t TopicId = SWAPWORD(pBuf->m.regist.TopicId);
+    uint16_t TopicId = SWAPWORD(pBuf->mq.m.regist.TopicId);
         
     // Get Last Index OD
     uint8_t id = 0;

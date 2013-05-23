@@ -223,8 +223,6 @@ typedef struct
 
 #define AddrBroadcast {{0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}, {0xFF,0xFF,0xFF,0xFF}}
 
-#include "ENC28J60/ip_arp_udp.h"
-#include "ENC28J60/enc28j60.h"
-#include "ENC28J60/net.h"
+#include "enc28j60/encphy.h"
 
 #endif

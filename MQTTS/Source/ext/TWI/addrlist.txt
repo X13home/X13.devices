@@ -5,4 +5,4 @@ Addr    Parm1   Parm2   Device
 ..
 0x4F    20224-          LM75
 0x5A    23040-          Si114x
-0x77    30464   30465   BMP085/BMP180
+0x77    30464   30465   BMP180/BMP085

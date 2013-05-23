@@ -1,15 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Atmel Studio Solution File, Format Version 11.00
-Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "LAN_Node", "LAN_Node.cproj", "{0B4CCD66-6DBA-43E9-ACC2-B8CDD5461B20}"
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "LAN_MQTTS_NODE", "LAN_MQTTS_NODE.cproj", "{72A53C02-0597-49DB-94EC-7C2B283FA8AB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
-		ENC28J60|AVR = ENC28J60|AVR
+		enc28j60|AVR = enc28j60|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{0B4CCD66-6DBA-43E9-ACC2-B8CDD5461B20}.ENC28J60|AVR.ActiveCfg = LNEN|AVR
-		{0B4CCD66-6DBA-43E9-ACC2-B8CDD5461B20}.ENC28J60|AVR.Build.0 = LNEN|AVR
+		{72A53C02-0597-49DB-94EC-7C2B283FA8AB}.enc28j60|AVR.ActiveCfg = LNNDEN|AVR
+		{72A53C02-0597-49DB-94EC-7C2B283FA8AB}.enc28j60|AVR.Build.0 = LNNDEN|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

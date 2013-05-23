@@ -39,28 +39,4 @@ See LICENSE.txt file for license details.
 #error  RF_BASE_FREQ does not belond to ISM band
 #endif  // RF_BASE_FREQ
 
-enum e_RF_TRVSTATE
-{
-    RF_TRVPOR = 0,
-    RF_TRVSLEEP,
-    RF_TRVIDLE,
-    RF_TRVRXIDLE,
-    RF_TRVRXHDR,
-    RF_TRVRXDATA,
-    RF_TRVRXDONE,
-    RF_TRVTXHDR,
-    RF_TRVTXDATA,
-    RF_TRVTXDONE,
-    RF_TRVASLEEP,
-    RF_TRVWKUP
-};
-
-void cc11_LoadCfg(uint8_t Channel, uint16_t Group, uint8_t ID);
-void cc11_Initialize(void);
-void cc11_SetState(uint8_t state);
-uint8_t * cc11_GetBuf(uint8_t *pAddr);
-uint8_t cc11_GetNodeID(void);
-void cc11_Send(uint8_t * pBuf, uint8_t * pAddr);
-void cc11_Pool(void);
-
 #endif

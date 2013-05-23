@@ -1,33 +1,47 @@
+Version 2.5.1.beta1
+
+[*] Merged RF and LAN sources based on Stable - RF                    23.Mai.2013
+[*] RF drivers moved to PHY                                           23.Mai.2013
+[*] MQTTS Proc's Publish, Subscribe, Register                         22.May.2013
+[*] Analog inputs configuration                                       22.May.2013
+[*] RF_USE_RSSI Temporarely unused.                                   22.May.2013
+[+] TWI Callback Functions                                            22.May.2013
+=================================================================================
 Version 2.5.0.beta1
 
-[+] panStamp properties USE_RTC_OSC = 1       20.Mai.2013
-[*] Compatible with AVR Studio 6.1            14.Mai.2013
-[*] RF-GW Connect BugFix                      13.Mai.2013
-[+] LAN Activity & Status LED on PB0          13.Mai.2013[*] Directory Structure                       13.Mai.2013
-[*] Merged LAN & Wireless Sources             10.Mai.2013
-[*] MQTT-S and PHY API                        15.Apr.2013
-[*] MQTT-S and OD internal structurs          04.Apr.2013
-[+] TWI Callback function                     17.Mar.2003
-====================================================================================================
+[+] panStamp properties USE_RTC_OSC = 1                               20.Mai.2013
+[*] Compatible with AVR Studio 6.1                                    14.Mai.2013
+[*] RF-GW Connect BugFix                                              13.Mai.2013
+[+] LAN Activity & Status LED on PB0                                  13.Mai.2013
+[*] Directory Structure                                               13.Mai.2013
+[*] Merged LAN & Wireless Sources                                     10.Mai.2013
+[*] MQTT-S and PHY API                                                15.Apr.2013
+[*] MQTT-S and OD internal structurs                                  04.Apr.2013
+[+] TWI Callback function                                             17.Mar.2003
+=================================================================================
+Version 2.4.3
+
+[*] Predefined variables compatible with develop version.             21.May.2013
+=================================================================================
 Version 2.4.2
 
-[+] System Watchdog         03.Mar.2013
-[+] TWI Devices Hysterese   03.Mar.2013
-====================================================================================================
+[+] System Watchdog                                                   03.Mar.2013
+[+] TWI Devices Hysterese                                             03.Mar.2013
+=================================================================================
 Version 2.4.1
 
-[-] TWIM TWIM_SEQ  27.Feb.2013
-====================================================================================================
+[-] TWIM TWIM_SEQ                                                     27.Feb.2013
+=================================================================================
 Version 2.4.0
 
-[*] Devise descriptor - obj. xFE00  25.Feb.2013
-====================================================================================================
+[*] Devise descriptor - obj. xFE00                                    25.Feb.2013
+=================================================================================
 Version 2.4
 
 [+] TWI Watchdog
 [*] RF aggressive pool method
 [*] OD API
-====================================================================================================
+=================================================================================
 Version 2.3
 7.Feb.2013
 
@@ -36,7 +50,7 @@ Version 2.3
 [*] TWI API
 [+] TWI driver LM75
 [-] Test_RF Project and test options
-====================================================================================================
+=================================================================================
 Version 2.2
 Public Release.
 

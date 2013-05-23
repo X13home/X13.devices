@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.1</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
-    <ProjectGuid>{0b4ccd66-6dba-43e9-acc2-b8cdd5461b20}</ProjectGuid>
+    <ProjectGuid>{e4da1896-b635-4689-a924-8b52b4d6b158}</ProjectGuid>
     <avrdevice>ATmega328P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
@@ -12,13 +12,14 @@
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>RF_MQTTS</AssemblyName>
-    <Name>RF_Node</Name>
-    <RootNamespace>RF_MQTTS</RootNamespace>
+    <AssemblyName>Gateway</AssemblyName>
+    <Name>RF_MQTTS_GATE</Name>
+    <RootNamespace>Gateway</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
     <OverrideVtorValue />
+    <AsfVersion>3.4.1</AsfVersion>
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <avrtoolinterface />
     <avrtool>com.atmel.avrdbg.tool.simulator</avrtool>
@@ -33,11 +34,10 @@
       </OverrideVtorValue>
       <Channel xmlns="">
         <host>127.0.0.1</host>
-        <port>1435</port>
+        <port>55405</port>
         <ssl>False</ssl>
       </Channel>
     </com_atmel_avrdbg_tool_simulator>
-    <AsfVersion>3.5.0</AsfVersion>
     <AsfFrameworkConfig>
       <framework-data xmlns="">
         <options />
@@ -46,13 +46,18 @@
         <documentation help="" />
         <offline-documentation help="" />
         <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.5.0" />
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.4.1" />
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
+    <CacheFlash>true</CacheFlash>
+    <UncachedRange />
+    <BootSegment>2</BootSegment>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'NDJN' ">
-    <OutputFileName>NDJN</OutputFileName>
+  <PropertyGroup Condition=" '$(Configuration)' == 'RFGWUN' ">
+    <OutputFileName>RFGWUN</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <ToolchainSettings>
       <AvrGcc xmlns="">
@@ -64,53 +69,11 @@
         <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
         <avrgcc.compiler.symbols.DefSymbols>
           <ListValues>
-            <Value>F_CPU=16000000UL</Value>
-            <Value>JEENODE=1</Value>
-            <Value>EXTDIO_USED=1</Value>
-            <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
-            <Value>EXTSER_TX_USED=1</Value>
-            <Value>EXTSER_RX_USED=1</Value>
-            <Value>TWI_USED=1</Value>
-            <Value>ASLEEP=1</Value>
-          </ListValues>
-        </avrgcc.compiler.symbols.DefSymbols>
-        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-        <avrgcc.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </avrgcc.linker.libraries.Libraries>
-        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-      </AvrGcc>
-    </ToolchainSettings>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'NDUN' ">
-    <OutputFileName>NDUN</OutputFileName>
-    <OutputFileExtension>.elf</OutputFileExtension>
-    <ToolchainSettings>
-      <AvrGcc xmlns="">
-        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-        <avrgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>F_CPU=8000000UL</Value>
             <Value>UNODE=1</Value>
+            <Value>F_CPU=14745600UL</Value>
+            <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
-            <Value>EXTPWM_USED=1</Value>
             <Value>EXTAI_USED=1</Value>
-            <Value>EXTSER_TX_USED=1</Value>
-            <Value>EXTSER_RX_USED=1</Value>
-            <Value>TWI_USED=1</Value>
-            <Value>ASLEEP=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -127,118 +90,106 @@
       </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'NDPS' ">
-    <OutputFileName>NDPS</OutputFileName>
+  <PropertyGroup Condition=" '$(Configuration)' == 'RFGWJN' ">
+    <OutputFileName>RFGWJN</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <ToolchainSettings>
-      <AvrGcc>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>F_CPU=8000000UL</Value>
-      <Value>PANSTAMP=1</Value>
-      <Value>EXTDIO_USED=1</Value>
-      <Value>EXTPWM_USED=1</Value>
-      <Value>EXTAI_USED=1</Value>
-      <Value>EXTSER_TX_USED=1</Value>
-      <Value>EXTSER_RX_USED=1</Value>
-      <Value>TWI_USED=1</Value>
-      <Value>ASLEEP=1</Value>
-      <Value>USE_RTC_OSC=1</Value>
-    </ListValues>
-  </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
-  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-</AvrGcc>
+      <AvrGcc xmlns="">
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>JEENODE=1</Value>
+            <Value>F_CPU=16000000UL</Value>
+            <Value>GATEWAY=1</Value>
+            <Value>EXTDIO_USED=1</Value>
+            <Value>EXTAI_USED=1</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
+    </ToolchainSettings>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'RFGWPS' ">
+    <OutputFileName>RFGWPS</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <ToolchainSettings>
+      <AvrGcc xmlns="">
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>PANSTAMP=1</Value>
+            <Value>F_CPU=8000000UL</Value>
+            <Value>USE_RTC_OSC=1</Value>
+            <Value>GATEWAY=1</Value>
+            <Value>EXTDIO_USED=1</Value>
+            <Value>EXTAI_USED=1</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Source\config.h">
-      <SubType>compile</SubType>
-    </Compile>
+    <Folder Include="Source\" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="Source\eeprom.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\eeprom.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\ext.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\RF_Node.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Source\mqMEM.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\mqMEM.h">
+    <Compile Include="Source\mqtts.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\MQTTS.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\mqtts.h">
+    <Compile Include="Source\main.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ObjDict.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\ObjDict.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Source\phy.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\phy.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\CC11\cc11.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\CC11\cc11.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\CC11\CC11_Reg.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\RFM12\rfm12.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\RFM12\rfm12.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\Phy\RFM12\rfm12reg.h">
+    <Compile Include="Source\uart.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\util.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\util.h">
-      <SubType>compile</SubType>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Source" />
-    <Folder Include="Source\Phy" />
-    <Folder Include="Source\Phy\CC11" />
-    <Folder Include="Source\Phy\RFM12" />
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

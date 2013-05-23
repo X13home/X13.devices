@@ -62,7 +62,7 @@ See LICENSE.txt file for license details.
 #define OD_DEV_TYP_2            '1'
 #define OD_DEV_TYP_3            '0'
 #ifdef GATEWAY
-#define OD_DEFAULT_ADDR         0x07
+#define OD_DEFAULT_ADDR         0x05
 #endif  //  GATEWAY
 // End OD Section
 
@@ -72,14 +72,14 @@ See LICENSE.txt file for license details.
 #ifdef USE_RTC_OSC
 #define CONFIG_PRR()            {ACSR = (1<<ACD); \
                                  PRR = (1<<PRTWI) | (1<<PRTIM0) | (1<<PRUSART0) | (1<<PRADC);}
-#else   //  !USE_RTC_OSC
+#else   //  USE_RTC_OSC
 #define CONFIG_PRR()            {ACSR = (1<<ACD); \
                                  PRR = (1<<PRTWI) | (1<<PRTIM0) | (1<<PRTIM1) | \
                                  (1<<PRUSART0) | (1<<PRADC);}
 #endif  //  USE_RTC_OSC
 
 // USART Section
-// ATMEGA xx8PA
+// ATMEGA 168PA
 #ifndef USART_RX_vect
 #define USART_RX_vect  USART__RX_vect
 #endif  //  USART_RX_vect
@@ -104,7 +104,6 @@ See LICENSE.txt file for license details.
 #define USART_BAUD              ((F_CPU/16/38400) - 1) // Baud = 38400, val = Fosc/(16 * baud) - 1
 #define USART_CONFIGURE()       {UCSR0B = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));  \
                                  UCSR0C = (3<<UCSZ00);}
-#include "../uart.h"
 // End USART Section
 
 #else   //  !GATEWAY
@@ -137,7 +136,7 @@ See LICENSE.txt file for license details.
                                  TCCR2B = (1<<WGM22) | (2 << CS20);                 \
                                  while(ASSR & 0x1F);}
 #define config_sleep_rtc()      {TCCR2A = 0; TCCR2B = (5 << CS20); while(ASSR & 0x1F);}
-#else   //  !USE_RTC_OSC
+#else   //  USE_RTC_OSC
 #define InitTimer()             {TCCR2A = (1<<WGM21); TCNT2 = 0;            \
                                  OCR2A = ((F_CPU/1024/POOL_TMR_FREQ)-1);    \
                                  TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
@@ -164,9 +163,9 @@ See LICENSE.txt file for license details.
 
 #ifdef GATEWAY
 #define PORT3MASK               0x03
-#else   //  GATEWAY
+#else   // GATEWAY
 #define PORT3MASK               0x00
-#endif  //  GATEWAY
+#endif  // GATEWAY
 
 // PWM
 #define PWM_PIN0                29
@@ -189,7 +188,6 @@ See LICENSE.txt file for license details.
 #define EXTAI_CHN_MASK          0x0F
 #define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
 #define EXTAI_MAXPORT_NR        8          // ADC0-ADC5, ADC7, Vbg
-
 
 #define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; ADCSRA = (1<<ADEN) | \
                                         (1<<ADSC) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);}
@@ -259,14 +257,6 @@ See LICENSE.txt file for license details.
 #define s_Addr                  uint8_t
 #define AddrBroadcast           0
 
-#include "RFM12/rfm12.h"
+#include "rfm12/rfm12.h"
 
-#define rf_LoadCfg      rfm12_LoadCfg
-#define rf_Initialize   rfm12_Initialize
-#define rf_SetState     rfm12_SetState
-#define rf_GetBuf       rfm12_GetBuf
-#define rf_GetNodeID    rfm12_GetNodeID
-#define rf_Send         rfm12_Send
-#define rf_Pool         rfm12_Pool
-
-#endif  // _HWCONFIG_UN_H
+#endif

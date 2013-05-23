@@ -61,28 +61,4 @@ See LICENSE.txt file for license details.
 #define RFM12_DRSSI         RFM12_RXCTRL_RSSI_91
 #define RFM12_POWER         RFM12_TXCONF_POWER_0
 
-enum e_RF_TRVSTATE
-{
-    RF_TRVPOR = 0,
-    RF_TRVSLEEP,
-    RF_TRVIDLE,
-    RF_TRVRXIDLE,
-    RF_TRVRXHDR,
-    RF_TRVRXDATA,
-    RF_TRVRXDONE,
-    RF_TRVTXHDR,
-    RF_TRVTXDATA,
-    RF_TRVTXDONE,
-    RF_TRVASLEEP,
-    RF_TRVWKUP
-};
-
-void rfm12_LoadCfg(uint8_t Channel, uint16_t Group, uint8_t ID);
-void rfm12_Initialize(void);
-void rfm12_SetState(uint8_t state);
-uint8_t * rfm12_GetBuf(uint8_t *pAddr);
-uint8_t rfm12_GetNodeID(void);
-void rfm12_Send(uint8_t * pBuf, uint8_t * pAddr);
-void rfm12_Pool(void);
-
 #endif  //  _RFM12_H
