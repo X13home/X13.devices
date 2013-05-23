@@ -10,8 +10,8 @@ See LICENSE.txt file for license details.
 Based on IPstack for AVR from Guido Socher and Pascal Stang
 */
 
-#ifndef ENC28J60_H
-#define ENC28J60_H
+#ifndef _ENC28J60_H
+#define _ENC28J60_H
 
 // ENC28J60 Control Registers
 // Control register definitions are a combination of address,

@@ -1,12 +1,52 @@
+/*
+Copyright (c) 2011-2013 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.github.com
+
+BSD New License
+See LICENSE.txt file for license details.
+*/
+
 #ifndef _PHY_H
 #define _PHY_H
 
-void PHY_Pool(void);
-void PHY_Init(void);
+#ifdef RF_NODE
+
+enum e_RF_TRVSTATE
+{
+    RF_TRVPOR = 0,
+    RF_TRVSLEEP,
+    RF_TRVIDLE,
+    RF_TRVRXIDLE,
+    RF_TRVRXHDR,
+    RF_TRVRXDATA,
+    RF_TRVRXDONE,
+    RF_TRVTXHDR,
+    RF_TRVTXDATA,
+    RF_TRVTXDONE,
+    RF_TRVASLEEP,
+    RF_TRVWKUP
+};
+
+#ifdef ASLEEP
+void rf_SetState(uint8_t state);
+#endif  //  ASLEEP
+#ifdef RF_USE_RSSI
+uint8_t rf_GetRSSI(void);
+#endif  //  RF_USE_RSSI
+
+uint8_t rf_GetNodeID(void);
+
+#endif  //  RF_NODE
+
+// New Section
 void PHY_LoadConfig(void);
-void PHY_Start(void);
-MQ_t * PHY_GetBuf(s_Addr * pSrcAddr);
-void PHY_Send(MQ_t * pBuf, s_Addr * pDstAddr);
+void PHY_Init(void);
+MQ_t * PHY_GetBuf(void);
+void PHY_Send(MQ_t * pBuf);
+void PHY_Pool(void);
+
 uint8_t PHY_BuildName(uint8_t * pBuf);
 
-#endif  //  _PHY_H
+#endif  //  _RF_H

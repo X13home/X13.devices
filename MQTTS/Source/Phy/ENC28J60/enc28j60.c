@@ -10,10 +10,6 @@ See LICENSE.txt file for license details.
 Based on IPstack for AVR from Guido Socher and Pascal Stang
 */
 
-#include "../../config.h"
-
-
-#ifdef ENC28J60_EN
 static uint8_t Enc28j60Bank;
 static int16_t gNextPacketPtr;
 
@@ -312,4 +308,3 @@ uint16_t enc28j60PacketReceive(uint16_t maxlen, uint8_t* packet)
   enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_PKTDEC);
   return(len);
 }
-#endif  //  ENC28J60_EN

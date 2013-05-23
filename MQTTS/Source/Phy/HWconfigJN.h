@@ -61,7 +61,7 @@ See LICENSE.txt file for license details.
 #define OD_DEV_TYP_2            'v'
 #define OD_DEV_TYP_3            '6'
 #ifdef GATEWAY
-#define OD_DEFAULT_ADDR         0x07
+#define OD_DEFAULT_ADDR         0x06
 #endif  //  GATEWAY
 // End OD Section
 
@@ -97,7 +97,6 @@ See LICENSE.txt file for license details.
 #define USART_BAUD              ((F_CPU/16/38400) - 1) // Baud = 38400, val = Fosc/(16 * baud) - 1
 #define USART_CONFIGURE()       {UCSR0B = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));  \
                                  UCSR0C = (3<<UCSZ00);}
-#include "../uart.h"
 // End USART Section
 
 #else   //  !GATEWAY
@@ -172,7 +171,6 @@ See LICENSE.txt file for license details.
 #define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 6, 0xFF}
 #define EXTAI_MAXPORT_NR        7          // ADC0-ADC5, ADC7, Vbg
 
-
 #define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; ADCSRA = (1<<ADEN) | \
                                         (1<<ADSC) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);}
 #define DISABLE_ADC()           {ADCSRA = (1<<ADIF); ADMUX = 0x0F; PRR |= (1<<PRADC);}
@@ -240,14 +238,6 @@ See LICENSE.txt file for license details.
 #define s_Addr                  uint8_t
 #define AddrBroadcast           0
 
-#include "RFM12/rfm12.h"
-
-#define rf_LoadCfg      rfm12_LoadCfg
-#define rf_Initialize   rfm12_Initialize
-#define rf_SetState     rfm12_SetState
-#define rf_GetBuf       rfm12_GetBuf
-#define rf_GetNodeID    rfm12_GetNodeID
-#define rf_Send         rfm12_Send
-#define rf_Pool         rfm12_Pool
+#include "rfm12/rfm12.h"
 
 #endif

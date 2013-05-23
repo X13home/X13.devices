@@ -10,10 +10,6 @@ See LICENSE.txt file for license details.
 Based on IPstack for AVR from Guido Socher and Pascal Stang
 */
 
-#include "../../config.h"
-
-#ifdef ENC28J60_EN
-
 typedef union
 {
   uint32_t  l;
@@ -799,6 +795,4 @@ void sec_tick_lan(void)
   dhcp_sec_cnt++;
 #endif  //  DHCP_client
 }
-
-#endif  //  ENC28J60_EN
 /* end of ip_arp_udp.c */

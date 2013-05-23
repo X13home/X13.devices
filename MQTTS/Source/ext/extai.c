@@ -28,9 +28,9 @@ static uint16_t aiApin2Mask(uint8_t apin)
     return retval;
 }
 
+// Start HAL
 const uint8_t aiBase2Apin[] PROGMEM = EXTAI_BASE_2_APIN;
 
-// Start HAL
 static uint8_t cvtBase2Apin(uint16_t base)
 {
   return pgm_read_byte(&aiBase2Apin[base & EXTAI_CHN_MASK]);
@@ -56,14 +56,8 @@ ISR(ADC_vect)
         if(ai_isCnt == 0)
         {
             if((ADMUX != 0x0F) && (ai_isPos < EXTAI_MAXPORT_NR))
-            {
                 aiActVal[ai_isPos] = ai_Summ;
-#if (defined _RFM12_H) && (defined RF_USE_RSSI)
-                if(ai_isPos == EXTAI_RSSI_IN)           // RSSI end conversion
-                    aiBase[EXTAI_RSSI_IN] = 0x0F;
-#endif  //  _RFM12_H && RF_USE_RSSI
-            }
-            
+
             while((++ai_isPos < EXTAI_MAXPORT_NR) && (aiBase[ai_isPos] == 0x0F));
             if(ai_isPos >= EXTAI_MAXPORT_NR)
             {
@@ -93,11 +87,7 @@ static void aiClean(void)
 {
     uint8_t i;
     DISABLE_ADC();
-#if (defined _RFM12_H) && (defined RF_USE_RSSI)
-    ai_busy_mask = (1<<EXTAI_RSSI_IN);
-#else   //  _RFM12_H && RF_USE_RSSI
     ai_busy_mask = 0;
-#endif  //  _RFM12_H && RF_USE_RSSI
     ai_isPos = 0;
     ai_isCnt = 0xFF;
 
@@ -209,38 +199,3 @@ static void aiDeleteOD(subidx_t * pSubidx)
         DISABLE_ADC();
     aiBase[apin] = 0x0F;
 }
-
-#if (defined _RFM12_H) && (defined RF_USE_RSSI)
-#error Sorry, not implemented yet
-void ai_Sel_RSSI(void)
-{
-/*
-    if(PRR & (1<<PRADC))    //  ADC Disabled
-        PRR &= ~(1<<PRADC);
-    ADCSRA = (1<<ADIF);
-
-    aiActVal[EXTAI_RSSI_IN] = 0;
-    aiBase[EXTAI_RSSI_IN] = EXTAI_RSSI_BASE;
-    ai_isPos = EXTAI_RSSI_IN;
-    ai_isCnt = 11;
-    ADMUX = EXTAI_RSSI_BASE;
-    ADCSRA = (1<<ADEN) | (1<<ADSC) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);
-*/
-}
-
-uint8_t ai_Get_RSSI(void)
-{
-/*
-    uint16_t tmp = aiActVal[EXTAI_RSSI_IN]>>2;
-
-    if(tmp > 255)
-        tmp = 255;
-        
-    if(ai_busy_mask == (1<<EXTAI_RSSI_IN))
-        DISABLE_ADC();
-
-    return (tmp & 0xFF);
-*/
-    return 0;
-}
-#endif

@@ -21,7 +21,6 @@ See LICENSE.txt file for license details.
 #include <avr/sleep.h>
 
 #include <util/crc16.h>
-#include <util/delay.h>
 
 #include <stdlib.h>
 #include <string.h>
@@ -106,7 +105,6 @@ See LICENSE.txt file for license details.
 #define USART_BAUD              ((F_CPU/16/38400) - 1) // Baud = 38400, val = Fosc/(16 * baud) - 1
 #define USART_CONFIGURE()       {UCSR0B = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));  \
                                  UCSR0C = (3<<UCSZ00);}
-#include "../uart.h"
 // End USART Section
 
 #else   //  !GATEWAY
@@ -163,7 +161,6 @@ See LICENSE.txt file for license details.
 #define PORTDDR3                DDRD
 #define PORTOUT3                PORTD
 #define PORTIN3                 PIND
-
 #ifdef GATEWAY
 #define PORT3MASK               0x07    //  PD3-PD7
 #else   //  GATEWAY
@@ -191,6 +188,7 @@ See LICENSE.txt file for license details.
 #define EXTAI_CHN_MASK          0x0F
 #define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 6, 7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 8, 0xFF}
 #define EXTAI_MAXPORT_NR        9          // ADC0-ADC7, Vbg
+
 
 #define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; ADCSRA = (1<<ADEN) | \
                                             (1<<ADSC) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);}
@@ -249,14 +247,6 @@ See LICENSE.txt file for license details.
 #define s_Addr                  uint8_t
 #define AddrBroadcast           0
 
-#include "CC11/cc11.h"
-
-#define rf_LoadCfg      cc11_LoadCfg
-#define rf_Initialize   cc11_Initialize
-#define rf_SetState     cc11_SetState
-#define rf_GetBuf       cc11_GetBuf
-#define rf_GetNodeID    cc11_GetNodeID
-#define rf_Send         cc11_Send
-#define rf_Pool         cc11_Pool
+#include "cc11/cc11.h"
 
 #endif

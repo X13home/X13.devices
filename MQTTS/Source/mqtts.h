@@ -368,7 +368,13 @@ typedef struct
         sMQTTS_MSG_WILLMSGRESP_t    willmsgresp;
         sMQTTS_MSG_FORWARD_t        forward;
     } m;
-} MQ_t;
+} MQTTS_MESSAGE_t;
+
+typedef struct
+{
+    s_Addr          addr;
+    MQTTS_MESSAGE_t mq;
+}MQ_t;
 
 // Local Variables
 // Current Status
@@ -400,11 +406,11 @@ enum e_MQTTS_POOL_STATUS
 
 typedef struct
 {
-    s_Addr                  sAddr;          // Gateway Addr
+    s_Addr                  GatewayID;      // Gateway ID
     e_MQTTS_STATUS_t        Status;         // Actual status
     // Timeouts
-    uint8_t                 pfCnt;          // Ticks counter
-    uint16_t                Tretry;         // Keep Alive Timeout - S.
+    uint8_t                 pfCnt;
+    uint16_t                Tretry;         // Keep Alive Timeout
     uint8_t                 Nretry;         // Rertry's number
 #ifdef ASLEEP
     uint16_t                Tasleep;        // ASleep Time, wenn = 0, no sleep mode
@@ -423,7 +429,7 @@ typedef struct
     uint8_t                 ReturnCode;
 }MQTTS_VAR_t;
 
-MQ_t * MQTTS_Get(s_Addr * psAddr);
+MQ_t * MQTTS_Get(void);
 #ifdef ASLEEP
 void mqtts_set_TASleep(uint16_t tasleep);
 #endif  //  ASLEEP
@@ -433,7 +439,7 @@ uint8_t MQTTS_Register(uint16_t TopicID, uint8_t Size, uint8_t * ipBuf);
 
 void MQTTS_Init(void);
 uint8_t MQTTS_Pool(uint8_t wakeup);
-uint8_t MQTTS_Parser(MQ_t * pBuf, s_Addr * psAddr);
+uint8_t MQTTS_Parser(MQ_t * pBuf);
 
 uint8_t MQTTS_GetStatus(void);
 #endif
