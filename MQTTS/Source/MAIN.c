@@ -27,6 +27,16 @@ void wakeUp(void);
 //int main(void) __attribute__((naked));    // ! Compatibility with AVR Studio 6.1
 int main(void)
 {
+    MQ_t *  pRBuf;              // RF Buffer
+    MQ_t *  pMBuf;              // MQTTS Buffer
+    uint8_t * pPBuf;            // Publish Buffer
+#ifdef GATEWAY
+    MQ_t *  pUBuf;              // USART Buffer
+    s_Addr  iAddr;
+#endif  // GATEWAY
+    uint8_t bTmp;
+    uint16_t poolIdx = 0xFFFF;
+
 // Watchdog Stop
     cli();
     wdt_reset();
@@ -47,16 +57,6 @@ int main(void)
     // Initialise  variables
     iPool = 0;
     
-#ifdef GATEWAY
-    MQ_t * pUBuf = NULL;        // USART Buffer
-#endif  // GATEWAY
-    MQ_t * pRBuf = NULL;        // RF Buffer
-    MQ_t * pMBuf = NULL;        // MQTTS Buffer
-    uint8_t * pPBuf = NULL;     // Publish Buffer
-    
-    uint8_t bTmp;
-    uint16_t poolIdx = 0xFFFF;
-
     // Initialize Task Planer
     InitTimer();
     // configure Sleep controller & enable interrupts
@@ -69,12 +69,12 @@ int main(void)
         pUBuf = (MQ_t *)uGetBuf();
         if(pUBuf != NULL)
         {
-            bTmp = pUBuf->addr;
-            if((bTmp == rf_GetNodeID()) || (bTmp == 0))
+            iAddr = pUBuf->addr;
+            if((iAddr == rf_GetNodeID()) || (iAddr == AddrBroadcast))
             {
                 if(MQTTS_Parser(pUBuf) == 0)
                 {
-                    if((MQTTS_GetStatus() == MQTTS_STATUS_CONNECT) && (bTmp == 0))  // broadcast
+                    if((MQTTS_GetStatus() == MQTTS_STATUS_CONNECT) && (iAddr == AddrBroadcast))
                         PHY_Send(pUBuf);
                     else
                         mqRelease(pUBuf);
@@ -84,7 +84,7 @@ int main(void)
                 PHY_Send(pUBuf);
         }
 
-        pRBuf = (MQ_t *)PHY_GetBuf();
+        pRBuf = PHY_GetBuf();
         if(pRBuf != NULL)
         {
             if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
@@ -97,7 +97,7 @@ int main(void)
         if(pMBuf != NULL)
             uPutBuf((uint8_t *)pMBuf);
 #else   // NODE
-        pRBuf = (MQ_t *)PHY_GetBuf();
+        pRBuf = PHY_GetBuf();
         if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
             mqRelease(pRBuf);
 
@@ -159,11 +159,13 @@ ISR(TIMER_ISR)
 #define BASE_TICK_MIN   (uint16_t)(BASE_TICK/1.005)
 #define BASE_TICK_MAX   (uint16_t)(BASE_TICK*1.005)
 
+    uint16_t tmp;
+
 //  Calibrate internal RC Osc
 // !!!! for ATMEGA xx8P only, used Timer 1
     if(iPool & IPOOL_CALIB)
     {
-        uint16_t tmp = TCNT1;
+        tmp = TCNT1;
         TCCR1B = 0;
 
         if(tmp < BASE_TICK_MIN)         // Clock is running too slow
