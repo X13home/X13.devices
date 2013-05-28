@@ -44,6 +44,7 @@ uint8_t rf_GetNodeID(void);
 void PHY_LoadConfig(void);
 void PHY_Init(void);
 MQ_t * PHY_GetBuf(void);
+uint8_t PHY_CanSend(void);
 void PHY_Send(MQ_t * pBuf);
 void PHY_Pool(void);
 

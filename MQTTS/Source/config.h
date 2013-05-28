@@ -73,7 +73,6 @@ See LICENSE.txt file for license details.
 #define OD_DEV_SWVERSL          '1'
 
 // RF Section
-#define RF_TX_POOL_SIZE         4
 //#define RF_BASE_FREQ            433920000UL
 #define RF_BASE_FREQ            868300000UL
 //#define RF_BASE_FREQ            869000000UL

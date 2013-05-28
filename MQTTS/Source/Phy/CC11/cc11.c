@@ -27,11 +27,6 @@ volatile static uint8_t   * cc11v_pRxBuf;       // Pointer to received data
 #ifdef RF_USE_RSSI
 static uint8_t              cc11v_RSSI;         // Actual RSSI
 #endif  //  RF_USE_RSSI
-// Pool variables
-static uint8_t              cc11v_ChanBusy;
-static uint8_t              cc11v_txHead;
-static uint8_t              cc11v_txTail;
-static uint8_t            * cc11v_pTxPool[RF_TX_POOL_SIZE];
 
 const PROGMEM uint8_t cc11config[][2] =
 {
@@ -113,43 +108,6 @@ static uint8_t cc11_readReg(uint8_t Addr)
     retval = cc11_spiExch(0);
     RF_RELEASE();                       // Release CC1101
     return retval;
-}
-
-// Send data
-static void cc11_send(uint8_t * pBuf)
-{
-    TxLEDon();
-    cc11_cmdStrobe(CC11_SIDLE);                     // Switch to Idle state
-    cc11_cmdStrobe(CC11_SFTX);                      // Flush the TX FIFO buffer
-
-    // Fill Buffer
-    uint8_t i, len;
-    uint8_t * ipBuf;
-    len = ((MQ_t *)pBuf)->mq.Length;
-    ipBuf = (uint8_t *)(&((MQ_t *)pBuf)->mq);
-    // Send burst
-    RF_SELECT();                                    // Select CC1101
-    RF_WAIT_LOW_MISO();                             // Wait until MISO goes low
-    RF_SPI_DATA = CC11_BIT_BURST | CC11_TXFIFO;
-    while(RF_SPI_BISY);
-    RF_SPI_DATA = len + 2;                          // Set data length at the first position of the TX FIFO
-    while(RF_SPI_BISY);
-    RF_SPI_DATA = ((MQ_t *)pBuf)->addr;             // Send destination addr
-    while(RF_SPI_BISY);
-    RF_SPI_DATA = cc11s_NodeID;                     // Send Source addr
-    while(RF_SPI_BISY);
-    for(i = 0; i < len; i++)                        // Send Payload
-    {
-        RF_SPI_DATA = ipBuf[i];
-        while(RF_SPI_BISY);
-    }
-    RF_RELEASE();                                   // Release CC1101
-
-    mqRelease((MQ_t *)pBuf);
-
-    // CCA enabled: will enter TX state only if the channel is clear
-    cc11_cmdStrobe(CC11_STX);
-    cc11v_State = RF_TRVTXHDR;
 }
 
 ISR(RF_INT_vect)
@@ -304,9 +262,6 @@ void PHY_Init(void)
   // Init Internal variables
   cc11v_State = RF_TRVIDLE;
   cc11v_pRxBuf = NULL;
-  cc11v_txHead = 0;
-  cc11v_txTail = 0;
-  cc11v_ChanBusy = 0;
 
   RF_ENABLE_IRQ();                        // configure interrupt controller
 }
@@ -353,53 +308,63 @@ MQ_t * PHY_GetBuf(void)
     return pRet;
 }
 
+uint8_t PHY_CanSend(void)
+{
+  if((cc11v_State == RF_TRVRXIDLE) &&                                             // State is RxIdle
+     (cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA))  // Channel Clear
+  {
+    TxLEDon();
+    cc11_cmdStrobe(CC11_SIDLE);                     // Switch to Idle state
+    cc11_cmdStrobe(CC11_SFTX);                      // Flush the TX FIFO buffer
+
+    return 1;
+  }
+
+  return 0;
+}
+
+// Send data
 void PHY_Send(MQ_t * pBuf)
 {
-    if((cc11v_txTail == cc11v_txHead) &&                                            // Buffer is empty
-       (cc11v_State == RF_TRVRXIDLE) &&                                             // State is RxIdle
-       (cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA))  // Channel Clear
-    {
-        cc11_send((uint8_t *)pBuf);
-    }
-    else
-    {
-        uint8_t tmpHead = cc11v_txHead + 1;
-        if(tmpHead >= RF_TX_POOL_SIZE)
-            tmpHead -= RF_TX_POOL_SIZE;
-        if(tmpHead == cc11v_txTail)                          // Overflow, packet droped
-            mqRelease(pBuf);
-        else
-        {
-            cc11v_pTxPool[cc11v_txHead] = (uint8_t *)pBuf;
-            cc11v_txHead = tmpHead;
-            cc11v_ChanBusy = (cc11s_NodeID>>4) + 1;
-        }
-    }
+  // Fill Buffer
+  uint8_t i, len;
+  uint8_t * ipBuf;
+
+  len = pBuf->mq.Length;
+  ipBuf = (uint8_t *)&pBuf->mq;
+  // Send burst
+  RF_SELECT();                                    // Select CC1101
+  RF_WAIT_LOW_MISO();                             // Wait until MISO goes low
+  RF_SPI_DATA = CC11_BIT_BURST | CC11_TXFIFO;
+  while(RF_SPI_BISY);
+  RF_SPI_DATA = len + 2;                          // Set data length at the first position of the TX FIFO
+  while(RF_SPI_BISY);
+  RF_SPI_DATA = pBuf->addr;                       // Send destination addr
+  while(RF_SPI_BISY);
+  RF_SPI_DATA = cc11s_NodeID;                     // Send Source addr
+  while(RF_SPI_BISY);
+  for(i = 0; i < len; i++)                        // Send Payload
+  {
+    RF_SPI_DATA = ipBuf[i];
+    while(RF_SPI_BISY);
+  }
+  RF_RELEASE();                                   // Release CC1101
+
+  mqRelease(pBuf);
+
+  // CCA enabled: will enter TX state only if the channel is clear
+  cc11_cmdStrobe(CC11_STX);
+  cc11v_State = RF_TRVTXHDR;
 }
 
 void PHY_Pool(void)
 {
-    if((cc11v_State == RF_TRVRXIDLE) && (cc11v_txTail != cc11v_txHead)) // Send Buffer not empty
-    {
-        if(!(cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA) &&
-            (cc11v_ChanBusy != 0))
-        {
-            cc11v_ChanBusy--;
-        }
-        else
-        {
-            cc11_send(cc11v_pTxPool[cc11v_txTail]);
-            if(++cc11v_txTail >= RF_TX_POOL_SIZE)
-                cc11v_txTail -= RF_TX_POOL_SIZE;
-            cc11v_ChanBusy = (cc11s_NodeID>>4) + 1;
-        }
-    }
-    else if(cc11v_State == RF_TRVIDLE)
-    {
-        cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state
-        cc11_cmdStrobe(CC11_SFTX);
-        cc11_cmdStrobe(CC11_SFRX);
-        cc11_cmdStrobe(CC11_SRX);       // Enter to RX State
-        cc11v_State = RF_TRVRXIDLE;
-    }
+  if(cc11v_State == RF_TRVIDLE)
+  {
+    cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state
+    cc11_cmdStrobe(CC11_SFTX);
+    cc11_cmdStrobe(CC11_SFRX);
+    cc11_cmdStrobe(CC11_SRX);       // Enter to RX State
+    cc11v_State = RF_TRVRXIDLE;
+  }
 }
