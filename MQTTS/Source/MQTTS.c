@@ -120,6 +120,11 @@ static uint8_t MQTTS_ToBuf(MQ_t * pBuf)
     return MQTTS_Push(pBuf);
 }
 
+uint8_t MQTTS_DataRdy(void)
+{
+  return (vMQTTS.tail != vMQTTS.head) ? 1 : 0;
+}
+
 MQ_t * MQTTS_Get(void)
 {
     if(vMQTTS.tail == vMQTTS.head)

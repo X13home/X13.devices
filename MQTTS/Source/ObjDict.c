@@ -245,17 +245,15 @@ void InitOD(void)
     // Load listOD from EEPROM
     uint8_t pos = 0;
 
-    indextable_t Index;
     for(ucTmp = 0; ucTmp < OD_MAX_INDEX_LIST; ucTmp++)
     {
-        eepromReadListOD((uint16_t)&ee_listOd_bu +  (ucTmp * sizeof(subidx_t)), &Index.sidx);
+        eepromReadListOD((uint16_t)&ee_listOd_bu +  (ucTmp * sizeof(subidx_t)), &ListOD[pos].sidx);
         
-        if((Index.sidx.Place == 0xFF) || (Index.sidx.Place == 0x00) ||
-           (extRegisterOD(&Index) != MQTTS_RET_ACCEPTED))
+        if((ListOD[pos].sidx.Place == 0xFF) || (ListOD[pos].sidx.Place == 0x00) ||
+           (extRegisterOD(&ListOD[pos]) != MQTTS_RET_ACCEPTED))
             continue;
 
-        Index.Index = 0x0000;
-        ListOD[pos++] = Index;
+        ListOD[pos++].Index = 0x0000;
     }
 
     // Configure PnP devises
@@ -348,13 +346,11 @@ uint8_t RegisterOD(MQ_t *pBuf)
         if(TopicId == 0)                                        // Try to delete not exist variable
             return MQTTS_RET_REJ_INV_ID;
         
-        indextable_t Index;
-        Index.sidx = Subidx;
-        if((RetVal = extRegisterOD(&Index)) != MQTTS_RET_ACCEPTED)  // Variable overlapped
+        ListOD[id].sidx = Subidx;
+        if((RetVal = extRegisterOD(&ListOD[id])) != MQTTS_RET_ACCEPTED)  // Variable overlapped
             return MQTTS_RET_REJ_INV_ID;
 
-        Index.Index = TopicId;
-        ListOD[id] = Index;
+        ListOD[id].Index = TopicId;
 
         // Save to eeprom
         uint16_t i;
@@ -493,38 +489,42 @@ uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
 
 uint16_t PoolOD(void)
 {
-    uint16_t Index;
-    while((idxUpdate < OD_MAX_INDEX_LIST) && ((Index = ListOD[idxUpdate].Index) != 0xFFFF))
-    {
-        if(Index == 0)                  // Register
-        {
-            uint8_t iBuf[MQTTS_MSG_SIZE-2];
-            uint8_t Len;
+  uint16_t Index;
+  uint8_t * piBuf;
+  uint8_t ucTmp;
 
-            Len = extCvtIdx2TopicId(&ListOD[idxUpdate].sidx, iBuf);
-            if(MQTTS_Register(0, Len, iBuf) == 0)
-                ListOD[idxUpdate].Index = 0xF000;
-            return 0xFFFF;
-        }
-        else if(Index == 0xF000)        // Wait a RegAck
-            return 0xFFFF;
-            
-            
-        if((ListOD[idxUpdate].cbPool != NULL) && 
-           (ListOD[idxUpdate].cbPool)(&ListOD[idxUpdate].sidx))
-                return Index;
-        idxUpdate++;
-    }
-    idxUpdate = 0;
-
-    if(idxSubscr > 0)
+  while((idxUpdate < OD_MAX_INDEX_LIST) && ((Index = ListOD[idxUpdate].Index) != 0xFFFF))
+  {
+    if(Index == 0)                  // Register
     {
-        idxSubscr--;
-        if(idxSubscr == 0)  //  Send Subscribe '+'
-        {
-            uint8_t ch = '#';
-            MQTTS_Subscribe(MQTTS_FL_QOS1, 1, &ch);
-        }
+      piBuf = (uint8_t *)mqAssert();
+      if(piBuf != NULL)
+      {
+        ucTmp = extCvtIdx2TopicId(&ListOD[idxUpdate].sidx, piBuf);
+        if(MQTTS_Register(0, ucTmp, piBuf) == 0)
+          ListOD[idxUpdate].Index = 0xF000;
+        mqRelease((MQ_t *)piBuf);
+      }
+      return 0xFFFF;
     }
-    return 0xFFFF;
+    else if(Index == 0xF000)        // Wait a RegAck
+      return 0xFFFF;
+
+    if((ListOD[idxUpdate].cbPool != NULL) && 
+       (ListOD[idxUpdate].cbPool)(&ListOD[idxUpdate].sidx))
+      return Index;
+      idxUpdate++;
+  }
+  idxUpdate = 0;
+
+  if(idxSubscr > 0)
+  {
+    idxSubscr--;
+    if(idxSubscr == 0)  //  Send Subscribe '+'
+    {
+      ucTmp = '#';
+      MQTTS_Subscribe(MQTTS_FL_QOS1, 1, &ucTmp);
+    }
+  }
+  return 0xFFFF;
 }

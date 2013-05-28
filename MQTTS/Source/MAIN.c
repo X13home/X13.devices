@@ -28,7 +28,6 @@ void wakeUp(void);
 int main(void)
 {
     MQ_t *  pRBuf;              // RF Buffer
-    MQ_t *  pMBuf;              // MQTTS Buffer
     uint8_t * pPBuf;            // Publish Buffer
 #ifdef GATEWAY
     MQ_t *  pUBuf;              // USART Buffer
@@ -92,18 +91,16 @@ int main(void)
             else
                 mqRelease(pRBuf);
         }
-
-        pMBuf = MQTTS_Get();
-        if(pMBuf != NULL)
-            uPutBuf((uint8_t *)pMBuf);
+        
+        if(MQTTS_DataRdy())
+          uPutBuf((uint8_t *)MQTTS_Get());
 #else   // NODE
         pRBuf = PHY_GetBuf();
         if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
             mqRelease(pRBuf);
-
-        pMBuf = MQTTS_Get();
-        if(pMBuf != NULL)
-            PHY_Send(pMBuf);
+            
+        if(MQTTS_DataRdy() && PHY_CanSend())
+          PHY_Send(MQTTS_Get());
 #endif  //  GATEWAY
         if(iPool & IPOOL_USR)
         {

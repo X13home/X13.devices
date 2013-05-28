@@ -429,6 +429,7 @@ typedef struct
     uint8_t                 ReturnCode;
 }MQTTS_VAR_t;
 
+uint8_t MQTTS_DataRdy(void);
 MQ_t * MQTTS_Get(void);
 #ifdef ASLEEP
 void mqtts_set_TASleep(uint16_t tasleep);

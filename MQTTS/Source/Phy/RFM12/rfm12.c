@@ -24,12 +24,6 @@ static uint8_t              rfm12v_Pos;         // Position
 volatile static uint8_t     rfm12v_State;       // Actual Status
 volatile static uint8_t   * rfm12v_pRxBuf;      // The received data
 
-// Pool variables
-static uint8_t              rfm12v_ChanBusy;
-static uint8_t              rfm12v_txHead;
-static uint8_t              rfm12v_txTail;
-static uint8_t            * rfm12v_pTxPool[RF_TX_POOL_SIZE];
-
 static void rfm12_CalcCRC(uint8_t data, uint16_t *pCRC)     // CRC Calculation compatible with cc1101
 {
     uint8_t i;
@@ -85,19 +79,6 @@ static uint8_t rfm12_get_fifo(void)
     RF_RELEASE();
     RF_SPI_FAST();
     return data;
-}
-
-// Switch to TX State
-static void rfm12_send(uint8_t * pBuf)
-{
-    TxLEDon();
-    rfm12_control(RFM12_IDLE_MODE);
-    rfm12_control(RFM12_TXFIFO_ENA);
-    rfm12v_pRfBuf = pBuf;
-    rfm12v_RfLen = ((MQ_t *)pBuf)->mq.Length + 2;
-    rfm12v_Pos = 0;
-    rfm12v_State = RF_TRVTXHDR;
-    rfm12_control(RFM12_TRANSMIT_MODE);
 }
 
 // Interrupt
@@ -350,10 +331,6 @@ void PHY_Init(void)
     
     rfm12v_pRxBuf = NULL;
 
-    rfm12v_txHead = 0;
-    rfm12v_txTail = 0;
-    rfm12v_ChanBusy = 0;
-
     RF_SPI_FAST();                          // Fsck up to <= 10MHz
     RF_ENABLE_IRQ();                        // configure interrupt controller
 }
@@ -398,52 +375,39 @@ MQ_t * PHY_GetBuf(void)
     return pRet;
 }
 
+// Can Send ? Then swich to TX mode
+uint8_t PHY_CanSend(void)
+{
+  if((rfm12v_State == RF_TRVRXIDLE) &&                    // State is RxIdle
+    ((rfm12_get_status() & RFM12_STATUS_RSSI) == 0))      // No carrier
+  {
+    TxLEDon();
+    rfm12_control(RFM12_IDLE_MODE);                       // Switch to Idle state
+    rfm12_control(RFM12_TXFIFO_ENA);                      // Enable TX FIFO
+    return 1;
+  }
+  return 0;
+}
+
 // Send data
 void PHY_Send(MQ_t * pBuf)
 {
-    if((rfm12v_txTail == rfm12v_txHead) &&                  // Buffer is empty
-       (rfm12v_State == RF_TRVRXIDLE) &&                    // State is RxIdle
-       ((rfm12_get_status() & RFM12_STATUS_RSSI) == 0))     // No carrier
-    {
-        rfm12_send((uint8_t *)pBuf);
-    }
-    else
-    {
-        uint8_t tmpHead = rfm12v_txHead + 1;
-        if(tmpHead >= RF_TX_POOL_SIZE)
-            tmpHead -= RF_TX_POOL_SIZE;
-        if(tmpHead == rfm12v_txTail)                        // Overflow, packet droped
-            mqRelease(pBuf);
-        else
-        {
-            rfm12v_pTxPool[rfm12v_txHead] = (uint8_t *)pBuf;
-            rfm12v_txHead = tmpHead;
-            rfm12v_ChanBusy = (rfm12s_NodeID>>4) + 1;
-        }
-    }
+  rfm12v_pRfBuf = (uint8_t *)pBuf;
+  rfm12v_RfLen = pBuf->mq.Length + 2;
+  rfm12v_Pos = 0;
+  rfm12v_State = RF_TRVTXHDR;
+  rfm12_control(RFM12_TRANSMIT_MODE);
 }
 
 // Periodical 
 void PHY_Pool(void)
 {
-    if(rfm12v_State == RF_TRVPOR)
-        PHY_Init();
-    else if((rfm12v_State == RF_TRVRXIDLE) && (rfm12v_txTail != rfm12v_txHead))
-    {
-        if((rfm12_get_status() & RFM12_STATUS_RSSI) && (rfm12v_ChanBusy != 0))
-            rfm12v_ChanBusy--;
-        else
-        {
-            rfm12_send(rfm12v_pTxPool[rfm12v_txTail]);
-            if(++rfm12v_txTail >= RF_TX_POOL_SIZE)
-                rfm12v_txTail -= RF_TX_POOL_SIZE;
-            rfm12v_ChanBusy = (rfm12s_NodeID>>4) + 1;
-        }
-    }
-    else if(rfm12v_State == RF_TRVIDLE)
-    {
-        rfm12v_State = RF_TRVRXIDLE;
-        rfm12_control(RFM12_RECEIVE_MODE);
-        rfm12_control(RFM12_RXFIFO_ENA);
-    }
+  if(rfm12v_State == RF_TRVPOR)
+    PHY_Init();
+  else if(rfm12v_State == RF_TRVIDLE)
+  {
+    rfm12v_State = RF_TRVRXIDLE;
+    rfm12_control(RFM12_RECEIVE_MODE);
+    rfm12_control(RFM12_RXFIFO_ENA);
+  }
 }
