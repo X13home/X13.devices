@@ -63,7 +63,7 @@ static uint8_t MQTTS_Push(MQ_t * pBuf)
     if(tmphead == vMQTTS.tail)          // Overflow
     {
         mqRelease(pBuf);
-        return -1;
+        return 0xFF;
     }
         
     vMQTTS.buf[vMQTTS.head] = pBuf;
@@ -91,14 +91,14 @@ static uint8_t MQTTS_ToBuf(MQ_t * pBuf)
         if(tmphead == vMQTTS.fTail)          // Overflow
         {
             mqRelease(pBuf);
-            return -1;
+            return 0xFF;
         }
 
         MQ_t * ppBuf = mqAssert();
         if(ppBuf == NULL)
         {
             mqRelease(pBuf);
-            return -1;
+            return 0xFF;
         }
         memcpy(ppBuf, pBuf, sizeof(MQ_t));
         
@@ -173,7 +173,7 @@ uint8_t MQTTS_Publish(uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * i
 {
     uint8_t mSize = Size + MQTTS_SIZEOF_MSG_PUBLISH + 1;
     if(mSize > sizeof(MQ_t))
-        return -1;
+        return 0xFF;
     
     MQ_t * pBuf = mqAssert();
     if(pBuf != NULL)    // no memory
@@ -188,14 +188,14 @@ uint8_t MQTTS_Publish(uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * i
         
         return MQTTS_ToBuf(pBuf);
     }
-    return -1;
+    return 0xFF;
 }
 
 uint8_t MQTTS_Subscribe(uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
 {
     uint8_t mSize = Size + MQTTS_SIZEOF_MSG_SUBSCRIBE + 1;
     if(mSize > sizeof(MQ_t))
-        return -1;
+        return 0xFF;
 
     MQ_t * pBuf = mqAssert();
     if(pBuf != NULL)
@@ -209,14 +209,14 @@ uint8_t MQTTS_Subscribe(uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
 
         return MQTTS_ToBuf(pBuf);
     }
-    return -1;
+    return 0xFF;
 }
 
 uint8_t MQTTS_Register(uint16_t TopicID, uint8_t Size, uint8_t * ipBuf)
 {
     uint8_t mSize = Size + MQTTS_SIZEOF_MSG_REGISTER + 1;
     if(mSize > sizeof(MQ_t))
-        return -1;
+        return 0xFF;
 
     MQ_t * pBuf = mqAssert();
     if(pBuf != NULL)
@@ -230,7 +230,7 @@ uint8_t MQTTS_Register(uint16_t TopicID, uint8_t Size, uint8_t * ipBuf)
         
         return MQTTS_ToBuf(pBuf);
     }
-    return -1;
+    return 0xFF;
 }
 
 void MQTTS_Init(void)
