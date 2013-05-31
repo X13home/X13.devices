@@ -10,21 +10,20 @@ See LICENSE.txt file for license details.
 
 #include "config.h"
 
-volatile uint8_t iPool;
+static volatile uint8_t iPool;
 #define IPOOL_USR   0x01
 #define IPOOL_CALIB 0x02
 #define IPOOL_SLEEP 0x04
 
 #ifdef ASLEEP
-void goToSleep(void);
-void wakeUp(void);
+static void goToSleep(void);
+static void wakeUp(void);
 #endif  //  ASLEEP
 
 #ifdef GATEWAY
 #include "uart.h"
 #endif  //  GATEWAY
 
-//int main(void) __attribute__((naked));    // ! Compatibility with AVR Studio 6.1
 int main(void)
 {
     MQ_t *  pRBuf;              // RF Buffer
@@ -194,7 +193,7 @@ ISR(WDT_vect)
 }
 #endif  //  !USE_RTC_OSC
 
-void goToSleep(void)
+static void goToSleep(void)
 {
     iPool = IPOOL_SLEEP;
     rf_SetState(RF_TRVASLEEP);
@@ -206,7 +205,7 @@ void goToSleep(void)
     set_sleep_mode(SLEEP_MODE_PWR_SAVE);    // Standby, Power Save
 }
 
-void wakeUp(void)
+static void wakeUp(void)
 {
     set_sleep_mode(SLEEP_MODE_IDLE);        // Standby, Idle
     rf_SetState(RF_TRVWKUP);
