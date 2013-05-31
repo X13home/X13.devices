@@ -67,19 +67,19 @@ int main(void)
         pUBuf = (MQ_t *)uGetBuf();
         if(pUBuf != NULL)
         {
-            iAddr = pUBuf->addr;
-            if((iAddr == rf_GetNodeID()) || (iAddr == AddrBroadcast))
-            {
-                if(MQTTS_Parser(pUBuf) == 0)
-                {
-                    if((MQTTS_GetStatus() == MQTTS_STATUS_CONNECT) && (iAddr == AddrBroadcast))
-                        PHY_Send(pUBuf);
-                    else
-                        mqRelease(pUBuf);
-                }
-            }
-            else if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
-                PHY_Send(pUBuf);
+          iAddr = pUBuf->addr;
+          if(iAddr == rf_GetNodeID())
+          {
+            if(MQTTS_Parser(pUBuf) == 0)
+              mqRelease(pUBuf);              
+          }
+          else if((iAddr != AddrBroadcast) || (MQTTS_Parser(pUBuf) == 0))
+          {
+            if((MQTTS_GetStatus() == MQTTS_STATUS_CONNECT) && PHY_CanSend())
+              PHY_Send(pUBuf);
+            else
+              mqRelease(pUBuf);
+          }
         }
 
         pRBuf = PHY_GetBuf();
