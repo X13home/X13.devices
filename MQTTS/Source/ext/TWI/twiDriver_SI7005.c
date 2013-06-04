@@ -12,11 +12,10 @@ See LICENSE.txt file for license details.
 
 // Outs
 // TW16384      Temperature counter (TC)
-// TW16385      Humidity counter    (HC)
-// Temp°C  = (TC/16) - 50
-// RH = (HC/16) - 24
-// RH_lin = RH - (RH^2*-0,00393 + RH*0,4008 - 4,7844)
-// RH_Compens = RH_lin + (Temp(°C) - 30)*(RH_lin*0,0237 + 0,1973)
+// TW16385      Relative Humidity %(RH)
+// Temp°C  = (TC/8) - 50
+// RH_lin = RH-(RH^2*-0.00393 + RH*0.4008 - 4.7844)
+// RH_Compens = RH_lin + (Temp(°C) - 30)*(RH_lin*0.0237 + 0,1973)
 
 #define SI7005_ADDR                 0x40
 
@@ -40,7 +39,7 @@ See LICENSE.txt file for license details.
 #define SI7005_ID_SI7005            0x50
 
 #define SI7005_T_MIN_DELTA          5
-#define SI7005_H_MIN_DELTA          5
+#define SI7005_H_MIN_DELTA          2
 
 // Process variables
 static uint8_t  si7005_stat;
@@ -50,16 +49,14 @@ static uint16_t si7005_oldHumi;
 static uint8_t twi_SI7005_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 2;
-    if(pSubidx->Base & 1)   // Read Humidity
+    if(pSubidx->Base & 1)   // Read uncompensated RH %
     {
-        // Return uncompensated RH 0,1%
-//        *(uint16_t *)pBuf = ((si7005_oldTemp * 5)>>3) - 240;
-        *(uint16_t *)pBuf = si7005_oldHumi;
+        *(uint16_t *)pBuf = si7005_oldHumi - 24;
     }
-    else                    // Read Temperature
+    else                    // Read Temperature counter TC
     {
         // Return T 0.1°C
-//        *(uint16_t *)pBuf = ((si7005_oldTemp * 5)>>3) - 500;
+//        *(uint16_t *)pBuf = ((si7005_oldTemp * 5)>>2) - 500;
         *(uint16_t *)pBuf = si7005_oldTemp;
     }
     return MQTTS_RET_ACCEPTED;
@@ -76,6 +73,8 @@ static uint8_t twi_SI7005_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
 {
+  uint16_t val, delta;
+
     if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
         if(si7005_stat != 0)
@@ -124,15 +123,13 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
                                 (uint8_t *)twim_buf, NULL);
             break;
         case 11:                                                // Calculate & test temperature
-            {
-            uint16_t val = ((uint16_t)twim_buf[0]<<5) | (twim_buf[1]>>3);
+            val = ((uint16_t)twim_buf[0]<<6) | (twim_buf[1]>>2);
 
             // Start Conversion, Humidity
             twim_buf[0] = SI7005_REG_CONFIG;
             twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
             twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf, NULL);
-            
-            uint16_t delta;
+
             delta = val > si7005_oldTemp ? val - si7005_oldTemp : si7005_oldTemp - val;
 
             if(delta > SI7005_T_MIN_DELTA)
@@ -140,7 +137,6 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
                 si7005_oldTemp = val;
                 si7005_stat++;
                 return 1;
-            }
             }
             break;
     }
@@ -151,22 +147,23 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
 
 static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
 {
-    if(si7005_stat == 17)
+  uint16_t val, delta;
+
+  if(si7005_stat == 17)
+  {
+    si7005_stat++;
+    val = ((uint16_t)twim_buf[0]<<4) | (twim_buf[1]>>4);
+    twim_access = 0;        // Bus Free
+
+    delta = val > si7005_oldHumi ? val - si7005_oldHumi : si7005_oldHumi - val;
+
+    if(delta > SI7005_H_MIN_DELTA)
     {
-        si7005_stat++;
-        uint16_t val = ((uint16_t)twim_buf[0]<<4) | (twim_buf[1]>>4);
-        twim_access = 0;        // Bus Free
-        
-        uint16_t delta;
-        delta = val > si7005_oldHumi ? val - si7005_oldHumi : si7005_oldHumi - val;
-        
-        if(delta > SI7005_H_MIN_DELTA)
-        {
-            si7005_oldHumi = val;
-            return 1;
-        }
+      si7005_oldHumi = val;
+      return 1;
     }
-    return 0;
+  }
+  return 0;
 }
 
 static uint8_t twi_SI7005_Config(void)
