@@ -54,7 +54,7 @@
       <Value>EXTDIO_USED=1</Value>
       <Value>EXTAI_USED=1</Value>
       <Value>TWI_USED=1</Value>
-      <Value>EXTPWD_USED=1</Value>
+      <Value>EXTPWM_USED=1</Value>
       <Value>EXTSER_TX_USED=1</Value>
       <Value>EXTSER_RX_USED=1</Value>
     </ListValues>

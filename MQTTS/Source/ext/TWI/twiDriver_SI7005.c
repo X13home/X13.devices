@@ -12,10 +12,15 @@ See LICENSE.txt file for license details.
 
 // Outs
 // TW16384      Temperature counter (TC)
-// TW16385      Relative Humidity %(RH)
-// Temp°C  = (TC/8) - 50
+// TW16385      Relative Humidity Counter(RH)
+// Temp°C  = (TC/32) - 50
+//  A/32-50
+// RH % = (RH/16) - 24
+//  A/16-24
 // RH_lin = RH-(RH^2*-0.00393 + RH*0.4008 - 4.7844)
+//  A+(A*A*0.00393-A*0.4008+4.7844)
 // RH_Compens = RH_lin + (Temp(°C) - 30)*(RH_lin*0.0237 + 0,1973)
+//  A+(B-30)*(A*0.0237+0.1973)
 
 #define SI7005_ADDR                 0x40
 
@@ -50,15 +55,10 @@ static uint8_t twi_SI7005_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 2;
     if(pSubidx->Base & 1)   // Read uncompensated RH %
-    {
-        *(uint16_t *)pBuf = si7005_oldHumi - 24;
-    }
+        *(uint16_t *)pBuf = si7005_oldHumi;
     else                    // Read Temperature counter TC
-    {
-        // Return T 0.1°C
-//        *(uint16_t *)pBuf = ((si7005_oldTemp * 5)>>2) - 500;
         *(uint16_t *)pBuf = si7005_oldTemp;
-    }
+
     return MQTTS_RET_ACCEPTED;
 }
 
@@ -73,7 +73,7 @@ static uint8_t twi_SI7005_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
 {
-  uint16_t val, delta;
+  uint16_t val;
 
     if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
@@ -129,10 +129,9 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
             twim_buf[0] = SI7005_REG_CONFIG;
             twim_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
             twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)twim_buf, NULL);
-
-            delta = val > si7005_oldTemp ? val - si7005_oldTemp : si7005_oldTemp - val;
-
-            if(delta > SI7005_T_MIN_DELTA)
+            
+            if((val > si7005_oldTemp ? val - si7005_oldTemp : si7005_oldTemp - val) > 
+                  SI7005_T_MIN_DELTA)
             {
                 si7005_oldTemp = val;
                 si7005_stat++;
@@ -147,7 +146,7 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
 
 static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
 {
-  uint16_t val, delta;
+  uint16_t val;
 
   if(si7005_stat == 17)
   {
@@ -155,9 +154,7 @@ static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
     val = ((uint16_t)twim_buf[0]<<4) | (twim_buf[1]>>4);
     twim_access = 0;        // Bus Free
 
-    delta = val > si7005_oldHumi ? val - si7005_oldHumi : si7005_oldHumi - val;
-
-    if(delta > SI7005_H_MIN_DELTA)
+    if((val > si7005_oldHumi ? val - si7005_oldHumi : si7005_oldHumi - val) > SI7005_H_MIN_DELTA)
     {
       si7005_oldHumi = val;
       return 1;
@@ -188,7 +185,7 @@ static uint8_t twi_SI7005_Config(void)
     pIndex1->cbWrite =  &twi_SI7005_Write;
     pIndex1->cbPool  =  &twi_SI7005_Pool1;
     pIndex1->sidx.Place = objTWI;                   // Object TWI
-    pIndex1->sidx.Type =  objInt16;                 // Variables Type -  UInt16
+    pIndex1->sidx.Type =  objUInt16;                // Variables Type -  UInt16
     pIndex1->sidx.Base = (SI7005_ADDR<<8);     // Device addr
 
     // Register variable 2, Humidity - uncompensated

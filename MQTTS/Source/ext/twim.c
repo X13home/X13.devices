@@ -28,7 +28,7 @@ volatile static uint8_t twim_access;    // access mode & busy flag
 static uint8_t twim_bytes2write;        // bytes to write
 static uint8_t twim_bytes2read;         // bytes to read
 volatile static uint8_t * twim_ptr;     // pointer to data buffer
-static uint8_t twim_buf[4];             // temporary buffer
+volatile static uint8_t twim_buf[4];    // temporary buffer
 static cbTWI twim_callback;             // callback function
 
 // Diag & WD variables
@@ -259,12 +259,13 @@ static uint8_t twim_pool(subidx_t * pSubidx)
     twim_busy_cnt++;
     if(twim_busy_cnt == 0xC0)   // bus busy too long
     {
-        TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop
+        TWI_DISABLE();
         twim_access = TWIM_ERROR;
         return 1;
     }
     else if(twim_busy_cnt == 0)
     {
+        TWI_ENABLE();
         twim_access = 0;
         twim_addr_old = 0xFF;
     }
