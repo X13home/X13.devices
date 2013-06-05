@@ -126,7 +126,7 @@ static uint8_t twi_LM75_Config(void)
         twim_buf[0] = LM75_REG_CONF;
         twim_buf[1] = 0;    
 
-        if(twimExch(addr, TWIM_WRITE, 2, 0, twim_buf) == TW_SUCCESS)
+        if(twimExch(addr, TWIM_WRITE, 2, 0, (uint8_t *)twim_buf) == TW_SUCCESS)
         {
             lm75_stat[pos] = 0x80;
             lm75_oldVal[pos] = 0;

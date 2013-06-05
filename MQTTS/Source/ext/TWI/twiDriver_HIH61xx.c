@@ -14,7 +14,9 @@ See LICENSE.txt file for license details.
 // Tw9984       Temperature Counter(TC)
 // TB9985       Humidity Counter(HC)
 // T°C = (TC * 55 / 5461) - 40
+//  A*55/5461-40
 // RH% = HC * 20 / 51
+//  A*20/51
 
 #define HIH61XX_TWI_ADDR            0x27
 
