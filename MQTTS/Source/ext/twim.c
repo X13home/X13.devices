@@ -267,7 +267,9 @@ static uint8_t twim_pool(subidx_t * pSubidx)
     {
         TWI_ENABLE();
         twim_access = 0;
+        twim_addr = 0;
         twim_addr_old = 0xFF;
+        return 1;
     }
 
     return 0;
