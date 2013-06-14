@@ -1,5 +1,8 @@
 Version 2.5.2 RC
 
+Fixed     Incorrect transition from ASleep to Connect mode.           14.Jun.2013
+Changed   TWI Drivers ude local buffers                               13.Jun.2013
+Added     Sleep Mode to Extension                                     12.Jun.2013
 Fixed     Errors on Si7005 - incorrect temperature humidity           11.Jun.2013
 Fixed     LAN Node configuration - don't work PWM                     05.Jun.2013
 Fixed     TWI down, if bus error occurs                               05.Jun.2013
