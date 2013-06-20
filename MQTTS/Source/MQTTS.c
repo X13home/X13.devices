@@ -48,8 +48,11 @@ static void mqtts_inc_tail(void)
         vMQTTS.fTail -= MQTTS_SIZEOF_SEND_FIFO;
     if(vMQTTS.fHead == vMQTTS.fTail)
     {
-        vMQTTS.Tretry = 0;
-        vMQTTS.pfCnt = (POOL_TMR_FREQ - 1);
+      vMQTTS.fHead = 0;
+      vMQTTS.fTail = 0;
+    
+      vMQTTS.Tretry = 0;
+      vMQTTS.pfCnt = (POOL_TMR_FREQ - 1);
     }
 
     vMQTTS.Nretry = MQTTS_DEF_NRETRY;
@@ -365,7 +368,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
             mqtts_send_search_gw();
             break;
 #endif  //  GATEWAY
-        case MQTTS_STATUS_OFFLINE:      // Search broker
+        case MQTTS_STATUS_OFFLINE:      // Connect to Broker
             vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
             
             if(vMQTTS.Tretry)
@@ -525,7 +528,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
                     vMQTTS.inMsgId = 0;
 
                     // Publish Device Type
-                    if((rf_GetNodeID() != 0xFF) && (vMQTTS.MsgID == 0))
+                    if((vMQTTS.MsgID == 0) && (rf_GetNodeID() != 0xFF))
                     {
                         pBuf->mq.Length = MQTTS_SIZEOF_CLIENTID - 1;
                         ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &pBuf->mq.Length, (uint8_t *)&pBuf->mq.m.raw);
@@ -629,27 +632,31 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
 //        case MQTTS_MSGTYP_UNSUBACK:
 //        case MQTTS_MSGTYP_PINGREQ:
         case MQTTS_MSGTYP_PINGRESP:
-            if(vMQTTS.tail == vMQTTS.head)
-            {
-                vMQTTS.Nretry = MQTTS_DEF_NRETRY;
-                vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
-                if(vMQTTS.Status == MQTTS_STATUS_CONNECT)
-                {
-                    vMQTTS.Tretry = MQTTS_DEF_KEEPALIVE;
 #ifdef ASLEEP
-                    if(vMQTTS.Tasleep != 0)
-                    {
-                        vMQTTS.Status = MQTTS_STATUS_POST_CONNECT;
-                        vMQTTS.pfCnt = 0;
-                    }
-                }
-                else if(vMQTTS.Status == MQTTS_STATUS_AWAKE)
-                {
-                    vMQTTS.Status = MQTTS_STATUS_POST_AWAKE;
+          if(vMQTTS.Status == MQTTS_STATUS_AWAKE)
+          {
+            vMQTTS.Status = MQTTS_STATUS_POST_AWAKE;
+          }
+          else
 #endif  //  ASLEEP
-                }
+          if((vMQTTS.Status == MQTTS_STATUS_CONNECT) && (vMQTTS.tail == vMQTTS.head))
+          {
+            vMQTTS.Tretry = MQTTS_DEF_KEEPALIVE;
+#ifdef ASLEEP
+            if(vMQTTS.Tasleep != 0)
+            {
+              vMQTTS.Status = MQTTS_STATUS_POST_CONNECT;
+              vMQTTS.pfCnt = 0;
             }
+#endif	// ASLEEP
+          }
+          else
             break;
+            
+          vMQTTS.Nretry = MQTTS_DEF_NRETRY;
+          vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+
+          break;
         case MQTTS_MSGTYP_DISCONNECT:
 #ifdef ASLEEP
             if(vMQTTS.Status == MQTTS_STATUS_POST_CONNECT)

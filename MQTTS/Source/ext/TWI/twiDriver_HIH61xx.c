@@ -18,16 +18,26 @@ See LICENSE.txt file for license details.
 // RH% = HC * 20 / 51
 //  A*20/51
 
+#include "../../config.h"
+
+#if (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_HIH61XX)
+
+#include "../twim.h"
+#include "twiDriver_HIH61xx.h"
+
 #define HIH61XX_TWI_ADDR            0x27
 
-#define HIH61XX_T_MIN_DELTA         6
-#define HIH61XX_H_MIN_DELTA         1
+//#define HIH61XX_T_MIN_DELTA         6     // use hysteresis for temperature
+//#define HIH61XX_H_MIN_DELTA         1     // use hysteresis for humidity
+
+extern volatile uint8_t twim_access;           // access mode & busy flag
 
 static uint8_t  hih61xx_stat;
 static uint8_t  hih61xx_oldhumi;
 static uint16_t hih61xx_oldtemp;
+uint8_t         hih61xx_buf[4];
 
-static uint8_t twi_HIH61xx_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+uint8_t twi_HIH61xx_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     if(pSubidx->Base & 1)               // Read Humidity
     {
@@ -50,7 +60,7 @@ static uint8_t twi_HIH61xx_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf
     return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t twi_HIH61xx_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+uint8_t twi_HIH61xx_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     if(pSubidx->Base & 1)               // Renew Humidity
         hih61xx_oldhumi = *pBuf;
@@ -59,8 +69,16 @@ static uint8_t twi_HIH61xx_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
+uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx, uint8_t sleep)
 {
+  uint16_t temp;
+
+  if(sleep != 0)
+  {
+    hih61xx_stat = (0xFF-(POOL_TMR_FREQ/2));
+    return 0;
+  }
+
     if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
         if(hih61xx_stat != 0)
@@ -85,25 +103,24 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
             twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_WRITE), 0, 0, NULL, NULL);
             break;
         case 4:         // !! The measurement cycle duration is typically 36.65 ms
-            twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_READ), 0, 4, (uint8_t *)twim_buf, NULL);
+            twimExch_ISR(HIH61XX_TWI_ADDR, (TWIM_BUSY | TWIM_READ), 0, 4, hih61xx_buf, NULL);
             break;
         case 5:
-            if((twim_buf[0] & 0xC0) != 0)   // data invalid
+            if((hih61xx_buf[0] & 0xC0) != 0)   // data invalid
             {
                 hih61xx_stat--;
                 return 0;
             }
-
-            {
-            uint16_t temp = ((((uint16_t)twim_buf[2])<<6) | (twim_buf[3]>>2)) & 0x3FFF;
-            uint16_t delta;
-            delta = temp > hih61xx_oldtemp ? temp - hih61xx_oldtemp : hih61xx_oldtemp - temp;
-            if(delta > HIH61XX_T_MIN_DELTA)
+            temp = ((((uint16_t)hih61xx_buf[2])<<6) | (hih61xx_buf[3]>>2)) & 0x3FFF;
+#if (defined HIH61XX_T_MIN_DELTA) && (HIH61XX_T_MIN_DELTA > 0)
+            if((temp > hih61xx_oldtemp ? temp - hih61xx_oldtemp : hih61xx_oldtemp - temp) > HIH61XX_T_MIN_DELTA)
+#else
+            if(temp != hih61xx_oldtemp)
+#endif  //  HIH61XX_T_MIN_DELTA
             {
                 hih61xx_oldtemp = temp;
                 hih61xx_stat++;
                 return 1;
-            }
             }
             break;
     }
@@ -112,25 +129,29 @@ static uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx)
     return 0;
 }
 
-static uint8_t twi_HIH61xx_Pool2(subidx_t * pSubidx)
+uint8_t twi_HIH61xx_Pool2(subidx_t * pSubidx, uint8_t _unused)
 {
-    if(hih61xx_stat == 7)
+  uint8_t tmp;
+
+  if(hih61xx_stat == 7)
+  {
+    hih61xx_stat++;
+    tmp = (hih61xx_buf[0]<<2) | (hih61xx_buf[1]>>6);
+    twim_access = 0;        // Bus Free
+#if (defined HIH61XX_H_MIN_DELTA) && (HIH61XX_H_MIN_DELTA > 0)
+    if((tmp > hih61xx_oldhumi ? tmp - hih61xx_oldhumi : hih61xx_oldhumi - tmp) > HIH61XX_H_MIN_DELTA)
+#else
+    if(tmp != hih61xx_oldhumi)
+#endif  //  HIH61XX_H_MIN_DELTA
     {
-        hih61xx_stat++;
-        uint8_t tmp = (twim_buf[0]<<2) | (twim_buf[1]>>6);
-        twim_access = 0;        // Bus Free
-        uint16_t delta;
-        delta = tmp > hih61xx_oldhumi ? tmp - hih61xx_oldhumi : hih61xx_oldhumi - tmp;
-        if(delta > HIH61XX_H_MIN_DELTA)
-        {
-            hih61xx_oldhumi = tmp;
-            return 1;
-        }
+      hih61xx_oldhumi = tmp;
+      return 1;
     }
-    return 0;
+  }
+  return 0;
 }
 
-static uint8_t twi_HIH61xx_Config(void)
+uint8_t twi_HIH61xx_Config(void)
 {
     if(twimExch(HIH61XX_TWI_ADDR, TWIM_WRITE, 0, 0, NULL) != TW_SUCCESS)    // Communication error
         return 0;
@@ -169,3 +190,5 @@ static uint8_t twi_HIH61xx_Config(void)
 
     return 2;
 }
+
+#endif  //  (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_HIH61XX)

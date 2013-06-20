@@ -15,19 +15,19 @@ See LICENSE.txt file for license details.
 #include "util.h"
 
 #ifdef EXTAI_USED
-#include "ext/extai.c"
+#include "ext/extai.h"
 #endif  //  EXTAI_USED
 
 #ifdef EXTDIO_USED
-#include "ext/extdio.c"
+#include "ext/extdio.h"
 #endif  //  EXTDIO_USED
 
 #ifdef TWI_USED
-#include "ext/twim.c"
+#include "ext/twim.h"
 #endif  //  TWI_USED
 
 #if (defined EXTSER_TX_USED) || (defined EXTSER_RX_USED)
-#include "ext/extSer.c"
+#include "ext/extSer.h"
 #endif  //  EXTSER_TX_USED || EXTSER_RX_USED
 
 // Delete All objects, & init hardware
@@ -140,7 +140,7 @@ uint8_t extCvtIdx2TopicId(subidx_t * pSubidx, uint8_t * pPnt)
 #ifdef EXTAI_USED
     if(pSubidx->Place == objAin)
         addr &= EXTAI_CHN_MASK;
-#endif  // 
+#endif  // EXTAI_USED
     size = sprintdec((uint8_t*)pPnt, addr);
     return (size + 2);
 }

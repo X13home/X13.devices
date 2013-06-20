@@ -52,45 +52,50 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
+    <CacheFlash>true</CacheFlash>
+    <UncachedRange />
+    <BootSegment>2</BootSegment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'RFNDUN' ">
     <OutputFileName>RFNDUN</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <ToolchainSettings>
       <AvrGcc>
-  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>False</avrgcc.common.outputfiles.eep>
-  <avrgcc.common.outputfiles.srec>False</avrgcc.common.outputfiles.srec>
-  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>UNODE=1</Value>
-      <Value>F_CPU=8000000UL</Value>
-      <Value>ASLEEP=1</Value>
-      <Value>EXTAI_USED=1</Value>
-      <Value>EXTDIO_USED=1</Value>
-      <Value>TWI_USED=1</Value>
-      <Value>EXTPWM_USED=1</Value>
-      <Value>EXTSER_TX_USED=1</Value>
-      <Value>EXTSER_RX_USED=1</Value>
-    </ListValues>
-  </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.linker.general.GenerateMAPFile>False</avrgcc.linker.general.GenerateMAPFile>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
-  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-</AvrGcc>
+        <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>False</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>False</avrgcc.common.outputfiles.srec>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>UNODE=1</Value>
+            <Value>F_CPU=8000000UL</Value>
+            <Value>ASLEEP=1</Value>
+            <Value>EXTAI_USED=1</Value>
+            <Value>EXTDIO_USED=1</Value>
+            <Value>EXTPWM_USED=1</Value>
+            <Value>EXTSER_TX_USED=1</Value>
+            <Value>EXTSER_RX_USED=1</Value>
+            <Value>TWI_USED=1</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.linker.general.GenerateMAPFile>False</avrgcc.linker.general.GenerateMAPFile>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'RFNDJN' ">
@@ -98,35 +103,39 @@
     <OutputFileExtension>.elf</OutputFileExtension>
     <ToolchainSettings>
       <AvrGcc>
-  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>False</avrgcc.common.outputfiles.eep>
-  <avrgcc.common.outputfiles.srec>False</avrgcc.common.outputfiles.srec>
-  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>JEENODE=1</Value>
-      <Value>F_CPU=16000000UL</Value>
-      <Value>ASLEEP=1</Value>
-      <Value>EXTAI_USED=1</Value>
-      <Value>EXTDIO_USED=1</Value>
-    </ListValues>
-  </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.linker.general.GenerateMAPFile>False</avrgcc.linker.general.GenerateMAPFile>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
-  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-</AvrGcc>
+        <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>False</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>False</avrgcc.common.outputfiles.srec>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>JEENODE=1</Value>
+            <Value>F_CPU=16000000UL</Value>
+            <Value>ASLEEP=1</Value>
+            <Value>EXTAI_USED=1</Value>
+            <Value>EXTDIO_USED=1</Value>
+            <Value>EXTPWM_USED=1</Value>
+            <Value>EXTSER_TX_USED=1</Value>
+            <Value>EXTSER_RX_USED=1</Value>
+            <Value>TWI_USED=1</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.linker.general.GenerateMAPFile>False</avrgcc.linker.general.GenerateMAPFile>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'RFNDPS' ">
@@ -170,15 +179,77 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Source\" />
+    <Folder Include="Source\ext" />
+    <Folder Include="Source\ext\twi" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Source\config.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\eeprom.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\eeprom.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\ext.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\extai.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\extai.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\extdio.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\extdio.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\extSer.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\extSer.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twim.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twim.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_BMP180.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_BMP180.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_HIH61xx.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_HIH61xx.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_LM75.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_LM75.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_SI7005.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_SI7005.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\mqMEM.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\mqMEM.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\MQTTS.c">
@@ -187,13 +258,25 @@
     <Compile Include="Source\MAIN.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\mqtts.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\ObjDict.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ObjDict.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\phy.c">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\phy.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\util.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\util.h">
       <SubType>compile</SubType>
     </Compile>
   </ItemGroup>

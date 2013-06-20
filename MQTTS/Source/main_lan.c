@@ -74,7 +74,7 @@ int main(void)
       {
         iPool |= IPOOL_LED_CONN;
         if(poolIdx == 0xFFFF)
-          poolIdx = PoolOD();
+          poolIdx = PoolOD(0);
 
         if(poolIdx != 0xFFFF)
         {

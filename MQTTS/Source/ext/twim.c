@@ -8,27 +8,44 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
+#include "../config.h"
+
+#if (defined EXTDIO_USED) && (defined TWI_USED)
+
 // TWI(I2C) Prototypes
-
 #include <util/twi.h>
+#include <util/delay.h>
 
-#define TW_SUCCESS      0xFF
+#include "extdio.h"
+#include "twim.h"
 
-#define TWIM_READ       1               // Read Data
-#define TWIM_WRITE      2               // Write Data
-#define TWIM_BUSY       8               // Bus Busy
-#define TWIM_ERROR      0x10            // Bus Error
-#define TWIM_RELEASE    0x20            // Request to relase Bus
+#ifdef TWI_USE_BMP180
+#include "twi/twiDriver_BMP180.h"
+#endif  //  TWI_USE_BMP180
 
-typedef void (*cbTWI)(void);            // TWI ISR ready, Callback function
+#ifdef TWI_USE_HIH61XX
+#include "twi/twiDriver_HIH61XX.h"
+#endif  //  TWI_USE_HIH61XX
+
+#ifdef TWI_USE_SI7005
+#include "twi/twiDriver_SI7005.h"
+#endif  //  TWI_USE_SI7005
+
+#ifdef TWI_USE_LM75
+#include "twi/twiDriver_LM75.h"
+#endif  //  TWI_USE_LM75
+
+// ExtDIO internal subroutines
+extern uint8_t base2Mask(uint16_t base);
+extern uint8_t checkDigBase(uint16_t base);
+extern uint8_t inpPort(uint16_t base);
 
 // Local Variables
 static uint8_t twim_addr;               // Device address
-volatile static uint8_t twim_access;    // access mode & busy flag
+volatile uint8_t twim_access;           // access mode & busy flag
 static uint8_t twim_bytes2write;        // bytes to write
 static uint8_t twim_bytes2read;         // bytes to read
 volatile static uint8_t * twim_ptr;     // pointer to data buffer
-volatile static uint8_t twim_buf[4];    // temporary buffer
 static cbTWI twim_callback;             // callback function
 
 // Diag & WD variables
@@ -36,7 +53,7 @@ static uint8_t twim_addr_old;           // WatchDog addr
 static uint8_t twim_busy_cnt;           // Busy counter
 
 // Read/Write data from/to buffer
-static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf)
+uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf)
 {
     twim_addr = (addr<<1);
     twim_access = access;
@@ -114,7 +131,7 @@ static uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t rea
 }
 
 // Read/Write data with ISR
-static void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf, cbTWI pCallback)
+void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf, cbTWI pCallback)
 {
     if(TWIM_ERROR & twim_access)
         return;
@@ -191,29 +208,14 @@ ISR(TWI_vect)
                 (twim_callback)();
             break;
         default:                                // Error
+            twim_access |= TWIM_ERROR;
             TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop, Disable Interupt
             break;
     }
 }
 // End TWI HAL
 
-#ifdef TWI_USE_BMP180
-#include "twi/twiDriver_BMP180.c"
-#endif  //  TWI_USE_BMP180
-
-#ifdef TWI_USE_HIH61XX
-#include "twi/twiDriver_HIH61XX.c"
-#endif  //  TWI_USE_HIH61XX
-
-#ifdef TWI_USE_SI7005
-#include "twi/twiDriver_SI7005.c"
-#endif  //  TWI_USE_SI7005
-
-#ifdef TWI_USE_LM75
-#include "twi/twiDriver_LM75.c"
-#endif  //  TWI_USE_LM75
-
-static void twiClean()
+void twiClean()
 {
     twim_access = 0;
     twim_addr = 0xFF;
@@ -221,21 +223,28 @@ static void twiClean()
     twim_callback = NULL;
 }
 
-static uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 1;
     *pBuf = (twim_addr>>1);
     return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t twim_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+uint8_t twim_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     twim_addr_old = *pBuf;
     return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t twim_pool(subidx_t * pSubidx)
+uint8_t twim_pool(subidx_t * pSubidx, uint8_t sleep)
 {
+  if(sleep != 0)
+  {
+    TWI_DISABLE();
+    twim_busy_cnt = 0xFF;
+    return 0;
+  }
+
     if(twim_access == 0)
     {
         twim_addr_old = 0xFF;
@@ -249,15 +258,9 @@ static uint8_t twim_pool(subidx_t * pSubidx)
         return 0;
     }
 
-    if((twim_access & (TWIM_ERROR | TWIM_WRITE | TWIM_READ)) > TWIM_ERROR)
-    {
-        twim_busy_cnt = 0xC0;
-        twim_access = TWIM_ERROR;
-        return 1;
-    }
-
     twim_busy_cnt++;
-    if(twim_busy_cnt == 0xC0)   // bus busy too long
+    if((twim_busy_cnt == 0xC0) ||  // bus busy too long
+      ((twim_access & (TWIM_ERROR | TWIM_WRITE | TWIM_READ)) > TWIM_ERROR))
     {
         TWI_DISABLE();
         twim_access = TWIM_ERROR;
@@ -276,7 +279,7 @@ static uint8_t twim_pool(subidx_t * pSubidx)
 }
 
 // Check & configure TWI devices
-static void twiConfig(void)
+void twiConfig(void)
 {
     TWI_DISABLE();
 
@@ -296,18 +299,21 @@ static void twiConfig(void)
     pIndex = getFreeIdxOD();
     if(pIndex == NULL)
         return;
-
+        
+    twim_callback = NULL;
+    _delay_ms(500);
+    
 #ifdef TWI_USE_BMP180
     cnt += twi_BMP180_Config();
 #endif
 #ifdef TWI_USE_HIH61XX
     cnt += twi_HIH61xx_Config();
 #endif
-#ifdef TWI_USE_SI7005
-    cnt += twi_SI7005_Config();
-#endif
 #ifdef TWI_USE_LM75
     cnt += twi_LM75_Config();
+#endif
+#ifdef TWI_USE_SI7005
+    cnt += twi_SI7005_Config();
 #endif
 
     if(cnt == 0)
@@ -335,3 +341,5 @@ static void twiConfig(void)
     pIndex->sidx.Type =  objUInt8;
     pIndex->sidx.Base = 0;
 }
+
+#endif  //  TWI_USED

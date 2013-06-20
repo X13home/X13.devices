@@ -8,6 +8,15 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
+#include "../config.h"
+
+#if (defined EXTDIO_USED) && ((defined EXTSER_TX_USED) || (defined EXTSER_RX_USED))
+
+#include "extdio.h"
+#include "extSer.h"
+
+extern uint8_t checkDigBase(uint16_t base);
+
 // Serial input/output
 
 // Local Variables
@@ -54,7 +63,7 @@ ISR(USART_RX_vect)
 #endif  //  EXTSER_RX_USED
 // End HAL
 
-static void serClean(void)
+void serClean(void)
 {
     SER_DISABLE_RX();
     SER_DISABLE_TX();
@@ -70,7 +79,7 @@ static void serClean(void)
 #endif  //  EXTSER_RX_USED
 }
 
-static uint8_t serCheckIdx(subidx_t * pSubidx)
+uint8_t serCheckIdx(subidx_t * pSubidx)
 {
     uint8_t type = pSubidx->Type;
     if((pSubidx->Base > SER_MAX_BASE) || ((type != ObjSerRx) && (type != ObjSerTx)))
@@ -79,7 +88,7 @@ static uint8_t serCheckIdx(subidx_t * pSubidx)
 }
 
 #ifdef EXTSER_RX_USED
-static uint8_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+uint8_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = serRxPos;
     memcpy(pBuf, (uint8_t *)serRxBuf, serRxPos);
@@ -91,7 +100,7 @@ static uint8_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 #endif  //  EXTSER_RX_USED
 
 #ifdef EXTSER_TX_USED
-static uint8_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+uint8_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     if(serTxLen != 0)       //  Busy
         return MQTTS_RET_REJ_CONG;
@@ -106,7 +115,7 @@ static uint8_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 #endif  //  EXTSER_TX_USED
 
 #ifdef EXTSER_RX_USED
-static uint8_t serPoolOD(subidx_t * pSubidx)
+uint8_t serPoolOD(subidx_t * pSubidx, uint8_t _unused)
 {
     if(serRxPos > 0)
     {
@@ -120,7 +129,7 @@ static uint8_t serPoolOD(subidx_t * pSubidx)
 #endif  //  EXTSER_RX_USED
 
 // Register Object
-static uint8_t serRegisterOD(indextable_t *pIdx)
+uint8_t serRegisterOD(indextable_t *pIdx)
 {
     indextable_t idx;
 #ifdef EXTSER_TX_USED
@@ -186,7 +195,7 @@ static uint8_t serRegisterOD(indextable_t *pIdx)
 }
 
 // Delete Object
-static void serDeleteOD(subidx_t * pSubidx)
+void serDeleteOD(subidx_t * pSubidx)
 {
 #ifdef EXTSER_TX_USED
     if(pSubidx->Type == ObjSerTx)
@@ -214,3 +223,4 @@ static void serDeleteOD(subidx_t * pSubidx)
     dioDeleteOD(pSubidx);
 }
 
+#endif  // (defined EXTDIO_USED) && ((defined EXTSER_TX_USED) || (defined EXTSER_RX_USED))

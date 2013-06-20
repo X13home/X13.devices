@@ -22,50 +22,37 @@ See LICENSE.txt file for license details.
 // RH_Compens = RH_lin + (Temp(°C) - 30)*(RH_lin*0.0237 + 0,1973)
 //  A+(B-30)*(A*0.0237+0.1973)
 
-#define SI7005_ADDR                 0x40
+#include "../../config.h"
 
-// Si7005 Registers
-#define SI7005_REG_STATUS           0x00
-#define SI7005_REG_DATA             0x01
-#define SI7005_REG_CONFIG           0x03
-#define SI7005_REG_ID               0x11
+#if (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_SI7005)
 
-// Status Register
-#define SI7005_STATUS_NOT_READY     0x01
+#include "../twim.h"
+#include "twiDriver_SI7005.h"
 
-// Config Register
-#define SI7005_CONFIG_START         0x01
-#define SI7005_CONFIG_HEAT          0x02
-#define SI7005_CONFIG_HUMIDITY      0x00
-#define SI7005_CONFIG_TEMPERATURE   0x10
-#define SI7005_CONFIG_FAST          0x20
+//#define SI7005_T_MIN_DELTA          5 // use hysteresis for temperature
+//#define SI7005_H_MIN_DELTA          8 // use hysteresis for humidity
 
-// ID Register
-#define SI7005_ID_SI7005            0x50
-
-#define SI7005_T_MIN_DELTA          5
-#define SI7005_H_MIN_DELTA          8
+extern volatile uint8_t twim_access;           // access mode & busy flag
 
 // Process variables
 static uint8_t  si7005_stat;
 static uint16_t si7005_oldTemp;
 static uint16_t si7005_oldHumi;
-uint16_t        si7005_tmp;
+uint8_t         si7005_buf[2];
 
 void si7005_ReadStatus_cb(void)
 {
-  if(si7005_tmp & SI7005_STATUS_NOT_READY)
+  if(si7005_buf[0] & SI7005_STATUS_NOT_READY)
     si7005_stat--;
   else
   {
-    si7005_tmp = SI7005_REG_DATA;
-    twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, 
-                                (uint8_t *)&si7005_tmp, NULL);
+    si7005_buf[0] = SI7005_REG_DATA;
+    twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, si7005_buf, NULL);
     si7005_stat++;
   }
 }
 
-static uint8_t twi_SI7005_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+uint8_t twi_SI7005_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 2;
     if(pSubidx->Base & 1)   // Read Humidity Counter
@@ -76,7 +63,7 @@ static uint8_t twi_SI7005_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t twi_SI7005_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+uint8_t twi_SI7005_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     if(pSubidx->Base & 1)   // Renew Temperature
         si7005_oldHumi = *(uint16_t *)pBuf;
@@ -85,8 +72,16 @@ static uint8_t twi_SI7005_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
+uint8_t twi_SI7005_Pool1(subidx_t * pSubidx, uint8_t sleep)
 {
+  uint16_t si7005_tmp;
+  
+  if(sleep != 0)
+  {
+    si7005_stat = (0xFF-(POOL_TMR_FREQ/2));
+    return 0;
+  }
+
   if(si7005_stat == 0)
   {
     if(twim_access & (TWIM_BUSY | TWIM_ERROR | TWIM_RELEASE | TWIM_READ | TWIM_WRITE))
@@ -110,19 +105,20 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
   switch(si7005_stat)
   {
     case 1:             // Start Dummy Conversion
-      si7005_tmp = (SI7005_REG_CONFIG | ((SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE | SI7005_CONFIG_FAST)<<8));
-      twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)&si7005_tmp, NULL);
+      si7005_buf[0] = SI7005_REG_CONFIG;
+      si7005_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE | SI7005_CONFIG_FAST);
+      twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, si7005_buf, NULL);
       break;
     case 3:             // Start Conversion, Humidity
-      si7005_tmp = (SI7005_REG_CONFIG | ((SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY)<<8));
-      twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)&si7005_tmp, NULL);
+      si7005_buf[0] = SI7005_REG_CONFIG;
+      si7005_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_HUMIDITY);
+      twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, si7005_buf, NULL);
       break;
     // !! Conversion Time 35mS - Normal / 18 mS - Fast
     case 6:             // Read Busy Flag
     case 12:
-      si7005_tmp = SI7005_REG_STATUS;
-      twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 1, 
-          (uint8_t *)&si7005_tmp, &si7005_ReadStatus_cb);
+      si7005_buf[0] = SI7005_REG_STATUS;
+      twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 1, si7005_buf, &si7005_ReadStatus_cb);
       break;
     case 7:
     case 13:
@@ -130,17 +126,22 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
       return 0;
     case 8:             // Read Humidity
       si7005_stat++;
-      si7005_tmp = ((si7005_tmp & 0xFF)<<4) | (si7005_tmp>>12);
+      si7005_tmp = ((uint16_t)si7005_buf[0]<<4) | (si7005_buf[1]>>4);
+#if (defined SI7005_H_MIN_DELTA) && (SI7005_H_MIN_DELTA > 0)
       if((si7005_tmp > si7005_oldHumi ? si7005_tmp - si7005_oldHumi : si7005_oldHumi - si7005_tmp)
                                                                              > SI7005_H_MIN_DELTA)
+#else
+      if(si7005_tmp != si7005_oldHumi)
+#endif  // SI7005_H_MIN_DELTA
       {
         si7005_oldHumi = si7005_tmp;
         return 1;
       }
       return 0;
     case 9:             // Start Conversion Temprature
-      si7005_tmp = (SI7005_REG_CONFIG | ((SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE)<<8));
-      twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, (uint8_t *)&si7005_tmp, NULL);
+      si7005_buf[0] = SI7005_REG_CONFIG;
+      si7005_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE);
+      twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, si7005_buf, NULL);
       break;
   }
   si7005_stat++;
@@ -148,16 +149,22 @@ static uint8_t twi_SI7005_Pool1(subidx_t * pSubidx)
   return 0;
 }
 
-static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
+uint8_t twi_SI7005_Pool2(subidx_t * pSubidx, uint8_t _unused)
 {
+  uint16_t si7005_tmp;
+
   if(si7005_stat == 14)
   {
     si7005_stat++;
     twim_access = 0;        // Bus Free
-    
-    si7005_tmp = ((si7005_tmp & 0xFF)<<6) | (si7005_tmp>>10);
-      if((si7005_tmp > si7005_oldTemp ? si7005_tmp - si7005_oldTemp : si7005_oldTemp - si7005_tmp)
+
+    si7005_tmp = ((uint16_t)si7005_buf[0]<<6) | (si7005_buf[1]>>2);
+#if (defined SI7005_T_MIN_DELTA) && (SI7005_T_MIN_DELTA > 0)
+    if((si7005_tmp > si7005_oldTemp ? si7005_tmp - si7005_oldTemp : si7005_oldTemp - si7005_tmp)
                                                                              > SI7005_T_MIN_DELTA)
+#else
+    if(si7005_tmp != si7005_oldTemp)
+#endif  // SI7005_T_MIN_DELTA
     {
       si7005_oldTemp = si7005_tmp;
       return 1;
@@ -166,7 +173,7 @@ static uint8_t twi_SI7005_Pool2(subidx_t * pSubidx)
   return 0;
 }
 
-static uint8_t twi_SI7005_Config(void)
+uint8_t twi_SI7005_Config(void)
 {
     uint8_t reg = SI7005_REG_ID;
     if((twimExch(SI7005_ADDR, (TWIM_READ | TWIM_WRITE), 1, 1, &reg) != 
@@ -209,3 +216,5 @@ static uint8_t twi_SI7005_Config(void)
 
     return 2;
 }
+
+#endif // (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_SI7005)

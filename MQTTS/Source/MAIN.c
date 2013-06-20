@@ -111,7 +111,7 @@ int main(void)
             if(bTmp == MQTTS_STATUS_CONNECT)
             {
                 if(poolIdx == 0xFFFF)
-                    poolIdx = PoolOD();
+                    poolIdx = PoolOD(0);
             
                 if(poolIdx != 0xFFFF)
                 {
@@ -132,14 +132,17 @@ int main(void)
             else if(bTmp == MQTTS_STATUS_AWAKE)
             {
                 if(poolIdx == 0xFFFF)
-                    poolIdx = PoolOD();
+                    poolIdx = PoolOD(0);
             }
 #endif  //  ASLEEP
 
             bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
 #ifdef ASLEEP
             if(bTmp == MQTTS_POOL_STAT_ASLEEP)       // Sweet dreams
+            {
+                PoolOD(1);
                 goToSleep();
+            }
             else if(bTmp == MQTTS_POOL_STAT_AWAKE)   // Wake UP
                 wakeUp();
 #endif  //  ASLEEP
