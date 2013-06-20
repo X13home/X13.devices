@@ -63,6 +63,8 @@ enum
 // Port's
     objPinPNP   = 'p',  // Pin PNP
     objPinNPN   = 'n',  // Pin NPN ( Input - PullUp)
+    objActPNP   = 'A',  // Node Active  = 1, sleep = 0
+    objActNPN   = 'a',  // Node Active = 0, sleep = 1;
 // Analog In
     objArefVcc  = 'v',  // Ref = Vcc(3,3V)
     objArefExt  = 'e',  // Ref = Extertnal(not connected)
@@ -83,7 +85,7 @@ typedef struct
 
 typedef uint8_t (*cbRead_t)(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);  // Callback Read
 typedef uint8_t (*cbWrite_t)(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);   // Callback Write
-typedef uint8_t (*cbPool_t)(subidx_t * pSubidx);                                // Callback Pool
+typedef uint8_t (*cbPool_t)(subidx_t * pSubidx, uint8_t sleep);                  // Callback Pool
 
 // Struct for creating entries
 typedef struct
@@ -106,7 +108,7 @@ void RegAckOD(uint16_t index);
 uint8_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf);
 uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf);
 
-uint16_t PoolOD(void);
+uint16_t PoolOD(uint8_t sleep);
 
 #endif
  

@@ -17,33 +17,23 @@ See LICENSE.txt file for license details.
 //  ...
 //  20224 - 20231
 
-#define LM75_START_ADDR             0x48
-#define LM75_STOP_ADDR              0x4F
+#include "../../config.h"
 
-#define LM75_MAX_DEV                8           // 8/4/2/1
+#if (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_LM75)
 
-// LM75 Registers
-#define LM75_REG_TEMP               0x00        // Temperature
-#define LM75_REG_CONF               0x01        // Configuration
-#define LM75_REG_THYST              0x02        // Hysteresis
-#define LM75_REG_TOS                0x03        // Overtemperature
+#include "../twim.h"
+#include "twiDriver_LM75.h"
 
-// Config Register
-#define LM75_CONFIG_PD              0x01        // shutdown, 0 - Normal operation, 1 - shutdown
-#define LM75_CONFIG_OS_MODE_INT     0x02        // OS mode 0 -  Comparator, 1 - interrupt
-#define LM75_CONFIG_OS_POL_HI       0x04        // OS active level; 0 - Low, 1 - High
-#define LM75_CONFIG_QS_QUE_1        0x00        // OS fault queue = 1
-#define LM75_CONFIG_QS_QUE_2        0x08        // OS fault queue = 2
-#define LM75_CONFIG_QS_QUE_4        0x10        // OS fault queue = 4
-#define LM75_CONFIG_QS_QUE_6        0x18        // OS fault queue = 6
+//#define LM75_T_MIN_DELTA            63          // use hysteresis for temperature
 
-#define LM75_T_MIN_DELTA            63
+extern volatile uint8_t twim_access;           // access mode & busy flag
 
 // Process variables
 static uint8_t  lm75_stat[LM75_MAX_DEV];
 static int16_t  lm75_oldVal[LM75_MAX_DEV];
+uint8_t lm75_buf[2];
 
-static uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 2;
 /*
@@ -58,16 +48,23 @@ static uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t twi_lm75_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+uint8_t twi_lm75_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     lm75_oldVal[pSubidx->Base & (LM75_MAX_DEV - 1)] = *(uint16_t *)pBuf;
     return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
+uint8_t twi_lm75_Pool(subidx_t * pSubidx, uint8_t sleep)
 {
     uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
-    uint16_t val, diff;
+    
+    if(sleep != 0)
+    {
+      lm75_stat[base] = (0xFF-(POOL_TMR_FREQ/2));
+      return 0;
+    }
+    
+    uint16_t val;
 
     if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
@@ -90,17 +87,17 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
                 return 0;
             lm75_stat[base] = 1;
         case 1:
-            twim_buf[0] = LM75_REG_TEMP;
-            twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2,
-                                                                    (uint8_t *)twim_buf, NULL);
+            lm75_buf[0] = LM75_REG_TEMP;
+            twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, lm75_buf, NULL);
             break;
         case 2:
-            val = ((uint16_t)twim_buf[0]<<8) | (twim_buf[1]);
+            val = ((uint16_t)lm75_buf[0]<<8) | (lm75_buf[1]);
             lm75_stat[base]++;
-            
-            diff = val > lm75_oldVal[base] ? val - lm75_oldVal[base] : lm75_oldVal[base] - val;
-
-            if(diff > LM75_T_MIN_DELTA)
+#if (defined LM75_T_MIN_DELTA) && (LM75_T_MIN_DELTA > 0)
+            if((val > lm75_oldVal[base] ? val - lm75_oldVal[base] : lm75_oldVal[base] - val) > LM75_T_MIN_DELTA)
+#else
+            if(val != lm75_oldVal[base])
+#endif  //  LM75_T_MIN_DELTA
             {
                 lm75_oldVal[base] = val;
                 return 1;
@@ -114,7 +111,7 @@ static uint8_t twi_lm75_Pool(subidx_t * pSubidx)
     return 0;
 }
 
-static uint8_t twi_LM75_Config(void)
+uint8_t twi_LM75_Config(void)
 {
     uint8_t addr = LM75_START_ADDR;
     uint8_t pos = 0;
@@ -123,10 +120,10 @@ static uint8_t twi_LM75_Config(void)
 
     while((addr <= LM75_STOP_ADDR) && (pos < LM75_MAX_DEV))
     {
-        twim_buf[0] = LM75_REG_CONF;
-        twim_buf[1] = 0;    
+        lm75_buf[0] = LM75_REG_CONF;
+        lm75_buf[1] = 0;    
 
-        if(twimExch(addr, TWIM_WRITE, 2, 0, (uint8_t *)twim_buf) == TW_SUCCESS)
+        if(twimExch(addr, TWIM_WRITE, 2, 0, lm75_buf) == TW_SUCCESS)
         {
             lm75_stat[pos] = 0x80;
             lm75_oldVal[pos] = 0;
@@ -149,3 +146,5 @@ static uint8_t twi_LM75_Config(void)
     }
     return pos;
 }
+
+#endif  //  (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_LM75)

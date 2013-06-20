@@ -487,11 +487,14 @@ uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
     return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
 
-uint16_t PoolOD(void)
+uint16_t PoolOD(uint8_t sleep)
 {
   uint16_t Index;
   uint8_t * piBuf;
   uint8_t ucTmp;
+  
+  if(sleep != 0)
+    idxUpdate = 0;
 
   while((idxUpdate < OD_MAX_INDEX_LIST) && ((Index = ListOD[idxUpdate].Index) != 0xFFFF))
   {
@@ -511,7 +514,7 @@ uint16_t PoolOD(void)
       return 0xFFFF;
 
     if((ListOD[idxUpdate].cbPool != NULL) && 
-       (ListOD[idxUpdate].cbPool)(&ListOD[idxUpdate].sidx))
+       (ListOD[idxUpdate].cbPool)(&ListOD[idxUpdate].sidx, sleep))
       return Index;
       idxUpdate++;
   }
