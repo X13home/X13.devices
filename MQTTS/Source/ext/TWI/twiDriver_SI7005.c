@@ -75,13 +75,13 @@ uint8_t twi_SI7005_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 uint8_t twi_SI7005_Pool1(subidx_t * pSubidx, uint8_t sleep)
 {
   uint16_t si7005_tmp;
-  
+#ifdef ASLEEP
   if(sleep != 0)
   {
     si7005_stat = (0xFF-(POOL_TMR_FREQ/2));
     return 0;
   }
-
+#endif  //  ASLEEP
   if(si7005_stat == 0)
   {
     if(twim_access & (TWIM_BUSY | TWIM_ERROR | TWIM_RELEASE | TWIM_READ | TWIM_WRITE))

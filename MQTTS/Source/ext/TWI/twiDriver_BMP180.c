@@ -66,13 +66,13 @@ uint8_t twi_BMP180_Pool1(subidx_t * pSubidx, uint8_t sleep)
 {
     uint16_t ut;
     int32_t x1,x2;
-    
+#ifdef ASLEEP
     if(sleep != 0)
     {
       bmp180_stat = (0xFF-(POOL_TMR_FREQ/2));
       return 0;
     }
-
+#endif  //  ASLEEP
     if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
         if(bmp180_stat != 0)
