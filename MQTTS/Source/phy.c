@@ -37,4 +37,3 @@ uint8_t PHY_BuildName(uint8_t * pBuf)
   return 8;
 #endif
 }
-

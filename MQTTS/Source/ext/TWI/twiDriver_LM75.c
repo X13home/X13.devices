@@ -57,13 +57,13 @@ uint8_t twi_lm75_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 uint8_t twi_lm75_Pool(subidx_t * pSubidx, uint8_t sleep)
 {
     uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
-    
+#ifdef ASLEEP
     if(sleep != 0)
     {
       lm75_stat[base] = (0xFF-(POOL_TMR_FREQ/2));
       return 0;
     }
-    
+#endif  //  ASLEEP
     uint16_t val;
 
     if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus

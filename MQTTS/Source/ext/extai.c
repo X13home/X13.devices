@@ -145,6 +145,7 @@ uint8_t aiPoolOD(subidx_t * pSubidx, uint8_t sleep)
   uint16_t ActVal;
 
   apin = cvtBase2Apin(pSubidx->Base);
+#ifdef ASLEEP
   if(sleep != 0)
   {
     aiTimeout[apin] = POOL_TMR_FREQ;
@@ -153,6 +154,7 @@ uint8_t aiPoolOD(subidx_t * pSubidx, uint8_t sleep)
       DISABLE_ADC();
     return 0;
   }
+#endif  //  ASLEEP
 
   if(PRR & (1<<PRADC))    //  ADC Disabled
   {
