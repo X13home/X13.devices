@@ -238,18 +238,19 @@ uint8_t twim_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 uint8_t twim_pool(subidx_t * pSubidx, uint8_t sleep)
 {
+#ifdef ASLEEP
   if(sleep != 0)
   {
     TWI_DISABLE();
     twim_busy_cnt = 0xFF;
     return 0;
   }
-
-    if(twim_access == 0)
-    {
-        twim_addr_old = 0xFF;
-        return 0;
-    }
+#endif  //  ASLEEP
+  if(twim_access == 0)
+  {
+    twim_addr_old = 0xFF;
+    return 0;
+  }
 
     if(twim_addr_old != twim_addr)
     {

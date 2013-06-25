@@ -302,9 +302,10 @@ static uint8_t dioPoolOD(subidx_t * pSubidx, uint8_t sleep)
 
   if(place == objDin)
   {
+#ifdef ASLEEP
     if(sleep != 0)
       return 0;
-
+#endif  //  ASLEEP
     state = inpPort(base);
     port = cvtBase2Port(base);
     pinmask = base2Mask(base);
@@ -413,7 +414,11 @@ uint8_t dioRegisterOD(indextable_t *pIdx)
     else                        // Digital Input
         out2DDR(base, 0);
 
-    if((pIdx->sidx.Type == objPinNPN) || (pIdx->sidx.Type == objActPNP))
+    if((pIdx->sidx.Type == objPinNPN)
+#ifdef ASLEEP
+    || (pIdx->sidx.Type == objActPNP)
+#endif  // ASLEEP
+    )
         out2PORT(base, 1);
         
     pIdx->cbRead = &dioReadOD;

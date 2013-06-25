@@ -72,13 +72,13 @@ uint8_t twi_HIH61xx_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx, uint8_t sleep)
 {
   uint16_t temp;
-
+#ifdef ASLEEP
   if(sleep != 0)
   {
     hih61xx_stat = (0xFF-(POOL_TMR_FREQ/2));
     return 0;
   }
-
+#endif  //  ASLEEP
     if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
     {
         if(hih61xx_stat != 0)

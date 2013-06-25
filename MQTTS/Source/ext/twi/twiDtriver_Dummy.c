@@ -37,12 +37,13 @@ uint8_t twi_Dummy_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 uint8_t twi_Dummy_Pool(subidx_t * pSubidx, uint8_t sleep)
 {
+#ifdef ASLEEP
   if(sleep != 0)
   {
     // Reaction on ASleep mode
     return 0;
   }
-
+#endif  //  ASLEEP
   // Place hier you Pool code
 
   return 0;
