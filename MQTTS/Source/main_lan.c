@@ -16,7 +16,7 @@ volatile uint8_t iPool;
 #define IPOOL_LED_CONN  0x20
 #define IPOOL_LED_ACT   0x40
 
-int main(void)
+__attribute__((OS_main)) int main(void)
 {
 // Watchdog Stop
   cli();

@@ -21,6 +21,7 @@ See LICENSE.txt file for license details.
 #define UNODE                   1       // Select Board uNode Vers 1.0
 #define JEENODE                 1       // Select Board JeeNode(Arduino + RFM12 Shield)
 #define PANSTAMP                1       // Select Board panSTamp( Arduino + CC1101 Shield)
+#define DUMMY                   1       // Select Board without RF Interface
 
 #define RF_NODE                 1       // used RF Interconnection Interface
 #define LAN_NODE                1       // used LAN Interconnection Interface
@@ -97,6 +98,8 @@ See LICENSE.txt file for license details.
   #include "Phy/HWconfigPS.h"           // Hardware panSTamp
 #elif (defined ENC28J60)
   #include "Phy/HWconfigENC.h"          // Hardware MEGA328P + ENC28J60 on SPI
+#elif (defined DUMMY)
+  #include "Phy/HWconfigDM.h"           // Hardware Dummy
 #else
   #error Hardware configuration is not defined
 #endif

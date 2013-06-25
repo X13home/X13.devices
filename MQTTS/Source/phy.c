@@ -19,6 +19,8 @@ See LICENSE.txt file for license details.
 #include "Phy/cc11/cc11.c"
 #elif (defined _ENCPHY_H)
 #include "Phy/enc28j60/encphy.c"
+#elif (defined DUMMY)
+#include "Phy/dummy.c"
 #else
 #error Phy not defined
 #endif  //  HWCONFIG
