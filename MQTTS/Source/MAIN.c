@@ -24,7 +24,7 @@ static void wakeUp(void);
 #include "uart.h"
 #endif  //  GATEWAY
 
-int main(void)
+__attribute__((OS_main)) int main(void) 
 {
     MQ_t *  pRBuf;              // RF Buffer
     uint8_t * pPBuf;            // Publish Buffer
