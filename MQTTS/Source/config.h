@@ -88,6 +88,7 @@ See LICENSE.txt file for license details.
 #define TWI_USE_HIH61XX         1       // TWI Driver Honeywell HIH-61xx - Temperature/Humidity
 #define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
 #define TWI_USE_LM75            1       // TWI Driver, LM75 - Temperature
+//#define TWI_USE_BLINKM          1       // TWI Driver, BlinkM - Blinky RGB Driver
 //End TWI Section
 
 #if (defined UNODE)

@@ -1,6 +1,7 @@
 Version 2.5.3 RC
 
-Added     Dummy device                                                25.Jun.2013
+Added     BlinkM TWI Driver, Prototype version                        26.Jun.2013
+Added     Dummy device, w/o RF Frontend                               25.Jun.2013
 Changed   Plugins structure                                           20.Jun.2013
 Added     Digital Output [OA - PNP]/[Oa -NPN) / Active/Sleep Mode     19.Jun.2013
 Fixed     Incorrect transition from ASleep to Connect mode.           14.Jun.2013
