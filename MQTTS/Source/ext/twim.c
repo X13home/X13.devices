@@ -35,6 +35,10 @@ See LICENSE.txt file for license details.
 #include "twi/twiDriver_LM75.h"
 #endif  //  TWI_USE_LM75
 
+#ifdef TWI_USE_BLINKM
+#include "twi/twiDriver_BlinkM.h"
+#endif
+
 // ExtDIO internal subroutines
 extern uint8_t base2Mask(uint16_t base);
 extern uint8_t checkDigBase(uint16_t base);
@@ -316,6 +320,9 @@ void twiConfig(void)
 #ifdef TWI_USE_SI7005
     cnt += twi_SI7005_Config();
 #endif
+#ifdef  TWI_USE_BLINKM
+    cnt += twi_BlinkM_Config();
+#endif  //  TWI_USE_BLINKM
 
     if(cnt == 0)
     {
