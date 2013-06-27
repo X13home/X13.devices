@@ -57,6 +57,8 @@ enum
     objUInt16   = 'W',  // uint16
     objInt32    = 'd',  // int32
     objUInt32   = 'D',  // uint32
+    objInt64    = 'q',  // int64
+    objUInt64   = 'Q',  // uint64
     objString   = 's',  // UTF8 '0' - terminated string
     objArray    = 'a',  // array
     objUnknown  = 'U',  // unknown
