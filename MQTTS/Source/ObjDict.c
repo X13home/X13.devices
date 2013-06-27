@@ -414,6 +414,10 @@ static uint8_t cvtSubidx2Len(subidx_t * pSubIdx)
             return 0x84;
         case objUInt32:
             return 4;
+        case objInt64:
+            return 0x88;
+        case objUInt64:
+            return 8;
     }
     return 0;
 }
