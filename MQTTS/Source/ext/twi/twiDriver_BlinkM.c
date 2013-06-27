@@ -8,7 +8,7 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-// BlinkM driver, Prototype
+// BlinkM driver, Prototype, !! Not Tested
 
 #include "../../config.h"
 
@@ -19,44 +19,75 @@ See LICENSE.txt file for license details.
 
 extern volatile uint8_t twim_access;           // access mode & busy flag
 
-static uint32_t blinkm_buf;
+// Process variables
+static uint8_t  blinkm_buf[BLINKM_MAX_DEV];
+static uint8_t blinkm_state[BLINKM_MAX_DEV];
 
 uint8_t twi_BlinkM_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
-  blinkm_buf = *(uint32_t *)pBuf;
-  twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_WRITE), 4, 0, (uint8_t *)&blinkm_buf, NULL);
+  uint8_t pos = pSubidx->Base & (BLINKM_MAX_DEV - 1);
+  blinkm_buf[pos] = *(uint32_t *)pBuf;
+  blinkm_state[pos] = 1;
   return MQTTS_RET_ACCEPTED;
+}
+
+uint8_t twi_BlinkM_Pool(subidx_t * pSubidx, uint8_t sleep)
+{
+#ifdef ASLEEP
+  if(sleep != 0)
+    return 0;
+#endif  //  ASLEEP
+
+  uint8_t pos, tmp;
+
+  pos = pSubidx->Base & (BLINKM_MAX_DEV - 1);
+  tmp = blinkm_state[pos];
+
+  if(tmp == 2)
+  {
+    blinkm_state[pos] = 0;
+    twim_access = 0;
+  }
+  else if((tmp == 1) && (twim_access == 0))
+  {
+    blinkm_state[pos] = 2;
+    twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_WRITE), 4, 0, (uint8_t *)&blinkm_buf[pos], NULL);
+  }
+
+  return 0;
 }
 
 uint8_t twi_BlinkM_Config(void)
 {
-  uint8_t reg, addr;
+  uint8_t reg, addr, cnt = 0;
   
-  for(addr = 1; addr < 129; addr++)
-  {
-    if(addr == 128)
-      return 0;
-
-    reg = 'a';  // Get BlinkM Address
-    if(twimExch(addr, (TWIM_READ | TWIM_WRITE), 1, 1, &reg) == TW_SUCCESS)  // &&    // Device Present
-//        (reg == addr))
-      break;
-  }
-  
-  // Register variables
   indextable_t * pIndex;
-  pIndex = getFreeIdxOD();
-  if(pIndex == NULL)
-    return 0;
 
-  pIndex->cbRead  =  NULL;
-  pIndex->cbWrite =  &twi_BlinkM_Write;
-  pIndex->cbPool  =  NULL;
-  pIndex->sidx.Place = objTWI;               // Object TWI
-  pIndex->sidx.Type =  objUInt32;            // Variables Type -  UInt32
-  pIndex->sidx.Base = (addr<<8);             // Device addr
+  for(addr = BLINKM_START_ADDR; (addr < BLINKM_STOP_ADDR) && (cnt < BLINKM_MAX_DEV); addr++)
+  {
+    reg = 'a';  // Get BlinkM Address
+    if((twimExch(addr, (TWIM_READ | TWIM_WRITE), 1, 1, &reg) == TW_SUCCESS)  &&    // Device Present
+        (reg == addr))
+    {
+      pIndex = getFreeIdxOD();
+      if(pIndex == NULL)
+        break;
 
-  return 1;
+      pIndex->cbRead  =  NULL;
+      pIndex->cbWrite =  &twi_BlinkM_Write;
+      pIndex->cbPool  =  &twi_BlinkM_Pool;
+      pIndex->sidx.Place = objTWI;               // Object TWI
+      pIndex->sidx.Type =  objUInt32;            // Variables Type -  UInt32
+      pIndex->sidx.Base = (addr<<8) + cnt;       // Device addr
+      
+      blinkm_buf[cnt] = 0;
+      blinkm_state[cnt] = 1;
+
+      cnt++;
+    }
+  }
+
+  return cnt;
 }
 
 #endif  //  (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_BLINKM)
