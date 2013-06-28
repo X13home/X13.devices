@@ -17,6 +17,10 @@ See LICENSE.txt file for license details.
 
 #ifdef EXTAI_USED
 #include "extai.h"
+extern uint16_t aiApin2Mask(uint8_t apin);
+extern uint8_t cvtBase2Apin(uint16_t base);
+extern uint8_t checkAnalogBase(uint16_t base);
+
 extern uint16_t ai_busy_mask;
 #endif  //  EXTAI_USED
 
