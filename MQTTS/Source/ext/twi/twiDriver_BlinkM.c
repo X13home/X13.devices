@@ -20,15 +20,13 @@ See LICENSE.txt file for license details.
 extern volatile uint8_t twim_access;           // access mode & busy flag
 
 // Process variables
-//static uint64_t  blinkm_buf[BLINKM_MAX_DEV];
-static uint32_t  blinkm_buf[BLINKM_MAX_DEV];
+static uint64_t  blinkm_buf[BLINKM_MAX_DEV];
 static uint8_t blinkm_state[BLINKM_MAX_DEV];
 
 uint8_t twi_BlinkM_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
   uint8_t pos = pSubidx->Base & (BLINKM_MAX_DEV - 1);
-//  blinkm_buf[pos] = *(uint64_t *)pBuf;
-  blinkm_buf[pos] = *(uint32_t *)pBuf;
+  blinkm_buf[pos] = *(uint64_t *)pBuf;
   blinkm_state[pos] = 1;
   return MQTTS_RET_ACCEPTED;
 }
@@ -54,7 +52,6 @@ uint8_t twi_BlinkM_Pool(subidx_t * pSubidx, uint8_t sleep)
   {
     switch(blinkm_buf[pos] & 0xFF)
     {
-/*
       case 'W': // Write Script Line            7 0 {‘W’,n,p,...}
         len = 8;
         break;
@@ -64,7 +61,6 @@ uint8_t twi_BlinkM_Pool(subidx_t * pSubidx, uint8_t sleep)
       case 'A': // Set BlinkM Address           4 0 {‘A’,a...}
         len = 5;
         break;
-*/
       case 'n': // Go to RGB Color Now          3 0 {‘n’,R,G,B}
       case 'c': // Fade to RGB Color            3 0 {‘c’,R,G,B}
       case 'h': // Fade to HSB Color            3 0 {‘h’,H,S,B}
@@ -113,8 +109,7 @@ uint8_t twi_BlinkM_Config(void)
       pIndex->cbWrite =  &twi_BlinkM_Write;
       pIndex->cbPool  =  &twi_BlinkM_Pool;
       pIndex->sidx.Place = objTWI;               // Object TWI
-//      pIndex->sidx.Type =  objUInt64;            // Variables Type -  UInt64
-      pIndex->sidx.Type =  objUInt32;            // Variables Type -  UInt32
+      pIndex->sidx.Type =  objInt64;             // Variables Type -  Int64
       pIndex->sidx.Base = (addr<<8) + cnt;       // Device addr
       
       blinkm_buf[cnt] = 0;
