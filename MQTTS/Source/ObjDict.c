@@ -22,7 +22,7 @@ const uint8_t  EEMEM ee_Channel = 0xFF;                                 // Chann
 #endif  //  RF_NODE
 
 #ifdef LAN_NODE
-const uint8_t  EEMEM ee_MAC_Addr[]  = {0x06, 0x00,0x04,0xA3,0x00,0x00,0x01};
+const uint8_t  EEMEM ee_MAC_Addr[]  = OD_DEV_MAC;
 const uint8_t  EEMEM ee_IP_Addr[]   = {0xFF,0xFF,0xFF,0xFF};
 const uint8_t  EEMEM ee_IP_Mask[]   = {0xFF,0xFF,0xFF,0xFF};
 const uint8_t  EEMEM ee_IP_Router[] = {0xFF,0xFF,0xFF,0xFF};

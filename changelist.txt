@@ -1,5 +1,6 @@
 Version 2.5.3 RC
 
+Added     Wiznet PtotoType                                            30.Jun.2013
 Bugfix    Digital IO 19                                               28.Jun.2013
 Added     BlinkM TWI Driver                                           28.Jun.2013
 Added     Data type Int64                                             28.Jun.2013
