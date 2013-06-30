@@ -19,6 +19,8 @@ See LICENSE.txt file for license details.
 #include "Phy/cc11/cc11.c"
 #elif (defined _ENCPHY_H)
 #include "Phy/enc28j60/encphy.c"
+#elif (defined _WIZPHY_H)
+#include "Phy/WIZNET/wizphy.c"
 #elif (defined DUMMY)
 #include "Phy/dummy.c"
 #else

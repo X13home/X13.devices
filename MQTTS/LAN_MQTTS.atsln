@@ -6,10 +6,13 @@ EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		enc28j60|AVR = enc28j60|AVR
+		wiznet|AVR = wiznet|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{72A53C02-0597-49DB-94EC-7C2B283FA8AB}.enc28j60|AVR.ActiveCfg = LNNDEN|AVR
 		{72A53C02-0597-49DB-94EC-7C2B283FA8AB}.enc28j60|AVR.Build.0 = LNNDEN|AVR
+		{72A53C02-0597-49DB-94EC-7C2B283FA8AB}.wiznet|AVR.ActiveCfg = LNNDWZ|AVR
+		{72A53C02-0597-49DB-94EC-7C2B283FA8AB}.wiznet|AVR.Build.0 = LNNDWZ|AVR
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

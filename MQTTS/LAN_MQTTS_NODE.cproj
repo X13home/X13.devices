@@ -3,7 +3,7 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.1</ProjectVersion>
-    <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
+    <ToolchainName>com.Atmel.AVRGCC8</ToolchainName>
     <ProjectGuid>{72a53c02-0597-49db-94ec-7c2b283fa8ab}</ProjectGuid>
     <avrdevice>ATmega328P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
@@ -37,6 +37,7 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
+    <AsfVersion>3.4.1</AsfVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'LNNDEN' ">
     <ToolchainSettings>
@@ -74,6 +75,43 @@
     </ToolchainSettings>
     <OutputFileName>LNNDEN</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'LNNDWZ' ">
+    <ToolchainSettings>
+      <AvrGcc>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>WIZNET=1</Value>
+      <Value>F_CPU=12500000UL</Value>
+      <Value>EXTDIO_USED=1</Value>
+      <Value>EXTPWM_USED=1</Value>
+      <Value>EXTAI_USED=1</Value>
+      <Value>EXTSER_TX_USED=1</Value>
+      <Value>EXTSER_RX_USED=1</Value>
+      <Value>TWI_USED=1</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcc.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </avrgcc.linker.libraries.Libraries>
+  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+</AvrGcc>
+    </ToolchainSettings>
+    <OutputFileName>LNNDWZ</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputPath>bin\wiznet\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Source" />

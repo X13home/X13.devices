@@ -8,8 +8,8 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-#ifndef _HWCONFIG_ENC_H
-#define _HWCONFIG_ENC_H
+#ifndef _HWCONFIG_WIZ_H
+#define _HWCONFIG_WIZ_H
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -24,17 +24,17 @@ See LICENSE.txt file for license details.
 #include <stdlib.h>
 #include <string.h>
 
-// Hardware definitions LAN Node + ENC28J60
+// Hardware definitions LAN Node + WIZNET W5200
 
 // 0 - 7    PORTA - not exist
 // PORTB
 // --   PB0     --      LED
-// --   PB1     -- 
+// --   PB1     --
 // --   PB2     --      PHY_CSN
 // --   PB3     ISP-4   PHY_MOSI
 // --   PB4     ISP-1   PHY_MISO
 // --   PB5     ISP-3   PHY_SCK
-// --   PB6     --      CLK_IN
+// --   PB6     --
 // --   PB7     --
 // PORT C
 // 16   PC0     SV1-3   Ain0
@@ -44,12 +44,12 @@ See LICENSE.txt file for license details.
 // 20   PC4     SV1-7   SDA/Ain4
 // 21   PC5     SV1-8 - SCL/Ain5
 // --   PC6     ISP-5   RESET
-// --   --      Ain6
+// --   --              Ain6
 // --   --      SV1-1   Ain7
 // PORT D
-// 24   PD0     SV1-11  RXD - On gateway busy
-// 25   PD1     SV1-12  TXD - On gateway busy
-// 26   PD2     SV1-13  IRQ 0
+// 24   PD0     SV1-11  RXD
+// 25   PD1     SV1-12  TXD
+// 26   PD2     --      IRQ 0 - PHY_IRQ(Compatibility Mode)
 // 27   PD3     SV1-14  IRQ 1
 // 28   PD4     SV1-15
 // 29   PD5     SV1-16  PWM0
@@ -59,10 +59,9 @@ See LICENSE.txt file for license details.
 // Object's Dictionary Section
 #define OD_DEV_TYP_0        'L'
 #define OD_DEV_TYP_1        'N'
-#define OD_DEV_TYP_2        '0'
+#define OD_DEV_TYP_2        '1'
 #define OD_DEV_TYP_3        '0'
-
-#define OD_DEV_MAC          {0x06, 0x00,0x04,0xA3,0x00,0x00,0x01}   // LEN - 6 bytes, MAC MSB->LSB
+#define OD_DEV_MAC          {0x06, 0x00,0x08,0xDC,0x00,0x00,0x01}   // LEN - 6 bytes, MAC MSB->LSB
 // End OD Section
 
 #define SystemReset()           {cli();asm("jmp 0x0000");}
@@ -87,21 +86,6 @@ See LICENSE.txt file for license details.
 #define USART_DISABLE_DREINT()  UCSR0B &= ~(1<<UDRIE0)
 #define USART_ENABLE_DREINT()   UCSR0B |= (1<<UDRIE0)
 
-#ifdef GATEWAY
-
-#define RXD                     PORTD0
-#define TXD                     PORTD1
-
-#define USART_CONFIG_PORT()     {PRR &= ~(1<<PRUSART0); \
-                                 PORTD |= (1<<RXD) | (1<<TXD); DDRD |= (1<<TXD); DDRD &= ~(1<<RXD);}
-#define USART_BAUD              ((F_CPU/16/38400) - 1) // Baud = 38400, val = Fosc/(16 * baud) - 1
-#define USART_CONFIGURE()       {UCSR0B = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));  \
-                                 UCSR0C = (3<<UCSZ00);}
-#include "uart.h"
-// End USART Section
-
-#else   //  !GATEWAY
-
 // Serial Output
 #define SER_PIN_TX              25
 #define SER_PIN_RX              24
@@ -116,7 +100,6 @@ See LICENSE.txt file for license details.
 #define SER_DISABLE_TX()        {UCSR0B &= ~(1<<TXEN0);                             \
                                  if((UCSR0B & ((1<<TXEN0) | (1<<RXEN0))) == 0)      \
                                     PRR |= (1<<PRUSART0);}
-#endif  //  GATEWAY
 
 // Timer Section
 #define POOL_TMR_FREQ           64     // Pool Frequency (Hz)
@@ -140,12 +123,7 @@ See LICENSE.txt file for license details.
 #define PORTDDR3                DDRD
 #define PORTOUT3                PORTD
 #define PORTIN3                 PIND
-
-#ifdef GATEWAY
-#define PORT3MASK               0x07
-#else   //  GATEWAY
 #define PORT3MASK               0x04
-#endif  //  GATEWAY
 
 // PWM
 #define PWM_PIN0                29
@@ -187,35 +165,35 @@ See LICENSE.txt file for license details.
 #define LED_OFF()               PORTB |= (1<<PORTB0);
 #define LED_TGL()               PORTB ^= (1<<PORTB0);
 
-// ENC28J60 Section
-#define ENC_DDR                 DDRB
-#define ENC_PORT                PORTB
-#define ENC_PIN_SS              PORTB2
-#define ENC_PIN_MOSI            PORTB3
-#define ENC_PIN_MISO            PORTB4
-#define ENC_PIN_SCK             PORTB5
+// WIZNET Section
+#define WIZ_DDR                 DDRB
+#define WIZ_PORT                PORTB
+#define WIZ_PIN_SS              PORTB2
+#define WIZ_PIN_MOSI            PORTB3
+#define WIZ_PIN_MISO            PORTB4
+#define WIZ_PIN_SCK             PORTB5
 
-// PIN IRQ is not used, but for compatibility with another board
-#define ENC_IRQ_DDR             DDRD
-#define ENC_IRQ_PORT            PORTD
-#define ENC_IRQ_PORTIN          PIND
-#define ENC_IRQ_PIN             PORTD2
+// PIN IRQ
+#define WIZ_IRQ_DDR             DDRD
+#define WIZ_IRQ_PORT            PORTD
+#define WIZ_IRQ_PORTIN          PIND
+#define WIZ_IRQ_PIN             PORTD2
 
-#define ENC_PORT_INIT()     {ENC_PORT |= (1<<ENC_PIN_SS) | (1<<PORTB0); \
-                             ENC_DDR  &= ~(1<<ENC_PIN_MISO);         \
-                             ENC_DDR  |= (1<<ENC_PIN_SCK) | (1<<ENC_PIN_MOSI) | (1<<ENC_PIN_SS) | \
+#define WIZ_PORT_INIT()     {WIZ_PORT |= (1<<WIZ_PIN_SS) | (1<<PORTB0); \
+                             WIZ_DDR  &= ~(1<<WIZ_PIN_MISO);         \
+                             WIZ_DDR  |= (1<<WIZ_PIN_SCK) | (1<<WIZ_PIN_MOSI) | (1<<WIZ_PIN_SS) | \
                              (1<<PORTB0);  \
-                             ENC_IRQ_DDR &= ~(1<<ENC_IRQ_PIN); ENC_IRQ_PORT |= (1<<ENC_IRQ_PIN); }
-#define ENC_SELECT()        ENC_PORT &= ~(1<<ENC_PIN_SS)
-#define ENC_RELEASE()       ENC_PORT |= (1<<ENC_PIN_SS)
+                             WIZ_IRQ_DDR &= ~(1<<WIZ_IRQ_PIN); WIZ_IRQ_PORT |= (1<<WIZ_IRQ_PIN); }
+#define WIZ_SELECT()        WIZ_PORT &= ~(1<<WIZ_PIN_SS)
+#define WIZ_RELEASE()       WIZ_PORT |= (1<<WIZ_PIN_SS)
 
-#define ENC_SPI_INIT()          {SPCR = (1<<SPE)|(1<<MSTR); SPSR |= (1<<SPI2X);}
-#define ENC_SPI_DATA            SPDR
-#define ENC_SPI_BISY            (!(SPSR &(1<<SPIF)))
-// End ENC28J60 Section
+#define WIZ_SPI_INIT()          {SPCR = (1<<SPE)|(1<<MSTR); SPSR |= (1<<SPI2X);}
+#define WIZ_SPI_DATA            SPDR
+#define WIZ_SPI_BISY            (!(SPSR &(1<<SPIF)))
+// End WIZNET Section
 
 #define LAN_NODE              1
-#define ENC28J60_EN           1
+#define WIZNET_EN             1
 
 typedef struct
 {
@@ -225,6 +203,6 @@ typedef struct
 
 #define AddrBroadcast {{0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}, {0xFF,0xFF,0xFF,0xFF}}
 
-#include "enc28j60/encphy.h"
+#include "WIZNET/wizphy.h"
 
 #endif
