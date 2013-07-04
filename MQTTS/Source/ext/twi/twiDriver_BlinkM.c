@@ -10,6 +10,9 @@ See LICENSE.txt file for license details.
 
 // BlinkM driver
 
+// Tq[Addr] = MODE+256*(R+256*(G+256*B))
+// MODE: 110 - Go to RGB Color Now, 99 - Fade to RGB Color
+
 #include "../../config.h"
 
 #if (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_BLINKM)

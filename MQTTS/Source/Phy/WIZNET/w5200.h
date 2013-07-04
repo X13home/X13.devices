@@ -70,6 +70,26 @@
 // Socket Interrupt Mask
 #define IMR2                    0x0036
 
+/* MODE register values */
+#define MR_RST                  0x80  /**< reset */
+#define MR_WOL                  0x20  /**< Wake on Lan */
+#define MR_PB                   0x10  /**< ping block */
+#define MR_PPPOE                0x08  /**< enable pppoe */
+
+/* IR register values */
+#define IR_CONFLICT             0x80  /**< check ip confict */
+#define IR_PPPoE                0x20  /**< get the PPPoE close message */
+
+#define IR_SOCK(ch)             (0x01 << ch)  /**< check socket interrupt */
+
+/* PHYSTATUS register values */
+#define PHY_LINK                0x20  /** Link Status RO  0 - Down / 1 - Up*/
+#define PHY_PD                  0x08  /** Power down Mode,  0 - Normal operation / 1-Power Down*/
+
+/* IMR2 Socket Interrupt Mask Register 2*/
+#define IM_IR7                  0x80  /** IP Conflict Enable */
+#define IM_IR5                  0x20  /** PPPoE Close Enable  */
+
 /**
  @brief socket register
 */
@@ -172,23 +192,6 @@
 #define Sn_SMWRPTR0(ch)         (CH_BASE + ch * CH_SIZE + 0x0032)
 #define Sn_SMWRPTR1(ch)         (CH_BASE + ch * CH_SIZE + 0x0033)
 
-/* MODE register values */
-#define MR_RST                  0x80  /**< reset */
-#define MR_WOL                  0x20  /**< Wake on Lan */
-#define MR_PB                   0x10  /**< ping block */
-#define MR_PPPOE                0x08  /**< enable pppoe */
-#define MR_LB                   0x04  /**< little or big endian selector in indirect mode */
-#define MR_AI                   0x02  /**< auto-increment in indirect mode */
-#define MR_IND                  0x01  /**< enable indirect mode */
-
-/* IR register values */
-#define IR_CONFLICT             0x80  /**< check ip confict */
-#define IR_UNREACH              0x40  /**< get the destination unreachable message in UDP sending */
-#define IR_PPPoE                0x20  /**< get the PPPoE close message */
-#define IR_MAGIC                0x10  /**< get the magic packet interrupt */
-
-#define IR_SOCK(ch)             (0x01 << ch)  /**< check socket interrupt */
-
 /* Sn_MR values */
 #define Sn_MR_CLOSE             0x00  /**< unused socket */
 #define Sn_MR_TCP               0x01  /**< TCP */
@@ -197,6 +200,7 @@
 #define Sn_MR_MACRAW            0x04  /**< MAC LAYER RAW SOCK */
 #define Sn_MR_PPPOE             0x05  /**< PPPoE */
 #define Sn_MR_ND                0x20  /**< No Delayed Ack(TCP) flag */
+#define Sn_MR_MF                0x40  /** MAC Filter Enable */
 #define Sn_MR_MULTI             0x80  /**< support multicating */
 
 /* Sn_CR values */
@@ -219,6 +223,7 @@
 
 /* Sn_SR values */
 #define SOCK_CLOSED             0x00  /**< closed */
+#define SOCK_ARP                0x01  /** ARP Request is transmitted */
 #define SOCK_INIT               0x13  /**< init state */
 #define SOCK_LISTEN             0x14  /**< listen state */
 #define SOCK_SYNSENT            0x15  /**< connection state */
@@ -233,6 +238,16 @@
 #define SOCK_IPRAW              0x32  /**< ip raw mode socket */
 #define SOCK_MACRAW             0x42  /**< mac raw mode socket */
 #define SOCK_PPPOE              0x5F  /**< pppoe socket */
+
+/* Sn_IMR values */
+#define Sn_IMR_PRECV            0x80
+#define Sn_IMR_PFAIL            0x40
+#define Sn_IMR_PNEXT            0x20
+#define Sn_IMR_SEND_OK          0x10  /** Sn_IR(SENDOK) Interrupt Mask */
+#define Sn_IMR_TIMEOUT          0x08  /** Sn_IR(TIMEOUT) Interrupt Mask */
+#define Sn_IMR_RECV             0x04  /** Sn_IR(RECV) Interrupt Mask  */
+#define Sn_IMR_DISCON           0x02  /** Sn_IR(DISCON) Interrupt Mask  */
+#define Sn_IMR_CON              0x01  /** Sn_IR(CON) Interrupt Mask */
 
 /* IP PROTOCOL */
 #define IPPROTO_IP              0     /**< Dummy for IP */

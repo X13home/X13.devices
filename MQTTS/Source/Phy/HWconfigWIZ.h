@@ -190,6 +190,10 @@ See LICENSE.txt file for license details.
 #define WIZ_SPI_INIT()          {SPCR = (1<<SPE)|(1<<MSTR); SPSR |= (1<<SPI2X);}
 #define WIZ_SPI_DATA            SPDR
 #define WIZ_SPI_BISY            (!(SPSR &(1<<SPIF)))
+
+#define WIZ_ISR_DISABLE()
+#define WIZ_ISR_ENABLE()
+
 // End WIZNET Section
 
 #define LAN_NODE              1
