@@ -1,5 +1,15 @@
- /**
-@brief	This function writes the data into W5200 registers.
+/*
+Copyright (c) 2011-2013 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.github.com
+
+BSD New License
+See LICENSE.txt file for license details.
+*/
+
+/**
+@brief  This function writes the data into W5200 registers.
 */
 void wiz_write(uint16_t addr, uint8_t data)
 {
@@ -22,7 +32,7 @@ void wiz_write(uint16_t addr, uint8_t data)
 }
 
 /**
-@brief	This function reads the value from W5100 registers.
+@brief  This function reads the value from W5100 registers.
 */
 uint8_t wiz_read(uint16_t addr)
 {
@@ -50,7 +60,7 @@ uint8_t wiz_read(uint16_t addr)
 }
 
 /**
-@brief	This function writes into W5100 memory(Buffer)
+@brief  This function writes into W5100 memory(Buffer)
 */ 
 void wiz_write_buf(uint16_t addr, uint8_t *pBuf, uint16_t len)
 {
@@ -79,7 +89,7 @@ void wiz_write_buf(uint16_t addr, uint8_t *pBuf, uint16_t len)
 }
 
 /**
-@brief	This function reads into W5100 memory(Buffer)
+@brief  This function reads into W5100 memory(Buffer)
 */ 
 void wiz_read_buf(uint16_t addr, uint8_t * pBuf, uint16_t len)
 {
@@ -107,4 +117,3 @@ void wiz_read_buf(uint16_t addr, uint8_t * pBuf, uint16_t len)
   WIZ_RELEASE();
   WIZ_ISR_ENABLE();
 }
-

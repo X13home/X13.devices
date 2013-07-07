@@ -10,6 +10,10 @@ See LICENSE.txt file for license details.
 
 // CC1101 RF Tranceiver
 
+#include "../../config.h"
+
+#ifdef CC110_EN
+
 #include <util/delay.h>
 #include "CC11_Reg.h"
 
@@ -368,3 +372,11 @@ void PHY_Pool(void)
     cc11v_State = RF_TRVRXIDLE;
   }
 }
+
+uint8_t PHY_BuildName(uint8_t * pBuf)
+{
+  sprinthex(&pBuf[0], cc11s_NodeID);
+  return 2;
+}
+#endif  //  CC110_EN
+
