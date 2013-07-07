@@ -73,7 +73,7 @@ See LICENSE.txt file for license details.
 
 #define OD_DEV_SWVERSH          '2'     // Software Version
 #define OD_DEV_SWVERSM          '5'
-#define OD_DEV_SWVERSL          '3'
+#define OD_DEV_SWVERSL          '4'
 
 // RF Section
 //#define RF_BASE_FREQ            433920000UL
@@ -119,5 +119,6 @@ See LICENSE.txt file for license details.
 #include "mqMEM.h"
 #include "objdict.h"
 #include "phy.h"
+#include "util.h"
 
 #endif  // _CONFIG_H
