@@ -120,6 +120,12 @@
     <Compile Include="Source\ext\twim.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_BlinkM.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_BlinkM.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\ext\twi\twiDriver_BMP180.c">
       <SubType>compile</SubType>
     </Compile>

@@ -50,7 +50,8 @@ uint8_t twi_BlinkM_Pool(subidx_t * pSubidx, uint8_t sleep)
   }
   else if((tmp == 1) && (twim_access == 0))
   {
-    switch(blinkm_buf[pos] & 0xFF)
+    tmp = blinkm_buf[pos] & 0xFF;
+    switch(tmp)
     {
       case 'W': // Write Script Line            7 0 {‘W’,n,p,...}
         len = 8;
