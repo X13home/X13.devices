@@ -16,6 +16,9 @@ See LICENSE.txt file for license details.
 uint8_t macaddr[6];
 uint8_t ipaddr[4];
 
+#include "w5200.c"
+#include "socket.c"
+
 void PHY_LoadConfig(void)
 {
   uint8_t Len;

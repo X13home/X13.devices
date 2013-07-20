@@ -3,7 +3,7 @@
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.1</ProjectVersion>
-    <ToolchainName>com.Atmel.AVRGCC8</ToolchainName>
+    <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
     <ProjectGuid>{72a53c02-0597-49db-94ec-7c2b283fa8ab}</ProjectGuid>
     <avrdevice>ATmega328P</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
