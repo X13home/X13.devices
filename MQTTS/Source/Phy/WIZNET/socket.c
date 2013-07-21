@@ -64,39 +64,3 @@ uint8_t socket(SOCKET s, uint8_t protocol, uint16_t port, uint8_t flag)
   }
   return 0;
 }
-
-/**
-@brief  This function is an application I/F function which is used to send the data for other then TCP mode. 
-        Unlike TCP transmission, The peer's destination address and the port is needed.
-@return This function return send data size for success else -1.
-*/ 
-uint16_t sendto(SOCKET s, uint8_t * buf, uint16_t len, uint8_t * addr, uint16_t port)
-{
-//  if(len > getIINCHIP_TxMAX(s))   // check size not to exceed MAX size.
-//    len = getIINCHIP_TxMAX(s);
-
-  if(((addr[0] == 0x00) && (addr[1] == 0x00) && (addr[2] == 0x00) && (addr[3] == 0x00)) ||
-     (port == 0x00) || (len == 0))
-    return 0;
-
-  wiz_write(Sn_DIPR0(s), addr[0]);
-  wiz_write(Sn_DIPR0(s) + 1, addr[1]);
-  wiz_write(Sn_DIPR0(s) + 2, addr[2]);
-  wiz_write(Sn_DIPR0(s) + 3, addr[3]);
-  wiz_write(Sn_DPORT0(s), port>>8);
-  wiz_write(Sn_DPORT0(s) + 1, port & 0xff);
-
-  // copy data
-//  send_data_processing(s, buf, len);
-  wiz_write(Sn_CR(s),Sn_CR_SEND);
-
-  while(wiz_read(Sn_CR(s))) ;
-
-#ifdef __DEF_WIZNET_INT__
-  putISR(s, getISR(s) & (~Sn_IR_SEND_OK));
-#else   //  !__DEF_WIZNET_INT__
-  wiz_write(Sn_IR(s), Sn_IR_SEND_OK);
-#endif  //  __DEF_WIZNET_INT__
-
-  return 1;
-}
