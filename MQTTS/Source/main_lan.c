@@ -35,9 +35,8 @@ __attribute__((OS_main)) int main(void)
   // Initialise  variables
   iPool = 0;
   
-  MQ_t * pRBuf = NULL;        // RF Buffer
-  MQ_t * pMBuf = NULL;        // MQTTS Buffer
-  uint8_t * pPBuf = NULL;     // Publish Buffer
+
+  
     
   uint8_t objLen;
   uint16_t poolIdx = 0xFFFF;
@@ -53,6 +52,9 @@ __attribute__((OS_main)) int main(void)
   
   while(1)
   {
+    MQ_t * pRBuf;                   // RF Buffer
+    MQ_t * pMBuf;                   // MQTTS Buffer
+  
     if((pRBuf = PHY_GetBuf()) != NULL)
     {
       iPool |= IPOOL_LED_ACT;
@@ -79,6 +81,7 @@ __attribute__((OS_main)) int main(void)
         if(poolIdx != 0xFFFF)
         {
           // Publish
+          uint8_t * pPBuf;          // Publish Buffer
           pPBuf = (uint8_t *)mqAssert();
           if(pPBuf != NULL)
           {
