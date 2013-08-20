@@ -334,20 +334,20 @@ uint8_t RegisterOD(MQ_t *pBuf)
     while(ListOD[id].Index != 0xFFFF)
     {
         if(memcmp((const void *)&Subidx, (const void *)&ListOD[id].sidx,sizeof(subidx_t)) == 0)
-            break;                                                  // Object exist but not registered
+            break;                                                // Object exist but not registered
 
         if(((ListOD[id].Index == TopicId) && (TopicId != 0)) ||   // Object exist & registered
-            (++id == OD_MAX_INDEX_LIST))                            // Table full
+            (++id == OD_MAX_INDEX_LIST))                          // Table full
             return MQTTS_RET_REJ_INV_ID;
     }
 
-    if(ListOD[id].Index == 0xFFFF)                                     // New variable
+    if(ListOD[id].Index == 0xFFFF)                                // New variable
     {
-        if(TopicId == 0)                                        // Try to delete not exist variable
+        if(TopicId == 0)                                          // Try to delete not exist variable
             return MQTTS_RET_REJ_INV_ID;
         
         ListOD[id].sidx = Subidx;
-        if((RetVal = extRegisterOD(&ListOD[id])) != MQTTS_RET_ACCEPTED)  // Variable overlapped
+        if(extRegisterOD(&ListOD[id]) != MQTTS_RET_ACCEPTED)      // Variable overlapped
             return MQTTS_RET_REJ_INV_ID;
 
         ListOD[id].Index = TopicId;

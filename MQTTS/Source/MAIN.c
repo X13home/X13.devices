@@ -26,7 +26,6 @@ static void wakeUp(void);
 
 __attribute__((OS_main)) int main(void) 
 {
-    MQ_t *  pRBuf;              // RF Buffer
     uint8_t * pPBuf;            // Publish Buffer
 #ifdef GATEWAY
     MQ_t *  pUBuf;              // USART Buffer
@@ -82,6 +81,7 @@ __attribute__((OS_main)) int main(void)
           }
         }
 
+        MQ_t *  pRBuf;              // RF Buffer
         pRBuf = PHY_GetBuf();
         if(pRBuf != NULL)
         {
@@ -94,6 +94,7 @@ __attribute__((OS_main)) int main(void)
         if(MQTTS_DataRdy())
           uPutBuf((uint8_t *)MQTTS_Get());
 #else   // NODE
+        MQ_t *  pRBuf;              // RF Buffer
         pRBuf = PHY_GetBuf();
         if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
             mqRelease(pRBuf);
