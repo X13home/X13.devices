@@ -1,9 +1,23 @@
+/*
+Copyright (c) 2011-2013 <comparator@gmx.de>
 
+This file is part of the X13.Home project.
+http://X13home.github.com
+
+BSD New License
+See LICENSE.txt file for license details.
+*/
+
+#include "../../config.h"
+
+#ifdef WIZNET_EN
 
 // node MAC & IP addresse
 uint8_t macaddr[6];
 uint8_t ipaddr[4];
 
+#include "w5200.c"
+#include "socket.c"
 
 void PHY_LoadConfig(void)
 {
@@ -38,3 +52,14 @@ void PHY_Send(MQ_t * pBuf)
 void PHY_Pool(void)
 {
 }
+
+uint8_t PHY_BuildName(uint8_t * pBuf)
+{
+  sprinthex(&pBuf[0], ipaddr[0]);
+  sprinthex(&pBuf[2], ipaddr[1]);
+  sprinthex(&pBuf[4], ipaddr[2]);
+  sprinthex(&pBuf[6], ipaddr[3]);
+  return 8;
+}
+
+#endif  //  WIZNET_EN

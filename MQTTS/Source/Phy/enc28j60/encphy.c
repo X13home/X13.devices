@@ -1,3 +1,16 @@
+/*
+Copyright (c) 2011-2013 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.github.com
+
+BSD New License
+See LICENSE.txt file for license details.
+*/
+
+#include "../../config.h"
+
+#ifdef ENC28J60_EN
 
 #include "ip_arp_udp.h"
 #include "enc28j60.h"
@@ -102,3 +115,14 @@ void PHY_Pool(void)
     sec_tick_lan();
   }
 }
+
+uint8_t PHY_BuildName(uint8_t * pBuf)
+{
+  sprinthex(&pBuf[0], ipaddr[0]);
+  sprinthex(&pBuf[2], ipaddr[1]);
+  sprinthex(&pBuf[4], ipaddr[2]);
+  sprinthex(&pBuf[6], ipaddr[3]);
+  return 8;
+}
+
+#endif  //  _ENCPHY_H

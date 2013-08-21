@@ -220,6 +220,10 @@
     <Folder Include="Source\" />
     <Folder Include="Source\ext" />
     <Folder Include="Source\ext\twi" />
+    <Folder Include="Source\Phy" />
+    <Folder Include="Source\Phy\CC11" />
+    <Folder Include="Source\Phy\DUMMY" />
+    <Folder Include="Source\Phy\RFM12" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\config.h">
@@ -312,10 +316,34 @@
     <Compile Include="Source\ObjDict.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\phy.c">
+    <Compile Include="Source\phy.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\phy.h">
+    <Compile Include="Source\Phy\CC11\cc11.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\Phy\CC11\cc11.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\Phy\CC11\CC11_Reg.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\Phy\DUMMY\dummy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\Phy\RFM12\rfm12.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\Phy\RFM12\rfm12.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\Phy\RFM12\rfm12reg.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\uart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\uart.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\util.c">

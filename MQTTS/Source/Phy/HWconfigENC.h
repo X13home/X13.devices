@@ -87,21 +87,6 @@ See LICENSE.txt file for license details.
 #define USART_DISABLE_DREINT()  UCSR0B &= ~(1<<UDRIE0)
 #define USART_ENABLE_DREINT()   UCSR0B |= (1<<UDRIE0)
 
-#ifdef GATEWAY
-
-#define RXD                     PORTD0
-#define TXD                     PORTD1
-
-#define USART_CONFIG_PORT()     {PRR &= ~(1<<PRUSART0); \
-                                 PORTD |= (1<<RXD) | (1<<TXD); DDRD |= (1<<TXD); DDRD &= ~(1<<RXD);}
-#define USART_BAUD              ((F_CPU/16/38400) - 1) // Baud = 38400, val = Fosc/(16 * baud) - 1
-#define USART_CONFIGURE()       {UCSR0B = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));  \
-                                 UCSR0C = (3<<UCSZ00);}
-#include "uart.h"
-// End USART Section
-
-#else   //  !GATEWAY
-
 // Serial Output
 #define SER_PIN_TX              25
 #define SER_PIN_RX              24
@@ -116,8 +101,6 @@ See LICENSE.txt file for license details.
 #define SER_DISABLE_TX()        {UCSR0B &= ~(1<<TXEN0);                             \
                                  if((UCSR0B & ((1<<TXEN0) | (1<<RXEN0))) == 0)      \
                                     PRR |= (1<<PRUSART0);}
-#endif  //  GATEWAY
-
 // Timer Section
 #define POOL_TMR_FREQ           64     // Pool Frequency (Hz)
 #define TIMER_ISR               TIMER2_COMPA_vect
@@ -140,12 +123,7 @@ See LICENSE.txt file for license details.
 #define PORTDDR3                DDRD
 #define PORTOUT3                PORTD
 #define PORTIN3                 PIND
-
-#ifdef GATEWAY
-#define PORT3MASK               0x07
-#else   //  GATEWAY
 #define PORT3MASK               0x04
-#endif  //  GATEWAY
 
 // PWM
 #define PWM_PIN0                29
@@ -224,7 +202,5 @@ typedef struct
 }s_Addr;
 
 #define AddrBroadcast {{0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}, {0xFF,0xFF,0xFF,0xFF}}
-
-#include "enc28j60/encphy.h"
 
 #endif

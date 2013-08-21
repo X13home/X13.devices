@@ -38,16 +38,21 @@ uint8_t rf_GetRSSI(void);
 
 uint8_t rf_GetNodeID(void);
 
+uint8_t PHY_CanSend(void);
+
+#else   // not defined RF_NODE
+
+#define rf_GetNodeID()  0
+void PHY_Start(void);
+
 #endif  //  RF_NODE
 
 // New Section
 void PHY_LoadConfig(void);
 void PHY_Init(void);
 MQ_t * PHY_GetBuf(void);
-uint8_t PHY_CanSend(void);
 void PHY_Send(MQ_t * pBuf);
 void PHY_Pool(void);
-
 uint8_t PHY_BuildName(uint8_t * pBuf);
 
 #endif  //  _RF_H

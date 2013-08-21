@@ -243,6 +243,7 @@ See LICENSE.txt file for license details.
 #define RF_DISABLE_IRQ()        EIMSK = 0;              // INT0 disable
 
 #define RF_NODE                 1
+#define CC110_EN                1
 
 #define s_Addr                  uint8_t
 #define AddrBroadcast           0
