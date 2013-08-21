@@ -147,8 +147,9 @@ See LICENSE.txt file for license details.
 #define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
 #define EXTAI_MAXPORT_NR        8          // ADC0-ADC5, ADC7, Vbg
 
-#define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; ADCSRA = (1<<ADEN) | \
-                                        (1<<ADSC) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);}
+#define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; \
+                                 ADCSRA = (1<<ADEN) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);  \
+                                 ADCSRA |= (1<<ADSC); }
 #define DISABLE_ADC()           {ADCSRA = (1<<ADIF); ADMUX = 0x0F; PRR |= (1<<PRADC);}
 // End Analog Inputs
 
