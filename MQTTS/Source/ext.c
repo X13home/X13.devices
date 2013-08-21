@@ -60,7 +60,7 @@ uint8_t extRegisterOD(indextable_t * pIdx)
     switch(pIdx->sidx.Place)
     {
 #ifdef EXTAI_USED
-        case objAin:        // Analog Input's(unsigned word)
+        case objAin:        // Analogue Input's(unsigned word)
             return aiRegisterOD(pIdx);
 #endif  //  EXTAI_USED
 #ifdef EXTDIO_USED

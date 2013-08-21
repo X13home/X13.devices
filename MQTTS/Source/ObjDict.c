@@ -222,7 +222,7 @@ void InitOD(void)
 #endif  //  RF_NODE
 #ifdef LAN_NODE
     uint32_t  ulTmp;
-    uint8_t   defMAC[] = {0x01, 0x00, 0x00, 0xA3, 0x04, 0x00};
+    uint8_t   defMAC[] = OD_DEV_MAC;
     WriteOD(objMACAddr, MQTTS_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);     // Default MAC
     ulTmp = 0xFFFFFFFF;
     WriteOD(objIPAddr, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP - use DHCP
@@ -448,7 +448,7 @@ uint8_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf)
             }
             *pLen = len;
         }
-        else if(len > 0)    // Unisigned
+        else if(len > 0)    // Unsigned
         {
             if(pBuf[len - 1] & 0x80)
             {
@@ -525,7 +525,7 @@ uint16_t PoolOD(uint8_t sleep)
   if(idxSubscr > 0)
   {
     idxSubscr--;
-    if(idxSubscr == 0)  //  Send Subscribe '+'
+    if(idxSubscr == 0)  //  Send Subscribe '#'
     {
       ucTmp = '#';
       MQTTS_Subscribe(MQTTS_FL_QOS1, 1, &ucTmp);

@@ -121,7 +121,7 @@ uint8_t aiCheckIdx(subidx_t * pSubidx)
     return MQTTS_RET_ACCEPTED;
 }
 
-// Read Analog Inputs
+// Read Analogue Inputs
 uint8_t aiReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     uint8_t apin = cvtBase2Apin(pSubidx->Base);
