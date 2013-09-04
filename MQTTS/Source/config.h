@@ -94,7 +94,9 @@ See LICENSE.txt file for license details.
 //End TWI Section
 
 #if (defined UNODE)
-  #include "Phy/HWconfigUN.h"           // Hardware uNode vers. 1.0
+  #include "Phy/HWconfigUN.h"           // Hardware uNode vers. 1.0 + 1.1
+#elif (defined UNODE20)
+  #include "Phy/HWconfigUP.h"           // Hardware uNode vers. 2.0
 #elif (defined JEENODE)
   #include "Phy/HWconfigJN.h"           // Hardware JeeNode & Arduino
 #elif (defined PANSTAMP)
