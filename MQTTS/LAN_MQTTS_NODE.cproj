@@ -37,6 +37,7 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
+    <AsfVersion>3.4.1</AsfVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'LNNDEN' ">
     <ToolchainSettings>
@@ -75,10 +76,50 @@
     <OutputFileName>LNNDEN</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
   </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'LNNDWZ' ">
+    <ToolchainSettings>
+      <AvrGcc>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>WIZNET=1</Value>
+            <Value>F_CPU=12500000UL</Value>
+            <Value>EXTDIO_USED=1</Value>
+            <Value>EXTPWM_USED=1</Value>
+            <Value>EXTAI_USED=1</Value>
+            <Value>EXTSER_TX_USED=1</Value>
+            <Value>EXTSER_RX_USED=1</Value>
+            <Value>TWI_USED=1</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
+    </ToolchainSettings>
+    <OutputFileName>LNNDWZ</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputPath>bin\wiznet\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Folder Include="Source" />
     <Folder Include="Source\ext" />
     <Folder Include="Source\ext\twi" />
+    <Folder Include="Source\Phy" />
+    <Folder Include="Source\Phy\ENC28J60" />
+    <Folder Include="Source\Phy\WIZNET" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Source\config.h">
@@ -171,10 +212,16 @@
     <Compile Include="Source\ObjDict.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\phy.c">
+    <Compile Include="Source\Phy\ENC28J60\encphy.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\phy.h">
+    <Compile Include="Source\Phy\HWconfigENC.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\Phy\HWconfigWIZ.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\Phy\WIZNET\wizphy.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\util.c">

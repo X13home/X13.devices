@@ -1,6 +1,10 @@
 // API
 // Load/Change configuration parameters
 
+#include "../../config.h"
+
+#ifdef DUMMY
+
 static uint8_t dummy_NodeID;
 
 
@@ -42,3 +46,10 @@ void PHY_Send(MQ_t * pBuf)
 
 void PHY_Pool(void)
 {}
+
+uint8_t PHY_BuildName(uint8_t * pBuf)
+{
+  sprinthex(&pBuf[0], dummy_NodeID);
+  return 2;
+}
+#endif  // DUMMY

@@ -48,7 +48,6 @@ See LICENSE.txt file for license details.
 #define RFM12_RXFIFO_ENA    (RFM12_CMD_FIFORESET | (0x08<<RFM12_FIFOITLVL_OFS) | \
                              RFM12_FIFORESET_FF  | RFM12_FIFORESET_DR)
 // Chip configuration
-#define RFM12_BAND          RFM12_BAND_868
 #define RFM12_BAUD          RFM12_BAUD_38K4         // Follow FSK shift & bandwidth
 // Quartz +-50 ppm
 #define RFM12_BANDWIDTH     RFM12_RXCTRL_BW_270

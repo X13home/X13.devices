@@ -305,8 +305,6 @@ static void mqtts_send_ping()       // Send Ping request
 
 uint8_t MQTTS_Pool(uint8_t wakeup)
 {
-    MQ_t * pBuf;
-
     if(vMQTTS.pfCnt)
     {
         vMQTTS.pfCnt--;
@@ -417,6 +415,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
             }
             else
             {
+                MQ_t * pBuf;
                 pBuf = mqAssert();
                 if(pBuf != NULL)    // no memory
                 {
@@ -429,7 +428,9 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
             break;
 #ifdef ASLEEP
         case MQTTS_STATUS_POST_CONNECT:
+            {
             vMQTTS.pfCnt = (POOL_TMR_FREQ - 1);
+            MQ_t * pBuf;
             pBuf = mqAssert();
             if(pBuf != NULL)    // no memory
             {
@@ -438,6 +439,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 pBuf->mq.MsgType = MQTTS_MSGTYP_DISCONNECT;
                 pBuf->mq.m.disconnect.Duration = SWAPWORD(vMQTTS.Tasleep);
                 MQTTS_Push(pBuf);
+            }
             }
             if(vMQTTS.Nretry)
             {

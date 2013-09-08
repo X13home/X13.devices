@@ -13,9 +13,9 @@ See LICENSE.txt file for license details.
 static volatile uint8_t iPool;
 #define IPOOL_USR   0x01
 #define IPOOL_CALIB 0x02
-#define IPOOL_SLEEP 0x04
 
 #ifdef ASLEEP
+#define IPOOL_SLEEP 0x04
 static void goToSleep(void);
 static void wakeUp(void);
 #endif  //  ASLEEP
@@ -26,10 +26,12 @@ static void wakeUp(void);
 
 __attribute__((OS_main)) int main(void) 
 {
-    MQ_t *  pRBuf;              // RF Buffer
     uint8_t * pPBuf;            // Publish Buffer
 #ifdef GATEWAY
     MQ_t *  pUBuf;              // USART Buffer
+    MQ_t *  pUbBuf;             // USART Backup buffer
+    pUbBuf = NULL;
+
     s_Addr  iAddr;
 #endif  // GATEWAY
     uint8_t bTmp;
@@ -71,17 +73,24 @@ __attribute__((OS_main)) int main(void)
           if(iAddr == rf_GetNodeID())
           {
             if(MQTTS_Parser(pUBuf) == 0)
-              mqRelease(pUBuf);              
-          }
-          else if((iAddr != AddrBroadcast) || (MQTTS_Parser(pUBuf) == 0))
-          {
-            if((MQTTS_GetStatus() == MQTTS_STATUS_CONNECT) && PHY_CanSend())
-              PHY_Send(pUBuf);
-            else
               mqRelease(pUBuf);
+          }
+          else if(((iAddr != AddrBroadcast) || (MQTTS_Parser(pUBuf) == 0)) &&
+                   (MQTTS_GetStatus() == MQTTS_STATUS_CONNECT))
+          {
+            if(pUbBuf)
+              mqRelease(pUbBuf);
+            pUbBuf = pUBuf;
           }
         }
 
+        if(pUbBuf && PHY_CanSend())
+        {
+          PHY_Send(pUbBuf);
+          pUbBuf = NULL;
+        }
+
+        MQ_t *  pRBuf;              // RF Buffer
         pRBuf = PHY_GetBuf();
         if(pRBuf != NULL)
         {
@@ -94,6 +103,7 @@ __attribute__((OS_main)) int main(void)
         if(MQTTS_DataRdy())
           uPutBuf((uint8_t *)MQTTS_Get());
 #else   // NODE
+        MQ_t *  pRBuf;              // RF Buffer
         pRBuf = PHY_GetBuf();
         if((pRBuf != NULL) && (MQTTS_Parser(pRBuf) == 0))
             mqRelease(pRBuf);
@@ -174,14 +184,19 @@ ISR(TIMER_ISR)
 
         iPool &= ~IPOOL_CALIB;
     }
-    else if(!(iPool & IPOOL_SLEEP))
+    else 
+#ifdef ASLEEP
+    if(!(iPool & IPOOL_SLEEP))
+#endif  //  ASLEEP
     {
         TCNT1 = 0;
         TCCR1B = (2<<CS10);
         iPool |= IPOOL_CALIB;
     }
 #else   //  !USE_RTC_OSC
+#ifdef ASLEEP
     if(!(iPool & IPOOL_SLEEP))
+#endif  //  ASLEEP
 #endif  //  USE_RTC_OSC
         iPool |= IPOOL_USR;
 }

@@ -8,10 +8,10 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-// Hardware definitions Dummy
+// Hardware definitions uNode v2.0  ATMega 328P + CC1101
 
-#ifndef _HWCONFIG_DM_H
-#define _HWCONFIG_DM_H
+#ifndef _HWCONFIG_UP_H
+#define _HWCONFIG_UP_H
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
@@ -25,11 +25,11 @@ See LICENSE.txt file for license details.
 #include <stdlib.h>
 #include <string.h>
 
-// Dummy Vers 1.0
+// uNode Vers 2.0
 // 0 - 7    PORTA - not exist
 // PORTB
-// --   PB0     --      RF_IRQ
-// --   PB1     --      LED
+// --   PB0     --      LED
+// --   PB1     --      RF_IRQ
 // --   PB2     --      RF_CSN
 // --   PB3     ISP-4   RF_MOSI
 // --   PB4     ISP-1   RF_MISO
@@ -37,36 +37,36 @@ See LICENSE.txt file for license details.
 // --   PB6     --      OSC
 // --   PB7     --      OSC
 // PORT C
-// 16   PC0     SV1-3   Ain0
-// 17   PC1     SV1-4   Ain1
-// 18   PC2     SV1-5   Ain2
-// 19   PC3     SV1-6   Ain3
-// 20   PC4     SV1-7   SDA
-// 21   PC5     SV1-8 - SCL
-// --   PC6     ISP-5   RESET
-// --   --      RSSI    Ain6    *Optional
-// --   --      SV1-1   Ain7
+// 16   PC0     SV1-18   Ain0
+// 17   PC1     SV1-17   Ain1
+// 18   PC2     SV1-16   Ain2
+// 19   PC3     SV1-15   Ain3
+// 20   PC4     SV1-14   SDA
+// 21   PC5     SV1-13 - SCL
+// --   PC6      ISP-5   RESET
+// --   --      SV1-20   Ain6
+// --   --      SV1-19   Ain7
 // PORT D
-// 24   PD0     SV1-11  RXD - On gateway busy
-// 25   PD1     SV1-12  TXD - On gateway busy
-// 26   PD2     SV1-13  IRQ 0
-// 27   PD3     SV1-14  IRQ 1
-// 28   PD4     SV1-15
-// 29   PD5     SV1-16  PWM0
-// 30   PD6     SV1-17  PWM1
-// 31   PD7     SV1-18
+// 24   PD0     SV1-10  RXD - On gateway busy
+// 25   PD1     SV1-9   TXD - On gateway busy
+// 26   PD2     SV1-8  IRQ 0 //** RF-IRQ
+// 27   PD3     SV1-7  IRQ 1
+// 28   PD4     SV1-6
+// 29   PD5     SV1-5  PWM0
+// 30   PD6     SV1-4  PWM1
+// 31   PD7     SV1-3
 
 // Object's Dictionary Section
-#define OD_DEV_TYP_0            'D'
-#define OD_DEV_TYP_1            'M'
-#define OD_DEV_TYP_2            '0'
-#define OD_DEV_TYP_3            '1'
+#define OD_DEV_TYP_0            'U'
+#define OD_DEV_TYP_1            'P'
+#define OD_DEV_TYP_2            '2'
+#define OD_DEV_TYP_3            '0'
 #ifdef GATEWAY
 #define OD_DEFAULT_ADDR         0x04
 #endif  //  GATEWAY
 // End OD Section
 
-#define SystemReset()           {cli();asm("jmp 0x0000");}
+#define SystemReset()           {cli();RxLEDon();asm("jmp 0x0000");}
 
 // Power Reduction
 #ifdef USE_RTC_OSC
@@ -186,8 +186,8 @@ See LICENSE.txt file for license details.
 // Analogue Inputs
 #define EXTAI_PORT_NUM          PORTNUM2    // PORTC Analogue Inputs
 #define EXTAI_CHN_MASK          0x0F
-#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
-#define EXTAI_MAXPORT_NR        8          // ADC0-ADC5, ADC7, Vbg
+#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 6, 7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 8, 0xFF}
+#define EXTAI_MAXPORT_NR        9          // ADC0-ADC7, Vbg
 
 #define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; \
                                  ADCSRA = (1<<ADEN) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);  \
@@ -204,11 +204,51 @@ See LICENSE.txt file for license details.
 #define TWI_DISABLE()           {TWCR = 0; PRR |= (1<<PRTWI);}
 // End TWI
 
+// RF Section
+#define RF_DDR                  DDRB
+#define RF_PORT                 PORTB
+#define RF_PIN                  PINB
+#define RF_LEDS                 PORTB0
+#define RF_PIN_IRQ              PORTB1
+#define RF_PIN_SS               PORTB2
+#define RF_PIN_MOSI             PORTB3
+#define RF_PIN_MISO             PORTB4
+#define RF_PIN_SCK              PORTB5
+
+#define TxLEDon()               RF_PORT &= ~(1<<RF_LEDS);
+#define RxLEDon()               RF_PORT &= ~(1<<RF_LEDS);
+#define LEDsOff()               RF_PORT |= (1<<RF_LEDS);
+
+#define RF_PORT_INIT()          {RF_PORT = (1<<RF_PIN_SS) | (1<<RF_PIN_IRQ) | (1<<RF_LEDS); \
+                                 RF_DDR = (1<<RF_PIN_SCK) | (1<<RF_PIN_MOSI) |              \
+                                          (1<<RF_PIN_SS) | (1<<RF_LEDS);}
+
+#define RF_SELECT()             RF_PORT &= ~(1<<RF_PIN_SS)
+#define RF_RELEASE()            RF_PORT |= (1<<RF_PIN_SS)
+
+#define RF_SPI_DATA             SPDR
+#define RF_SPI_BISY             (!(SPSR &(1<<SPIF)))
+
+#if (F_CPU > 13000000UL)
+#define RF_SPI_INIT()           {SPCR = (1<<SPE) | (1<<MSTR); SPSR = 0;}            // F_CPU/4
+#else   //  (F_CPU <= 13000000UL)
+#define RF_SPI_INIT()           {SPCR = (1<<SPE) | (1<<MSTR); SPSR = (1<<SPI2X);}   // F_CPU/2
+#endif  //  (F_CPU > 13000000UL)
+
+#define RF_STAT_IRQ             (RF_PIN & (1<<RF_PIN_IRQ))
+#define RF_IRQ_CFG()            PCICR = (1<<PCIE0)
+
+#define RF_INT_vect             PCINT0_vect
+
+#define RF_ENABLE_IRQ()         PCMSK0 = (1<<RF_PIN_IRQ)
+#define RF_DISABLE_IRQ()        PCMSK0 = 0
+
 #define RF_NODE                 1
-#define OD_DEFAULT_GROUP        0x2DD4
-#define OD_DEFAULT_CHANNEL      0x12
+#define CC110_EN                1
 
 #define s_Addr                  uint8_t
 #define AddrBroadcast           0
+
+#include "cc11/cc11.h"
 
 #endif

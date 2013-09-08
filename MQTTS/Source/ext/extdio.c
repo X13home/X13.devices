@@ -249,12 +249,10 @@ static uint8_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     uint16_t base = pSubidx->Base;
     uint8_t state = inpPort(base);
-    uint8_t pinmask = base2Mask(base);
     if(pSubidx->Type == objPinNPN)
         state = ~state;
-    state &= pinmask;
     *pLen = 1;
-    *pBuf = state ? 1 : 0;
+    *pBuf = ((state & base2Mask(base)) != 0) ? 1 : 0;
     return MQTTS_RET_ACCEPTED;
 }
 
@@ -282,8 +280,7 @@ static uint8_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
         else if(type != objPinPNP)        // Write to Asleep state output
           return MQTTS_RET_REJ_NOT_SUPP;
 #endif
-        state &= 1;
-        out2PORT(base, state);
+        out2PORT(base, state & 1);
     }
 #ifdef EXTPWM_USED
     else if(place == objPWM)        // LED HW PWM
@@ -352,7 +349,7 @@ static uint8_t dioPoolOD(subidx_t * pSubidx, uint8_t sleep)
       if(state == 0 || state == 255)
       {
         DISABLE_PWM0();
-          out2PORT(base, state);
+        out2PORT(base, state);
       }
       else
         ENABLE_PWM0();
@@ -396,7 +393,7 @@ uint8_t dioRegisterOD(indextable_t *pIdx)
         uint8_t tmp = checkAnalogBase(base);
         if(tmp == 1)            // Busy
             return MQTTS_RET_REJ_INV_ID;
-        else if(tmp == 0)       // Frei
+        else if(tmp == 0)       // Free
             ai_busy_mask |= aiApin2Mask(cvtBase2Apin(base));
     }
 #endif  //  EXTAI_USED

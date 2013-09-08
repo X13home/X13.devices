@@ -10,6 +10,8 @@ See LICENSE.txt file for license details.
 
 #include "config.h"
 
+#ifdef GATEWAY
+
 static uint8_t *            uartv_pRxBufTmp;
 static uint8_t *            uattv_pRxBuf;
 
@@ -179,3 +181,5 @@ void uPutBuf(uint8_t *pBuf)
     uartv_TxHead = tmphead;                 // Store new index
     USART_ENABLE_DREINT();                  // Enable UDRE interrupt
 }
+
+#endif  //  GATEWAY

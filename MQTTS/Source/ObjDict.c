@@ -22,7 +22,7 @@ const uint8_t  EEMEM ee_Channel = 0xFF;                                 // Chann
 #endif  //  RF_NODE
 
 #ifdef LAN_NODE
-const uint8_t  EEMEM ee_MAC_Addr[]  = {0x06, 0x00,0x04,0xA3,0x00,0x00,0x01};
+const uint8_t  EEMEM ee_MAC_Addr[]  = OD_DEV_MAC;
 const uint8_t  EEMEM ee_IP_Addr[]   = {0xFF,0xFF,0xFF,0xFF};
 const uint8_t  EEMEM ee_IP_Mask[]   = {0xFF,0xFF,0xFF,0xFF};
 const uint8_t  EEMEM ee_IP_Router[] = {0xFF,0xFF,0xFF,0xFF};
@@ -222,7 +222,7 @@ void InitOD(void)
 #endif  //  RF_NODE
 #ifdef LAN_NODE
     uint32_t  ulTmp;
-    uint8_t   defMAC[] = {0x01, 0x00, 0x00, 0xA3, 0x04, 0x00};
+    uint8_t   defMAC[] = OD_DEV_MAC;
     WriteOD(objMACAddr, MQTTS_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);     // Default MAC
     ulTmp = 0xFFFFFFFF;
     WriteOD(objIPAddr, MQTTS_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);       // Default IP - use DHCP
@@ -334,20 +334,20 @@ uint8_t RegisterOD(MQ_t *pBuf)
     while(ListOD[id].Index != 0xFFFF)
     {
         if(memcmp((const void *)&Subidx, (const void *)&ListOD[id].sidx,sizeof(subidx_t)) == 0)
-            break;                                                  // Object exist but not registered
+            break;                                                // Object exist but not registered
 
         if(((ListOD[id].Index == TopicId) && (TopicId != 0)) ||   // Object exist & registered
-            (++id == OD_MAX_INDEX_LIST))                            // Table full
+            (++id == OD_MAX_INDEX_LIST))                          // Table full
             return MQTTS_RET_REJ_INV_ID;
     }
 
-    if(ListOD[id].Index == 0xFFFF)                                     // New variable
+    if(ListOD[id].Index == 0xFFFF)                                // New variable
     {
-        if(TopicId == 0)                                        // Try to delete not exist variable
+        if(TopicId == 0)                                          // Try to delete not exist variable
             return MQTTS_RET_REJ_INV_ID;
         
         ListOD[id].sidx = Subidx;
-        if((RetVal = extRegisterOD(&ListOD[id])) != MQTTS_RET_ACCEPTED)  // Variable overlapped
+        if(extRegisterOD(&ListOD[id]) != MQTTS_RET_ACCEPTED)      // Variable overlapped
             return MQTTS_RET_REJ_INV_ID;
 
         ListOD[id].Index = TopicId;
@@ -448,7 +448,7 @@ uint8_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf)
             }
             *pLen = len;
         }
-        else if(len > 0)    // Unisigned
+        else if(len > 0)    // Unsigned
         {
             if(pBuf[len - 1] & 0x80)
             {
@@ -525,7 +525,7 @@ uint16_t PoolOD(uint8_t sleep)
   if(idxSubscr > 0)
   {
     idxSubscr--;
-    if(idxSubscr == 0)  //  Send Subscribe '+'
+    if(idxSubscr == 0)  //  Send Subscribe '#'
     {
       ucTmp = '#';
       MQTTS_Subscribe(MQTTS_FL_QOS1, 1, &ucTmp);
