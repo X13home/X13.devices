@@ -208,7 +208,6 @@
         <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
       </AvrGcc>
     </ToolchainSettings>
-    <OutputPath>bin\Dummy\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'uNode20' ">
     <OutputFileName>RFGWUP</OutputFileName>
@@ -245,7 +244,6 @@
   <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
 </AvrGcc>
     </ToolchainSettings>
-    <OutputPath>bin\uNode20\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Source\" />
