@@ -1,3 +1,10 @@
+Version 2.5.5 RC
+
+          Optimized Build Structure                                   12.Sep.2013
+          Merged with branch dev_wiz, but w/o wiznet section          08.Sep.2013
+Added     Hardware description for UP20                               04.Sep.2013
+
+=================================================================================
 Version 2.5.3 RC
 
 Added     Wiznet PtotoType                                            30.Jun.2013
