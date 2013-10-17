@@ -2,6 +2,9 @@ Addr    Parm1   Parm2   Device
 0x08    2048            BlinkM
 ..
 0x1F    7936-           BlinkM
+0x20                    Bus Extender
+..
+0x27                    Bus Extender
 0x27    9984    9985    HIH61xx
 0x40    16384   16385   SI7005
 0x48    18432           LM75
