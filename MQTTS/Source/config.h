@@ -72,8 +72,8 @@ See LICENSE.txt file for license details.
 #define OD_DEFAULT_TASLEEP      0       // Sleep Time, default - always online.
 
 #define OD_DEV_SWVERSH          '2'     // Software Version
-#define OD_DEV_SWVERSM          '5'
-#define OD_DEV_SWVERSL          '5'
+#define OD_DEV_SWVERSM          '6'
+#define OD_DEV_SWVERSL          '0'
 
 // RF Section
 //#define RF_BASE_FREQ            433920000UL
