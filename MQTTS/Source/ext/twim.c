@@ -287,14 +287,20 @@ uint8_t twim_pool(subidx_t * pSubidx, uint8_t sleep)
 void twiConfig(void)
 {
     TWI_DISABLE();
-
+    
+    uint16_t counter = 0xFFFF;
+    
     if((checkDigBase(TWI_PIN_SDA) != 0) || (checkDigBase(TWI_PIN_SCL) != 0))
         return;
 
     uint8_t mask = base2Mask(TWI_PIN_SDA) | base2Mask(TWI_PIN_SCL);
-
-    if((inpPort(TWI_PIN_SDA) & mask) != mask)
+    while(counter--)
+    {
+      if((inpPort(TWI_PIN_SDA) & mask) == mask)
+        break;
+      if(counter == 0)
         return;
+    }
 
     TWI_ENABLE();
 
