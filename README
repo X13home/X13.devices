@@ -27,6 +27,6 @@ MQTTS
                 compatible with Arduino Uno/Nano + RFM12/MRF49XA
       RFGWPS    panSTamp http://www.panstamp.com/ 
                 compatible with Arduino Uno/Nano + CC1101
-      RFNDUN    UNode - Native Hardware (ATMega328P + MRF49XA)
-      RFNDUN    UP20  - Native Hardware (ATMega328P + CC1101)
+      RFGWUN    UNode - Native Hardware (ATMega328P + MRF49XA)
+      RFGWUP    UP20  - Native Hardware (ATMega328P + CC1101)
 
