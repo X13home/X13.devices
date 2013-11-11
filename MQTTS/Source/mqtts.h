@@ -46,7 +46,7 @@ See LICENSE.txt file for license details.
                               //    ‘Message ID’ parameter. It allows the sender to match a 
                               //    message with its corresponding acknowledgement.
 //uint8_t     ProtocolId;     // The ProtocolId is 1-octet long. It is only present in a CONNECT 
-                              //    message and corresponds to the MQTT ‘protocol name 
+                              //    message and corresponds to the MQTT protocol name 
                               //    and ‘protocol version’.
 //                            // It is coded 0x01. All other values are reserved.
 //uint8_t     Radius:         // The Radius field is 1-octet long and indicates the value of the 
