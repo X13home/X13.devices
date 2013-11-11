@@ -52,11 +52,11 @@ See LICENSE.txt file for license details.
 
 // Extensions
 #define EXTDIO_USED             1       // Use Digital Inputs/Outputs
-#define EXTAI_USED              1       // Use Analog Inputs
-#define EXTPWM_USED             1       // enable HW PWM with TIMER0, depence on EXTDIO_USED
-#define EXTSER_TX_USED          1       // enable Serial Output, depence on EXTDIO_USED
-#define EXTSER_RX_USED          1       // enable Serial Input, depence on EXTDIO_USED
-#define TWI_USED                1       // enable TWI, depence on EXTDIO_USED
+#define EXTAI_USED              1       // Use Analogue Inputs
+#define EXTPWM_USED             1       // enable HW PWM with TIMER0, dependency on EXTDIO_USED
+#define EXTSER_TX_USED          1       // enable Serial Output, dependency on EXTDIO_USED
+#define EXTSER_RX_USED          1       // enable Serial Input, dependency on EXTDIO_USED
+#define TWI_USED                1       // enable TWI, dependency on EXTDIO_USED
 ****/
 
 // Memory Manager
@@ -107,8 +107,6 @@ See LICENSE.txt file for license details.
   #include "Phy/HWconfigWIZ.h"          // Hardware MEGA328P + WIZNET on SPI
 #elif (defined DUMMY)
   #include "Phy/HWconfigDM.h"           // Hardware Dummy
-#elif (defined DUMMY_ATM256)
-  #include "Phy/HWconfigDM_atm256.h"    // Hardware Dummy for ATMega256, NOT TESTED !!
 #else
   #error Hardware configuration is not defined
 #endif

@@ -44,9 +44,9 @@ See LICENSE.txt file for license details.
 //uint8_t     GwId;           // The GwId field is 1-octet long and uniquely identifies a gateway.
 //uint16_t    MsgId;          // The MsgId field is 2-octet long and corresponds to the MQTT 
                               //    ‘Message ID’ parameter. It allows the sender to match a 
-                              //    message with its corresponding acknowledgment.
+                              //    message with its corresponding acknowledgement.
 //uint8_t     ProtocolId;     // The ProtocolId is 1-octet long. It is only present in a CONNECT 
-                              //    message and corresponds to the MQTT ‘protocol name’ 
+                              //    message and corresponds to the MQTT ‘protocol name 
                               //    and ‘protocol version’.
 //                            // It is coded 0x01. All other values are reserved.
 //uint8_t     Radius:         // The Radius field is 1-octet long and indicates the value of the 
@@ -413,7 +413,7 @@ typedef struct
     uint16_t                Tretry;         // Keep Alive Timeout
     uint8_t                 Nretry;         // Rertry's number
 #ifdef ASLEEP
-    uint16_t                Tasleep;        // ASleep Time, wenn = 0, no sleep mode
+    uint16_t                Tasleep;        // ASleep Time, if = 0, no sleep mode
 #endif
     // Send FIFO
     uint8_t                 tail;

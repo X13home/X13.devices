@@ -1,4 +1,4 @@
-Version 2.6.0 RC
+Version 2.6.0, Release
 
 Added     Dummy device with ATMega256                                 11.Nov.2013
 Fixed     Unstable detection TWI devices                              24.Oct.2013

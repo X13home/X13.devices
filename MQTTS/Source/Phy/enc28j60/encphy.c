@@ -19,7 +19,7 @@ See LICENSE.txt file for license details.
 #include "enc28j60.c"
 #include "ip_arp_udp.c"
 
-// node MAC & IP addresse
+// node MAC & IP addresses
 uint8_t macaddr[6];
 uint8_t ipaddr[4];
 

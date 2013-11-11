@@ -28,16 +28,13 @@ __attribute__((OS_main)) int main(void)
   mqInit();
   // Initialize Object's Dictionary
   InitOD();
-  // Init MQTTS
+  // Initialise MQTTS
   MQTTS_Init();
-  // Init PHY
+  // Initialise PHY
   PHY_Init();
   // Initialise  variables
   iPool = 0;
-  
 
-  
-    
   uint8_t objLen;
   uint16_t poolIdx = 0xFFFF;
 
@@ -136,7 +133,7 @@ ISR(TIMER_ISR)
         LED_TGL();
       }
     }
-    else                              // LED blinks fast wenn not connected to Net or/and DHCP
+    else                              // LED blinks fast if not connected to Net or/and DHCP
     {
       led_cnt = (POOL_TMR_FREQ/32);  // 125mS Period
       LED_TGL();

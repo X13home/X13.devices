@@ -52,8 +52,8 @@ static uint8_t twim_bytes2read;         // bytes to read
 volatile static uint8_t * twim_ptr;     // pointer to data buffer
 static cbTWI twim_callback;             // callback function
 
-// Diag & WD variables
-static uint8_t twim_addr_old;           // WatchDog addr
+// Diagnose & WD variables
+static uint8_t twim_addr_old;           // WatchDog address
 static uint8_t twim_busy_cnt;           // Busy counter
 
 // Read/Write data from/to buffer
@@ -83,7 +83,7 @@ uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint
         else
             TWDR = twim_addr | TW_READ;
 
-        TWCR = (1<<TWINT) | (1<<TWEN);              // Clear int flag to send byte
+        TWCR = (1<<TWINT) | (1<<TWEN);              // Clear interrupt flag to send byte
         while(!(TWCR & (1<<TWINT)));                // Wait for TWI interrupt flag set
         if((TWSR != TW_MT_SLA_ACK) &&
             (TWSR != TW_MR_SLA_ACK))
@@ -99,7 +99,7 @@ uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint
             {
                 // Send one byte to the bus.
                 TWDR = twim_ptr[pos++];
-                TWCR = (1<<TWINT) | (1<<TWEN);          // Clear int flag to send byte
+                TWCR = (1<<TWINT) | (1<<TWEN);          // Clear interrupt flag to send byte
                 while(!(TWCR & (1<<TWINT)));            // Wait for TWI interrupt flag set
 
                 if((pos < twim_bytes2write) &&          // Not Last Byte
@@ -148,7 +148,7 @@ void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uin
     twim_callback = pCallback;
 
     TWCR = (1<<TWEN) |                          // TWI Interface enabled.
-           (1<<TWIE) | (1<<TWINT) |             // Enable TWI Interupt and clear the flag.
+           (1<<TWIE) | (1<<TWINT) |             // Enable TWI Interrupt and clear the flag.
            (1<<TWSTA);                          // Initiate a START condition.
 }
 
@@ -166,21 +166,21 @@ ISR(TWI_vect)
                 TWDR = twim_addr | TW_READ;
             TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT);
             break;
-        case TW_MT_SLA_ACK:                     // SLA+W has been tramsmitted and ACK received
-        case TW_MT_DATA_ACK:                    // Data byte has been tramsmitted and ACK received
+        case TW_MT_SLA_ACK:                     // SLA+W has been transmitted and ACK received
+        case TW_MT_DATA_ACK:                    // Data byte has been transmitted and ACK received
             if(twi_ptr < twim_bytes2write)
             {
                 TWDR = twim_ptr[twi_ptr++];
                 TWCR = (1<<TWEN) |              // TWI Interface enabled
-                       (1<<TWIE) | (1<<TWINT);  // Enable TWI Interupt and clear the flag to send byte
+                       (1<<TWIE) | (1<<TWINT);  // Enable TWI Interrupt and clear the flag to send byte
                 break;
             }
-        case TW_MT_DATA_NACK:                   // End transmittion
+        case TW_MT_DATA_NACK:                   // End transmission
             twim_access &= ~TWIM_WRITE;
 
             if(twim_access & TWIM_READ)
                 TWCR = (1<<TWEN) |              // TWI Interface enabled.
-                      (1<<TWIE) | (1<<TWINT) |  // Enable TWI Interupt and clear the flag.
+                      (1<<TWIE) | (1<<TWINT) |  // Enable TWI Interrupt and clear the flag.
                       (1<<TWSTA);               // Initiate a START condition.
             else
             {
@@ -189,22 +189,22 @@ ISR(TWI_vect)
                     (twim_callback)();
             }
             break;
-        case TW_MR_DATA_ACK:                    // Data byte has been received and ACK tramsmitted
+        case TW_MR_DATA_ACK:                    // Data byte has been received and ACK transmitted
             twim_ptr[twi_ptr++] = TWDR;
-        case TW_MR_SLA_ACK:                     // SLA+R has been tramsmitted and ACK received
+        case TW_MR_SLA_ACK:                     // SLA+R has been transmitted and ACK received
             if(twi_ptr < (twim_bytes2read - 1)) // Detect the last byte to NACK it.
             {
                 TWCR = (1<<TWEN) |              // TWI Interface enabled
-                       (1<<TWIE) | (1<<TWINT) | // Enable TWI Interupt and clear the flag to read next byte
+                       (1<<TWIE) | (1<<TWINT) | // Enable TWI Interrupt and clear the flag to read next byte
                        (1<<TWEA);               // Send ACK after reception
             }
             else                                // Send NACK after next reception
             {
                 TWCR = (1<<TWEN) |              // TWI Interface enabled
-                       (1<<TWIE) | (1<<TWINT);  // Enable TWI Interupt and clear the flag to read last byte
+                       (1<<TWIE) | (1<<TWINT);  // Enable TWI Interrupt and clear the flag to read last byte
             }
             break;
-        case TW_MR_DATA_NACK:                   // Data byte has been received and NACK tramsmitted
+        case TW_MR_DATA_NACK:                   // Data byte has been received and NACK transmitted
             twim_ptr[twi_ptr++] = TWDR;
             TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop
             twim_access &= ~TWIM_READ;
@@ -213,7 +213,7 @@ ISR(TWI_vect)
             break;
         default:                                // Error
             twim_access |= TWIM_ERROR;
-            TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop, Disable Interupt
+            TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop, Disable Interrupt
             break;
     }
 }

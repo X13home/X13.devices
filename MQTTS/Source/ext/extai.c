@@ -8,7 +8,7 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-// Extensions - Analog Inputs
+// Extensions - Analogue Inputs
 #include "../config.h"
 
 #ifdef EXTAI_USED

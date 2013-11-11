@@ -8,7 +8,7 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-// CC1101 RF Tranceiver
+// CC1101 RF Transceiver
 
 #include "../../config.h"
 
@@ -59,14 +59,6 @@ const PROGMEM uint8_t cc11config[][2] =
     {CC11_TEST2,    0x81},
     {CC11_TEST1,    0x35},
     {CC11_TEST0,    0x09}
-/* Fosc = 27MHz,868M  !!! Not tested
-  {CC1101_FREQ2,       0x20},
-  {CC1101_FREQ1,       0x25},
-  {CC1101_FREQ0,       0xED},
-  {CC1101_MDMCFG3,     0x75},
-  {CC1101_MDMCFG0,     0xE2},
-  {CC1101_DEVIATN,     0x34},
-*/
 };
 
 // low level SPI exchange
@@ -156,7 +148,7 @@ ISR(RF_INT_vect)
                 RF_SPI_DATA = CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO;
                 while(RF_SPI_BISY);
                 cc11_spiExch(0);                                // Read Length
-                cc11_spiExch(0);                                // Read Destination addr
+                cc11_spiExch(0);                                // Read Destination address
                 for(i = 0; i < frameLen; i++)                   // Read Payload
                 {
                     tmp = cc11_spiExch(0);
@@ -343,9 +335,9 @@ void PHY_Send(MQ_t * pBuf)
   while(RF_SPI_BISY);
   RF_SPI_DATA = len + 2;                          // Set data length at the first position of the TX FIFO
   while(RF_SPI_BISY);
-  RF_SPI_DATA = pBuf->addr;                       // Send destination addr
+  RF_SPI_DATA = pBuf->addr;                       // Send destination address
   while(RF_SPI_BISY);
-  RF_SPI_DATA = cc11s_NodeID;                     // Send Source addr
+  RF_SPI_DATA = cc11s_NodeID;                     // Send Source address
   while(RF_SPI_BISY);
   for(i = 0; i < len; i++)                        // Send Payload
   {

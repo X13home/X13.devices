@@ -33,7 +33,7 @@ MQ_t * PHY_GetBuf(void)
   return NULL;
 }
 
-// Can Send ? Then swich to TX mode
+// Can Send ? Then switch to TX mode
 uint8_t PHY_CanSend(void)
 {
   return 1;

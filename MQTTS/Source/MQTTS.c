@@ -335,16 +335,6 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 if(vMQTTS.Tretry == (MQTTS_DEF_TSGW - 2))
                 {
                     return MQTTS_POOL_STAT_ASLEEP;          // ASLeep
-/*
-                    if(vMQTTS.Nretry)
-                    {
-                        if(vMQTTS.Tasleep != 0)
-                            vMQTTS.Nretry--;
-                        
-                    }
-                    vMQTTS.Nretry = MQTTS_DEF_NRETRY;
-                    break;
-*/
                 }
                 else if(vMQTTS.Tretry == 0)
                 {
@@ -355,7 +345,6 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                         return  MQTTS_POOL_STAT_AWAKE;          // WakeUp
                     }
                     // Not found many times
-                    //vMQTTS.Tretry = vMQTTS.Tasleep;
                     SystemReset();
                 }
                 break;
@@ -517,7 +506,6 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
             }
             break;
 #endif  //  GATEWAY
-//        case MQTTS_MSGTYP_CONNECT:
         case MQTTS_MSGTYP_CONNACK:
             if(vMQTTS.Status == MQTTS_STATUS_OFFLINE)
             {
@@ -545,10 +533,6 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
                 }
             }
             break;
-//        case MQTTS_MSGTYP_WILLTOPICREQ:
-//        case MQTTS_MSGTYP_WILLTOPIC:
-//        case MQTTS_MSGTYP_WILLMSGREQ:
-//        case MQTTS_MSGTYP_WILLMSG:
         case MQTTS_MSGTYP_REGISTER:
             if(vMQTTS.Status < MQTTS_STATUS_CONNECT)
                 break;
@@ -567,8 +551,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
             return 1;
          case MQTTS_MSGTYP_REGACK:
             if((vMQTTS.Status == MQTTS_STATUS_CONNECT) &&
-               (vMQTTS.fBuf[vMQTTS.fTail]->mq.MsgType == MQTTS_MSGTYP_REGISTER))// &&
-//               (vMQTTS.fBuf[vMQTTS.fTail]->mq.m.regist.MsgId == pBuf->mq.m.regack.MsgId))
+               (vMQTTS.fBuf[vMQTTS.fTail]->mq.MsgType == MQTTS_MSGTYP_REGISTER))
             {
                 uint16_t index = 0;
 
@@ -620,19 +603,12 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
                (vMQTTS.fBuf[vMQTTS.fTail]->mq.m.publish.MsgId == pBuf->mq.m.puback.MsgId))
                 mqtts_inc_tail();
             break;
-//        case MQTTS_MSGTYP_PUBCOMP:
-//        case MQTTS_MSGTYP_PUBREC:
-//        case MQTTS_MSGTYP_PUBREL:
-//        case MQTTS_MSGTYP_SUBSCRIBE:
         case MQTTS_MSGTYP_SUBACK:
             if((vMQTTS.Status == MQTTS_STATUS_CONNECT) &&
                (vMQTTS.fBuf[vMQTTS.fTail]->mq.MsgType == MQTTS_MSGTYP_SUBSCRIBE) &&
                (vMQTTS.fBuf[vMQTTS.fTail]->mq.m.subscribe.MsgId == pBuf->mq.m.suback.MsgId))
                 mqtts_inc_tail();
             break;
-//        case MQTTS_MSGTYP_UNSUBSCRIBE:
-//        case MQTTS_MSGTYP_UNSUBACK:
-//        case MQTTS_MSGTYP_PINGREQ:
         case MQTTS_MSGTYP_PINGRESP:
 #ifdef ASLEEP
           if(vMQTTS.Status == MQTTS_STATUS_AWAKE)
@@ -670,11 +646,6 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
 #endif  //  ASLEEP
             MQTTS_Disconnect();
             return 1;
-//        case MQTTS_MSGTYP_WILLTOPICUPD:
-//        case MQTTS_MSGTYP_WILLTOPICRESP:
-//        case MQTTS_MSGTYP_WILLMSGUPD:
-//        case MQTTS_MSGTYP_WILLMSGRESP:
-//        case MQTTS_MSGTYP_FORWARD:
     }
     return 0;
 }

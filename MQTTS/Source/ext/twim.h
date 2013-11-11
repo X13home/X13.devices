@@ -6,7 +6,7 @@
 #define TWIM_READ       1               // Read Data
 #define TWIM_WRITE      2               // Write Data
 #define TWIM_BUSY       8               // Bus Busy
-#define TWIM_RELEASE    0x40            // Request to relase Bus
+#define TWIM_RELEASE    0x40            // Request to release Bus
 #define TWIM_ERROR      0x80            // Bus Error
 
 typedef void (*cbTWI)(void);            // TWI ISR ready, Callback function

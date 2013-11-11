@@ -50,9 +50,9 @@ __attribute__((OS_main)) int main(void)
 #ifdef GATEWAY
     InitUART(USART_BAUD);   //  Buad = 38400, fosc = 16M/ (16 * baud)  - 1
 #endif  // GATEWAY
-    // Init MQTTS
+    // Initialize MQTTS
     MQTTS_Init();
-    // Init PHY
+    // Initialize PHY
     PHY_Init();
     // Initialise  variables
     iPool = 0;
