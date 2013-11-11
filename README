@@ -7,26 +7,27 @@ Automation System oriented to "Smart House" over MQTT(S) protocol
 
 MQTTS
   Without PHY
-    RFGWDM    Dummy device, connected with serial port.
+    DMGWDM02  Dummy device with ATMega256, connected with serial port, not tested.
+    DMGWDM    Dummy device with ATMega328p, connected with serial port.
 
   LAN Clients:
-      LNNDEN    Client with Phy - ENC28J60
-
-  Wireless Clients:
-    ISM band - 433/868/915:
-      RFNDJN    JeeNode http://jeelabs.com/products/jeenode
-                compatible with Arduino Uno/Nano + RFM12/MRF49XA
-      RFNDPS    pan STamp http://www.panstamp.com/ 
-                compatible with Arduino Uno/Nano + CC1101
-      RFNDUN    UNode - Native Hardware (ATMega328P + MRF49XA)
-      RFNDUN    UP20 - Native Hardware (ATMega328P + CC1101)
-
+      LNNDEN    Client with Phy - ENC28J60, uc ATMega328P
+      
   Wireless Gateways:
     ISM band - 433/868/915:
+      RFGWUP    UP20  - Native Hardware (ATMega328P + CC1101)
+      RFGWUN    UNode - Native Hardware (ATMega328P + MRF49XA)
       RFGWJN    JeeNode http://jeelabs.com/products/jeenode
                 compatible with Arduino Uno/Nano + RFM12/MRF49XA
       RFGWPS    panSTamp http://www.panstamp.com/ 
                 compatible with Arduino Uno/Nano + CC1101
-      RFGWUN    UNode - Native Hardware (ATMega328P + MRF49XA)
-      RFGWUP    UP20  - Native Hardware (ATMega328P + CC1101)
 
+  Wireless Clients:
+    ISM band - 433/868/915:
+      RFNDUP    UP20 - Native Hardware (ATMega328P + CC1101)
+      RFNDUN    UNode - Native Hardware (ATMega328P + MRF49XA)
+      
+      RFNDJN    JeeNode http://jeelabs.com/products/jeenode
+                compatible with Arduino Uno/Nano + RFM12/MRF49XA
+      RFNDPS    pan STamp http://www.panstamp.com/ 
+                compatible with Arduino Uno/Nano + CC1101

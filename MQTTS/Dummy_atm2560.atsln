@@ -1,0 +1,17 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Dummy_atm2560", "Dummy_atm2560.cproj", "{F3EBA7BD-72FE-4B98-99CA-BDA438F49EE1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		DMGWDM02|AVR = DMGWDM02|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F3EBA7BD-72FE-4B98-99CA-BDA438F49EE1}.DMGWDM02|AVR.ActiveCfg = DMGMDM02|AVR
+		{F3EBA7BD-72FE-4B98-99CA-BDA438F49EE1}.DMGWDM02|AVR.Build.0 = DMGMDM02|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
