@@ -7,7 +7,6 @@ Automation System oriented to "Smart House" over MQTT(S) protocol
 
 MQTTS
   Without PHY
-    DMGWDM02  Dummy device with ATMega256, connected with serial port, not tested.
     DMGWDM    Dummy device with ATMega328p, connected with serial port.
 
   LAN Clients:
@@ -26,7 +25,6 @@ MQTTS
     ISM band - 433/868/915:
       RFNDUP    UP20 - Native Hardware (ATMega328P + CC1101)
       RFNDUN    UNode - Native Hardware (ATMega328P + MRF49XA)
-      
       RFNDJN    JeeNode http://jeelabs.com/products/jeenode
                 compatible with Arduino Uno/Nano + RFM12/MRF49XA
       RFNDPS    pan STamp http://www.panstamp.com/ 
