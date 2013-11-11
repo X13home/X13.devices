@@ -107,6 +107,8 @@ See LICENSE.txt file for license details.
   #include "Phy/HWconfigWIZ.h"          // Hardware MEGA328P + WIZNET on SPI
 #elif (defined DUMMY)
   #include "Phy/HWconfigDM.h"           // Hardware Dummy
+#elif (defined DUMMY_ATM256)
+  #include "Phy/HWconfigDM_atm256.h"    // Hardware Dummy for ATMega256, NOT TESTED !!
 #else
   #error Hardware configuration is not defined
 #endif
