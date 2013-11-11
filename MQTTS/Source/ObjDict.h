@@ -38,7 +38,7 @@ enum
 {
     objPROGMEM  = 'F',  // FLASH
     objEEMEM    = 'E',  // EEPROM
-    objAin      = 'A',  // Analog Input
+    objAin      = 'A',  // Analogue Input
     //    objAout     = 'D',  // Analog Output
     objDin      = 'I',  // Digital Input
     objDout     = 'O',  // Digital Output
@@ -68,7 +68,7 @@ enum
     objActNPN   = 'a',  // Node Active = 0, sleep = 1;
 // Analog In
     objArefVcc  = 'v',  // Ref = Vcc(3,3V)
-    objArefExt  = 'e',  // Ref = Extertnal(not connected)
+    objArefExt  = 'e',  // Ref = External(not connected)
     objArefInt  = 'i',  // Ref = Internal(1,1V)
 //    objArefInt  = 'I',  // Ref = Internal(2,56V)
 // Serial port

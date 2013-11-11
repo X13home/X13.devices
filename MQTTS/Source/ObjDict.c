@@ -16,7 +16,7 @@ See LICENSE.txt file for license details.
 
 // EEPROM Object's
 #ifdef RF_NODE
-const uint8_t  EEMEM ee_NodeID = 0xFF;                                  // Device Addr
+const uint8_t  EEMEM ee_NodeID = 0xFF;                                  // Device Address
 const uint16_t EEMEM ee_GroupID = 0xFFFF;                               // Group ID
 const uint8_t  EEMEM ee_Channel = 0xFF;                                 // Channel
 #endif  //  RF_NODE

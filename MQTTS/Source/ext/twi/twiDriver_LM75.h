@@ -10,7 +10,7 @@
 #define LM75_REG_TEMP               0x00        // Temperature
 #define LM75_REG_CONF               0x01        // Configuration
 #define LM75_REG_THYST              0x02        // Hysteresis
-#define LM75_REG_TOS                0x03        // Overtemperature
+#define LM75_REG_TOS                0x03        // Over temperature
 
 // Config Register
 #define LM75_CONFIG_PD              0x01        // shutdown, 0 - Normal operation, 1 - shutdown

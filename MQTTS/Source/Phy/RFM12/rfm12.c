@@ -8,7 +8,7 @@ BSD New License
 See LICENSE.txt file for license details.
 */
 
-// MRF49XA/RFM12 RF Tranceiver
+// MRF49XA/RFM12 RF Transceiver
 
 #include "../../config.h"
 
@@ -278,7 +278,7 @@ void PHY_Init(void)
     // HW End
 
     // init Internal register from RFM12
-    rfm12_get_status();                     // intitial SPI transfer added to avoid power-up problem
+    rfm12_get_status();                     // initial SPI transfer added to avoid power-up problem
     rfm12_control(RFM12_SLEEP_MODE);
 
     // wait until RFM12B is out of power-up reset, this takes several *seconds*
@@ -381,7 +381,7 @@ MQ_t * PHY_GetBuf(void)
     return pRet;
 }
 
-// Can Send ? Then swich to TX mode
+// Can Send ? Then switch to TX mode
 uint8_t PHY_CanSend(void)
 {
   if((rfm12v_State == RF_TRVRXIDLE) &&                    // State is RxIdle

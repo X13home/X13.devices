@@ -62,7 +62,7 @@ See LICENSE.txt file for license details.
 #define OD_DEV_TYP_2            '1'
 #define OD_DEV_TYP_3            '0'
 #ifdef GATEWAY
-#define OD_DEFAULT_ADDR         0x05
+#define OD_DEFAULT_ADDR         0x07
 #endif  //  GATEWAY
 // End OD Section
 
@@ -104,6 +104,7 @@ See LICENSE.txt file for license details.
 #define USART_BAUD              ((F_CPU/16/38400) - 1) // Baud = 38400, val = Fosc/(16 * baud) - 1
 #define USART_CONFIGURE()       {UCSR0B = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));  \
                                  UCSR0C = (3<<UCSZ00);}
+#include "../uart.h"
 // End USART Section
 
 #else   //  !GATEWAY
@@ -253,12 +254,6 @@ See LICENSE.txt file for license details.
 #define RF_ENABLE_IRQ()         PCMSK0 = (1<<RF_PIN_IRQ)
 #define RF_DISABLE_IRQ()        PCMSK0 = 0
 
-#define RF_NODE                 1
-#define RFM12_EN                1
-
-#define s_Addr                  uint8_t
-#define AddrBroadcast           0
-
-#include "rfm12/rfm12.h"
+#include "RF/rfm12/rfm12.h"
 
 #endif

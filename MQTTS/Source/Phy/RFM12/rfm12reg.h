@@ -25,9 +25,9 @@ See LICENSE.txt file for license details.
 #define RFM12_XTAL_12PF     0x07
 // Capacitor Value = (x3:x0) * 0.5  + 8.5 pF
 
-//=== Power Managment ===
+//=== Power Management ===
 // POR Value: 8208
-#define RFM12_CMD_PWRMGT    0x8200      // Power Managment
+#define RFM12_CMD_PWRMGT    0x8200      // Power Management
 #define RFM12_PWRMGT_ER     0x80        // Enables the whole receiver chain RF front end, baseband, synthesizer, oscillator
 #define RFM12_PWRMGT_EBB    0x40        // The receiver baseband circuit can be separately switched on Baseband
 #define RFM12_PWRMGT_ET     0x20        // Switches on the PLL, the power amplifier, and starts the transmission (If TX register is enabled) 
@@ -38,7 +38,7 @@ See LICENSE.txt file for license details.
 #define RFM12_PWRMGT_DC     0x01        // Disables the clock output (pin 8)
 
 //=== Frequency-setting ===
-// POR Valie: A680
+// POR Value: A680
 #define RFM12_CMD_FREQUENCY 0xA000
 #define RFM12_FREQUENCY_CALC_433(f) (((f)-430000000UL)/2500UL)
 #define RFM12_FREQUENCY_CALC_868(f) (((f)-860000000UL)/5000UL)
@@ -72,7 +72,7 @@ enum e_RFM12_BAUD
 #define RFM12_RXCTRL_VDI_FAST       0x000       // VDI (valid data indicator) signal response time setting FAST
 #define RFM12_RXCTRL_VDI_MEDIUM     0x100
 #define RFM12_RXCTRL_VDI_SLOW       0x200       // VDI (valid data indicator) signal response time setting SLOW
-#define RFM12_RXCTRL_VDI_ALWAYS_ON  0x300       // VDI (valid data indicator) allways ON
+#define RFM12_RXCTRL_VDI_ALWAYS_ON  0x300       // VDI (valid data indicator) always ON
 #define RFM12_RXCTRL_BW_400         0x20        // Receiver baseband bandwidth (BW) select: 400 kHz
 #define RFM12_RXCTRL_BW_340         0x40
 #define RFM12_RXCTRL_BW_270         0x60
@@ -104,11 +104,11 @@ enum e_RFM12_BAUD
 //  1: fast mode, fast attack and fast release (4 to 8 bit preamble (1010...) is recommended)
 //  0: slow mode, slow attack and slow release (12 to 16 bit preamble is recommended)
 //  Using the slow mode requires more accurate bit timing (see Data Rate Command).
-#define RFM12_DATAFILTER_S          0x10    // Select the type of the data filter: 0 Digital filter/ 1 Analog RC filter
-//Digital: This is a digital realization of an analog RC filter followed by a comparator with hysteresis. The time constant is
+#define RFM12_DATAFILTER_S          0x10    // Select the type of the data filter: 0 Digital filter/ 1 Analogue RC filter
+//Digital: This is a digital realization of an analogue RC filter followed by a comparator with hysteresis. The time constant is
 //automatically adjusted to the bit rate defined by the Data Rate Command.
 //Note: Bit rate can not exceed 115 kpbs in this mode.
-//Analog RC filter: The demodulator output is fed to pin 7 over a 10 kOhm resistor. The filter cut-off frequency is set by the
+//Analogue RC filter: The demodulator output is fed to pin 7 over a 10 kOhm resistor. The filter cut-off frequency is set by the
 //external capacitor connected to this pin and VSS.
 #define RFM12_DQD_THRESH_7          0x07    //DQD threshold parameter.
 #define RFM12_DQD_THRESH_6          0x06    // Note: To let the DQD report "good signal quality" the 
@@ -140,7 +140,7 @@ enum e_RFM12_BAUD
 // POR Value: B000
 #define RFM12_CMD_READ 0xB000
 
-//=== Automatic Frequenz Control ===
+//=== Automatic Frequency Control ===
 // POR Value C4F7
 #define RFM12_CMD_AFC           0xC400
 #define RFM12_AFC_AUTO_OFF      0x00    // Automatic operation mode selector: Auto mode off (Strobe is controlled by microcontroller)
@@ -159,7 +159,7 @@ enum e_RFM12_BAUD
 //=== TX Configuration Control ===
 // POR Value: 9800
 #define RFM12_CMD_TXCONF        0x9800
-#define RFM12_TXCONF_MP         0x100   // Spektr inversion
+#define RFM12_TXCONF_MP         0x100   // Spectrum inversion
 enum e_RFM12_POWER
 {
     RFM12_TXCONF_POWER_0  = 0x00,       // Relative Output Power [0 dBm]

@@ -155,7 +155,7 @@ enum e_CC11_IOCFG_GPO
 * GDO0 Output Pin Configuration
 * Default 0x3F - CLK_XOSC/192
 */
-#define CC11_IOCFG0_TS_EN             7       // Enable analog temperature sensor. Write 0 in all other register bits.
+#define CC11_IOCFG0_TS_EN             7       // Enable analogue temperature sensor. Write 0 in all other register bits.
 #define CC11_IOCFG0_GDO0_INV          6       // Invert output, i.e. select active low (1) / high (0)
 #define CC11_IOCFG0_GDO0_CFG          0       // Pin Function, from e_CC11_IOCFG_GPO
 

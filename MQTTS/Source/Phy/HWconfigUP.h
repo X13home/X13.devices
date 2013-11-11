@@ -25,7 +25,10 @@ See LICENSE.txt file for license details.
 #include <stdlib.h>
 #include <string.h>
 
-// uNode Vers 2.0
+// uNode Version 2.0
+// uc ATMega328p
+// PHY: RF - CC1101
+
 // 0 - 7    PORTA - not exist
 // PORTB
 // --   PB0     --      LED

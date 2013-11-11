@@ -9,6 +9,7 @@ See LICENSE.txt file for license details.
 */
 
 // TWI Driver Silicon Image Si7005, Temperature & Humidity
+// Not supported more.
 
 // Outs
 // TW16384      Temperature counter (TC)
@@ -138,7 +139,7 @@ uint8_t twi_SI7005_Pool1(subidx_t * pSubidx, uint8_t sleep)
         return 1;
       }
       return 0;
-    case 9:             // Start Conversion Temprature
+    case 9:             // Start Conversion Temperature
       si7005_buf[0] = SI7005_REG_CONFIG;
       si7005_buf[1] = (SI7005_CONFIG_START | SI7005_CONFIG_TEMPERATURE);
       twimExch_ISR(SI7005_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, si7005_buf, NULL);
