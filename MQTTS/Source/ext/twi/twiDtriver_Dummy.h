@@ -3,4 +3,4 @@
 
 uint8_t twi_Dummy_Config(void);
 
-#endif
+#endif  //  _TWI_DRIVER_DUMMY_H
