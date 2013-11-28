@@ -53,15 +53,6 @@ uint8_t twi_BMP180_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twi_BMP180_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
-{
-    if(pSubidx->Base & 1)               // Renew Pressure
-        bmp180_oldpress = *(uint32_t *)pBuf;
-    else                                // Renew Temperature
-        bmp180_oldtemp = *(uint16_t *)pBuf;
-    return MQTTS_RET_ACCEPTED;
-}
-
 uint8_t twi_BMP180_Pool1(subidx_t * pSubidx, uint8_t sleep)
 {
     uint16_t ut;
@@ -73,37 +64,31 @@ uint8_t twi_BMP180_Pool1(subidx_t * pSubidx, uint8_t sleep)
       return 0;
     }
 #endif  //  ASLEEP
-    if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
+    if(twim_access & TWIM_ERROR)   // Bus Error
     {
         if(bmp180_stat != 0)
-        {
-            bmp180_stat = 0x40;
-            if(twim_access & TWIM_RELEASE)
-                twim_access = TWIM_RELEASE;
-        }
+          bmp180_stat = 0x40;
         return 0;
     }
 
-    if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
+    if((twim_access & (TWIM_READ | TWIM_WRITE | TWIM_BUSY)) && (bmp180_stat != 5))      // Bus Busy
         return 0;
     
     switch(bmp180_stat)
     {
         case 0:
-            if(twim_access & TWIM_BUSY)
-                return 0;
             bmp180_stat = 1;
         case 1:             // Start dummy Conversion, Temperature
         case 3:             // Start Conversion, Temperature
             bmp180_Buf[0] = BMP180_CTRL_MEAS_REG;
             bmp180_Buf[1] = BMP180_T_MEASURE;
-            twimExch_ISR(BMP180_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, bmp180_Buf, NULL);
+            twimExch_ISR(BMP180_ADDR, TWIM_WRITE, 2, 0, bmp180_Buf, NULL);
             break;
         // !! ut Conversion time 4,5 mS
         case 2:             // Get dummy ut
         case 4:             // Get ut
             bmp180_Buf[0] = BMP180_ADC_OUT_MSB_REG;            // Select ADC out register
-            twimExch_ISR(BMP180_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, bmp180_Buf, NULL);
+            twimExch_ISR(BMP180_ADDR, (TWIM_WRITE | TWIM_READ), 1, 2, bmp180_Buf, NULL);
             break;
         case 5:             // Get uncompensated temperature, and normalize
             ut = ((uint16_t)bmp180_Buf[0]<<8) | bmp180_Buf[1];
@@ -131,13 +116,13 @@ uint8_t twi_BMP180_Pool1(subidx_t * pSubidx, uint8_t sleep)
         case 9:             // Start conversion, Pressure
             bmp180_Buf[0] = BMP180_CTRL_MEAS_REG;
             bmp180_Buf[1] = BMP180_P_MEASURE + (BMP180_OSS<<6);
-            twimExch_ISR(BMP180_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, bmp180_Buf, NULL);
+            twimExch_ISR(BMP180_ADDR, TWIM_WRITE, 2, 0, bmp180_Buf, NULL);
             break;
         // !! up Conversion time on ultra high resolution (BMP180_OSS = 3) 25,5 mS
         case 8:             // Get dummy up
         case 11:            // Get up
             bmp180_Buf[0] = BMP180_ADC_OUT_MSB_REG;            // Select ADC out register
-            twimExch_ISR(BMP180_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 3, bmp180_Buf, NULL);
+            twimExch_ISR(BMP180_ADDR, (TWIM_WRITE | TWIM_READ), 1, 3, bmp180_Buf, NULL);
             break;
     }
     bmp180_stat++;
@@ -154,7 +139,6 @@ uint8_t twi_BMP180_Pool2(subidx_t * pSubidx, uint8_t _unused)
     bmp180_stat++;
     up = (((uint32_t)bmp180_Buf[0]<<16) | ((uint32_t)bmp180_Buf[1]<<8) |
           ((uint32_t)bmp180_Buf[2]))>>(8-BMP180_OSS);
-    twim_access = 0;    // Bus Free
     b6 = bmp180_b5 - 4000;
     //  calculate B3
     x1 = (b6 * b6)>>12;
@@ -231,7 +215,7 @@ uint8_t twi_BMP180_Config(void)
     return 0;
 
   pIndex1->cbRead  =  &twi_BMP180_Read;
-  pIndex1->cbWrite =  &twi_BMP180_Write;
+  pIndex1->cbWrite =  NULL;
   pIndex1->cbPool  =  &twi_BMP180_Pool1;
   pIndex1->sidx.Place = objTWI;               // Object TWI
   pIndex1->sidx.Type =  objInt16;             // Variables Type -  UInt16
@@ -246,7 +230,7 @@ uint8_t twi_BMP180_Config(void)
   }
 
   pIndex2->cbRead  =  &twi_BMP180_Read;
-  pIndex2->cbWrite =  &twi_BMP180_Write;
+  pIndex2->cbWrite =  NULL;
   pIndex2->cbPool  =  &twi_BMP180_Pool2;
   pIndex2->sidx.Place = objTWI;               // Object TWI
   pIndex2->sidx.Type =  objUInt32;            // Variables Type -  UInt32

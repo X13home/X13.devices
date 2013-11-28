@@ -55,6 +55,7 @@ extern uint8_t inpPort(uint16_t base);
 // Local Variables
 static uint8_t twim_addr;               // Device address
 volatile uint8_t twim_access;           // access mode & busy flag
+uint8_t twim_status;                    // operation result
 static uint8_t twim_bytes2write;        // bytes to write
 static uint8_t twim_bytes2read;         // bytes to read
 volatile static uint8_t * twim_ptr;     // pointer to data buffer
@@ -155,7 +156,7 @@ void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uin
         return;
 
     twim_addr = (addr<<1);
-    twim_access = access;
+    twim_access = access | TWIM_BUSY;
     twim_bytes2write = write; 
     twim_bytes2read = read;
     twim_ptr = pBuf;
@@ -169,7 +170,8 @@ void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uin
 ISR(TWI_vect)
 {
     static uint8_t twi_ptr;
-    switch(TW_STATUS)
+    twim_status = TW_STATUS;
+    switch(twim_status)
     {
         case TW_START:                          // START has been transmitted  
         case TW_REP_START:                      // Repeated START has been transmitted
@@ -201,6 +203,8 @@ ISR(TWI_vect)
                 TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop
                 if(twim_callback != NULL)
                     (twim_callback)();
+                else
+                  twim_access &= ~TWIM_BUSY;
             }
             break;
         case TW_MR_DATA_ACK:                    // Data byte has been received and ACK transmitted
@@ -224,10 +228,14 @@ ISR(TWI_vect)
             twim_access &= ~TWIM_READ;
             if(twim_callback != NULL)
                 (twim_callback)();
+            else
+              twim_access &= ~TWIM_BUSY;
             break;
         default:                                // Error
             twim_access |= TWIM_ERROR;
             TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop, Disable Interrupt
+            if(twim_callback != NULL)
+              (twim_callback)();
             break;
     }
 }
@@ -236,6 +244,7 @@ ISR(TWI_vect)
 void twiClean()
 {
     twim_access = 0;
+    twim_status = 0;
     twim_addr = 0xFF;
     twim_addr_old = 0;
     twim_callback = NULL;
@@ -243,14 +252,8 @@ void twiClean()
 
 uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    *pLen = 1;
-    *pBuf = (twim_addr>>1);
-    return MQTTS_RET_ACCEPTED;
-}
-
-uint8_t twim_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
-{
-    twim_addr_old = *pBuf;
+    *pLen = 2;
+    *pBuf = ((uint16_t)twim_addr<<7) | twim_status;
     return MQTTS_RET_ACCEPTED;
 }
 
@@ -282,6 +285,7 @@ uint8_t twim_pool(subidx_t * pSubidx, uint8_t sleep)
       ((twim_access & (TWIM_ERROR | TWIM_WRITE | TWIM_READ)) > TWIM_ERROR))
     {
         TWI_DISABLE();
+        twim_status = 0xFF;
         twim_access = TWIM_ERROR;
         return 1;
     }
@@ -289,6 +293,7 @@ uint8_t twim_pool(subidx_t * pSubidx, uint8_t sleep)
     {
         TWI_ENABLE();
         twim_access = 0;
+        twim_status = 0;
         twim_addr = 0;
         twim_addr_old = 0xFF;
         return 1;
@@ -369,11 +374,11 @@ void twiConfig(void)
 
     // Status Register
     pIndex->cbRead  =  &twim_read;
-    pIndex->cbWrite =  &twim_write;
+    pIndex->cbWrite =  NULL;
     pIndex->cbPool  =  &twim_pool;
     
     pIndex->sidx.Place = objTWI;
-    pIndex->sidx.Type =  objUInt8;
+    pIndex->sidx.Type =  objUInt16;
     pIndex->sidx.Base = 0;
 }
 

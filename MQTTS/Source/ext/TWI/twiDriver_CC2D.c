@@ -14,7 +14,9 @@ See LICENSE.txt file for license details.
 // TW10240    Temperature counter (TC)
 // TW10241    Relative Humidity Counter(RH)
 // Temperature °C = TC*165/16384 - 40
+// A*165/16384-40
 // Humidity % = RH*100/16384
+// A*25/4096
 
 #include "../../config.h"
 
@@ -59,15 +61,6 @@ uint8_t twi_CC2D_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
   return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twi_CC2D_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
-{
-  if(pSubidx->Base & 1)   // Renew Humidity
-    cc2d_old.i[1] = *(uint16_t *)pBuf;
-  else                    // Renew Temperature
-    cc2d_old.i[0] = *(uint16_t *)pBuf;
-  return MQTTS_RET_ACCEPTED;
-}
-
 uint8_t twi_CC2D_Pool1(subidx_t * pSubidx, uint8_t sleep)
 {
 #ifdef ASLEEP
@@ -80,49 +73,41 @@ uint8_t twi_CC2D_Pool1(subidx_t * pSubidx, uint8_t sleep)
 
   if(cc2d_stat == 0)
   {
-    if(twim_access & (TWIM_BUSY | TWIM_ERROR | TWIM_RELEASE | TWIM_READ | TWIM_WRITE))
+    if(twim_access & (TWIM_ERROR | TWIM_BUSY | TWIM_WRITE | TWIM_READ))
       return 0;
+    // Wake Up and Start Conversion
+    twimExch_ISR(CC2D_ADDR, TWIM_WRITE, 0, 0, NULL, NULL);
     cc2d_stat = 1;
+    return 0;
   }
   else
   {
-    if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
+    if(twim_access & TWIM_ERROR)    // Bus Error, or request to release bus
     {
       cc2d_stat = 0x40;
-      if(twim_access & TWIM_RELEASE)
-        twim_access = TWIM_RELEASE;
       return 0;
     }
 
     if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
       return 0;
-  }
-  
-  switch(cc2d_stat)
-  {
-    case 1:   // Wake Up and Start Conversion
-      twimExch_ISR(CC2D_ADDR, (TWIM_BUSY | TWIM_WRITE), 0, 0, NULL, NULL);
-      break;
-    case 4:   // Read Status and data
-      twimExch_ISR(CC2D_ADDR, (TWIM_BUSY | TWIM_READ), 0, 4, (uint8_t *)&cc2d_exchg.l, NULL);
-      break;
-    case 5:
-    case 6:
-    case 7:
-      if((cc2d_exchg.c[0] & 0xC0) == 0)
+      
+    if((twim_access == 0) && (cc2d_stat < 11) && (cc2d_stat > 4))
+    {
+      if(cc2d_stat & 1)
+        twimExch_ISR(CC2D_ADDR, TWIM_READ, 0, 4, (uint8_t *)&cc2d_exchg.l, NULL);
+      else
       {
-        if((cc2d_exchg.i[0] != cc2d_old.i[0]))
+        if((cc2d_exchg.c[0] & 0xC0) == 0)
         {
-          cc2d_stat++;
-          return 1;
+          cc2d_stat = 12;
+          if((cc2d_exchg.i[0] != cc2d_old.i[0]))
+          {
+            cc2d_stat++;
+            return 1;
+          }
         }
       }
-      else
-        twimExch_ISR(CC2D_ADDR, (TWIM_BUSY | TWIM_READ), 0, 4, (uint8_t *)&cc2d_exchg.l, NULL);
-      break;
-    case 8:
-      twim_access = 0;
-      break;
+    }
   }
 
   cc2d_stat++;
@@ -131,7 +116,7 @@ uint8_t twi_CC2D_Pool1(subidx_t * pSubidx, uint8_t sleep)
 
 uint8_t twi_CC2D_Pool2(subidx_t * pSubidx, uint8_t sleep)
 {
-  if((cc2d_stat == 8) && (cc2d_exchg.i[1] != cc2d_old.i[1]))
+  if((cc2d_stat == 15) && (cc2d_exchg.i[1] != cc2d_old.i[1]))
     return 1;
   return 0;
 }
@@ -162,14 +147,14 @@ uint8_t twi_CC2D_Config(void)
     }
 
     pIndex1->cbRead  =  &twi_CC2D_Read;
-    pIndex1->cbWrite =  &twi_CC2D_Write;
+    pIndex1->cbWrite =  NULL;
     pIndex1->cbPool  =  &twi_CC2D_Pool1;
     pIndex1->sidx.Place = objTWI;                // Object TWI
     pIndex1->sidx.Type =  objUInt16;             // Variables Type -  String
     pIndex1->sidx.Base = (CC2D_ADDR<<8);         // Device address
 
     pIndex2->cbRead  =  &twi_CC2D_Read;
-    pIndex2->cbWrite =  &twi_CC2D_Write;
+    pIndex2->cbWrite =  NULL;
     pIndex2->cbPool  =  &twi_CC2D_Pool2;
     pIndex2->sidx.Place = objTWI;                // Object TWI
     pIndex2->sidx.Type =  objUInt16;             // Variables Type -  String
