@@ -43,15 +43,17 @@ uint8_t twi_BlinkM_Pool(subidx_t * pSubidx, uint8_t sleep)
 
   uint8_t pos, tmp, len;
 
+  if(twim_access != 0)
+    return 0;
+
   pos = pSubidx->Base & (BLINKM_MAX_DEV - 1);
   tmp = blinkm_state[pos];
 
   if(tmp == 2)
   {
     blinkm_state[pos] = 0;
-    twim_access = 0;
   }
-  else if((tmp == 1) && (twim_access == 0))
+  else if(tmp == 1)
   {
     tmp = blinkm_buf[pos] & 0xFF;
     switch(tmp)
@@ -87,7 +89,7 @@ uint8_t twi_BlinkM_Pool(subidx_t * pSubidx, uint8_t sleep)
     }
     blinkm_state[pos] = 2;
     
-    twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_WRITE), len, 0, (uint8_t *)&blinkm_buf[pos], NULL);
+    twimExch_ISR(pSubidx->Base>>8, TWIM_WRITE, len, 0, (uint8_t *)&blinkm_buf[pos], NULL);
   }
 
   return 0;

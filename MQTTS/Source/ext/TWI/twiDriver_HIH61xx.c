@@ -70,48 +70,49 @@ uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx, uint8_t sleep)
     return 0;
   }
 #endif  //  ASLEEP
-    if(twim_access & TWIM_ERROR)   // Bus Error
-    {
-        if(hih61xx_stat != 0)
-            hih61xx_stat = 0x40;
-        return 0;
-    }
-    
-    if(twim_access & (TWIM_BUSY | TWIM_READ | TWIM_WRITE))      // Bus Busy
-        return 0;
-
-    switch(hih61xx_stat)
-    {
-        case 0:         // Start Conversion
-            hih61xx_stat = 1;
-        case 1:
-            twimExch_ISR(HIH61XX_TWI_ADDR, TWIM_WRITE, 0, 0, NULL, NULL);
-            break;
-        case 4:         // !! The measurement cycle duration is typically 36.65 ms
-            twimExch_ISR(HIH61XX_TWI_ADDR, TWIM_READ, 0, 4, hih61xx_buf, NULL);
-            break;
-        case 5:
-            if((hih61xx_buf[0] & 0xC0) != 0)   // data invalid
-            {
-                hih61xx_stat--;
-                return 0;
-            }
-            temp = ((((uint16_t)hih61xx_buf[2])<<6) | (hih61xx_buf[3]>>2)) & 0x3FFF;
-#if (defined HIH61XX_T_MIN_DELTA) && (HIH61XX_T_MIN_DELTA > 0)
-            if((temp > hih61xx_oldtemp ? temp - hih61xx_oldtemp : hih61xx_oldtemp - temp) > HIH61XX_T_MIN_DELTA)
-#else
-            if(temp != hih61xx_oldtemp)
-#endif  //  HIH61XX_T_MIN_DELTA
-            {
-                hih61xx_oldtemp = temp;
-                hih61xx_stat++;
-                return 1;
-            }
-            break;
-    }
-
-    hih61xx_stat++;
+  if(twim_access & TWIM_ERROR)   // Bus Error
+  {
+    if(hih61xx_stat <= 7)
+      hih61xx_stat = 8;
     return 0;
+  }
+
+  switch(hih61xx_stat)
+  {
+    case 0:         // Start Conversion
+      hih61xx_stat = 1;
+    case 1:
+      if(twim_access != 0)
+        return 0;
+      twimExch_ISR(HIH61XX_TWI_ADDR, TWIM_WRITE, 0, 0, NULL, NULL);
+      break;
+    case 4:         // !! The measurement cycle duration is typically 36.65 ms
+      if(twim_access != 0)
+        return 0;
+      twimExch_ISR(HIH61XX_TWI_ADDR, TWIM_READ, 0, 4, hih61xx_buf, NULL);
+      break;
+    case 5:
+      if((hih61xx_buf[0] & 0xC0) != 0)   // data invalid
+      {
+        hih61xx_stat--;
+        return 0;
+      }
+      temp = ((((uint16_t)hih61xx_buf[2])<<6) | (hih61xx_buf[3]>>2)) & 0x3FFF;
+#if (defined HIH61XX_T_MIN_DELTA) && (HIH61XX_T_MIN_DELTA > 0)
+      if((temp > hih61xx_oldtemp ? temp - hih61xx_oldtemp : hih61xx_oldtemp - temp) > HIH61XX_T_MIN_DELTA)
+#else
+      if(temp != hih61xx_oldtemp)
+#endif  //  HIH61XX_T_MIN_DELTA
+      {
+        hih61xx_oldtemp = temp;
+        hih61xx_stat++;
+        return 1;
+      }
+      break;
+  }
+
+  hih61xx_stat++;
+  return 0;
 }
 
 uint8_t twi_HIH61xx_Pool2(subidx_t * pSubidx, uint8_t _unused)
@@ -150,13 +151,6 @@ uint8_t twi_HIH61xx_Config(void)
     if(pIndex1 == NULL)
         return 0;
 
-    pIndex1->cbRead  =  &twi_HIH61xx_Read;
-    pIndex1->cbWrite =  NULL;
-    pIndex1->cbPool  =  &twi_HIH61xx_Pool1;
-    pIndex1->sidx.Place = objTWI;                   // Object TWI
-    pIndex1->sidx.Type =  objInt16;                 // Variables Type -  UInt16
-    pIndex1->sidx.Base = (HIH61XX_TWI_ADDR<<8);     // Device addr
-
     indextable_t * pIndex2;
     pIndex2 = getFreeIdxOD();
     if(pIndex2 == NULL)
@@ -164,6 +158,15 @@ uint8_t twi_HIH61xx_Config(void)
         pIndex1->Index = 0xFFFF;                    // Free Index
         return 0;
     }
+
+    pIndex1->cbRead  =  &twi_HIH61xx_Read;
+    pIndex1->cbWrite =  NULL;
+    pIndex1->cbPool  =  &twi_HIH61xx_Pool1;
+    pIndex1->sidx.Place = objTWI;                   // Object TWI
+    pIndex1->sidx.Type =  objInt16;                 // Variables Type -  UInt16
+    pIndex1->sidx.Base = (HIH61XX_TWI_ADDR<<8);     // Device addr
+
+
 
     pIndex2->cbRead  =  &twi_HIH61xx_Read;
     pIndex2->cbWrite =  NULL;

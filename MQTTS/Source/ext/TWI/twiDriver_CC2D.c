@@ -70,10 +70,9 @@ uint8_t twi_CC2D_Pool1(subidx_t * pSubidx, uint8_t sleep)
     return 0;
   }
 #endif  //  ASLEEP
-
   if(cc2d_stat == 0)
   {
-    if(twim_access & (TWIM_ERROR | TWIM_BUSY | TWIM_WRITE | TWIM_READ))
+    if(twim_access != 0)
       return 0;
     // Wake Up and Start Conversion
     twimExch_ISR(CC2D_ADDR, TWIM_WRITE, 0, 0, NULL, NULL);
@@ -84,17 +83,25 @@ uint8_t twi_CC2D_Pool1(subidx_t * pSubidx, uint8_t sleep)
   {
     if(twim_access & TWIM_ERROR)    // Bus Error, or request to release bus
     {
-      cc2d_stat = 0x40;
+      if(cc2d_stat <= 15)
+        cc2d_stat = 16;
       return 0;
     }
 
-    if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
+    if(cc2d_stat > 15)
+    {
+      cc2d_stat++;
       return 0;
-      
+    }
+
     if((twim_access == 0) && (cc2d_stat < 11) && (cc2d_stat > 4))
     {
       if(cc2d_stat & 1)
+      {
+        if(twim_access != 0)
+          return 0;
         twimExch_ISR(CC2D_ADDR, TWIM_READ, 0, 4, (uint8_t *)&cc2d_exchg.l, NULL);
+      }
       else
       {
         if((cc2d_exchg.c[0] & 0xC0) == 0)

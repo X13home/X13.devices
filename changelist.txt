@@ -1,3 +1,11 @@
+Version 2.6.1
+
+Added     TWI Driver MCP23016                                         29.Nov.2013
+Added     TWI Driver SHT21                                            28.Nov.2013
+Changed   TWI Arbitration                                             28.Nov.2013
+Added     TWI Driver CC2Dxx[S]                                        22.Nov.2013
+
+=================================================================================
 Version 2.6.0, Release
 
 Added     Dummy device with ATMega256                                 11.Nov.2013

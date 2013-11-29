@@ -12,11 +12,17 @@ See LICENSE.txt file for license details.
 
 // Outs
 // TW16384      Temperature counter (TC)
+// A*175.72/65536-46.85
 // TW16385      Relative Humidity Counter(RH)
+// A*125/65536-6
 
 #include "../../config.h"
 
 #if (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_SHT21)
+
+#include <util/twi.h>
+
+#define SHT21_ADDR              0x40
 
 #define SHT_CMD_START_T_HOLD    0xE3    // Trigger T measurement  with Hold
 #define SHT_CMD_START_RH_HOLD   0xE5    // Trigger RH measurement  with Hold 
@@ -31,29 +37,26 @@ See LICENSE.txt file for license details.
 
 extern volatile uint8_t twim_access;           // access mode & busy flag
 
-
 // Process variables
 static uint8_t  sht21_stat;
 static uint16_t sht21_oldTemp;
 static uint16_t sht21_oldHumi;
 uint8_t         sht21_buf[2];
 
-
-/*
-
-
-void sht21_ReadStatus_cb(void)
+void sht21_cb(void)
 {
-  if(sht21_buf[0] & sht21_STATUS_NOT_READY)
-    sht21_stat--;
+  if(twim_access & TWIM_READ)
+    twim_access = 0;
   else
   {
-    sht21_buf[0] = sht21_REG_DATA;
-    twimExch_ISR(sht21_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, sht21_buf, NULL);
-    sht21_stat++;
+    twim_access &= ~TWIM_BUSY;
+    if(sht21_stat < 8)
+      sht21_stat = 8;
+    else
+      sht21_stat = 12;
   }
 }
-*/
+
 uint8_t twi_sht21_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 2;
@@ -77,7 +80,7 @@ uint8_t twi_sht21_Pool1(subidx_t * pSubidx, uint8_t sleep)
 #endif  //  ASLEEP
   if(sht21_stat == 0)
   {
-    if(twim_access & (TWIM_BUSY | TWIM_ERROR | TWIM_READ | TWIM_WRITE))
+    if(twim_access != 0)
       return 0;
     sht21_stat = 1;
   }
@@ -85,7 +88,8 @@ uint8_t twi_sht21_Pool1(subidx_t * pSubidx, uint8_t sleep)
   {
     if(twim_access & TWIM_ERROR)      // Bus Error, or request to release bus
     {
-      sht21_stat = 0x40;
+      if(sht21_stat <= 13)
+        sht21_stat = 14;
       return 0;
     }
 
@@ -95,97 +99,68 @@ uint8_t twi_sht21_Pool1(subidx_t * pSubidx, uint8_t sleep)
   
   switch(sht21_stat)
   {
-    case 1:   // Start T Conversion
+    case 1:   // Start Temperature Conversion
+      if(twim_access != 0)
+        return 0;
       sht21_buf[0] = SHT_CMD_START_T;
-      twimExch_ISR(sht21_ADDR, TWIM_WRITE, 1, 0, sht21_buf, NULL);
+      twimExch_ISR(SHT21_ADDR, TWIM_WRITE, 1, 0, sht21_buf, NULL);
       break;
-    case 2:
-      sht21_buf[0] = SHT_CMD_START_T;
-  
-  
-  }
-  sht21_stat++;
-  
-/*
-  switch(sht21_stat)
-  {
-    case 1:             // Start Dummy Conversion
-      sht21_buf[0] = sht21_REG_CONFIG;
-      sht21_buf[1] = (sht21_CONFIG_START | sht21_CONFIG_TEMPERATURE | sht21_CONFIG_FAST);
-      twimExch_ISR(sht21_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, sht21_buf, NULL);
+    case 2:   // Temperature - 11bit
+    case 3:   // Temperature - 12bit
+    case 4:   // Temperature - 13 bit
+    case 6:   // Temperature- 14 bit
+    case 9:   // Humidity 8/10 bit
+    case 10:  // Humidity 11/12 bit
+      if(twim_access != 0)
+        return 0;
+      twimExch_ISR(SHT21_ADDR, TWIM_READ, 0, 2, sht21_buf, sht21_cb);
       break;
-    case 3:             // Start Conversion, Humidity
-      sht21_buf[0] = sht21_REG_CONFIG;
-      sht21_buf[1] = (sht21_CONFIG_START | sht21_CONFIG_HUMIDITY);
-      twimExch_ISR(sht21_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, sht21_buf, NULL);
+    case 7:   //  Get temperature - Error
+    case 11:  // Get Humidity - Error
+      sht21_stat = 0x40;
       break;
-    // !! Conversion Time 35mS - Normal / 18 mS - Fast
-    case 6:             // Read Busy Flag
-    case 12:
-      sht21_buf[0] = sht21_REG_STATUS;
-      twimExch_ISR(sht21_ADDR, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 1, sht21_buf, &sht21_ReadStatus_cb);
-      break;
-    case 7:
-    case 13:
-    case 14:
-      return 0;
-    case 8:             // Read Humidity
-      sht21_stat++;
-      sht21_tmp = ((uint16_t)sht21_buf[0]<<4) | (sht21_buf[1]>>4);
-#if (defined sht21_H_MIN_DELTA) && (sht21_H_MIN_DELTA > 0)
-      if((sht21_tmp > sht21_oldHumi ? sht21_tmp - sht21_oldHumi : sht21_oldHumi - sht21_tmp)
-                                                                             > sht21_H_MIN_DELTA)
-#else
-      if(sht21_tmp != sht21_oldHumi)
-#endif  // sht21_H_MIN_DELTA
+    case 8:   // Read Temperature and Start humidity conversion
+      if(twim_access != 0)
+        return 0;
+      sht21_tmp = ((uint16_t)sht21_buf[0]<<8) | (sht21_buf[1] & 0xFC);
+      sht21_buf[0] = SHT_CMD_START_RH;
+      twimExch_ISR(SHT21_ADDR, TWIM_WRITE, 1, 0, sht21_buf, NULL);
+
+      if(sht21_oldTemp != sht21_tmp)
       {
-        sht21_oldHumi = sht21_tmp;
+        sht21_oldTemp = sht21_tmp;
+        sht21_stat++;
         return 1;
       }
-      return 0;
-    case 9:             // Start Conversion Temperature
-      sht21_buf[0] = sht21_REG_CONFIG;
-      sht21_buf[1] = (sht21_CONFIG_START | sht21_CONFIG_TEMPERATURE);
-      twimExch_ISR(sht21_ADDR, (TWIM_BUSY | TWIM_WRITE), 2, 0, sht21_buf, NULL);
       break;
   }
   sht21_stat++;
-*/
   return 0;
 }
 
 uint8_t twi_sht21_Pool2(subidx_t * pSubidx, uint8_t _unused)
 {
-/*
   uint16_t sht21_tmp;
-
-  if(sht21_stat == 14)
+  if(sht21_stat == 13)
   {
     sht21_stat++;
-    twim_access = 0;        // Bus Free
-
-    sht21_tmp = ((uint16_t)sht21_buf[0]<<6) | (sht21_buf[1]>>2);
-#if (defined sht21_T_MIN_DELTA) && (sht21_T_MIN_DELTA > 0)
-    if((sht21_tmp > sht21_oldTemp ? sht21_tmp - sht21_oldTemp : sht21_oldTemp - sht21_tmp)
-                                                                             > sht21_T_MIN_DELTA)
-#else
-    if(sht21_tmp != sht21_oldTemp)
-#endif  // sht21_T_MIN_DELTA
+    sht21_tmp = ((uint16_t)sht21_buf[0]<<8) | (sht21_buf[1] & 0xFC);
+    if(sht21_tmp != sht21_oldHumi)
     {
-      sht21_oldTemp = sht21_tmp;
+      sht21_oldHumi = sht21_tmp;
       return 1;
     }
   }
-*/
   return 0;
 }
 
 uint8_t twi_SHT21_Config(void)
 {
   uint8_t tmp;
+/*
   tmp = SHT_READ;
 
-  if((twimExch(SHT21_ADDR, (TWIM_READ | TWIM_WRITE), 1, 1, &tmp) != TW_SUCCESS)     // Communication error
+  if(twimExch(SHT21_ADDR, (TWIM_READ | TWIM_WRITE), 1, 1, &tmp) != TW_SUCCESS)     // Communication error
     return 0;
 
   sht21_buf[0] = SHT_WRITE;
@@ -193,6 +168,10 @@ uint8_t twi_SHT21_Config(void)
   tmp |= 0x83;  // Disable OTP Reload, resolution 11/11 bit.
   sht21_buf[1] = tmp;
   twimExch(SHT21_ADDR, TWIM_WRITE, 2, 0, sht21_buf);
+*/
+  tmp = SHT_RESET;
+  if(twimExch(SHT21_ADDR, TWIM_WRITE, 1, 0, &tmp) != TW_SUCCESS)     // Communication error
+    return 0;
 
   sht21_stat = 0;
   sht21_oldTemp = 0;
@@ -209,7 +188,7 @@ uint8_t twi_SHT21_Config(void)
   pIndex1->cbPool  =  &twi_sht21_Pool1;
   pIndex1->sidx.Place = objTWI;                   // Object TWI
   pIndex1->sidx.Type =  objUInt16;                // Variables Type -  UInt16
-  pIndex1->sidx.Base = (sht21_ADDR<<8);           // Variable address
+  pIndex1->sidx.Base = (SHT21_ADDR<<8);           // Variable address
 
   // Register variable 2, Humidity COunter
   indextable_t * pIndex2;
@@ -225,7 +204,7 @@ uint8_t twi_SHT21_Config(void)
   pIndex2->cbPool  =  &twi_sht21_Pool2;
   pIndex2->sidx.Place = objTWI;                   // Object TWI
   pIndex2->sidx.Type =  objUInt16;
-  pIndex2->sidx.Base = (sht21_ADDR<<8) + 1;       // Device address
+  pIndex2->sidx.Base = (SHT21_ADDR<<8) + 1;       // Device address
 
   return 2;
 }

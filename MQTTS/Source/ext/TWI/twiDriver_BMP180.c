@@ -55,42 +55,43 @@ uint8_t twi_BMP180_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 
 uint8_t twi_BMP180_Pool1(subidx_t * pSubidx, uint8_t sleep)
 {
-    uint16_t ut;
-    int32_t x1,x2;
+  uint16_t ut;
+  int32_t x1,x2;
 #ifdef ASLEEP
-    if(sleep != 0)
-    {
-      bmp180_stat = (0xFF-(POOL_TMR_FREQ/2));
-      return 0;
-    }
+  if(sleep != 0)
+  {
+    bmp180_stat = (0xFF-(POOL_TMR_FREQ/2));
+    return 0;
+  }
 #endif  //  ASLEEP
-    if(twim_access & TWIM_ERROR)   // Bus Error
-    {
-        if(bmp180_stat != 0)
-          bmp180_stat = 0x40;
-        return 0;
-    }
+  if(twim_access & TWIM_ERROR)   // Bus Error
+  {
+    if(bmp180_stat <= 13)
+      bmp180_stat = 14;
+    return 0;
+  }
 
-    if((twim_access & (TWIM_READ | TWIM_WRITE | TWIM_BUSY)) && (bmp180_stat != 5))      // Bus Busy
+  switch(bmp180_stat)
+  {
+    case 0:
+      bmp180_stat = 1;
+    case 1:             // Start dummy Conversion, Temperature
+    case 3:             // Start Conversion, Temperature
+      if(twim_access != 0)
         return 0;
-    
-    switch(bmp180_stat)
-    {
-        case 0:
-            bmp180_stat = 1;
-        case 1:             // Start dummy Conversion, Temperature
-        case 3:             // Start Conversion, Temperature
-            bmp180_Buf[0] = BMP180_CTRL_MEAS_REG;
-            bmp180_Buf[1] = BMP180_T_MEASURE;
-            twimExch_ISR(BMP180_ADDR, TWIM_WRITE, 2, 0, bmp180_Buf, NULL);
-            break;
-        // !! ut Conversion time 4,5 mS
-        case 2:             // Get dummy ut
-        case 4:             // Get ut
-            bmp180_Buf[0] = BMP180_ADC_OUT_MSB_REG;            // Select ADC out register
-            twimExch_ISR(BMP180_ADDR, (TWIM_WRITE | TWIM_READ), 1, 2, bmp180_Buf, NULL);
-            break;
-        case 5:             // Get uncompensated temperature, and normalize
+      bmp180_Buf[0] = BMP180_CTRL_MEAS_REG;
+      bmp180_Buf[1] = BMP180_T_MEASURE;
+      twimExch_ISR(BMP180_ADDR, TWIM_WRITE, 2, 0, bmp180_Buf, NULL);
+      break;
+    // !! ut Conversion time 4,5 mS
+    case 2:             // Get dummy ut
+    case 4:             // Get ut
+      if(twim_access != 0)
+        return 0;
+      bmp180_Buf[0] = BMP180_ADC_OUT_MSB_REG;            // Select ADC out register
+      twimExch_ISR(BMP180_ADDR, (TWIM_WRITE | TWIM_READ), 1, 2, bmp180_Buf, NULL);
+      break;
+    case 5:             // Get uncompensated temperature, and normalize
             ut = ((uint16_t)bmp180_Buf[0]<<8) | bmp180_Buf[1];
 
             // Calculate temperature
@@ -112,21 +113,25 @@ uint8_t twi_BMP180_Pool1(subidx_t * pSubidx, uint8_t sleep)
                 return 1;
             }
             break;
-        case 6:             // Start dummy conversion, Pressure
-        case 9:             // Start conversion, Pressure
-            bmp180_Buf[0] = BMP180_CTRL_MEAS_REG;
-            bmp180_Buf[1] = BMP180_P_MEASURE + (BMP180_OSS<<6);
-            twimExch_ISR(BMP180_ADDR, TWIM_WRITE, 2, 0, bmp180_Buf, NULL);
-            break;
-        // !! up Conversion time on ultra high resolution (BMP180_OSS = 3) 25,5 mS
-        case 8:             // Get dummy up
-        case 11:            // Get up
-            bmp180_Buf[0] = BMP180_ADC_OUT_MSB_REG;            // Select ADC out register
-            twimExch_ISR(BMP180_ADDR, (TWIM_WRITE | TWIM_READ), 1, 3, bmp180_Buf, NULL);
-            break;
-    }
-    bmp180_stat++;
-    return 0;
+    case 6:             // Start dummy conversion, Pressure
+    case 9:             // Start conversion, Pressure
+      if(twim_access != 0)
+        return 0;
+      bmp180_Buf[0] = BMP180_CTRL_MEAS_REG;
+      bmp180_Buf[1] = BMP180_P_MEASURE + (BMP180_OSS<<6);
+      twimExch_ISR(BMP180_ADDR, TWIM_WRITE, 2, 0, bmp180_Buf, NULL);
+      break;
+    // !! up Conversion time on ultra high resolution (BMP180_OSS = 3) 25,5 mS
+    case 8:             // Get dummy up
+    case 11:            // Get up
+      if(twim_access != 0)
+        return 0;
+      bmp180_Buf[0] = BMP180_ADC_OUT_MSB_REG;            // Select ADC out register
+      twimExch_ISR(BMP180_ADDR, (TWIM_WRITE | TWIM_READ), 1, 3, bmp180_Buf, NULL);
+      break;
+  }
+  bmp180_stat++;
+  return 0;
 }
 
 uint8_t twi_BMP180_Pool2(subidx_t * pSubidx, uint8_t _unused)

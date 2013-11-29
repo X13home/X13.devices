@@ -19,9 +19,13 @@ See LICENSE.txt file for license details.
 #include "extdio.h"
 #include "twim.h"
 
-#ifdef TWI_USE_BMP180
-#include "twi/twiDriver_BMP180.h"
-#endif  //  TWI_USE_BMP180
+#ifdef TWI_USE_BLINKM
+#include "twi/twiDriver_BlinkM.h"
+#endif  //  TWI_USE_BLINKM
+
+#ifdef TWI_USE_MCP23016
+#include "twi/twiDriver_MCP23016.h"
+#endif  //  TWI_USE_MCP23016
 
 #ifdef TWI_USE_HIH61XX
 #include "twi/twiDriver_HIH61XX.h"
@@ -31,17 +35,25 @@ See LICENSE.txt file for license details.
 #include "twi/twiDriver_CC2D.h"
 #endif  //  TWI_USE_CC2D
 
+#ifdef TWI_USE_SHT21
+#include "twi/twiDriver_SHT21.h"
+#ifdef TWI_USE_SI7005
+#error Adress conflickt with SI7005
+#endif
+#endif  //  TWI_USE_SHT21
+
+#ifdef TWI_USE_SI7005
+#include "twi/twiDriver_SI7005.h"
+#warning Obsolete driver SI7005, not supported
+#endif  //  TWI_USE_SI7005
+
 #ifdef TWI_USE_LM75
 #include "twi/twiDriver_LM75.h"
 #endif  //  TWI_USE_LM75
 
-#ifdef TWI_USE_BLINKM
-#include "twi/twiDriver_BlinkM.h"
-#endif  //  TWI_USE_BLINKM
-
-#ifdef TWI_USE_SI7005
-#include "twi/twiDriver_SI7005.h"
-#endif  //  TWI_USE_SI7005
+#ifdef TWI_USE_BMP180
+#include "twi/twiDriver_BMP180.h"
+#endif  //  TWI_USE_BMP180
 
 #ifdef TWI_USE_DUMMY
 #include "twi/twiDtriver_Dummy.h"
@@ -55,7 +67,6 @@ extern uint8_t inpPort(uint16_t base);
 // Local Variables
 static uint8_t twim_addr;               // Device address
 volatile uint8_t twim_access;           // access mode & busy flag
-uint8_t twim_status;                    // operation result
 static uint8_t twim_bytes2write;        // bytes to write
 static uint8_t twim_bytes2read;         // bytes to read
 volatile static uint8_t * twim_ptr;     // pointer to data buffer
@@ -170,8 +181,7 @@ void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uin
 ISR(TWI_vect)
 {
     static uint8_t twi_ptr;
-    twim_status = TW_STATUS;
-    switch(twim_status)
+    switch(TW_STATUS)
     {
         case TW_START:                          // START has been transmitted  
         case TW_REP_START:                      // Repeated START has been transmitted
@@ -244,7 +254,6 @@ ISR(TWI_vect)
 void twiClean()
 {
     twim_access = 0;
-    twim_status = 0;
     twim_addr = 0xFF;
     twim_addr_old = 0;
     twim_callback = NULL;
@@ -252,8 +261,8 @@ void twiClean()
 
 uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    *pLen = 2;
-    *pBuf = ((uint16_t)twim_addr<<7) | twim_status;
+    *pLen = 1;
+    *pBuf = twim_addr>>1;
     return MQTTS_RET_ACCEPTED;
 }
 
@@ -285,7 +294,6 @@ uint8_t twim_pool(subidx_t * pSubidx, uint8_t sleep)
       ((twim_access & (TWIM_ERROR | TWIM_WRITE | TWIM_READ)) > TWIM_ERROR))
     {
         TWI_DISABLE();
-        twim_status = 0xFF;
         twim_access = TWIM_ERROR;
         return 1;
     }
@@ -293,7 +301,6 @@ uint8_t twim_pool(subidx_t * pSubidx, uint8_t sleep)
     {
         TWI_ENABLE();
         twim_access = 0;
-        twim_status = 0;
         twim_addr = 0;
         twim_addr_old = 0xFF;
         return 1;
@@ -333,24 +340,30 @@ void twiConfig(void)
     twim_callback = NULL;
     _delay_ms(500);
     
-#ifdef TWI_USE_BMP180
-    cnt += twi_BMP180_Config();
-#endif
-#ifdef TWI_USE_HIH61XX
-    cnt += twi_HIH61xx_Config();
-#endif
-#ifdef TWI_USE_CC2D
-    cnt += twi_CC2D_Config();
-#endif
-#ifdef TWI_USE_LM75
-    cnt += twi_LM75_Config();
-#endif
-#ifdef TWI_USE_SI7005
-    cnt += twi_SI7005_Config();
-#endif
 #ifdef  TWI_USE_BLINKM
     cnt += twi_BlinkM_Config();
 #endif  //  TWI_USE_BLINKM
+#ifdef TWI_USE_MCP23016
+    cnt += twi_MCP23016_Config();
+#endif  //  TWI_USE_MCP23016
+#ifdef TWI_USE_HIH61XX
+    cnt += twi_HIH61xx_Config();
+#endif  //  TWI_USE_HIH61XX
+#ifdef TWI_USE_CC2D
+    cnt += twi_CC2D_Config();
+#endif  //  TWI_USE_CC2D
+#ifdef TWI_USE_SHT21
+    cnt += twi_SHT21_Config();
+#endif  //  TWI_USE_SHT21
+#ifdef TWI_USE_SI7005
+    cnt += twi_SI7005_Config();
+#endif  //  TWI_USE_SI7005
+#ifdef TWI_USE_LM75
+    cnt += twi_LM75_Config();
+#endif  //  TWI_USE_LM75
+#ifdef TWI_USE_BMP180
+    cnt += twi_BMP180_Config();
+#endif  //  TWI_USE_BMP180
 
 #ifdef TWI_USE_DUMMY
     cnt += twi_Dummy_Config();
@@ -378,7 +391,7 @@ void twiConfig(void)
     pIndex->cbPool  =  &twim_pool;
     
     pIndex->sidx.Place = objTWI;
-    pIndex->sidx.Type =  objUInt16;
+    pIndex->sidx.Type =  objUInt8;
     pIndex->sidx.Base = 0;
 }
 

@@ -73,7 +73,7 @@ See LICENSE.txt file for license details.
 
 #define OD_DEV_SWVERSH          '2'     // Software Version
 #define OD_DEV_SWVERSM          '6'
-#define OD_DEV_SWVERSL          '0'
+#define OD_DEV_SWVERSL          '1'
 
 // RF Section
 //#define RF_BASE_FREQ            433920000UL
@@ -86,12 +86,15 @@ See LICENSE.txt file for license details.
 
 // TWI Section
 // TWI Drivers
-#define TWI_USE_BMP180          1       // TWI Driver Bosh BMP180/BMP085 - Temperature/Pressure
-#define TWI_USE_HIH61XX         1       // TWI Driver Honeywell HIH-61xx - Temperature/Humidity
-//#define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
-//#define TWI_USE_LM75            1       // TWI Driver, LM75 - Temperature
-//#define TWI_USE_BLINKM          1       // TWI Driver, BlinkM - Blinky RGB Driver
-#define TWI_USE_CC2D            1       // TWI Driver GE Sensing CC2Dxx[s] Temperature & Humidity
+#define TWI_USE_BLINKM          1       // BlinkM - Blinky RGB Driver
+#define TWI_USE_MCP23016        1       // Microchip - 16bit IO Expander
+//#define TWI_USE_HIH61XX         1       // Honeywell HIH-61xx - Temperature/Humidity
+//#define TWI_USE_CC2D            1       // GE Sensing CC2Dxx[s]  - Temperature/Humidity
+//#define TWI_USE_SHT21           1       // Sensirion SHT21 - Temperature/Humidity
+//#define TWI_USE_SI7005          1       // Silicon Si7005 - Temperature/Humidity
+//#define TWI_USE_LM75            1       // LM75 - Temperature
+//#define TWI_USE_BMP180          1       // Bosh BMP180/BMP085 - Temperature/Pressure
+//#define TWI_USE_DUMMY           1       // DUMMY, checks all addresses
 //End TWI Section
 
 #if (defined UNODE)

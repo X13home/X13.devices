@@ -412,35 +412,35 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'DMGWTST' ">
     <ToolchainSettings>
       <AvrGcc>
-  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-  <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
-  <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
-  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-  <avrgcc.compiler.symbols.DefSymbols>
-    <ListValues>
-      <Value>DUMMY=1</Value>
-      <Value>F_CPU=8000000UL</Value>
-      <Value>EXTDIO_USED=1</Value>
-      <Value>EXTPWM_USED=1</Value>
-      <Value>EXTAI_USED=1</Value>
-      <Value>TWI_USED=1</Value>
-      <Value>GATEWAY=1</Value>
-    </ListValues>
-  </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
-  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
-  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-</AvrGcc>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>DUMMY=1</Value>
+            <Value>F_CPU=8000000UL</Value>
+            <Value>EXTDIO_USED=1</Value>
+            <Value>EXTPWM_USED=1</Value>
+            <Value>EXTAI_USED=1</Value>
+            <Value>TWI_USED=1</Value>
+            <Value>GATEWAY=1</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.linker.libraries.Libraries>
+          <ListValues>
+            <Value>libm</Value>
+          </ListValues>
+        </avrgcc.linker.libraries.Libraries>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
     </ToolchainSettings>
     <OutputFileName>DMGWTST</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
@@ -513,6 +513,12 @@
     <Compile Include="Source\ext\twi\twiDriver_CC2D.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_Dummy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_Dummy.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\ext\twi\twiDriver_HIH61xx.c">
       <SubType>compile</SubType>
     </Compile>
@@ -525,16 +531,22 @@
     <Compile Include="Source\ext\twi\twiDriver_LM75.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_MCP23016.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_MCP23016.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_SHT21.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_SHT21.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\ext\twi\twiDriver_SI7005.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\twi\twiDriver_SI7005.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\ext\twi\twiDtriver_Dummy.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\ext\twi\twiDtriver_Dummy.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\MAIN.c">
