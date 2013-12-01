@@ -519,6 +519,12 @@
     <Compile Include="Source\ext\twi\twiDriver_Dummy.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_EXPANDER.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_EXPANDER.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\ext\twi\twiDriver_HIH61xx.c">
       <SubType>compile</SubType>
     </Compile>
@@ -529,12 +535,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\twi\twiDriver_LM75.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\ext\twi\twiDriver_MCP23016.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\ext\twi\twiDriver_MCP23016.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\twi\twiDriver_SHT21.c">

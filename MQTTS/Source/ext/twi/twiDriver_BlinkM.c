@@ -20,6 +20,11 @@ See LICENSE.txt file for license details.
 #include "../twim.h"
 #include "twiDriver_BlinkM.h"
 
+#define BLINKM_START_ADDR           8
+#define BLINKM_STOP_ADDR            31
+
+#define BLINKM_MAX_DEV              4           // 8/4/2/1
+
 extern volatile uint8_t twim_access;           // access mode & busy flag
 
 // Process variables

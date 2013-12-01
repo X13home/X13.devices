@@ -79,40 +79,29 @@ uint8_t twi_CC2D_Pool1(subidx_t * pSubidx, uint8_t sleep)
     cc2d_stat = 1;
     return 0;
   }
-  else
+  else if((cc2d_stat < 11) && (cc2d_stat > 4))
   {
-    if(twim_access & TWIM_ERROR)    // Bus Error, or request to release bus
+    if(twim_access & TWIM_ERROR)    // Bus Error
     {
-      if(cc2d_stat <= 15)
-        cc2d_stat = 16;
+      cc2d_stat = 16;
       return 0;
     }
 
-    if(cc2d_stat > 15)
+    if(cc2d_stat & 1)
     {
-      cc2d_stat++;
-      return 0;
+      if(twim_access != 0)
+        return 0;
+      
+      cc2d_exchg.c[0] = 0xFF;
+      twimExch_ISR(CC2D_ADDR, TWIM_READ, 0, 4, (uint8_t *)&cc2d_exchg.l, NULL);
     }
-
-    if((twim_access == 0) && (cc2d_stat < 11) && (cc2d_stat > 4))
+    else if((cc2d_exchg.c[0] & 0xC0) == 0)
     {
-      if(cc2d_stat & 1)
+      cc2d_stat = 12;
+      if((cc2d_exchg.i[0] != cc2d_old.i[0]))
       {
-        if(twim_access != 0)
-          return 0;
-        twimExch_ISR(CC2D_ADDR, TWIM_READ, 0, 4, (uint8_t *)&cc2d_exchg.l, NULL);
-      }
-      else
-      {
-        if((cc2d_exchg.c[0] & 0xC0) == 0)
-        {
-          cc2d_stat = 12;
-          if((cc2d_exchg.i[0] != cc2d_old.i[0]))
-          {
-            cc2d_stat++;
-            return 1;
-          }
-        }
+        cc2d_stat++;
+        return 1;
       }
     }
   }
@@ -138,7 +127,7 @@ uint8_t twi_CC2D_Config(void)
     cc2d_exchg.l = 0;
     cc2d_old.l = 0;
 
-    // Register variable 1, Temperature counter°C
+    // Register variable 1, Temperature counter
     indextable_t * pIndex1;
     pIndex1 = getFreeIdxOD();
     if(pIndex1 == NULL)

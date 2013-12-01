@@ -23,9 +23,9 @@ See LICENSE.txt file for license details.
 #include "twi/twiDriver_BlinkM.h"
 #endif  //  TWI_USE_BLINKM
 
-#ifdef TWI_USE_MCP23016
-#include "twi/twiDriver_MCP23016.h"
-#endif  //  TWI_USE_MCP23016
+#ifdef TWI_USE_EXPANDER
+#include "twi/twiDriver_EXPANDER.h"
+#endif  //  TWI_USE_EXPANDER
 
 #ifdef TWI_USE_HIH61XX
 #include "twi/twiDriver_HIH61XX.h"
@@ -343,9 +343,9 @@ void twiConfig(void)
 #ifdef  TWI_USE_BLINKM
     cnt += twi_BlinkM_Config();
 #endif  //  TWI_USE_BLINKM
-#ifdef TWI_USE_MCP23016
-    cnt += twi_MCP23016_Config();
-#endif  //  TWI_USE_MCP23016
+#ifdef TWI_USE_EXPANDER
+    cnt += twi_EXPANDER_Config();
+#endif  //  TWI_USE_EXPANDER
 #ifdef TWI_USE_HIH61XX
     cnt += twi_HIH61xx_Config();
 #endif  //  TWI_USE_HIH61XX
