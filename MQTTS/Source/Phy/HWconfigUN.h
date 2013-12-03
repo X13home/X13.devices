@@ -254,6 +254,12 @@ See LICENSE.txt file for license details.
 #define RF_ENABLE_IRQ()         PCMSK0 = (1<<RF_PIN_IRQ)
 #define RF_DISABLE_IRQ()        PCMSK0 = 0
 
-#include "RF/rfm12/rfm12.h"
+#define RF_NODE                 1
+#define RFM12_EN                1
+
+#define s_Addr                  uint8_t
+#define AddrBroadcast           0
+
+#include "RFM12/rfm12.h"
 
 #endif

@@ -543,12 +543,6 @@
     <Compile Include="Source\ext\twi\twiDriver_SHT21.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\ext\twi\twiDriver_SI7005.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\ext\twi\twiDriver_SI7005.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Source\MAIN.c">
       <SubType>compile</SubType>
     </Compile>

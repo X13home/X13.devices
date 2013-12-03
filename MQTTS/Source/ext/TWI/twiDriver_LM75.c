@@ -50,6 +50,11 @@ uint8_t twi_lm75_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 
 uint8_t twi_lm75_Pool(subidx_t * pSubidx, uint8_t sleep)
 {
+  uint8_t base, tmp;
+  uint16_t val;
+
+  base = pSubidx->Base & (LM75_MAX_DEV - 1);
+
 #ifdef ASLEEP
   if(sleep != 0)
   {
@@ -58,15 +63,12 @@ uint8_t twi_lm75_Pool(subidx_t * pSubidx, uint8_t sleep)
   }
 #endif  //  ASLEEP
 
-  uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
-  uint16_t val;
-  uint8_t  tmp;
   tmp = lm75_stat[base];
 
   if(twim_access & TWIM_ERROR)   // Bus Error
   {
-    if(tmp < 3)
-        lm75_stat[base] = 3;
+    if(tmp < 2)
+        lm75_stat[base] = 2;
     return 0;
   }
 
@@ -77,13 +79,13 @@ uint8_t twi_lm75_Pool(subidx_t * pSubidx, uint8_t sleep)
       lm75_stat[base] = 1;
       lm75_buf[0] = LM75_REG_TEMP;
       twimExch_ISR(pSubidx->Base>>8, (TWIM_WRITE | TWIM_READ), 1, 2, lm75_buf, NULL);
-      return 0;
     }
+    return 0;
   }
   else if(tmp == 1)
   {
     val = ((uint16_t)lm75_buf[0]<<8) | (lm75_buf[1]);
-    lm75_stat[base]++;
+    lm75_stat[base] = 2;
 #if (defined LM75_T_MIN_DELTA) && (LM75_T_MIN_DELTA > 0)
     if((val > lm75_oldVal[base] ? val - lm75_oldVal[base] : lm75_oldVal[base] - val) > LM75_T_MIN_DELTA)
 #else
@@ -94,8 +96,8 @@ uint8_t twi_lm75_Pool(subidx_t * pSubidx, uint8_t sleep)
       return 1;
     }
   }
-
-  lm75_stat[base]++;
+  else
+    lm75_stat[base]++;
   return 0;
 }
 

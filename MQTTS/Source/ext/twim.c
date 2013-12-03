@@ -42,11 +42,6 @@ See LICENSE.txt file for license details.
 #endif
 #endif  //  TWI_USE_SHT21
 
-#ifdef TWI_USE_SI7005
-#include "twi/twiDriver_SI7005.h"
-#warning Obsolete driver SI7005, not supported
-#endif  //  TWI_USE_SI7005
-
 #ifdef TWI_USE_LM75
 #include "twi/twiDriver_LM75.h"
 #endif  //  TWI_USE_LM75
@@ -355,9 +350,6 @@ void twiConfig(void)
 #ifdef TWI_USE_SHT21
     cnt += twi_SHT21_Config();
 #endif  //  TWI_USE_SHT21
-#ifdef TWI_USE_SI7005
-    cnt += twi_SI7005_Config();
-#endif  //  TWI_USE_SI7005
 #ifdef TWI_USE_LM75
     cnt += twi_LM75_Config();
 #endif  //  TWI_USE_LM75
