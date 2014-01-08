@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.github.com
@@ -69,17 +69,17 @@ uint8_t progmemReadOD(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
         case objUInt8:
             *pLen = sizeof(uint8_t);
             *pBuf = pgm_read_byte((const void *)Base);
-            return MQTTS_RET_ACCEPTED;
+            break;
         case objInt16:
         case objUInt16:
             *pLen = sizeof(uint16_t);
             *(uint16_t *)pBuf = pgm_read_word((const void *)Base);
-            return MQTTS_RET_ACCEPTED;
+            break;
         case objInt32:
         case objUInt32:
             *pLen = sizeof(uint32_t);
             *(uint32_t *)pBuf = pgm_read_dword((const void *)Base);
-            return MQTTS_RET_ACCEPTED;
+            break;
         case objString:
         case objArray:
             {
@@ -91,8 +91,10 @@ uint8_t progmemReadOD(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
             *pLen = Len;
             }
             break;
+        default:
+            return MQTTS_RET_REJ_NOT_SUPP;
     }
-    return MQTTS_RET_REJ_NOT_SUPP;
+    return MQTTS_RET_ACCEPTED;
 }
 
 uint8_t eepromWriteOD(subidx_t *pSubidx, uint8_t Len, uint8_t *pBuf)
