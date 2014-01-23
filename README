@@ -23,6 +23,7 @@ MQTTS
                 compatible with Arduino Uno/Nano + RFM12/MRF49XA
       RFGWPS    panSTamp http://www.panstamp.com/ 
                 compatible with Arduino Uno/Nano + CC1101
+      RFGWAN    Arduino nano 328p, 16M, CC1101
 
   Wireless Clients:
     ISM band - 433/868/915:
