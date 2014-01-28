@@ -1,5 +1,7 @@
 Version 2.6.1
 
+Changed   ExtAI + ExtPWM without PRR                                  28.Jan.2014
+Changed   BlinkM Driver work with array                               28.Jan.2014
 BugFix    Minor Change on eeprom.c                                    08.Jan.2014
 Added     TWI Driver MCP23016                                         29.Nov.2013
 Added     TWI Driver SHT21                                            28.Nov.2013

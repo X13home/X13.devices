@@ -64,7 +64,9 @@ ISR(ADC_vect)
       while((++ai_isPos < EXTAI_MAXPORT_NR) && (aiBase[ai_isPos] == 0x0F));
       if(ai_isPos >= EXTAI_MAXPORT_NR)
       {
-        DISABLE_ADC();
+        // Stop Conversion
+        ADCSRA = (1<<ADIF); 
+        ADMUX = 0x0F;
         return;
       }
     }
@@ -149,18 +151,18 @@ uint8_t aiPoolOD(subidx_t * pSubidx, uint8_t sleep)
   if(sleep != 0)
   {
     aiTimeout[apin] = POOL_TMR_FREQ;
-
-    if(~PRR & (1<<PRADC))
-      DISABLE_ADC();
+    ADCSRA = (1<<ADIF); ADMUX = 0x0F;
     return 0;
   }
 #endif  //  ASLEEP
 
-  if(PRR & (1<<PRADC))    //  ADC Disabled
+  if(!(ADCSRA & (1<<ADEN)))   //  ADC Disabled
   {
     ai_isPos = 0xFF;
     ai_isCnt = 0xFF;
-    ENABLE_ADC();
+    // Start Conversion
+    ADCSRA = (1<<ADEN) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);
+    ADCSRA |= (1<<ADSC);
   }
 
   if(--aiTimeout[apin] != 0)
@@ -193,6 +195,9 @@ uint8_t aiRegisterOD(indextable_t *pIdx)
     aiOldVal[apin] = 0;
     aiActVal[apin] = 0;
     aiBase[apin] = base & 0xFF;
+
+    if(ai_busy_mask == 0)   // Enable ADC
+        ENABLE_ADC();
 
     ai_busy_mask |= aiApin2Mask(apin);
 

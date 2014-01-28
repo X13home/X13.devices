@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.github.com
@@ -27,9 +27,6 @@ extern uint16_t ai_busy_mask;
 static uint8_t pin_busy_mask[EXTDIO_MAXPORT_NR];
 static uint8_t pin_read_state[EXTDIO_MAXPORT_NR];
 static uint8_t pin_read_flag[EXTDIO_MAXPORT_NR];
-#ifdef EXTPWM_USED
-static uint8_t pwm_val[2];
-#endif  //  EXTPWM_USED
 
 // Convert Base to Mask
 uint8_t base2Mask(uint16_t base)
@@ -285,9 +282,30 @@ static uint8_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 #ifdef EXTPWM_USED
     else if(place == objPWM)        // LED HW PWM
     {
-        if(type == objPinNPN)
-            state = ~state;
-        pwm_val[base == PWM_PIN0 ? 0:1] = state;
+      if(type == objPinNPN)
+        state = ~state;
+      
+      if((state == 0) || (state == 255))
+      {
+        if(base == PWM_PIN0)            // Channel 0
+          DISABLE_PWM0();
+        else
+          DISABLE_PWM1();
+        out2PORT(base, state);
+      }
+      else
+      {
+        if(base == PWM_PIN0)            // Channel 0
+        {
+          ENABLE_PWM0();
+          PWM_OCR0 = state;
+        }
+        else
+        {
+          ENABLE_PWM1();
+          PWM_OCR1 = state;
+        }
+      }
     }
 #endif  //  EXTPWM_USED
     return MQTTS_RET_ACCEPTED;
@@ -331,52 +349,6 @@ static uint8_t dioPoolOD(subidx_t * pSubidx, uint8_t sleep)
     out2PORT(base, (sleep == 0) ^ (type == objActNPN));
   }
 #endif  //  ASLEEP
-#ifdef EXTPWM_USED
-  else if(place == objPWM)
-  {
-    if(base == PWM_PIN0)            // Channel 0
-    {
-      state = PWM_OCR0;
-      port = pwm_val[0];
-      if(state == port)
-        return 0;
-      else if(port < state)
-        state--;
-      else
-        state++;
-
-      PWM_OCR0 = state;
-      if(state == 0 || state == 255)
-      {
-        DISABLE_PWM0();
-        out2PORT(base, state);
-      }
-      else
-        ENABLE_PWM0();
-    }
-    else                            // Channel 1
-    {
-      state = PWM_OCR1;
-      port = pwm_val[1];
-
-      if(state == port)
-        return 0;
-      else if(port < state)
-        state--;
-      else
-        state++;
-
-      PWM_OCR1 = state;
-      if(state == 0 || state == 255)
-      {
-        DISABLE_PWM1();
-        out2PORT(base, state);
-      }
-      else
-        ENABLE_PWM1();
-    }
-  }
-#endif  //  EXTPWM_USED
   return 0;
 }
 
@@ -406,13 +378,13 @@ uint8_t dioRegisterOD(indextable_t *pIdx)
         out2DDR(base, 1);
     }
 #ifdef EXTPWM_USED
-    else if(pIdx->sidx.Place == objPWM)
+    else if (pIdx->sidx.Place == objPWM)
     {
-        out2DDR(base, 1);
-        PWM_ENABLE();
+      out2DDR(base, 1);
+      PWM_ENABLE();
     }
 #endif  //  EXTPWM_USED
-    else                        // Digital Input
+    else                                  // Digital Input
         out2DDR(base, 0);
 
     if((pIdx->sidx.Type == objPinNPN)
