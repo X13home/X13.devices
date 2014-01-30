@@ -214,13 +214,19 @@ uint8_t inpPort(uint16_t base)
 
 void dioClean(void)
 {
-    uint8_t i;
-    for(i = 0; i < EXTDIO_MAXPORT_NR; i++)
-    {
-        pin_busy_mask[i] = 0;
-        pin_read_state[i] = 0;
-        pin_read_flag[i] = 0;
-    }
+#ifdef EXTPWM_USED
+  DISABLE_PWM0();
+  DISABLE_PWM1();
+  PWM_DISABLE();
+#endif  //  EXTPWM_USED
+
+  uint8_t i;
+  for(i = 0; i < EXTDIO_MAXPORT_NR; i++)
+  {
+    pin_busy_mask[i] = 0;
+    pin_read_state[i] = 0;
+    pin_read_flag[i] = 0;
+  }
 }
 
 // Check Index digital inp/out

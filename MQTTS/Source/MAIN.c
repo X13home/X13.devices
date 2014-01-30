@@ -127,15 +127,14 @@ __attribute__((OS_main)) int main(void)
                 {
                     // Publish
                     pPBuf = (uint8_t *)mqAssert();
-                    if(pPBuf != NULL)
+                    if(pPBuf != NULL)                   // No Memory
                     {
                         bTmp = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
-
                         ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
                         MQTTS_Publish(poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
                         mqRelease((MQ_t *)pPBuf);
-                        poolIdx = 0xFFFF;
                     }
+                    poolIdx = 0xFFFF;
                 }
             }
 #ifdef ASLEEP

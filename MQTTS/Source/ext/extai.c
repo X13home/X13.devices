@@ -19,7 +19,8 @@ static uint16_t aiOldVal[EXTAI_MAXPORT_NR];
 static uint16_t aiActVal[EXTAI_MAXPORT_NR];
 
 uint16_t ai_busy_mask;
-static uint8_t ai_isPos, ai_isCnt;
+static uint8_t ai_isPos = EXTAI_MAXPORT_NR;
+static uint8_t ai_isCnt = 0xFF;
 static uint16_t ai_Summ;
 
 uint16_t aiApin2Mask(uint8_t apin)
@@ -88,14 +89,14 @@ ISR(ADC_vect)
 // Clear internal variables
 void aiClean(void)
 {
-    uint8_t i;
-    DISABLE_ADC();
-    ai_busy_mask = 0;
-    ai_isPos = 0;
-    ai_isCnt = 0xFF;
+  uint8_t i;
+  DISABLE_ADC();
+  ai_busy_mask = 0;
+  ai_isPos = EXTAI_MAXPORT_NR;
+  ai_isCnt = 0xFF;
 
-    for(i = 0; i < EXTAI_MAXPORT_NR; i++)
-        aiBase[i] = 0x0F;
+  for(i = 0; i < EXTAI_MAXPORT_NR; i++)
+    aiBase[i] = 0x0F;
 }
 
 // Check Index
@@ -156,9 +157,9 @@ uint8_t aiPoolOD(subidx_t * pSubidx, uint8_t sleep)
   }
 #endif  //  ASLEEP
 
-  if(!(ADCSRA & (1<<ADEN)))   //  ADC Disabled
+  if(ai_isPos == EXTAI_MAXPORT_NR)   //  ADC Disabled
   {
-    ai_isPos = 0xFF;
+    ai_isPos = 0;
     ai_isCnt = 0xFF;
     // Start Conversion
     ADCSRA = (1<<ADEN) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);

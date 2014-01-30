@@ -192,9 +192,7 @@ See LICENSE.txt file for license details.
 #define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 6, 7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 8, 0xFF}
 #define EXTAI_MAXPORT_NR        9          // ADC0-ADC7, Vbg
 
-#define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; \
-                                 ADCSRA = (1<<ADEN) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);  \
-                                 ADCSRA |= (1<<ADSC); }
+#define ENABLE_ADC()            PRR &= ~(1<<PRADC)
 #define DISABLE_ADC()           {ADCSRA = (1<<ADIF); ADMUX = 0x0F; PRR |= (1<<PRADC);}
 // End Analogue Inputs
 
