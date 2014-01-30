@@ -1,4 +1,5 @@
 Device description files
+  DMGWDM01    Dummy ATMega328P
   DMGWDM02    Dummy with ATMega256
   JeeNode     Devices from JeeLabs
   Panstamp    Devices from panSTamp

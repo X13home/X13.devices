@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<root head="/etc/declarers/dev/GWDM02" value="&quot;pack://application:,,/CC;component/Images/ty_ugate.png&quot;" saved="True" type="System.String">
+<root head="/etc/declarers/dev">
+ <item name="GWDM02" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String">
   <item name="Add">
     <item name="bool" value="1Z" saved="True" type="System.String" />
     <item name="long" value="4I" saved="True" type="System.String" />
@@ -118,4 +119,5 @@
       <item name="_description" value="Digital output" saved="True" type="System.String" />
     </item>
   </item>
+ </item>
 </root>

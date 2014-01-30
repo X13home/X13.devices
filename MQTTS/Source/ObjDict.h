@@ -31,7 +31,12 @@ enum
   objIPRouter     = 0xFF23, // cfg/XD_IPRouter<UInt32>
   objIPBroker     = 0xFF24, // cfg/XD_IPBroker<UInt32>
   // Read Only Variables
-  objDeviceTyp    = 0xFFC0  // _declarer<String>
+  objDeviceTyp    = 0xFFC0, // _declarer<String>
+  // Debug Information, variable type -  byte_array
+  objLogDebug     = 0xFFE0, // Write to Log, level - debug
+  objLogInfo      = 0xFFE1, // Write to Log, level - info
+  objLogWarning   = 0xFFE2, // Write to Log, level - warning
+  objLogError     = 0xFFE3  // Write to Log, level - error
 }eObjList;
 
 enum
@@ -59,7 +64,7 @@ enum
     objUInt32   = 'D',  // uint32
     objInt64    = 'q',  // int64
     objString   = 's',  // UTF8 '0' - terminated string
-    objArray    = 'a',  // array
+    objArray    = 'a',  // byte array
     objUnknown  = 'U',  // unknown
 // Port's
     objPinPNP   = 'p',  // Pin PNP
