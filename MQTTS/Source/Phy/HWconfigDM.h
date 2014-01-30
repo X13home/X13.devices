@@ -37,24 +37,24 @@ See LICENSE.txt file for license details.
 // --   PB6     --      OSC
 // --   PB7     --      OSC
 // PORT C
-// 16   PC0     SV1-3   Ain0
-// 17   PC1     SV1-4   Ain1
-// 18   PC2     SV1-5   Ain2
-// 19   PC3     SV1-6   Ain3
-// 20   PC4     SV1-7   SDA
-// 21   PC5     SV1-8 - SCL
+// 16   PC0     SV1-18   Ain0
+// 17   PC1     SV1-17   Ain1
+// 18   PC2     SV1-16   Ain2
+// 19   PC3     SV1-15   Ain3
+// 20   PC4     SV1-14   SDA
+// 21   PC5     SV1-13 - SCL
 // --   PC6     ISP-5   RESET
-// --   --      RSSI    Ain6    *Optional
-// --   --      SV1-1   Ain7
+// --   --      SV1-20   Ain6
+// --   --      SV1-1 9  Ain7
 // PORT D
-// 24   PD0     SV1-11  RXD - On gateway busy
-// 25   PD1     SV1-12  TXD - On gateway busy
-// 26   PD2     SV1-13  IRQ 0
-// 27   PD3     SV1-14  IRQ 1
-// 28   PD4     SV1-15
-// 29   PD5     SV1-16  PWM0
-// 30   PD6     SV1-17  PWM1
-// 31   PD7     SV1-18
+// 24   PD0     SV1-10  RXD - On gateway busy
+// 25   PD1     SV1-9  TXD - On gateway busy
+// 26   PD2     SV1-8  IRQ 0
+// 27   PD3     SV1-7  IRQ 1
+// 28   PD4     SV1-6
+// 29   PD5     SV1-5  PWM0
+// 30   PD6     SV1-4  PWM1
+// 31   PD7     SV1-3
 
 // Object's Dictionary Section
 #define OD_DEV_TYP_0            'D'
@@ -186,8 +186,8 @@ See LICENSE.txt file for license details.
 // Analogue Inputs
 #define EXTAI_PORT_NUM          PORTNUM2    // PORTC Analogue Inputs
 #define EXTAI_CHN_MASK          0x0F
-#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
-#define EXTAI_MAXPORT_NR        8          // ADC0-ADC5, ADC7, Vbg
+#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 6, 7, 8, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 9, 0xFF}
+#define EXTAI_MAXPORT_NR        10          // ADC0-ADC8, Vbg
 
 #define ENABLE_ADC()            PRR &= ~(1<<PRADC)
 #define DISABLE_ADC()           {ADCSRA = (1<<ADIF); ADMUX = 0x0F; PRR |= (1<<PRADC);}

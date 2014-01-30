@@ -64,12 +64,7 @@ ISR(ADC_vect)
 
       while((++ai_isPos < EXTAI_MAXPORT_NR) && (aiBase[ai_isPos] == 0x0F));
       if(ai_isPos >= EXTAI_MAXPORT_NR)
-      {
-        // Stop Conversion
-        ADCSRA = (1<<ADIF); 
-        ADMUX = 0x0F;
-        return;
-      }
+        ai_isPos = 0;
     }
   }
   else if(ai_isCnt == 0xF0)
