@@ -120,9 +120,7 @@ __attribute__((OS_main)) int main(void)
             bTmp = MQTTS_GetStatus();
             if(bTmp == MQTTS_STATUS_CONNECT)
             {
-                if(poolIdx == 0xFFFF)
-                    poolIdx = PoolOD(0);
-            
+                poolIdx = PoolOD(0);
                 if(poolIdx != 0xFFFF)
                 {
                     // Publish

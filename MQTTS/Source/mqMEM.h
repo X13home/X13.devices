@@ -14,6 +14,7 @@ See LICENSE.txt file for license details.
 void mqInit(void);
 MQ_t * mqAssert(void);
 void mqRelease(MQ_t * pBuf);
+uint16_t mqFreeCnt(void);
 
 #endif  //  _MQMEM_H
 

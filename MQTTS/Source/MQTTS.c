@@ -400,12 +400,9 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
             if(vMQTTS.fTail == vMQTTS.fHead)        // Send Ping
             {
               // Debug
-              uint8_t ipsBuf[4];
-              ipsBuf[0] = vMQTTS.tail;
-              ipsBuf[1] = vMQTTS.head;
-              ipsBuf[2] = vMQTTS.fTail;
-              ipsBuf[3] = vMQTTS.fHead;
-              MQTTS_Publish(objLogInfo, (MQTTS_FL_QOS0 | MQTTS_FL_TOPICID_PREDEF), 4, ipsBuf);
+              uint16_t mqcnt;
+              mqcnt = mqFreeCnt();
+              MQTTS_Publish(objLogInfo, (MQTTS_FL_QOS0 | MQTTS_FL_TOPICID_PREDEF), 2, (uint8_t *)&mqcnt);
 
               if(wakeup == 0)
                 mqtts_send_ping();

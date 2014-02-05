@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
 
 BSD New License
 See LICENSE.txt file for license details.
@@ -152,7 +152,11 @@ uint8_t aiPoolOD(subidx_t * pSubidx, uint8_t sleep)
   }
 #endif  //  ASLEEP
 
-  if(ai_isPos == EXTAI_MAXPORT_NR)   //  ADC Disabled
+  if(--aiTimeout[apin] != 0)
+    return 0;
+  aiTimeout[apin] = POOL_TMR_FREQ;
+
+  if((ADCSRA & (1<<ADSC)) == 0) // ADC Disabled
   {
     ai_isPos = 0;
     ai_isCnt = 0xFF;
@@ -160,9 +164,6 @@ uint8_t aiPoolOD(subidx_t * pSubidx, uint8_t sleep)
     ADCSRA = (1<<ADEN) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);
     ADCSRA |= (1<<ADSC);
   }
-
-  if(--aiTimeout[apin] != 0)
-    return 0;
 
   ActVal = (aiActVal[apin] + 8)>>4;
   if(aiOldVal[apin] != ActVal)
