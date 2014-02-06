@@ -12,58 +12,47 @@ See LICENSE.txt file for license details.
 
 #include "config.h"
 
-MQ_t  * memPnt[MQMEM_SIZEOF_QUEUE];
 MQ_t    memRaw[MQMEM_SIZEOF_QUEUE];
-
-static uint16_t memMqCnt = 0;
+static uint8_t memTTL[MQMEM_SIZEOF_QUEUE];  
 
 //#define mqInit()
 void mqInit(void)
 {
   uint8_t i;
   for(i = 0; i < MQMEM_SIZEOF_QUEUE; i++)
-    memPnt[i] = NULL;
-
-  memMqCnt = (MQMEM_SIZEOF_QUEUE<<8) | MQMEM_SIZEOF_QUEUE;
+    memTTL[i] = 0;
 }
 
 //#define mqAssert() malloc(sizeof(MQ_t))
 MQ_t * mqAssert(void)
 {
-  memMqCnt -= 256;
+  static uint8_t pnt = 0xFF;
+  uint8_t i = MQMEM_SIZEOF_QUEUE;
 
-  uint8_t i;
-  for(i = 0; i < MQMEM_SIZEOF_QUEUE; i++)
+  while(i > 0)
   {
-    if(memPnt[i] == NULL)
+    i--;
+    pnt++;
+    if(pnt == MQMEM_SIZEOF_QUEUE)
+      pnt = 0;
+    
+    if(memTTL[pnt] == 0)
     {
-      memMqCnt--;
-      memPnt[i] = &memRaw[i];
-      return memPnt[i];
+      memTTL[pnt] = 255;
+      return &memRaw[pnt];
     }
-  }
+    else
+      memTTL[pnt]--;
+  };
+
   return NULL;
 }
 
 //#define mqRelease(pBuf)  free(pBuf)
 void mqRelease(MQ_t * pBuf)
 {
-  memMqCnt += 256;
-
   uint8_t i;
   for(i = 0; i < MQMEM_SIZEOF_QUEUE; i++)
-  {
     if(pBuf == &memRaw[i])
-    {
-      memMqCnt++;
-      memPnt[i] = NULL;
-      break;
-    }
-  }
-}
-
-// Debug
-uint16_t mqFreeCnt(void)
-{
-  return memMqCnt;
+      memTTL[i] = 0;
 }

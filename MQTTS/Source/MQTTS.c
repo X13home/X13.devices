@@ -172,68 +172,40 @@ void mqtts_set_TASleep(uint16_t tasleep)
 }
 #endif  //  ASLEEP
 
-uint8_t MQTTS_Publish(uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
+uint8_t MQTTS_Publish(MQ_t *pBuf)
 {
-    uint8_t mSize = Size + MQTTS_SIZEOF_MSG_PUBLISH + 1;
-    if(mSize > sizeof(MQ_t))
-        return 0xFF;
-    
-    MQ_t * pBuf = mqAssert();
-    if(pBuf != NULL)    // no memory
-    {
-        pBuf->addr = vMQTTS.GatewayID;
-        pBuf->mq.Length = mSize - 1;
-        pBuf->mq.MsgType = MQTTS_MSGTYP_PUBLISH;
-        pBuf->mq.m.publish.Flags = Flags;
-        pBuf->mq.m.publish.TopicId = SWAPWORD(TopicID);
-        pBuf->mq.m.publish.MsgId = mqtts_new_msgid();
-        memcpy(&pBuf->mq.m.publish.Data, ipBuf, Size);
-        
-        return MQTTS_ToBuf(pBuf);
-    }
-    return 0xFF;
+  pBuf->addr = vMQTTS.GatewayID;
+  pBuf->mq.Length += MQTTS_SIZEOF_MSG_PUBLISH;
+  pBuf->mq.MsgType = MQTTS_MSGTYP_PUBLISH;
+  pBuf->mq.m.publish.TopicId = SWAPWORD(pBuf->mq.m.publish.TopicId);
+  pBuf->mq.m.publish.MsgId = mqtts_new_msgid();
+  return MQTTS_ToBuf(pBuf);
 }
 
-uint8_t MQTTS_Subscribe(uint8_t Flags, uint8_t Size, uint8_t * ipBuf)
+uint8_t MQTTS_Subscribe(void)
 {
-    uint8_t mSize = Size + MQTTS_SIZEOF_MSG_SUBSCRIBE + 1;
-    if(mSize > sizeof(MQ_t))
-        return 0xFF;
-
-    MQ_t * pBuf = mqAssert();
-    if(pBuf != NULL)
-    {
-        pBuf->addr = vMQTTS.GatewayID;
-        pBuf->mq.Length = mSize - 1;
-        pBuf->mq.MsgType = MQTTS_MSGTYP_SUBSCRIBE;
-        pBuf->mq.m.subscribe.Flags = Flags;
-        pBuf->mq.m.subscribe.MsgId = mqtts_new_msgid();
-        memcpy(&pBuf->mq.m.subscribe.Topic, ipBuf, Size);
-
-        return MQTTS_ToBuf(pBuf);
-    }
-    return 0xFF;
+  MQ_t * pBuf = mqAssert();
+  if(pBuf != NULL)
+  {
+    pBuf->addr = vMQTTS.GatewayID;
+    pBuf->mq.Length = MQTTS_SIZEOF_MSG_SUBSCRIBE + 1;
+    pBuf->mq.MsgType = MQTTS_MSGTYP_SUBSCRIBE;
+    pBuf->mq.m.subscribe.Flags = MQTTS_FL_QOS1;
+    pBuf->mq.m.subscribe.MsgId = mqtts_new_msgid();
+    pBuf->mq.m.subscribe.Topic[0] = '#';
+    return MQTTS_ToBuf(pBuf);
+  }
+  return 0xFF;
 }
 
-uint8_t MQTTS_Register(uint16_t TopicID, uint8_t Size, uint8_t * ipBuf)
+uint8_t MQTTS_Register(MQ_t *pBuf)
 {
-    uint8_t mSize = Size + MQTTS_SIZEOF_MSG_REGISTER + 1;
-    if(mSize > sizeof(MQ_t))
-        return 0xFF;
-
-    MQ_t * pBuf = mqAssert();
-    if(pBuf != NULL)
-    {
-        pBuf->addr = vMQTTS.GatewayID;
-        pBuf->mq.Length = mSize - 1;
-        pBuf->mq.MsgType = MQTTS_MSGTYP_REGISTER;
-        pBuf->mq.m.regist.TopicId = SWAPWORD(TopicID);
-        pBuf->mq.m.regist.MsgId =  mqtts_new_msgid();
-        memcpy(&pBuf->mq.m.regist.TopicName, ipBuf, Size);
-        
-        return MQTTS_ToBuf(pBuf);
-    }
-    return 0xFF;
+  pBuf->addr = vMQTTS.GatewayID;
+  pBuf->mq.Length += MQTTS_SIZEOF_MSG_REGISTER;
+  pBuf->mq.MsgType = MQTTS_MSGTYP_REGISTER;
+  pBuf->mq.m.regist.TopicId = 0;
+  pBuf->mq.m.regist.MsgId =  mqtts_new_msgid();
+  return MQTTS_ToBuf(pBuf);
 }
 
 void MQTTS_Init(void)
@@ -399,11 +371,6 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
 
             if(vMQTTS.fTail == vMQTTS.fHead)        // Send Ping
             {
-              // Debug
-              uint16_t mqcnt;
-              mqcnt = mqFreeCnt();
-              MQTTS_Publish(objLogInfo, (MQTTS_FL_QOS0 | MQTTS_FL_TOPICID_PREDEF), 2, (uint8_t *)&mqcnt);
-
               if(wakeup == 0)
                 mqtts_send_ping();
             }
@@ -525,10 +492,12 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
                     // Publish Device Type
                     if((vMQTTS.MsgID == 0) && (rf_GetNodeID() != 0xFF))
                     {
-                        pBuf->mq.Length = MQTTS_SIZEOF_CLIENTID - 1;
-                        ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &pBuf->mq.Length, (uint8_t *)&pBuf->mq.m.raw);
-                        MQTTS_Publish(objDeviceTyp, MQTTS_FL_QOS1 | MQTTS_FL_TOPICID_PREDEF,
-                                      pBuf->mq.Length, (uint8_t *)&pBuf->mq.m.raw);
+                      pBuf->mq.Length = MQTTS_SIZEOF_CLIENTID - 1;
+                      ReadOD(objDeviceTyp, MQTTS_FL_TOPICID_PREDEF, &pBuf->mq.Length, (uint8_t *)&pBuf->mq.m.publish.Data);
+                      pBuf->mq.m.publish.Flags = MQTTS_FL_QOS1 | MQTTS_FL_TOPICID_PREDEF;
+                      pBuf->mq.m.publish.TopicId = objDeviceTyp;
+                      MQTTS_Publish(pBuf);
+                      return 1;
                     }
                 }
                 else

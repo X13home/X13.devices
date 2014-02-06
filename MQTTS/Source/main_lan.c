@@ -35,7 +35,6 @@ __attribute__((OS_main)) int main(void)
   // Initialise  variables
   iPool = 0;
 
-  uint8_t objLen;
   uint16_t poolIdx = 0xFFFF;
 
   // Initialize Task Planer
@@ -46,12 +45,13 @@ __attribute__((OS_main)) int main(void)
   
   PHY_Start();
   iPool |= IPOOL_LED_ONL;
+
+  MQ_t * pRBuf;                   // RF Buffer
+  MQ_t * pMBuf;                   // MQTTS Buffer
+  MQ_t * pPBuf;                   // Publish buffer
   
   while(1)
   {
-    MQ_t * pRBuf;                   // RF Buffer
-    MQ_t * pMBuf;                   // MQTTS Buffer
-  
     if((pRBuf = PHY_GetBuf()) != NULL)
     {
       iPool |= IPOOL_LED_ACT;
@@ -72,23 +72,21 @@ __attribute__((OS_main)) int main(void)
       if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
       {
         iPool |= IPOOL_LED_CONN;
-        if(poolIdx == 0xFFFF)
-          poolIdx = PoolOD(0);
 
+        poolIdx = PoolOD(0);
         if(poolIdx != 0xFFFF)
         {
           // Publish
-          uint8_t * pPBuf;          // Publish Buffer
-          pPBuf = (uint8_t *)mqAssert();
-          if(pPBuf != NULL)
+          pPBuf = mqAssert();
+          if(pPBuf != NULL)                   // No Memory
           {
-            objLen = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
-              
-            ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &objLen, pPBuf);
-            MQTTS_Publish(poolIdx, MQTTS_FL_QOS1, objLen, pPBuf);
-            mqRelease((MQ_t *)pPBuf);
-            poolIdx = 0xFFFF;
+            pPBuf->mq.Length = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
+            ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &pPBuf->mq.Length, (uint8_t *)&pPBuf->mq.m.publish.Data);
+            pPBuf->mq.m.publish.Flags = MQTTS_FL_QOS1;
+            pPBuf->mq.m.publish.TopicId = poolIdx;
+            MQTTS_Publish(pPBuf);
           }
+          poolIdx = 0xFFFF;
         }
       }
       else

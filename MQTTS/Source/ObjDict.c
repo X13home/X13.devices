@@ -492,8 +492,7 @@ uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
 uint16_t PoolOD(uint8_t sleep)
 {
   uint16_t Index;
-  uint8_t * piBuf;
-  uint8_t ucTmp;
+  MQ_t * piBuf;
   
   if(sleep != 0)
     idxUpdate = 0;
@@ -502,13 +501,12 @@ uint16_t PoolOD(uint8_t sleep)
   {
     if(Index == 0)                  // Register
     {
-      piBuf = (uint8_t *)mqAssert();
+      piBuf = mqAssert();
       if(piBuf != NULL)
       {
-        ucTmp = extCvtIdx2TopicId(&ListOD[idxUpdate].sidx, piBuf);
-        if(MQTTS_Register(0, ucTmp, piBuf) == 0)
+        piBuf->mq.Length = extCvtIdx2TopicId(&ListOD[idxUpdate].sidx, (uint8_t *)&piBuf->mq.m.regist.TopicName);
+        if(MQTTS_Register(piBuf) == 0)
           ListOD[idxUpdate].Index = 0xF000;
-        mqRelease((MQ_t *)piBuf);
       }
       return 0xFFFF;
     }
@@ -526,10 +524,8 @@ uint16_t PoolOD(uint8_t sleep)
   {
     idxSubscr--;
     if(idxSubscr == 0)  //  Send Subscribe '#'
-    {
-      ucTmp = '#';
-      MQTTS_Subscribe(MQTTS_FL_QOS1, 1, &ucTmp);
-    }
+      if(MQTTS_Subscribe() == 0xFF)
+        idxSubscr = POOL_TMR_FREQ - 1;
   }
   return 0xFFFF;
 }

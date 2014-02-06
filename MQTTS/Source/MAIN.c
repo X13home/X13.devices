@@ -26,7 +26,7 @@ static void wakeUp(void);
 
 __attribute__((OS_main)) int main(void) 
 {
-    uint8_t * pPBuf;            // Publish Buffer
+    MQ_t * pPBuf;               // Publish Buffer
 #ifdef GATEWAY
     MQ_t *  pUBuf;              // USART Buffer
     MQ_t *  pUbBuf;             // USART Backup buffer
@@ -124,13 +124,14 @@ __attribute__((OS_main)) int main(void)
                 if(poolIdx != 0xFFFF)
                 {
                     // Publish
-                    pPBuf = (uint8_t *)mqAssert();
+                    pPBuf = mqAssert();
                     if(pPBuf != NULL)                   // No Memory
                     {
-                        bTmp = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
-                        ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
-                        MQTTS_Publish(poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
-                        mqRelease((MQ_t *)pPBuf);
+                      pPBuf->mq.Length = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
+                      ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &pPBuf->mq.Length, (uint8_t *)&pPBuf->mq.m.publish.Data);
+                      pPBuf->mq.m.publish.Flags = MQTTS_FL_QOS1;
+                      pPBuf->mq.m.publish.TopicId = poolIdx;
+                      MQTTS_Publish(pPBuf);
                     }
                     poolIdx = 0xFFFF;
                 }

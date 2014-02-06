@@ -1,8 +1,8 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
 
 BSD New License
 See LICENSE.txt file for license details.
@@ -25,7 +25,10 @@ See LICENSE.txt file for license details.
 #include <stdlib.h>
 #include <string.h>
 
-// uNode Vers 1.0
+// uNode Vers 1.0; Vers 1.1
+// uc ATMega328p
+// PHY: RF - MRF49XA/RFM12
+
 // 0 - 7    PORTA - not exist
 // PORTB
 // --   PB0     --      RF_IRQ
@@ -104,7 +107,6 @@ See LICENSE.txt file for license details.
 #define USART_BAUD              ((F_CPU/16/38400) - 1) // Baud = 38400, val = Fosc/(16 * baud) - 1
 #define USART_CONFIGURE()       {UCSR0B = ((1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0));  \
                                  UCSR0C = (3<<UCSZ00);}
-#include "../uart.h"
 // End USART Section
 
 #else   //  !GATEWAY
@@ -190,9 +192,7 @@ See LICENSE.txt file for license details.
 #define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
 #define EXTAI_MAXPORT_NR        8          // ADC0-ADC5, ADC7, Vbg
 
-#define ENABLE_ADC()            {PRR &= ~(1<<PRADC); ADMUX = 0x0F; \
-                                 ADCSRA = (1<<ADEN) | (1<<ADIF) | (1<<ADIE) | (7<<ADPS0);  \
-                                 ADCSRA |= (1<<ADSC); }
+#define ENABLE_ADC()            PRR &= ~(1<<PRADC)
 #define DISABLE_ADC()           {ADCSRA = (1<<ADIF); ADMUX = 0x0F; PRR |= (1<<PRADC);}
 // End Analogue Inputs
 

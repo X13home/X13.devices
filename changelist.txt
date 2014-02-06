@@ -1,6 +1,9 @@
 Version 2.6.1
 
-Changed   ExtAI + ExtPWM without PRR                                  28.Jan.2014
+Changed   Optimized MQTTS Publish, Subscribe, Register subroutines    06.Feb.2014
+Added     memory garbage collector                                    06.Feb.2014
+Added     LAN Node with 16M OSC.                                      30.Jan.2014
+Changed   ExtAI + ExtPWM without PRR & ExtPWM w/o Fade                28.Jan.2014
 Changed   BlinkM Driver work with array                               28.Jan.2014
 BugFix    Minor Change on eeprom.c                                    08.Jan.2014
 Added     TWI Driver MCP23016                                         29.Nov.2013

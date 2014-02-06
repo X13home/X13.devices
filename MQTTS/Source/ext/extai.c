@@ -64,7 +64,11 @@ ISR(ADC_vect)
 
       while((++ai_isPos < EXTAI_MAXPORT_NR) && (aiBase[ai_isPos] == 0x0F));
       if(ai_isPos >= EXTAI_MAXPORT_NR)
+      {
         ai_isPos = 0;
+        ADCSRA = (1<<ADIF); ADMUX = 0x0F;   // Disable ADC, Stop Conversion
+        return;
+      }
     }
   }
   else if(ai_isCnt == 0xF0)

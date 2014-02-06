@@ -26,6 +26,7 @@ See LICENSE.txt file for license details.
 #include <string.h>
 
 // Dummy Vers 0.2 - ATMega2560
+// Test Only, NOT SUPPORTED !!
 
 // Object's Dictionary Section
 #define OD_DEV_TYP_0            'D'

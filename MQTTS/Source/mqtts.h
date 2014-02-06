@@ -434,9 +434,9 @@ MQ_t * MQTTS_Get(void);
 #ifdef ASLEEP
 void mqtts_set_TASleep(uint16_t tasleep);
 #endif  //  ASLEEP
-uint8_t MQTTS_Publish(uint16_t TopicID, uint8_t Flags, uint8_t Size, uint8_t * ipBuf);
-uint8_t MQTTS_Subscribe(uint8_t Flags, uint8_t Size, uint8_t * ipBuf);
-uint8_t MQTTS_Register(uint16_t TopicID, uint8_t Size, uint8_t * ipBuf);
+uint8_t MQTTS_Publish(MQ_t * pBuf);
+uint8_t MQTTS_Subscribe(void);
+uint8_t MQTTS_Register(MQ_t * pBuf);
 
 void MQTTS_Init(void);
 uint8_t MQTTS_Pool(uint8_t wakeup);
