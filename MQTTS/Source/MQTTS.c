@@ -377,6 +377,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
             else
             {
                 MQ_t * pBuf;
+
                 pBuf = mqAssert();
                 if(pBuf != NULL)    // no memory
                 {
@@ -386,6 +387,25 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
 
                 vMQTTS.pfCnt = POOL_TMR_FREQ_FAST;
             }
+#ifdef MQ_DEBUG
+            // Debug
+            {
+              MQ_t * pdBuf;
+              pdBuf = mqAssert();
+              if(pdBuf != NULL)    // no memory
+              {
+                pdBuf->addr = vMQTTS.GatewayID;
+                pdBuf->mq.Length = 1 + MQTTS_SIZEOF_MSG_PUBLISH;
+                pdBuf->mq.MsgType = MQTTS_MSGTYP_PUBLISH;
+                pdBuf->mq.m.publish.Flags = MQTTS_FL_QOS0 | MQTTS_FL_TOPICID_PREDEF;
+                pdBuf->mq.m.publish.TopicId = SWAPWORD(objLogDebug);
+                pdBuf->mq.m.publish.Data[0] = mqGetFreeCnt();
+                pdBuf->mq.m.publish.MsgId = mqtts_new_msgid();
+                MQTTS_Push(pdBuf);
+              }
+              // End Debug
+            }
+#endif  //  MQ_DEBUG
             break;
 #ifdef ASLEEP
         case MQTTS_STATUS_POST_CONNECT:
@@ -600,7 +620,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
               vMQTTS.Status = MQTTS_STATUS_POST_CONNECT;
               vMQTTS.pfCnt = 0;
             }
-#endif	// ASLEEP
+#endif  // ASLEEP
           }
           else
             break;

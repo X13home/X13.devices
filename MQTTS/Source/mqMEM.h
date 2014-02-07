@@ -15,5 +15,7 @@ void mqInit(void);
 MQ_t * mqAssert(void);
 void mqRelease(MQ_t * pBuf);
 
+uint8_t mqGetFreeCnt(void);
+
 #endif  //  _MQMEM_H
 
