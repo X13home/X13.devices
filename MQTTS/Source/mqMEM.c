@@ -12,6 +12,8 @@ See LICENSE.txt file for license details.
 
 #include "config.h"
 
+#define MQMEM_TTL   64
+
 MQ_t    memRaw[MQMEM_SIZEOF_QUEUE];
 static uint8_t memTTL[MQMEM_SIZEOF_QUEUE];  
 #ifdef MQ_DEBUG
@@ -46,7 +48,7 @@ MQ_t * mqAssert(void)
 #ifdef MQ_DEBUG
       memFreeCnt--;
 #endif  //  MQ_DEBUF
-      memTTL[pnt] = 255;
+      memTTL[pnt] = MQMEM_TTL;
       return &memRaw[pnt];
     }
   };

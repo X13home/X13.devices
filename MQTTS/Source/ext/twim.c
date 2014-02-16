@@ -46,6 +46,10 @@ See LICENSE.txt file for license details.
 #include "twi/twiDriver_LM75.h"
 #endif  //  TWI_USE_LM75
 
+#ifdef TWI_USE_AM2321
+#include "twi/twiDriver_AM2321.h"
+#endif  //  TWI_USE_AM2321
+
 #ifdef TWI_USE_BMP180
 #include "twi/twiDriver_BMP180.h"
 #endif  //  TWI_USE_BMP180
@@ -328,6 +332,7 @@ void twiConfig(void)
     uint8_t cnt = 0;
     indextable_t * pIndex;
     
+    // Reserve variable for Status
     pIndex = getFreeIdxOD();
     if(pIndex == NULL)
         return;
@@ -353,6 +358,9 @@ void twiConfig(void)
 #ifdef TWI_USE_LM75
     cnt += twi_LM75_Config();
 #endif  //  TWI_USE_LM75
+#ifdef TWI_USE_AM2321
+    cnt += twi_AM2321_Config();
+#endif
 #ifdef TWI_USE_BMP180
     cnt += twi_BMP180_Config();
 #endif  //  TWI_USE_BMP180
@@ -361,6 +369,7 @@ void twiConfig(void)
     cnt += twi_Dummy_Config();
 #endif  //  TWI_USE_DUMMY
 
+    // No active drivers
     if(cnt == 0)
     {
         pIndex->Index = 0xFFFF;
@@ -370,6 +379,7 @@ void twiConfig(void)
 
     twiClean();
 
+    // Register Status variable
     pIndex->sidx.Place = objDin;
     pIndex->sidx.Type = objPinPNP;
     pIndex->sidx.Base = TWI_PIN_SDA;

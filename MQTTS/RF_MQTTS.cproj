@@ -160,7 +160,6 @@
       <Value>EXTAI_USED=1</Value>
       <Value>TWI_USED=1</Value>
       <Value>GATEWAY=1</Value>
-      <Value>MQ_DEBUG=1</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -457,6 +456,12 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\twim.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_Am2321.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_Am2321.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\twi\twiDriver_BlinkM.c">
