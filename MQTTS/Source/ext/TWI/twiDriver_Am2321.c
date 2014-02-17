@@ -21,10 +21,12 @@ See LICENSE.txt file for license details.
 
 #if (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_AM2321)
 
+#warning Not Tested
+
 #include "../twim.h"
 #include "twiDriver_Am2321.h"
 
-#define AM2321_ADDR             0x5C
+#define AM2321_ADDR                      0x5C
 
 #define AM2321_PARAM_READ                0x03
 #define AM2321_REG_HUMIDITY_MSB          0x00

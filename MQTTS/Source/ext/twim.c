@@ -55,7 +55,7 @@ See LICENSE.txt file for license details.
 #endif  //  TWI_USE_BMP180
 
 #ifdef TWI_USE_DUMMY
-#include "twi/twiDtriver_Dummy.h"
+#include "twi/twiDriver_Dummy.h"
 #endif  //  TWI_USE_DUMMY
 
 // ExtDIO internal subroutines

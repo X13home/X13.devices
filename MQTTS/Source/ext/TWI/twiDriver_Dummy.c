@@ -15,7 +15,7 @@ See LICENSE.txt file for license details.
 #if (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_DUMMY)
 
 #include "../twim.h"
-#include "twiDtriver_Dummy.h"
+#include "twiDriver_Dummy.h"
 
 extern volatile uint8_t twim_access;           // access mode & busy flag
 

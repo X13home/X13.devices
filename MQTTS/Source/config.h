@@ -93,7 +93,7 @@ See LICENSE.txt file for license details.
 #define TWI_USE_SHT21           1       // Sensirion SHT21 - Temperature/Humidity
 #define TWI_USE_LM75            1       // LM75 - Temperature
 #define TWI_USE_BMP180          1       // Bosh BMP180/BMP085 - Temperature/Pressure
-#define TWI_USE_AM2321          1       // Aosong AM2321 - Temperature & Humidity Sensor
+#define TWI_USE_AM2321          1       // Aosong AM2321 - Temperature & Humidity Sensor, NOT TESTED !!
 //#define TWI_USE_DUMMY           1       // DUMMY, checks all addresses
 //End TWI Section
 
