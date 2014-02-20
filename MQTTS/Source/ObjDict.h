@@ -49,6 +49,7 @@ enum
     objDout     = 'O',  // Digital Output
     objPWM      = 'P',  // LED PWM out
     objSer      = 'S',  // Serial port, S.0-5 (1200-38400)
+    objSmart    = 's',  // Smart TWI devices
     objTWI      = 'T',  // TWI
     objUsrExt   = 'X',  // User extensions
 }eObjPlace;

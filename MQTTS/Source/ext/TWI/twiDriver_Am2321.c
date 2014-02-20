@@ -12,7 +12,7 @@ See LICENSE.txt file for license details.
 // Prototype, !! NOT Tested
 
 // Outs
-// TW23552      Temperature counter (TC)
+// Tw23552      Temperature counter (TC)
 // T°C= TC/10
 // TW23553      Relative Humidity Counter(RHC)
 // RH% = RHC/10

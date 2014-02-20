@@ -2,6 +2,9 @@ Addr    Parm1   Parm2   Device
 0x08    2048            BlinkM
 ..
 0x1F    7936-           BlinkM
+0x08    2048            Smart Device
+..
+0x1F    7936-           Smart Device
 0x20                    Bus Expander
 ..
 0x26                    Bus Expander

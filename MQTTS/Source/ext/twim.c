@@ -19,6 +19,10 @@ See LICENSE.txt file for license details.
 #include "extdio.h"
 #include "twim.h"
 
+#ifdef TWI_USE_SMARTDRV
+#include "twi/twiDriver_Smart.h"
+#endif  //  TWI_USE_SMARTDRV
+
 #ifdef TWI_USE_BLINKM
 #include "twi/twiDriver_BlinkM.h"
 #endif  //  TWI_USE_BLINKM
@@ -339,7 +343,10 @@ void twiConfig(void)
         
     twim_callback = NULL;
     _delay_ms(500);
-    
+
+#ifdef TWI_USE_SMARTDRV
+    cnt += twi_Smart_Config();
+#endif  //  TWI_USE_SMARTDRV
 #ifdef  TWI_USE_BLINKM
     cnt += twi_BlinkM_Config();
 #endif  //  TWI_USE_BLINKM

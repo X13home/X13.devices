@@ -86,14 +86,15 @@ See LICENSE.txt file for license details.
 
 // TWI Section
 // TWI Drivers
-#define TWI_USE_BLINKM          1       // BlinkM - Blinky RGB Driver
-#define TWI_USE_EXPANDER        1       // 16bit IO Expander, PCA9535/TCA9535/PCA9555/MCP23016
-#define TWI_USE_HIH61XX         1       // Honeywell HIH-61xx - Temperature/Humidity
-#define TWI_USE_CC2D            1       // GE Sensing CC2Dxx[s]  - Temperature/Humidity
-#define TWI_USE_SHT21           1       // Sensirion SHT21 - Temperature/Humidity
-#define TWI_USE_LM75            1       // LM75 - Temperature
-#define TWI_USE_BMP180          1       // Bosh BMP180/BMP085 - Temperature/Pressure
-#define TWI_USE_AM2321          1       // Aosong AM2321 - Temperature & Humidity Sensor, NOT TESTED !!
+#define TWI_USE_SMARTDRV        1       // Smart Driver for smart devices.
+//#define TWI_USE_BLINKM          1       // BlinkM - Blinky RGB Driver
+//#define TWI_USE_EXPANDER        1       // 16bit IO Expander, PCA9535/TCA9535/PCA9555/MCP23016
+//#define TWI_USE_HIH61XX         1       // Honeywell HIH-61xx - Temperature/Humidity
+//#define TWI_USE_CC2D            1       // GE Sensing CC2Dxx[s]  - Temperature/Humidity
+//#define TWI_USE_SHT21           1       // Sensirion SHT21 - Temperature/Humidity
+//#define TWI_USE_LM75            1       // LM75 - Temperature
+//#define TWI_USE_BMP180          1       // Bosh BMP180/BMP085 - Temperature/Pressure
+//#define TWI_USE_AM2321          1       // Aosong AM2321 - Temperature & Humidity Sensor, NOT TESTED !!
 //#define TWI_USE_DUMMY           1       // DUMMY, checks all addresses
 //End TWI Section
 
