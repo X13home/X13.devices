@@ -70,7 +70,7 @@ uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
   }
   else if(state == SMART_STATE_STATUS_READY)        //  Status ready
   {
-    if((smart_buf.buf[0] == 0) && (smart_buf.buf[1] == 0))
+    if((smart_buf.buf[0] == 0xFF) && (smart_buf.buf[1] == 0))
       smart_buf.state = SMART_STATE_WAIT;
     else
     {
@@ -137,7 +137,7 @@ uint8_t twi_Smart_Config(void)
       continue;
 
     if((twimExch(addr, (TWIM_WRITE | TWIM_READ), 1, 2, buf) != TW_SUCCESS) ||   // Is Device Present ?
-        (buf[0] != 0xC0) || (buf[1] != 4))
+        (buf[0] != 0xC0) || (buf[1] < 6))
       continue;
 
     pIndex = getFreeIdxOD();
