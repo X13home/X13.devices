@@ -22,118 +22,34 @@ See LICENSE.txt file for license details.
 
 #define SMART_MAX_DEV           2
 
+#define SMART_DATA_SIZE         (MQTTS_MSG_SIZE-5)
+
 extern volatile uint8_t twim_access;           // access mode & busy flag
 
 typedef struct
 {
   uint8_t addr;
   uint8_t state;
+  uint8_t reg;
   uint8_t len;
-  uint8_t buf[16];
+  uint8_t buf[SMART_DATA_SIZE];
 }SMART_BUF_t;
 
+enum
+{
+  SMART_STATE_WAIT = 0x7F,
+  SMART_STATE_WRITE_DATA_READY = 0x81,
+  SMART_STATE_STATUS_READY,
+  SMART_STATE_READ_DATA_READY,
+}e_POOL_STATE_SMART_DRV;
+
 static SMART_BUF_t smart_buf;
-
-
-
-/*
-void twi_smart_cb(void)
-{
-  twim_access &= ~TWIM_BUSY;          // Bus Free
-
-  if(smart_buf[smart_cb_pos] != NULL)
-  {
-    mqRelease(smart_buf[smart_cb_pos]);
-    smart_buf[smart_cb_pos] = NULL;
-  }
-  else if((smart_pool_status[1] != 0) && ((smart_buf[smart_cb_pos] = mqAssert()) != NULL))
-  {
-    smart_buf[smart_cb_pos]->mq.Length = smart_pool_status[1];
-    smart_buf[smart_cb_pos]->mq.MsgType = 0;
-    smart_buf[smart_cb_pos]->mq.m.raw[0] = smart_pool_status[0];
-
-    twimExch_ISR(smart_cb_addr,
-                (TWIM_WRITE | TWIM_READ),
-                1,
-                smart_buf[smart_cb_pos]->mq.Length,
-                smart_buf[smart_cb_pos]->mq.m.raw,
-                NULL);
-  }
-
-  smart_cb_pos = 0xFF;
-}
-
-uint8_t twi_smart_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
-{
-  uint8_t pos = (pSubidx->Base>>1) & (SMART_MAX_DEV - 1);
-
-  *pLen = smart_buf[pos]->mq.Length;
-  memcpy(pBuf, smart_buf[pos]->mq.m.raw, *pLen);
-  mqRelease(smart_buf[pos]);
-
-  return MQTTS_RET_ACCEPTED;
-}
-
-
-uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
-{
-  uint8_t pos = (pSubidx->Base>>1) & (SMART_MAX_DEV - 1);
-  uint8_t addr = (pSubidx->Base>>8);
-  if(smart_state[pos] > 0)
-  {
-    smart_state[pos]--;
-    return 0;
-  }
-
-  if((twim_access != 0) || (smart_cb_pos != 0xFF))
-    return 0;
-
-  smart_cb_pos = pos;
-  smart_state[pos] = 0xFF;
-
-  if(smart_buf[pos] != NULL)    // Ready data to write
-  {
-    if(smart_buf[pos]->mq.MsgType == 1)
-    {
-
-    }
-    else
-      return 1;
-  }
-
-  // No info, read actual status
-  smart_pool_status[0] = 0xF0;
-  twimExch_ISR(addr, (TWIM_WRITE | TWIM_READ), 1, 2, smart_pool_status, &twi_smart_cb);
-  smart_cb_addr = addr;
-  return 0;
-}
-*/
-
-/*
-uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
-{
-  uint8_t state = smart_buf->mq.MsgType;
-
-  if((state > 0) && (state < 0x80))
-  {
-    smart_buf->mq.MsgType--;
-    return 0;
-  }
-
-  if(twim_access != 0)
-    return 0;
-
-
-  return 0;
-}
-
-*/
 
 uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
 {
   uint8_t state = smart_buf.state;
 
-  if((state > 0) && (state < 0x80))
+  if((state > 0) && (state <= SMART_STATE_WAIT))
   {
     smart_buf.state--;
     return 0;
@@ -142,17 +58,49 @@ uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
   if(twim_access != 0)
     return 0;
 
-  smart_buf.state = 0x7F;
-
-  if(state == 0x81)    // Data ready to write
+  if(state == SMART_STATE_WRITE_DATA_READY)         // Data ready to write
   {
+    smart_buf.state = 0x01;
     twimExch_ISR(smart_buf.addr,
                  TWIM_WRITE, 
                  smart_buf.len,
                  0, 
                  smart_buf.buf,
                  NULL);
-    return 0;
+  }
+  else if(state == SMART_STATE_STATUS_READY)        //  Status ready
+  {
+    if((smart_buf.buf[0] == 0) && (smart_buf.buf[1] == 0))
+      smart_buf.state = SMART_STATE_WAIT;
+    else
+    {
+      // Read data
+      smart_buf.state = SMART_STATE_READ_DATA_READY;
+      smart_buf.reg = smart_buf.buf[0];
+      smart_buf.len = smart_buf.buf[1];
+      twimExch_ISR(smart_buf.addr,
+                  (TWIM_WRITE | TWIM_READ),
+                  1,
+                  smart_buf.len,
+                  smart_buf.buf,
+                  NULL);
+    }
+  }
+  else if(state == SMART_STATE_READ_DATA_READY)    //  Read data ready
+  {
+    smart_buf.state = SMART_STATE_WAIT;
+    return 1;
+  }
+  else                      // No info, read actual status
+  {
+    smart_buf.state = SMART_STATE_STATUS_READY;
+    smart_buf.buf[0] = 0xF0;
+    twimExch_ISR(smart_buf.addr,
+                 (TWIM_WRITE | TWIM_READ),
+                 1,
+                 2, 
+                 smart_buf.buf,
+                 NULL);
   }
 
   return 0;
@@ -161,8 +109,16 @@ uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
 uint8_t twi_smart_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
   smart_buf.len = Len;
-  smart_buf.state = 0x81;
+  smart_buf.state = SMART_STATE_WRITE_DATA_READY;
   memcpy(smart_buf.buf, pBuf, Len);
+  return MQTTS_RET_ACCEPTED;
+}
+
+uint8_t twi_smart_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+{
+  *pLen = smart_buf.len + 1;
+  pBuf[0] = smart_buf.reg;
+  memcpy(&pBuf[1], smart_buf.buf, smart_buf.len);
   return MQTTS_RET_ACCEPTED;
 }
 
@@ -188,7 +144,7 @@ uint8_t twi_Smart_Config(void)
     if(pIndex == NULL)
       break;
 
-    pIndex->cbRead  =  NULL;
+    pIndex->cbRead  =  &twi_smart_read;
     pIndex->cbWrite =  &twi_smart_write;
     pIndex->cbPool  =  &twi_smart_pool;
 
@@ -197,7 +153,7 @@ uint8_t twi_Smart_Config(void)
     pIndex->sidx.Base = (addr<<8);             // Device address
 
     smart_buf.addr = addr;
-    smart_buf.state = 0x7F;
+    smart_buf.state = SMART_STATE_WAIT;
     break;
   }
 
