@@ -5,7 +5,7 @@ This file is part of the X13.Home project.
 http://X13home.github.com
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 #include "../config.h"

@@ -70,9 +70,11 @@ uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
   }
   else if(state == SMART_STATE_STATUS_READY)        //  Status ready
   {
-    if((smart_buf.buf[0] == 0xFF) && (smart_buf.buf[1] == 0))
+    uint8_t len = smart_buf.buf[1];
+
+    if((smart_buf.buf[0] == 0xFF) && (len == 0))
       smart_buf.state = SMART_STATE_WAIT;
-    else
+    else if(len > 0)
     {
       // Read data
       smart_buf.state = SMART_STATE_READ_DATA_READY;
@@ -84,6 +86,13 @@ uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
                   smart_buf.len,
                   smart_buf.buf,
                   NULL);
+    }
+    else
+    {
+      smart_buf.reg = smart_buf.buf[0];
+      smart_buf.len = 0;
+      smart_buf.state = SMART_STATE_WAIT;
+      return 1;
     }
   }
   else if(state == SMART_STATE_READ_DATA_READY)    //  Read data ready
@@ -116,9 +125,16 @@ uint8_t twi_smart_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 uint8_t twi_smart_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-  *pLen = smart_buf.len + 1;
+  uint8_t len = smart_buf.len;
+  if(len >= (SMART_DATA_SIZE - 1))
+    len = (SMART_DATA_SIZE - 1);
+
+  *pLen = len + 1;
   pBuf[0] = smart_buf.reg;
-  memcpy(&pBuf[1], smart_buf.buf, smart_buf.len);
+
+  if(len > 0)
+    memcpy(&pBuf[1], smart_buf.buf, len);
+
   return MQTTS_RET_ACCEPTED;
 }
 
@@ -136,8 +152,9 @@ uint8_t twi_Smart_Config(void)
     if(twimExch(addr, TWIM_WRITE, 2, 0, buf) != TW_SUCCESS)       // Is Device Present ?
       continue;
 
-    if((twimExch(addr, (TWIM_WRITE | TWIM_READ), 1, 2, buf) != TW_SUCCESS) ||   // Is Device Present ?
-        (buf[0] != 0xC0) || (buf[1] < 6))
+    // Read Status Register
+    if((twimExch(addr, (TWIM_WRITE | TWIM_READ), 1, 2, buf) != TW_SUCCESS) ||
+        (buf[0] != 0xB0) || (buf[1] < 6))                         // Status == DeviceId Reg and Length > 5
       continue;
 
     pIndex = getFreeIdxOD();
