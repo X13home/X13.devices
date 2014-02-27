@@ -4,27 +4,27 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>6.1</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
-    <ProjectGuid>{d19373e5-3da9-4694-9072-a3fc4cda00d7}</ProjectGuid>
-    <avrdevice>ATtiny45</avrdevice>
+    <ProjectGuid>{cb310031-9778-46b9-ae2f-bc8f5776ebab}</ProjectGuid>
+    <avrdevice>ATmega88</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
     <Language>C</Language>
     <OutputFileName>$(MSBuildProjectName)</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
-    <AssemblyName>DHT22_Bridge</AssemblyName>
-    <Name>DHT_Bridge</Name>
-    <RootNamespace>DHT22_Bridge</RootNamespace>
+    <AssemblyName>X13Smart</AssemblyName>
+    <Name>ATM_Demo</Name>
+    <RootNamespace>X13Smart</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
     <OverrideVtor>false</OverrideVtor>
     <CacheFlash>true</CacheFlash>
     <ProgFlashFromRam>true</ProgFlashFromRam>
-    <RamSnippetAddress />
+    <RamSnippetAddress>0x20000000</RamSnippetAddress>
     <UncachedRange />
-    <OverrideVtorValue />
+    <OverrideVtorValue>exception_table</OverrideVtorValue>
     <BootSegment>2</BootSegment>
-    <eraseonlaunchrule>1</eraseonlaunchrule>
+    <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfFrameworkConfig>
       <framework-data xmlns="">
         <options />
@@ -37,11 +37,26 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool />
+    <avrtool>
+    </avrtool>
+    <com_atmel_avrdbg_tool_simulator>
+      <ToolOptions xmlns="">
+        <InterfaceProperties>
+          <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
+        </InterfaceProperties>
+        <InterfaceName>
+        </InterfaceName>
+      </ToolOptions>
+      <ToolType xmlns="">com.atmel.avrdbg.tool.simulator</ToolType>
+      <ToolNumber xmlns="">
+      </ToolNumber>
+      <ToolName xmlns="">Simulator</ToolName>
+    </com_atmel_avrdbg_tool_simulator>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'DHT_Bridge' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'ATM_Demo' ">
     <ToolchainSettings>
       <AvrGcc>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
   <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
   <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
   <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
@@ -51,55 +66,38 @@
   <avrgcc.compiler.symbols.DefSymbols>
     <ListValues>
       <Value>NDEBUG</Value>
-      <Value>F_CPU=8000000UL</Value>
-      <Value>DHT_DDR=DDRB</Value>
-      <Value>DHT_PORT=PORTB</Value>
-      <Value>PORT_USI=PORTB</Value>
-      <Value>DDR_USI=DDRB</Value>
-      <Value>PIN_USI=PINB</Value>
-      <Value>SDA=PB0</Value>
-      <Value>SCL=PB2</Value>
-      <Value>SMART_SIZEOF_DEVICEID=15</Value>
-      <Value>SMART_CFGDATA_NUM=6</Value>
+      <Value>SMART_SIZEOF_DEVICEID=18</Value>
+      <Value>SMART_CFGDATA_NUM=4</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
-  <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
   <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
   <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
   <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-  <avrgcc.linker.libraries.Libraries>
-    <ListValues>
-      <Value>libm</Value>
-    </ListValues>
-  </avrgcc.linker.libraries.Libraries>
+  <avrgcc.linker.general.GenerateMAPFile>False</avrgcc.linker.general.GenerateMAPFile>
+  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
 </AvrGcc>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Source" />
+    <Folder Include="Source\demo" />
     <Folder Include="Source\library" />
-    <Folder Include="Source\library\att_usi" />
-    <Folder Include="Source\library\att_dht" />
+    <Folder Include="Source\library\atm_twis" />
     <Folder Include="Source\library\smart" />
-    <Folder Include="Source\dht" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Source\dht\config.h">
+    <Compile Include="Source\demo\config.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\dht\main.c">
+    <Compile Include="Source\demo\main.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\library\att_dht\dht.c">
+    <Compile Include="Source\library\atm_twis\twis.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\library\att_dht\dht.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\library\att_usi\USI.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\library\att_usi\USI.h">
+    <Compile Include="Source\library\atm_twis\twis.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\library\smart\smart.c">

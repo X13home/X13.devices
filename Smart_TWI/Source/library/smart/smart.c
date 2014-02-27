@@ -57,6 +57,11 @@ void smart_reset_reg(void)
   sm_offs = 0xFF;
 }
 
+void smart_reset_offs(void)
+{
+  sm_offs = 0x00;
+}
+
 uint8_t smart_read_data(void)
 {
   uint16_t pnt;
@@ -108,6 +113,7 @@ uint8_t smart_write_data(uint8_t data)
   {
     sm_reg = data;
     sm_offs = 0;
+    return 0;
   }
   else if(sm_reg <= REG_MAX_USER)              // User data
     return WriteUserData(sm_reg, sm_offs++, data);
@@ -127,26 +133,21 @@ uint8_t smart_write_data(uint8_t data)
           break;
         case 'r':                             // Read data
           sm_offs = 1;
-          break;
-        default:
-          return 1;
+          return 0;
       }
     }
     else if(sm_offs == 1)
     {
       sm_offs = 2;
       sm_stat_reg = data;
+      return 0;
     }
     else if(sm_offs == 2)
     {
       sm_offs = 0xFE;
       sm_stat_len = data;
     }
-    else
-      return 1;
   }
-  else          // Unknown Index
-    return 1;
 
-  return 0;
+  return 1;
 }

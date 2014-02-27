@@ -54,6 +54,7 @@ enum
 #define REG_UNDEF           0xFF
 
 void    smart_reset_reg(void);
+void smart_reset_offs(void);
 uint8_t smart_read_data(void);
 uint8_t smart_write_data(uint8_t data);
 

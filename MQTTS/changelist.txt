@@ -1,0 +1,112 @@
+Version 2.6.1
+
+Added     Untested TWI driver for AM2321                              16.Feb.2014
+Changed   Optimized MQTTS Publish, Subscribe, Register subroutines    06.Feb.2014
+Added     memory garbage collector                                    06.Feb.2014
+Added     LAN Node with 16M OSC.                                      30.Jan.2014
+Changed   ExtAI + ExtPWM without PRR & ExtPWM w/o Fade                28.Jan.2014
+Changed   BlinkM Driver work with array                               28.Jan.2014
+BugFix    Minor Change on eeprom.c                                    08.Jan.2014
+Added     TWI Driver MCP23016                                         29.Nov.2013
+Added     TWI Driver SHT21                                            28.Nov.2013
+Changed   TWI Arbitration                                             28.Nov.2013
+Added     TWI Driver CC2Dxx[S]                                        22.Nov.2013
+
+=================================================================================
+Version 2.6.0, Release
+
+Added     Dummy device with ATMega256                                 11.Nov.2013
+Fixed     Unstable detection TWI devices                              24.Oct.2013
+Fixed     Error processing addresses 0xC0 & 0xDB                      17.Oct.2013
+
+=================================================================================
+Version 2.5.5 RC
+
+          Optimized Build Structure                                   12.Sep.2013
+          Merged with branch dev_wiz, but w/o wiznet section          08.Sep.2013
+Added     Hardware description for UP20                               04.Sep.2013
+
+=================================================================================
+Version 2.5.3 RC
+
+Added     Wiznet PtotoType                                            30.Jun.2013
+Bugfix    Digital IO 19                                               28.Jun.2013
+Added     BlinkM TWI Driver                                           28.Jun.2013
+Added     Data type Int64                                             28.Jun.2013
+Added     Dummy device, w/o RF Frontend                               25.Jun.2013
+Changed   Plugins structure                                           20.Jun.2013
+Added     Digital Output [OA - PNP]/[Oa -NPN) / Active/Sleep Mode     19.Jun.2013
+Fixed     Incorrect transition from ASleep to Connect mode.           14.Jun.2013
+Changed   TWI Drivers use local buffers                               13.Jun.2013
+Added     Sleep Mode to Extension                                     12.Jun.2013
+=================================================================================
+Version 2.5.2 RC
+
+Fixed     Errors on Si7005 - incorrect temperature humidity           11.Jun.2013
+Fixed     LAN Node configuration - don't work PWM                     05.Jun.2013
+Fixed     TWI down, if bus error occurs                               05.Jun.2013
+Fixed     Problems with GW - Lost/bad packet incorrect size           01.Jun.2013
+Deleted   unnecessary buffer on PHY section                           01.Jun.2013
+=================================================================================
+Version 2.5.1.beta1
+
+[*] Merged RF and LAN sources based on Stable - RF                    23.Mai.2013
+[*] RF drivers moved to PHY                                           23.Mai.2013
+[*] MQTTS Proc's Publish, Subscribe, Register                         22.May.2013
+[*] Analog inputs configuration                                       22.May.2013
+[*] RF_USE_RSSI Temporarely unused.                                   22.May.2013
+[+] TWI Callback Functions                                            22.May.2013
+=================================================================================
+Version 2.5.0.beta1
+
+[+] panStamp properties USE_RTC_OSC = 1                               20.Mai.2013
+[*] Compatible with AVR Studio 6.1                                    14.Mai.2013
+[*] RF-GW Connect BugFix                                              13.Mai.2013
+[+] LAN Activity & Status LED on PB0                                  13.Mai.2013
+[*] Directory Structure                                               13.Mai.2013
+[*] Merged LAN & Wireless Sources                                     10.Mai.2013
+[*] MQTT-S and PHY API                                                15.Apr.2013
+[*] MQTT-S and OD internal structurs                                  04.Apr.2013
+[+] TWI Callback function                                             17.Mar.2003
+=================================================================================
+Version 2.4.3
+
+[*] Predefined variables compatible with develop version.             21.May.2013
+=================================================================================
+Version 2.4.2
+
+[+] System Watchdog                                                   03.Mar.2013
+[+] TWI Devices Hysterese                                             03.Mar.2013
+=================================================================================
+Version 2.4.1
+
+[-] TWIM TWIM_SEQ                                                     27.Feb.2013
+=================================================================================
+Version 2.4.0
+
+[*] Devise descriptor - obj. xFE00                                    25.Feb.2013
+=================================================================================
+Version 2.4
+
+[+] TWI Watchdog
+[*] RF aggressive pool method
+[*] OD API
+=================================================================================
+Version 2.3
+7.Feb.2013
+
+[*] Optimized data
+[-] unnecessary volatile variables.
+[*] TWI API
+[+] TWI driver LM75
+[-] Test_RF Project and test options
+=================================================================================
+Version 2.2
+Public Release.
+
+-- 
+
+Legend
+[*] - Changed
+[+] - Added
+[-] - Deleted

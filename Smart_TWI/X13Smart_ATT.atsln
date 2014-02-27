@@ -1,0 +1,21 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "DHT_Bridge", "DHT_Bridge.cproj", "{D19373E5-3DA9-4694-9072-A3FC4CDA00D7}"
+EndProject
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Dimmer_2CH", "Dimmer_2CH.cproj", "{4CF76A44-A69C-4DF8-B4D1-D0A466F1E53D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Main|AVR = Main|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D19373E5-3DA9-4694-9072-A3FC4CDA00D7}.Main|AVR.ActiveCfg = DHT_Bridge|AVR
+		{D19373E5-3DA9-4694-9072-A3FC4CDA00D7}.Main|AVR.Build.0 = DHT_Bridge|AVR
+		{4CF76A44-A69C-4DF8-B4D1-D0A466F1E53D}.Main|AVR.ActiveCfg = Dimmer_2Ch|AVR
+		{4CF76A44-A69C-4DF8-B4D1-D0A466F1E53D}.Main|AVR.Build.0 = Dimmer_2Ch|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

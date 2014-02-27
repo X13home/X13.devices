@@ -149,12 +149,9 @@ uint8_t twi_Smart_Config(void)
   {
     buf[0] = 0xF0;    // Control Register
     buf[1] = 'R';     // Command - Reset
-    if(twimExch(addr, TWIM_WRITE, 2, 0, buf) != TW_SUCCESS)       // Is Device Present ?
-      continue;
-
-    // Read Status Register
-    if((twimExch(addr, (TWIM_WRITE | TWIM_READ), 1, 2, buf) != TW_SUCCESS) ||
-        (buf[0] != 0xB0) || (buf[1] < 6))                         // Status == DeviceId Reg and Length > 5
+    if((twimExch(addr, TWIM_WRITE, 2, 0, buf) != TW_SUCCESS) ||     // Is Device Present ?
+       (twimExch(addr, TWIM_READ,  0, 2, buf) != TW_SUCCESS) ||     // Read Status Register
+       (buf[0] != 0xB0) || (buf[1] < 6))                            // Status  != DeviceId Reg or Length < 6
       continue;
 
     pIndex = getFreeIdxOD();

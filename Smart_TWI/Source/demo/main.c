@@ -48,8 +48,8 @@ __attribute__((OS_main)) int main(void)
 
   InitTWI(12);
 
-  DDRC = (1<<LED1) | (1<<LED2) | (1<<SW1) | (1<<SW2);
-  PORTC = (1<<SW1) | (1<<SW2);
+  PORTC  = (1<<LED1) | (1<<LED2) | (1<<SW1) | (1<<SW2);
+  DDRC = (1<<LED1) | (1<<LED2);
 
   sei();
 
