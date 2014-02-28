@@ -54,13 +54,11 @@
       <Value>F_CPU=8000000UL</Value>
       <Value>DHT_DDR=DDRB</Value>
       <Value>DHT_PORT=PORTB</Value>
-      <Value>PORT_USI=PORTB</Value>
-      <Value>DDR_USI=DDRB</Value>
-      <Value>PIN_USI=PINB</Value>
+      <Value>USI_PORT=PORTB</Value>
+      <Value>USI_DDR=DDRB</Value>
+      <Value>USI_PIN=PINB</Value>
       <Value>SDA=PB0</Value>
       <Value>SCL=PB2</Value>
-      <Value>SMART_SIZEOF_DEVICEID=15</Value>
-      <Value>SMART_CFGDATA_NUM=6</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>

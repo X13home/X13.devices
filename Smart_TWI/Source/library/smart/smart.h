@@ -45,6 +45,14 @@ enum
   accWrite = 0x40
 }eAccessMode;
 
+// Status
+enum
+{
+  SM_STAT_OFFLINE = 0,
+  SM_STATUS_BUSY,
+  SM_STATUS_FREE
+}eSmStatus;
+
 #define REG_MIN_USER        0
 #define REG_MAX_USER        0x7F
 #define REG_DEVICE_DESCR    0xB0
@@ -54,9 +62,11 @@ enum
 #define REG_UNDEF           0xFF
 
 void    smart_reset_reg(void);
-void smart_reset_offs(void);
+void    smart_reset_offs(void);
 uint8_t smart_read_data(void);
 uint8_t smart_write_data(uint8_t data);
+uint8_t smart_status(void);
+void    smart_set_reg(uint8_t reg);
 
 #endif  //  __SMART_H_
 

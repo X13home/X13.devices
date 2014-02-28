@@ -5,7 +5,7 @@
     <ProjectVersion>6.1</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
     <ProjectGuid>{cb310031-9778-46b9-ae2f-bc8f5776ebab}</ProjectGuid>
-    <avrdevice>ATmega88</avrdevice>
+    <avrdevice>ATmega168PA</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
     <Language>C</Language>
@@ -66,8 +66,6 @@
   <avrgcc.compiler.symbols.DefSymbols>
     <ListValues>
       <Value>NDEBUG</Value>
-      <Value>SMART_SIZEOF_DEVICEID=18</Value>
-      <Value>SMART_CFGDATA_NUM=4</Value>
     </ListValues>
   </avrgcc.compiler.symbols.DefSymbols>
   <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>

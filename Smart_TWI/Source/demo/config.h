@@ -22,4 +22,7 @@ See LICENSE file for license details.
 #define SW1       PC3
 #define SW2       PC2
 
+#define EE_ADDR_I2CADDR     0
+#define DEF_I2C_ADDR        12
+
 #endif  //  _CONFIG_H

@@ -36,9 +36,9 @@ void InitUSI(uint8_t tAddr)
   TWI_OwnAddr = tAddr<<1;
   TWI_State = USI_SLAVE_UNDEFINED;
 
-  PORT_USI |= (1<<SCL) | (1<<SDA);    // SDA & SCL PullUp On 
-  DDR_USI |= (1<<SCL);                // SCL Output
-  DDR_USI &= ~(1<<SDA);               // SDA Input
+  USI_PORT |= (1<<SCL) | (1<<SDA);    // SDA & SCL PullUp On 
+  USI_DDR |= (1<<SCL);                // SCL Output
+  USI_DDR &= ~(1<<SDA);               // SDA Input
 
   USISR = (1<<USISIF) |   // Clear All interrupt flags & reset counter
           (1<<USIOIF) |
@@ -58,12 +58,12 @@ uint8_t TWI_addr(void)
 ISR(USI_START_vect)
 {
   TWI_State = USI_SLAVE_CHECK_ADDRESS;    // set default starting conditions for new TWI package
-  DDR_USI  &= ~(1<<SDA);                  // set SDA as input
+  USI_DDR  &= ~(1<<SDA);                  // set SDA as input
   
-  while ((PIN_USI & (1<<SCL)) &&          // wait for SCL to go low to ensure the Start Condition has completed
-        !(PIN_USI & (1<<SDA)));
+  while ((USI_PIN & (1<<SCL)) &&          // wait for SCL to go low to ensure the Start Condition has completed
+        !(USI_PIN & (1<<SDA)));
 
-  if(!(PIN_USI & (1<<SDA)))   // a Stop Condition did not occur
+  if(!(USI_PIN & (1<<SDA)))   // a Stop Condition did not occur
     USICR = (1<<USISIE) | (1<<USIOIE) | (1<<USIWM1) | (1<<USIWM0) | (1<<USICS1);
   else  // a Stop Condition did occur
     USICR = (1<<USISIE) | (1<<USIWM1) | (1<<USICS1);
@@ -82,7 +82,10 @@ ISR(USI_OVF_vect)
          ((data & 0xFE) == 0))                  // Broadcast
       {
         if(data & 0x01)                         // Read
+        {
           TWI_State = USI_SLAVE_SEND_DATA;
+          smart_reset_offs();
+        }
         else
         {
           TWI_State = USI_SLAVE_REQUEST_DATA;
@@ -91,7 +94,7 @@ ISR(USI_OVF_vect)
 
         // Set USI to send ACK
         USIDR = 0;                                                        // Prepare ACK
-        DDR_USI |= (1<<SDA);                                              // Set SDA as output
+        USI_DDR |= (1<<SDA);                                              // Set SDA as output
         USISR = (1<<USIOIF) | (1<<USIPF) | (1<<USIDC) | (0x0E<<USICNT0);  // Clear all flags, except Start Cond, set USI counter to shift 1 bit.
       }
       else
@@ -113,13 +116,13 @@ ISR(USI_OVF_vect)
       }
     case USI_SLAVE_SEND_DATA:
       USIDR = smart_read_data();
-      DDR_USI |= (1<<SDA);
+      USI_DDR |= (1<<SDA);
       USISR = (1<<USIOIF) | (1<<USIPF) | (1<<USIDC);
       TWI_State = USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA;
       break;
     case USI_SLAVE_REQUEST_REPLY_FROM_SEND_DATA:
       // Set USI to read  ACK
-      DDR_USI &= ~(1<<SDA);
+      USI_DDR &= ~(1<<SDA);
       USIDR = 0;
       USISR = (1<<USIOIF) | (1<<USIPF) | (1<<USIDC) | (0x0E<<USICNT0);
       TWI_State = USI_SLAVE_CHECK_REPLY_FROM_SEND_DATA;
@@ -129,7 +132,7 @@ ISR(USI_OVF_vect)
     case USI_SLAVE_REQUEST_DATA:
       TWI_State = USI_SLAVE_GET_DATA_AND_SEND_ACK;
     case USI_SLAVE_DATA_READY:
-      DDR_USI &= ~(1<<SDA);
+      USI_DDR &= ~(1<<SDA);
       USISR = (1<<USIOIF) | (1<<USIPF) | (1<<USIDC);
       break;
     case USI_SLAVE_GET_DATA_AND_SEND_ACK:
@@ -144,7 +147,7 @@ ISR(USI_OVF_vect)
         TWI_State = USI_SLAVE_REQUEST_DATA;
       }
 
-      DDR_USI |= (1<<SDA);
+      USI_DDR |= (1<<SDA);
       USISR = (1<<USIOIF) | (1<<USIPF) | (1<<USIDC) | (0x0E<<USICNT0);
       break;
   }

@@ -13,23 +13,22 @@ See LICENSE file for license details.
 
 #include "smart.h"
 
-// Smart Sensor Section
-
-// Local Variables
-static uint8_t sm_reg = REG_UNDEF;      // Requested Register address
-static uint8_t sm_offs = 0xFF;          // Requested Register offset
-
-uint8_t sm_stat_reg = REG_UNDEF;        // Status, register address
-uint8_t sm_stat_len = 0;                // Status, register length
-uint8_t sm_stat_onl = 0;                // Status online
-
-extern const uint8_t PROGMEM  device_id[];
-extern const s_SMART_CONFIG_t PROGMEM cfg_data[];
+// Device  and variables descriptions section
+extern const PROGMEM uint8_t            device_id[];
+extern const PROGMEM s_SMART_CONFIG_t   cfg_data[];
+extern const PROGMEM uint8_t            smart_config[];
 
 // External subroutines
 extern uint8_t GetUserDataLen(uint8_t reg);
 extern uint8_t GetUserData(uint8_t reg, uint8_t offset);
 extern uint8_t WriteUserData(uint8_t reg, uint8_t offset, uint8_t data);
+
+// Local Variables
+static uint8_t sm_reg = REG_UNDEF;                // Requested Register address
+static uint8_t sm_offs = 0;                       // Requested Register offset
+static uint8_t sm_stat_reg = REG_DEVICE_DESCR;    // Status, register address
+static uint8_t sm_stat_len = 0;                   // Status, register length
+static uint8_t sm_stat_onl = 0;                   // Status online
 
 // Local subroutines
 static uint8_t sm_get_len(uint8_t reg)
@@ -39,12 +38,12 @@ static uint8_t sm_get_len(uint8_t reg)
     return GetUserDataLen(reg);
   else if(reg == REG_DEVICE_DESCR)    // Device Id
   {
-    return SMART_SIZEOF_DEVICEID;
+    return pgm_read_byte(&smart_config[0]);
   }
   else                    // Configuration
   {
     reg -= REG_VARIABLE_DESCR;
-    if(reg < SMART_CFGDATA_NUM)
+    if(reg < pgm_read_byte(&smart_config[1]))
       return pgm_read_byte(&cfg_data[reg].lenC);
   }
 
@@ -82,7 +81,7 @@ uint8_t smart_read_data(void)
       uint8_t tmp = sm_stat_len;
       if(tmp == 0)
         tmp = sm_get_len(sm_stat_reg);
-      sm_stat_reg = 0xFF;
+      sm_stat_reg = REG_UNDEF;
       sm_stat_len = 0;
       return tmp;
     }
@@ -97,7 +96,7 @@ uint8_t smart_read_data(void)
   }
   // Read Variable Description
   else if((sm_reg >= REG_VARIABLE_DESCR) && 
-          (sm_reg < (REG_VARIABLE_DESCR + SMART_CFGDATA_NUM)))
+          (sm_reg < (REG_VARIABLE_DESCR + pgm_read_byte(&smart_config[1]))))
   {
     sm_offs++;
     pnt = (uint16_t)&cfg_data[sm_reg - REG_VARIABLE_DESCR];
@@ -150,4 +149,20 @@ uint8_t smart_write_data(uint8_t data)
   }
 
   return 1;
+}
+
+uint8_t smart_status(void)
+{
+  if(sm_stat_onl == 0)
+    return SM_STAT_OFFLINE;
+  else if(sm_stat_reg != REG_UNDEF)
+    return SM_STATUS_BUSY;
+
+  return SM_STATUS_FREE;
+}
+
+void smart_set_reg(uint8_t reg)
+{
+  if((sm_stat_onl == 1) && (sm_stat_reg == REG_UNDEF))
+    sm_stat_reg = reg;
 }

@@ -56,7 +56,12 @@ uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
   }
 
   if(twim_access != 0)
+  {
+    if((twim_access & TWIM_ERROR) && (state != 0))
+      state = SMART_STATE_WAIT;
+
     return 0;
+  }
 
   if(state == SMART_STATE_WRITE_DATA_READY)         // Data ready to write
   {
@@ -79,7 +84,7 @@ uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
       // Read data
       smart_buf.state = SMART_STATE_READ_DATA_READY;
       smart_buf.reg = smart_buf.buf[0];
-      smart_buf.len = smart_buf.buf[1];
+      smart_buf.len = len;
       twimExch_ISR(smart_buf.addr,
                   (TWIM_WRITE | TWIM_READ),
                   1,

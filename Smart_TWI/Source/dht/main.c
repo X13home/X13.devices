@@ -22,10 +22,10 @@ See LICENSE file for license details.
 #include "../library/att_usi/USI.h"
 
 // Constants
-// Please define SMART_SIZEOF_DEVICEID
-// Please define SMART_CFGDATA_NUM
-const uint8_t PROGMEM  device_id[] = {"DHT_BR_3CH_V0.1"};   // Device ID
-const s_SMART_CONFIG_t PROGMEM cfg_data[] =
+// Device  description
+const PROGMEM uint8_t device_id[] = {"DHT_BR_3CH_V0.1"};
+// Variables description
+const PROGMEM s_SMART_CONFIG_t  cfg_data[] =
 {
   // Variables description
   { 9,                                    // Record length
@@ -37,9 +37,13 @@ const s_SMART_CONFIG_t PROGMEM cfg_data[] =
   { 9, (accRead | objUInt16), 3, {"Humi S2"}},
   { 9, (accRead | objInt16),  4, {"Temp S3"}},
   { 9, (accRead | objUInt16), 5, {"Humi S3"}},
+  { 9, (accWrite | accRead | objUInt8), 0x10, {"Address"}},
 };
+// Please don't change 
+const PROGMEM uint8_t smart_config[] = {sizeof(device_id) - 1,
+                                        sizeof(cfg_data)/sizeof(s_SMART_CONFIG_t)};
 
-
+// Local Variables and Subroutines
 static const uint8_t Sensors[] = {(1<<SENS1), (1<<SENS2), (1<<SENS3)};
 
 uint16_t sData[6];          // Measured Data 0 - Temp, 1 - Humi Sensor 1, 2/3 - Sensor 2 ....
@@ -73,7 +77,7 @@ __attribute__((OS_main)) int main(void)
   for(tmp = 0; tmp < 6; tmp++)
     soData[tmp] = 0;
 
-  tmp = eeprom_read_byte(EE_ADDR_I2CADDR);
+  tmp = eeprom_read_byte((uint8_t *)EE_ADDR_I2CADDR);
   if(tmp == 0xFF)
     tmp = DEF_I2C_ADDR;
 
@@ -118,17 +122,22 @@ __attribute__((OS_main)) int main(void)
         break;
     }
 
-    if(sm_stat_onl)   // Get User data on online
+    tmp = smart_status();
+    if(tmp == SM_STAT_OFFLINE)
     {
-      if((sm_stat_reg == 0xFF) && (sData[act_pnt] != soData[act_pnt]))
-        sm_stat_reg = act_pnt;
+      for(act_pnt = 0; act_pnt < 6; act_pnt++)
+        soData[act_pnt] = 0;
     }
-    else              // Or clear on offline
-      soData[act_pnt] = 0;
+    else if(tmp == SM_STATUS_FREE)
+    {
+      if(act_pnt > 5)
+        act_pnt = 0;
 
-    act_pnt++;
-    if(act_pnt > 5)
-      act_pnt = 0;
+      if(sData[act_pnt] != soData[act_pnt])
+        smart_set_reg(act_pnt);
+
+      act_pnt++;
+    }
   }
 }
 
@@ -136,6 +145,9 @@ uint8_t GetUserDataLen(uint8_t reg)
 {
   if(reg < 6)
     return 2;
+  else if(reg == 0x10)
+    return 1;
+
   return 0;
 }
 
@@ -157,10 +169,17 @@ uint8_t GetUserData(uint8_t reg, uint8_t offset)
     else
       return soData[reg]>>8;
   }
+  else   if(reg == 0x10)
+    return TWI_addr();
+
   return 0xFF;
 }
 
 uint8_t WriteUserData(uint8_t reg, uint8_t offset, uint8_t data)
 {
+  reg += offset;
+  if(reg == 0x10)
+    eeprom_write_byte((uint8_t *)EE_ADDR_I2CADDR, data);
+
   return 1; // No data to write
 }
