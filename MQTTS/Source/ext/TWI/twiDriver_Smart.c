@@ -20,11 +20,11 @@ See LICENSE.txt file for license details.
 #define SMART_START_ADDR        0x08
 #define SMART_STOP_ADDR         0x1F
 
-#define SMART_MAX_DEV           2
+#define SMART_MAX_DEV           2         //  2/4/8
 
 #define SMART_DATA_SIZE         (MQTTS_MSG_SIZE-5)
 
-extern volatile uint8_t twim_access;           // access mode & busy flag
+extern volatile uint8_t twim_access;      // access mode & busy flag
 
 typedef struct
 {
@@ -78,7 +78,7 @@ uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
       {
         // Read data
         smart_buf[pos].mBuf = mqAssert();
-        if(smart_buf[pos].mBuf == NULL)        // No Memory
+        if(smart_buf[pos].mBuf == NULL)   // No Memory
           state = SMART_STATE_WAIT;
         else
         {
