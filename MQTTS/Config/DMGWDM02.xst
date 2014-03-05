@@ -2,120 +2,820 @@
 <root head="/etc/declarers/dev">
  <item name="GWDM02" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String">
   <item name="Add">
-    <item name="bool" value="1Z" saved="True" type="System.String" />
-    <item name="long" value="4I" saved="True" type="System.String" />
-    <item name="string" value="5S" saved="True" type="System.String" />
+    <item name="bool" value=" Z" saved="True" type="System.String" />
+    <item name="long" value=" I" saved="True" type="System.String" />
+    <item name="string" value=" S" saved="True" type="System.String" />
   </item>
-  <item name="remove" value="ZD" saved="True" type="System.String" />
+  <item name="remove" value="zD" saved="True" type="System.String" />
   <item name="PA0">
-    <item name="In0" value="7zX0" saved="True" type="System.String">
+    <item name="In0" value="0zX0" saved="True" type="System.String">
       <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
     </item>
-    <item name="Ip0" value="6zX0" saved="True" type="System.String">
+    <item name="Ip0" value="0zX0" saved="True" type="System.String">
       <item name="_description" value="Digital input" saved="True" type="System.String" />
     </item>
-    <item name="On0" value="9zX0" saved="True" type="System.String">
+    <item name="On0" value="0zX0" saved="True" type="System.String">
       <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
     </item>
-    <item name="Op0" value="8zX0" saved="True" type="System.String">
+    <item name="Op0" value="0zX0" saved="True" type="System.String">
       <item name="_description" value="Digital output" saved="True" type="System.String" />
     </item>
   </item>
   <item name="PA1">
-    <item name="In1" value="7zX1" saved="True" type="System.String">
+    <item name="In1" value="0zX1" saved="True" type="System.String">
       <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
     </item>
-    <item name="Ip1" value="6zX1" saved="True" type="System.String">
+    <item name="Ip1" value="0zX1" saved="True" type="System.String">
       <item name="_description" value="Digital input" saved="True" type="System.String" />
     </item>
-    <item name="On1" value="9zX1" saved="True" type="System.String">
+    <item name="On1" value="0zX1" saved="True" type="System.String">
       <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
     </item>
-    <item name="Op1" value="8zX1" saved="True" type="System.String">
+    <item name="Op1" value="0zX1" saved="True" type="System.String">
       <item name="_description" value="Digital output" saved="True" type="System.String" />
     </item>
   </item>
   <item name="PA2">
-    <item name="In2" value="7zX2" saved="True" type="System.String">
+    <item name="In2" value="0zX2" saved="True" type="System.String">
       <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
     </item>
-    <item name="Ip2" value="6zX2" saved="True" type="System.String">
+    <item name="Ip2" value="0zX2" saved="True" type="System.String">
       <item name="_description" value="Digital input" saved="True" type="System.String" />
     </item>
-    <item name="On2" value="9zX2" saved="True" type="System.String">
+    <item name="On2" value="0zX2" saved="True" type="System.String">
       <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
     </item>
-    <item name="Op2" value="8zX2" saved="True" type="System.String">
+    <item name="Op2" value="0zX2" saved="True" type="System.String">
       <item name="_description" value="Digital output" saved="True" type="System.String" />
     </item>
   </item>
   <item name="PA3">
-    <item name="In3" value="7zX3" saved="True" type="System.String">
+    <item name="In3" value="0zX3" saved="True" type="System.String">
       <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
     </item>
-    <item name="Ip3" value="6zX3" saved="True" type="System.String">
+    <item name="Ip3" value="0zX3" saved="True" type="System.String">
       <item name="_description" value="Digital input" saved="True" type="System.String" />
     </item>
-    <item name="On3" value="9zX3" saved="True" type="System.String">
+    <item name="On3" value="0zX3" saved="True" type="System.String">
       <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
     </item>
-    <item name="Op3" value="8zX3" saved="True" type="System.String">
+    <item name="Op3" value="0zX3" saved="True" type="System.String">
       <item name="_description" value="Digital output" saved="True" type="System.String" />
     </item>
   </item>
   <item name="PA4">
-    <item name="In4" value="7zX4" saved="True" type="System.String">
+    <item name="In4" value="0zX4" saved="True" type="System.String">
       <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
     </item>
-    <item name="Ip4" value="6zX4" saved="True" type="System.String">
+    <item name="Ip4" value="0zX4" saved="True" type="System.String">
       <item name="_description" value="Digital input" saved="True" type="System.String" />
     </item>
-    <item name="On4" value="9zX4" saved="True" type="System.String">
+    <item name="On4" value="0zX4" saved="True" type="System.String">
       <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
     </item>
-    <item name="Op4" value="8zX4" saved="True" type="System.String">
+    <item name="Op4" value="0zX4" saved="True" type="System.String">
       <item name="_description" value="Digital output" saved="True" type="System.String" />
     </item>
   </item>
   <item name="PA5">
-    <item name="In5" value="7zX5" saved="True" type="System.String">
+    <item name="In5" value="0zX5" saved="True" type="System.String">
       <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
     </item>
-    <item name="Ip5" value="6zX5" saved="True" type="System.String">
+    <item name="Ip5" value="0zX5" saved="True" type="System.String">
       <item name="_description" value="Digital input" saved="True" type="System.String" />
     </item>
-    <item name="On5" value="9zX5" saved="True" type="System.String">
+    <item name="On5" value="0zX5" saved="True" type="System.String">
       <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
     </item>
-    <item name="Op5" value="8zX5" saved="True" type="System.String">
+    <item name="Op5" value="0zX5" saved="True" type="System.String">
       <item name="_description" value="Digital output" saved="True" type="System.String" />
     </item>
   </item>
   <item name="PA6">
-    <item name="In6" value="7zX6" saved="True" type="System.String">
+    <item name="In6" value="0zX6" saved="True" type="System.String">
       <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
     </item>
-    <item name="Ip6" value="6zX6" saved="True" type="System.String">
+    <item name="Ip6" value="0zX6" saved="True" type="System.String">
       <item name="_description" value="Digital input" saved="True" type="System.String" />
     </item>
-    <item name="On6" value="9zX6" saved="True" type="System.String">
+    <item name="On6" value="0zX6" saved="True" type="System.String">
       <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
     </item>
-    <item name="Op6" value="8zX6" saved="True" type="System.String">
+    <item name="Op6" value="0zX6" saved="True" type="System.String">
       <item name="_description" value="Digital output" saved="True" type="System.String" />
     </item>
   </item>
   <item name="PA7">
-    <item name="In7" value="7zX7" saved="True" type="System.String">
+    <item name="In7" value="0zX7" saved="True" type="System.String">
       <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
     </item>
-    <item name="Ip7" value="6zX7" saved="True" type="System.String">
+    <item name="Ip7" value="0zX7" saved="True" type="System.String">
       <item name="_description" value="Digital input" saved="True" type="System.String" />
     </item>
-    <item name="On7" value="9zX7" saved="True" type="System.String">
+    <item name="On7" value="0zX7" saved="True" type="System.String">
       <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
     </item>
-    <item name="Op7" value="8zX7" saved="True" type="System.String">
+    <item name="Op7" value="0zX7" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item> 
+  </item>
+  <item name="PB0">
+    <item name="In8" value="1zX8" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip8" value="1zX8" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On8" value="1zX8" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op8" value="1zX8" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PB1">
+    <item name="In9" value="1zX9" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip9" value="1zX9" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On9" value="1zX9" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op9" value="1zX9" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PB2">
+    <item name="In10" value="1zX10" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip10" value="1zX10" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On10" value="1zX10" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op10" value="1zX10" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PB3">
+    <item name="In11" value="1zX11" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip11" value="1zX11" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On11" value="1zX11" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op11" value="1zX11" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PB4">
+    <item name="In12" value="1zX12" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip12" value="1zX12" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On12" value="1zX12" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op12" value="1zX12" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PB5">
+    <item name="In13" value="1zX13" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip13" value="1zX13" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On13" value="1zX13" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op13" value="1zX13" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PB6">
+    <item name="In14" value="1zX14" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip14" value="1zX14" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On14" value="1zX14" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op14" value="1zX14" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PB7">
+    <item name="In15" value="1zX15" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip15" value="1zX15" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On15" value="1zX15" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op15" value="1zX15" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PC0">
+    <item name="In16" value="2zX16" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip16" value="2zX16" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On16" value="2zX16" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op16" value="2zX16" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PC1">
+    <item name="In17" value="2zX17" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip17" value="2zX17" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On17" value="2zX17" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op17" value="2zX17" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PC2">
+    <item name="In18" value="2zX18" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip18" value="2zX18" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On18" value="2zX18" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op18" value="2zX18" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PC3">
+    <item name="In19" value="2zX19" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip19" value="2zX19" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On19" value="2zX19" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op19" value="2zX19" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PC4">
+    <item name="In20" value="2zX20" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip20" value="2zX20" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On20" value="2zX20" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op20" value="2zX20" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PC5">
+    <item name="In21" value="2zX21" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip21" value="2zX21" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On21" value="2zX21" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op21" value="2zX21" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PC6">
+    <item name="In22" value="2zX22" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip22" value="2zX22" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On22" value="2zX22" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op22" value="2zX22" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PC7">
+    <item name="In23" value="2zX23" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip23" value="2zX23" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On23" value="2zX23" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op23" value="2zX23" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PD2">
+    <item name="In26" value="3zX26" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip26" value="3zX26" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On26" value="3zX26" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op26" value="3zX26" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PD3">
+    <item name="In27" value="3zX27" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip27" value="3zX27" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On27" value="3zX27" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op27" value="3zX27" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PD7">
+    <item name="In31" value="3zX31" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip31" value="3zX31" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On31" value="3zX31" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op31" value="3zX31" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PE3">
+    <item name="In35" value="4zX35" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip35" value="4zX35" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On35" value="4zX35" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op35" value="4zX35" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PE4">
+    <item name="In36" value="4zX36" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip36" value="4zX36" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On36" value="4zX36" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op36" value="4zX36" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PE5">
+    <item name="In37" value="4zX37" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip37" value="4zX37" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On37" value="4zX37" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op37" value="4zX37" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PF0">
+    <item name="In40" value="5zX40" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip40" value="5zX40" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On40" value="5zX40" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op40" value="5zX40" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PF1">
+    <item name="In41" value="5zX41" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip41" value="5zX41" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On41" value="5zX41" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op41" value="5zX41" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PF2">
+    <item name="In42" value="5zX42" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip42" value="5zX42" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On42" value="5zX42" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op42" value="5zX42" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PF3">
+    <item name="In43" value="5zX43" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip43" value="5zX43" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On43" value="5zX43" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op43" value="5zX43" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PG0">
+    <item name="In48" value="6zX48" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip48" value="6zX48" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On48" value="6zX48" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op48" value="6zX48" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PG1">
+    <item name="In49" value="6zX49" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip49" value="6zX49" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On49" value="6zX49" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op49" value="6zX49" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PG2">
+    <item name="In50" value="6zX50" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip50" value="6zX50" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On50" value="6zX50" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op50" value="6zX50" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PG5">
+    <item name="In53" value="6zX53" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip53" value="6zX53" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On53" value="6zX53" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op53" value="6zX53" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PH3">
+    <item name="In59" value="7zX59" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip59" value="7zX59" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On59" value="7zX59" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op59" value="7zX59" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PH4">
+    <item name="In60" value="7zX60" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip60" value="7zX60" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On60" value="7zX60" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op60" value="7zX60" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PH5">
+    <item name="In61" value="7zX61" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip61" value="7zX61" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On61" value="7zX61" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op61" value="7zX61" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PH6">
+    <item name="In62" value="7zX62" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip62" value="7zX62" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On62" value="7zX62" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op62" value="7zX62" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PK0">
+    <item name="In64" value="8zX64" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip64" value="8zX64" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On64" value="8zX64" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op64" value="8zX64" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PK1">
+    <item name="In65" value="8zX65" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip65" value="8zX65" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On65" value="8zX65" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op65" value="8zX65" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PK2">
+    <item name="In66" value="8zX66" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip66" value="8zX66" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On66" value="8zX66" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op66" value="8zX66" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PK3">
+    <item name="In67" value="8zX67" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip67" value="8zX67" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On67" value="8zX67" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op67" value="8zX67" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PK4">
+    <item name="In68" value="8zX68" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip68" value="8zX68" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On68" value="8zX68" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op68" value="8zX68" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PK5">
+    <item name="In69" value="8zX69" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip69" value="8zX69" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On69" value="8zX69" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op69" value="8zX69" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PK6">
+    <item name="In70" value="8zX70" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip70" value="8zX70" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On70" value="8zX70" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op70" value="8zX70" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PK7">
+    <item name="In71" value="8zX71" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip71" value="8zX71" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On71" value="8zX71" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op71" value="8zX71" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PL0">
+    <item name="In72" value="9zX72" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip72" value="9zX72" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On72" value="9zX72" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op72" value="9zX72" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PL1">
+    <item name="In73" value="9zX73" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip73" value="9zX73" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On73" value="9zX73" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op73" value="9zX73" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PL2">
+    <item name="In74" value="9zX74" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip74" value="9zX74" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On74" value="9zX74" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op74" value="9zX74" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PL3">
+    <item name="In75" value="9zX75" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip75" value="9zX75" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On75" value="9zX75" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op75" value="9zX75" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PL4">
+    <item name="In76" value="9zX76" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip76" value="9zX76" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On76" value="9zX76" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op76" value="9zX76" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PL5">
+    <item name="In77" value="9zX77" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip77" value="9zX77" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On77" value="9zX77" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op77" value="9zX77" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PL6">
+    <item name="In78" value="9zX78" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip78" value="9zX78" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On78" value="9zX78" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op78" value="9zX78" saved="True" type="System.String">
+      <item name="_description" value="Digital output" saved="True" type="System.String" />
+    </item>
+  </item>
+  <item name="PL7">
+    <item name="In79" value="9zX79" saved="True" type="System.String">
+      <item name="_description" value="Digital Pull-Up inverted input" saved="True" type="System.String" />
+    </item>
+    <item name="Ip79" value="9zX79" saved="True" type="System.String">
+      <item name="_description" value="Digital input" saved="True" type="System.String" />
+    </item>
+    <item name="On79" value="9zX79" saved="True" type="System.String">
+      <item name="_description" value="Digital inverted output" saved="True" type="System.String" />
+    </item>
+    <item name="Op79" value="9zX79" saved="True" type="System.String">
       <item name="_description" value="Digital output" saved="True" type="System.String" />
     </item>
   </item>

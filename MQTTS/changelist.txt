@@ -1,5 +1,6 @@
 Version 2.6.1
 
+Changed   DIO Plugin Structure and configuration                      05.Mar.2014
 Added     Untested TWI driver for AM2321                              16.Feb.2014
 Changed   Optimized MQTTS Publish, Subscribe, Register subroutines    06.Feb.2014
 Added     memory garbage collector                                    06.Feb.2014
