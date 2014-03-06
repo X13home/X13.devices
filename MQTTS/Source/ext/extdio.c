@@ -28,11 +28,6 @@ static uint8_t pin_busy_mask[EXTDIO_MAXPORT_NR];
 static uint8_t pin_read_state[EXTDIO_MAXPORT_NR];
 static uint8_t pin_read_flag[EXTDIO_MAXPORT_NR];
 
-const PROGMEM uint16_t portnum2port[]  = PORTNUM_2_PORT;
-const PROGMEM uint16_t portnum2ddr[]   = PORTNUM_2_DDR;
-const PROGMEM uint16_t portnum2pin[]   = PORTNUM_2_PIN;
-const PROGMEM uint8_t  portnum2mask[]  = PORTNUM_2_MASK;
-
 // Convert Base to Mask
 uint8_t base2Mask(uint16_t base)
 {
@@ -46,64 +41,174 @@ uint8_t base2Mask(uint16_t base)
 // Start DIO HAL
 static uint8_t cvtBase2Port(uint16_t base)     // Digital Ports
 {
-  uint8_t tmp = (base & 0xF8)>>3;
-#if (defined EXTDIO_BASE_OFFSET) && (EXTDIO_BASE_OFFSET > 0)
-  tmp -= EXTDIO_BASE_OFFSET;
-#endif
-  if(tmp >= EXTDIO_MAXPORT_NR)
-    return EXTDIO_MAXPORT_NR;
-  return tmp;
+    uint8_t tmp = base & 0xF8;
+    switch(tmp)
+    {
+#ifdef PORTNUM0
+        case 0x00:      // PORT A
+            return PORTNUM0;
+#endif  //  PORTNUM1
+#ifdef PORTNUM1
+        case 0x08:      // PORT B
+            return PORTNUM1;
+#endif  //  PORTNUM1
+#ifdef PORTNUM2
+        case 0x10:      // PORT C
+            return PORTNUM2;
+#endif  //  PORTNUM2
+#ifdef PORTNUM3
+        case 0x18:      // PORT D
+            return PORTNUM3;
+#endif  //  PORTNUM3
+    }
+    return 0xFF;
 }
 
 uint8_t checkDigBase(uint16_t base)
 {
-  uint8_t pinmask = base2Mask(base);
-  uint8_t port = cvtBase2Port(base);
-  uint8_t tmp;
+    uint8_t pinmask = base2Mask(base);
+    uint8_t tmp = base & 0xF8;
+    switch(tmp)
+    {
+#ifdef PORT0MASK
+        case 0x00:      // PORT A
+            if(PORT0MASK & pinmask)
+                return 2;
+            break;
+#endif  //  PORT0MASK
+#ifdef PORT1MASK
+        case 0x08:      // PORT B
+            if(PORT1MASK & pinmask)
+                return 2;
+            break;
+#endif  //  PORT1MASK
+#ifdef PORT2MASK
+        case 0x10:      // PORT C
+            if(PORT2MASK & pinmask)
+                return 2;
+            break;
+#endif
+#ifdef PORT3MASK
+        case 0x18:      // PORT D
+            if(PORT3MASK & pinmask)
+                return 2;
+            break;
+#endif
+        default:
+            return 2;
+    }
+    
+    if(pin_busy_mask[cvtBase2Port(base)] & pinmask)
+        return 1;
 
-  if(port == EXTDIO_MAXPORT_NR)
-    return 2;
-
-  tmp = pgm_read_byte(&portnum2mask[port]);
-  if(tmp & pinmask)
-    return 2;
-
-  if(pin_busy_mask[port] & pinmask)
-    return 1;
-
-  return 0;
+    return 0;
 }
 
 static void out2DDR(uint16_t base, uint8_t set)
 {
-  uint8_t pinmask = base2Mask(base);
-  uint8_t *pDDR;
-  pDDR = (uint8_t *)pgm_read_word(&portnum2ddr[cvtBase2Port(base)]);
-
-  if(set)
-    *pDDR |= pinmask;
-  else
-    *pDDR &= ~pinmask;
+    uint8_t pinmask = base2Mask(base);
+    uint8_t tmp = base & 0xF8;
+    switch(tmp)
+    {
+#ifdef PORTDDR0
+        case 0x00:
+            if(set)
+                PORTDDR0 |= pinmask;
+            else
+                PORTDDR0 &= ~pinmask;
+            break;
+#endif
+#ifdef PORTDDR1
+        case 0x08:
+            if(set)
+                PORTDDR1 |= pinmask;
+            else
+                PORTDDR1 &= ~pinmask;
+            break;
+#endif
+#ifdef PORTDDR2
+        case 0x10:
+            if(set)
+                PORTDDR2 |= pinmask;
+            else
+                PORTDDR2 &= ~pinmask;
+            break;
+#endif
+#ifdef PORTDDR3
+        case 0x18:
+            if(set)
+                PORTDDR3 |= pinmask;
+            else
+                PORTDDR3 &= ~pinmask;
+            break;
+#endif
+    }
 }
 
 static void out2PORT(uint16_t base, uint8_t set)
 {
-  uint8_t pinmask = base2Mask(base);
-  uint8_t *pPORT;
-
-  pPORT = (uint8_t *)pgm_read_word(&portnum2port[cvtBase2Port(base)]);
-
-  if(set)
-    *pPORT |= pinmask;
-  else
-    *pPORT &= ~pinmask;
+    uint8_t pinmask = base2Mask(base);
+    uint8_t tmp = base & 0xF8;
+    switch(tmp)
+    {
+#ifdef PORTOUT0
+        case 0x00:
+            if(set)
+                PORTOUT0 |= pinmask;
+            else
+                PORTOUT0 &= ~pinmask;
+            break;
+#endif
+#ifdef PORTOUT1
+        case 0x08:
+            if(set)
+                PORTOUT1 |= pinmask;
+            else
+                PORTOUT1 &= ~pinmask;
+            break;
+#endif
+#ifdef PORTOUT2
+        case 0x10:
+            if(set)
+                PORTOUT2 |= pinmask;
+            else
+                PORTOUT2 &= ~pinmask;
+            break;
+#endif
+#ifdef PORTOUT3
+        case 0x18:
+            if(set)
+                PORTOUT3 |= pinmask;
+            else
+                PORTOUT3 &= ~pinmask;
+            break;
+#endif
+    }
 }
 
 uint8_t inpPort(uint16_t base)
 {
-  uint8_t *pPIN;
-  pPIN = (uint8_t *)pgm_read_word(&portnum2pin[cvtBase2Port(base)]);
-  return *pPIN;
+    uint8_t tmp = base & 0xF8;
+    switch(tmp)
+    {
+#ifdef PORTIN0
+        case 0x00:
+            return PORTIN0;
+#endif
+#ifdef PORTIN1
+        case 0x08:
+            return PORTIN1;
+#endif
+#ifdef PORTIN2
+        case 0x10:
+            return PORTIN2;
+#endif
+#ifdef PORTIN3
+        case 0x18:
+            return PORTIN3;
+#endif
+    }
+    return 0;
 }
 // End DIO HAL
 

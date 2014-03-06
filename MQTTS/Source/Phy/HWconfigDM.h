@@ -149,19 +149,23 @@ See LICENSE.txt file for license details.
 
 // Digital IO's
 #define EXTDIO_MAXPORT_NR       2           // Number of digital Ports
-#define EXTDIO_BASE_OFFSET      2           // Numeration started from Port: 0 - A, 1 - B, 2 - C ...
 
-#define PORTNUM_2_PIN           {(uint16_t)&PINC, (uint16_t)&PIND}
-#define PORTNUM_2_DDR           {(uint16_t)&DDRC, (uint16_t)&DDRD}
-#define PORTNUM_2_PORT          {(uint16_t)&PORTC, (uint16_t)&PORTD}
+#define PORTNUM2                0
+#define PORTDDR2                DDRC
+#define PORTOUT2                PORTC
+#define PORTIN2                 PINC
+#define PORT2MASK               0xC0        // PC0-PC5
+
+#define PORTNUM3                1
+#define PORTDDR3                DDRD
+#define PORTOUT3                PORTD
+#define PORTIN3                 PIND
 
 #ifdef GATEWAY
 #define PORT3MASK               0x03
 #else   // GATEWAY
 #define PORT3MASK               0x00
 #endif  // GATEWAY
-
-#define PORTNUM_2_MASK          {0xC0, PORT3MASK}
 
 // PWM
 #define PWM_PIN0                29
@@ -178,7 +182,6 @@ See LICENSE.txt file for license details.
                              {TCCR0A = 0; TCCR0B = 0; PRR |= (1<<PRTIM0);}}
 // End PWM
 // End Digital IO's
-
 
 // Analogue Inputs
 #define EXTAI_PORT_NUM          PORTNUM2    // PORTC Analogue Inputs
