@@ -19,6 +19,10 @@ See LICENSE file for license details.
 
 #if (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_BLINKM)
 
+#ifdef TWI_USE_SMARTDRV
+#error incompatible options TWI_USE_SMARTDRV and TWI_USE_BLINKM
+#endif  //  TWI_USE_SMARTDRV
+
 #include "../twim.h"
 #include "twiDriver_BlinkM.h"
 
