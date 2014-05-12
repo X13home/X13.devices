@@ -353,7 +353,7 @@ void PHY_Send(MQ_t * pBuf)
   cc11v_State = RF_TRVTXHDR;
 }
 
-void PHY_Pool(void)
+void PHY_Poll(void)
 {
   if(cc11v_State == RF_TRVIDLE)
   {

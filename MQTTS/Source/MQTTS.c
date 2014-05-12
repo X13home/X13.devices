@@ -222,7 +222,7 @@ static void mqtts_send_search_gw(void)  // Send Search Gateway
     pBuf = mqAssert();
     if(pBuf == NULL)    // no memory
         return;
-    pBuf->addr = (s_Addr)AddrBroadcast;             // Broadcast
+    pBuf->addr = (S_ADDR)ADDR_BROADCAST;             // Broadcast
     pBuf->mq.Length = MQTTS_SIZEOF_MSG_SEARCHGW;
     pBuf->mq.MsgType = MQTTS_MSGTYP_SEARCHGW;
     pBuf->mq.m.searchgw.Radius = 0;
@@ -319,7 +319,7 @@ uint8_t MQTTS_Poll(uint8_t wakeup)
                         return  MQTTS_POLL_STAT_AWAKE;          // WakeUp
                     }
                     // Not found many times
-                    SystemReset();
+                    SYSTEM_RESET();
                 }
                 break;
             }

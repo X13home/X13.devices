@@ -406,7 +406,7 @@ void PHY_Send(MQ_t * pBuf)
 }
 
 // Periodical 
-void PHY_Pool(void)
+void PHY_Poll(void)
 {
   if(rfm12v_State == RF_TRVPOR)
     PHY_Init();

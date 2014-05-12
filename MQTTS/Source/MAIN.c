@@ -11,11 +11,11 @@ See LICENSE.txt file for license details.
 #include "config.h"
 
 static volatile uint8_t iPool;
-#define IPOOL_USR   0x01
-#define IPOOL_CALIB 0x02
+#define IPOLL_USR   0x01
+#define IPOLL_CALIB 0x02
 
 #ifdef ASLEEP
-#define IPOOL_SLEEP 0x04
+#define IPOLL_SLEEP 0x04
 static void goToSleep(void);
 static void wakeUp(void);
 #endif  //  ASLEEP
@@ -111,9 +111,9 @@ __attribute__((OS_main)) int main(void)
         if(MQTTS_DataRdy() && PHY_CanSend())
           PHY_Send(MQTTS_Get());
 #endif  //  GATEWAY
-        if(iPool & IPOOL_USR)
+        if(iPool & IPOLL_USR)
         {
-            iPool &= ~IPOOL_USR;
+            iPool &= ~IPOLL_USR;
             
             PHY_Poll();
 
@@ -139,19 +139,19 @@ __attribute__((OS_main)) int main(void)
 #ifdef ASLEEP
             else if(bTmp == MQTTS_STATUS_AWAKE)
             {
-                if(poolIdx == 0xFFFF)
-                    poolIdx = PoolOD(0);
+                if(pollIdx == 0xFFFF)
+                    pollIdx = PollOD(0);
             }
 #endif  //  ASLEEP
 
             bTmp = MQTTS_Poll(pollIdx != 0xFFFF);
 #ifdef ASLEEP
-            if(bTmp == MQTTS_POOL_STAT_ASLEEP)       // Sweet dreams
+            if(bTmp == MQTTS_POLL_STAT_ASLEEP)       // Sweet dreams
             {
-                PoolOD(1);
+                PollOD(1);
                 goToSleep();
             }
-            else if(bTmp == MQTTS_POOL_STAT_AWAKE)   // Wake UP
+            else if(bTmp == MQTTS_POLL_STAT_AWAKE)   // Wake UP
                 wakeUp();
 #endif  //  ASLEEP
         }
@@ -162,7 +162,7 @@ __attribute__((OS_main)) int main(void)
 ISR(TIMER_ISR)
 {
 #ifdef USE_RTC_OSC
-#define BASE_TICK       (F_CPU/8/POOL_TMR_FREQ)
+#define BASE_TICK       (F_CPU/8/POLL_TMR_FREQ)
 #define BASE_TICK_MIN   (uint16_t)(BASE_TICK/1.005)
 #define BASE_TICK_MAX   (uint16_t)(BASE_TICK*1.005)
 
@@ -170,7 +170,7 @@ ISR(TIMER_ISR)
 
 //  Calibrate internal RC Osc
 // !!!! for ATMEGA xx8P only, used Timer 1
-    if(iPool & IPOOL_CALIB)
+    if(iPool & IPOLL_CALIB)
     {
         tmp = TCNT1;
         TCCR1B = 0;
@@ -180,23 +180,23 @@ ISR(TIMER_ISR)
         else if(tmp > BASE_TICK_MAX)    // Clock is running too fast
             OSCCAL--;
 
-        iPool &= ~IPOOL_CALIB;
+        iPool &= ~IPOLL_CALIB;
     }
     else 
 #ifdef ASLEEP
-    if(!(iPool & IPOOL_SLEEP))
+    if(!(iPool & IPOLL_SLEEP))
 #endif  //  ASLEEP
     {
         TCNT1 = 0;
         TCCR1B = (2<<CS10);
-        iPool |= IPOOL_CALIB;
+        iPool |= IPOLL_CALIB;
     }
 #else   //  !USE_RTC_OSC
 #ifdef ASLEEP
-    if(!(iPool & IPOOL_SLEEP))
+    if(!(iPool & IPOLL_SLEEP))
 #endif  //  ASLEEP
 #endif  //  USE_RTC_OSC
-        iPool |= IPOOL_USR;
+        iPool |= IPOLL_USR;
 }
 
 #ifdef ASLEEP
@@ -204,19 +204,19 @@ ISR(TIMER_ISR)
 ISR(WDT_vect)
 {
     wdt_reset();
-    if(iPool & IPOOL_SLEEP)
-        iPool |= IPOOL_USR;
+    if(iPool & IPOLL_SLEEP)
+        iPool |= IPOLL_USR;
 }
 #endif  //  !USE_RTC_OSC
 
 static void goToSleep(void)
 {
-    iPool = IPOOL_SLEEP;
+    iPool = IPOLL_SLEEP;
     rf_SetState(RF_TRVASLEEP);
 #ifdef USE_RTC_OSC
-    config_sleep_rtc();
+    CONFIG_SLEEP_RTC();
 #else   // Use watchdog
-    config_sleep_wdt();
+    CONFIG_SLEEP_WDT();
 #endif  //  USE_RTC_OSC
     set_sleep_mode(SLEEP_MODE_PWR_SAVE);    // Standby, Power Save
 }
@@ -226,7 +226,7 @@ static void wakeUp(void)
     set_sleep_mode(SLEEP_MODE_IDLE);        // Standby, Idle
     rf_SetState(RF_TRVWKUP);
 #ifdef USE_RTC_OSC
-    InitTimer();
+    INIT_TIMER();
 #else   // Use watchdog
     wdt_reset();
     wdt_disable();

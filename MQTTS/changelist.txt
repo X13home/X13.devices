@@ -1,3 +1,8 @@
+Version 2.6.3
+
+Bugfix    UART
+
+=================================================================================
 Version 2.6.1
 
 Added     TWI Driver for Smart devices                                04.Mar.2014
