@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // TWI Driver, 16bit Bus Expander, PCA9535/TCA9535/PCA9555/MCP23016
@@ -15,7 +17,7 @@ See LICENSE.txt file for license details.
 #if (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_EXPANDER)
 
 #include "../twim.h"
-#include "twiDriver_EXPANDER.h"
+#include "twiDriver_expander.h"
 
 #define EXPANDER_START_ADDR         0x20
 #define EXPANDER_STOP_ADDR          0x26
@@ -88,7 +90,7 @@ uint8_t twi_expander_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
   return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twi_expander_pool(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twi_expander_poll(subidx_t * pSubidx, uint8_t sleep)
 {
 #ifdef ASLEEP
   if(sleep != 0)
@@ -143,7 +145,7 @@ uint8_t twi_expander_pool(subidx_t * pSubidx, uint8_t sleep)
   return 0;
 }
 
-uint8_t twi_EXPANDER_Config(void)
+uint8_t twi_Expander_Config(void)
 {
   uint8_t buf[3], addr, cnt = 0;
   
@@ -187,7 +189,7 @@ uint8_t twi_EXPANDER_Config(void)
       pIndexIO->cbRead  =  NULL;
 #endif
       pIndexIO->cbWrite =  &twi_expander_write;
-      pIndexIO->cbPool  =  &twi_expander_pool;
+      pIndexIO->cbPoll  =  &twi_expander_poll;
       pIndexIO->sidx.Place = objTWI;               // Object TWI
       pIndexIO->sidx.Type =  objUInt16;            // Variables Type -  UInt16
       pIndexIO->sidx.Base = (addr<<8) + (cnt<<1);  // Device address
@@ -195,7 +197,7 @@ uint8_t twi_EXPANDER_Config(void)
 #ifndef EXPANDER_WRITE_ONLY
       pIndexD->cbRead  =  NULL;
       pIndexD->cbWrite =  &twi_expander_write;
-      pIndexD->cbPool  =  NULL;
+      pIndexD->cbPoll  =  NULL;
       pIndexD->sidx.Place = objTWI;               // Object TWI
       pIndexD->sidx.Type =  objUInt16;            // Variables Type -  UInt16
       pIndexD->sidx.Base = (addr<<8) + (cnt<<1) + 1;  // Device address

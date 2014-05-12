@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // TWI Driver Sensirion  SHT21, Temperature & Humidity
@@ -66,13 +68,13 @@ uint8_t twi_sht21_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
   return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twi_sht21_Pool1(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twi_sht21_Poll1(subidx_t * pSubidx, uint8_t sleep)
 {
   uint16_t sht21_tmp;
 #ifdef ASLEEP
   if(sleep != 0)
   {
-    sht21_stat = (0xFF-(POOL_TMR_FREQ/2));
+    sht21_stat = (0xFF-(POLL_TMR_FREQ/2));
     return 0;
   }
 #endif  //  ASLEEP
@@ -126,7 +128,7 @@ uint8_t twi_sht21_Pool1(subidx_t * pSubidx, uint8_t sleep)
   return 0;
 }
 
-uint8_t twi_sht21_Pool2(subidx_t * pSubidx, uint8_t _unused)
+uint8_t twi_sht21_Poll2(subidx_t * pSubidx, uint8_t _unused)
 {
   uint16_t sht21_tmp;
   if(sht21_stat == 15)
@@ -161,7 +163,7 @@ uint8_t twi_SHT21_Config(void)
 
   pIndex1->cbRead  =  &twi_sht21_Read;
   pIndex1->cbWrite =  NULL;
-  pIndex1->cbPool  =  &twi_sht21_Pool1;
+  pIndex1->cbPoll  =  &twi_sht21_Poll1;
   pIndex1->sidx.Place = objTWI;                   // Object TWI
   pIndex1->sidx.Type =  objUInt16;                // Variables Type -  UInt16
   pIndex1->sidx.Base = (SHT21_ADDR<<8);           // Variable address
@@ -177,7 +179,7 @@ uint8_t twi_SHT21_Config(void)
 
   pIndex2->cbRead  =  &twi_sht21_Read;
   pIndex2->cbWrite =  NULL;
-  pIndex2->cbPool  =  &twi_sht21_Pool2;
+  pIndex2->cbPoll  =  &twi_sht21_Poll2;
   pIndex2->sidx.Place = objTWI;                   // Object TWI
   pIndex2->sidx.Type =  objUInt16;
   pIndex2->sidx.Base = (SHT21_ADDR<<8) + 1;       // Device address
@@ -185,4 +187,4 @@ uint8_t twi_SHT21_Config(void)
   return 2;
 }
 
-#endif // (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_SHT21)
+#endif  //  (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_SHT21)

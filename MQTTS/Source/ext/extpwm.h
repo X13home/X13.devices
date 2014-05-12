@@ -10,10 +10,13 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _TWI_DRIVER_SHT21_H
-#define _TWI_DRIVER_SHT21_H
+#ifndef _EXTPWM_H
+#define _EXTPWM_H
 
-uint8_t twi_SHT21_Config(void);
+void pwmClean(void);
+uint8_t pwmCheckIdx(subidx_t * pSubidx);
+uint8_t pwmRegisterOD(indextable_t *pIdx);
+void pwmDeleteOD(subidx_t * pSubidx);
 
 #endif
 

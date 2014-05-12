@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // TWI Driver Honeywell - HIH6130/HIH6131/HIH6120/HIH6121,  Humidity & Temperature
@@ -39,34 +41,43 @@ uint8_t         hih61xx_buf[4];
 
 uint8_t twi_HIH61xx_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-  if(pSubidx->Base & 1)               // Read Humidity
-  {
-    *pLen = 1;
-    *pBuf = hih61xx_oldhumi;
-// Return Humidity %
-//    *pBuf = ((uint16_t)hih61xx_oldhumi*25)>>6;
-  }
-  else                                // Read Temperature
-  {
-    *pLen = 2;
-    *(uint16_t *)pBuf = hih61xx_oldtemp;
+    if(pSubidx->Base & 1)               // Read Humidity
+    {
+        *pLen = 1;
+        *pBuf = hih61xx_oldhumi;
+        // Return Humidity %
+//        *pBuf = ((uint16_t)hih61xx_oldhumi*25)>>6;
+    }
+    else                                // Read Temperature
+    {
+        *pLen = 2;
+        *(uint16_t *)pBuf = hih61xx_oldtemp;
 /*
-    // Return T 0.1°C
-    uint16_t temp = ((uint32_t)hih61xx_oldtemp * 825)>>13;
-    temp -= 400;
-    *(uint16_t *)pBuf = temp;
+        // Return T 0.1°C
+        uint16_t temp = ((uint32_t)hih61xx_oldtemp * 825)>>13;
+        temp -= 400;
+        *(uint16_t *)pBuf = temp;
 */
-  }
-  return MQTTS_RET_ACCEPTED;
+    }
+    return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twi_HIH61xx_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    if(pSubidx->Base & 1)               // Renew Humidity
+        hih61xx_oldhumi = *pBuf;
+    else                                // Renew Temperature
+        hih61xx_oldtemp = *(uint16_t *)pBuf;
+    return MQTTS_RET_ACCEPTED;
+}
+
+uint8_t twi_HIH61xx_Poll1(subidx_t * pSubidx, uint8_t sleep)
 {
   uint16_t temp;
 #ifdef ASLEEP
   if(sleep != 0)
   {
-    hih61xx_stat = (0xFF-(POOL_TMR_FREQ/2));
+    hih61xx_stat = (0xFF-(POLL_TMR_FREQ/2));
     return 0;
   }
 #endif  //  ASLEEP
@@ -117,7 +128,7 @@ uint8_t twi_HIH61xx_Pool1(subidx_t * pSubidx, uint8_t sleep)
   return 0;
 }
 
-uint8_t twi_HIH61xx_Pool2(subidx_t * pSubidx, uint8_t _unused)
+uint8_t twi_HIH61xx_Poll2(subidx_t * pSubidx, uint8_t _unused)
 {
   uint8_t tmp;
 
@@ -164,14 +175,14 @@ uint8_t twi_HIH61xx_Config(void)
 
     pIndex1->cbRead  =  &twi_HIH61xx_Read;
     pIndex1->cbWrite =  NULL;
-    pIndex1->cbPool  =  &twi_HIH61xx_Pool1;
+    pIndex1->cbPoll  =  &twi_HIH61xx_Poll1;
     pIndex1->sidx.Place = objTWI;                   // Object TWI
     pIndex1->sidx.Type =  objInt16;                 // Variables Type -  UInt16
     pIndex1->sidx.Base = (HIH61XX_TWI_ADDR<<8);     // Device addr
 
     pIndex2->cbRead  =  &twi_HIH61xx_Read;
     pIndex2->cbWrite =  NULL;
-    pIndex2->cbPool  =  &twi_HIH61xx_Pool2;
+    pIndex2->cbPoll  =  &twi_HIH61xx_Poll2;
     pIndex2->sidx.Place = objTWI;                   // Object TWI
     pIndex2->sidx.Type =  objUInt8;
     pIndex2->sidx.Base = (HIH61XX_TWI_ADDR<<8) + 1; // Device addr

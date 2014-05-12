@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // UART Gateway interface
@@ -16,14 +18,15 @@ See LICENSE.txt file for license details.
 #include <stdbool.h>
 
 // Local Variables
+// Rx Section
+static uint8_t              uartv_RxTail;
+volatile static uint8_t     uartv_RxHead;
+MQ_t                      * uartv_pRxBuf[UART_RX_QUEUE_SIZE];
 
-static uint8_t *            uartv_pRxBuf = NULL;
-
+// Tx Section
 volatile static uint8_t     uartv_TxTail;
 static uint8_t              uartv_TxHead;
-
-volatile static uint8_t     uartv_TxLen;
-static uint8_t *            uartv_pTxBuf[UART_TX_QUEUE_SIZE];
+static uint8_t            * uartv_pTxBuf[UART_TX_QUEUE_SIZE];
 
 ///////////////
 // USART API //
@@ -31,52 +34,54 @@ static uint8_t *            uartv_pTxBuf[UART_TX_QUEUE_SIZE];
 
 void InitUART(uint16_t baudrate)
 {
-    USART_CONFIG_PORT();        // Enable USART & Configure Port
-    USART_SET_BAUD(baudrate);   // Set Baud
-    USART_CONFIGURE();          // Configure
+  USART_CONFIG_PORT();        // Enable USART & Configure Port
+  USART_SET_BAUD(baudrate);   // Set Baud
+  USART_CONFIGURE();          // Configure
 
-    // Initialize Variables
-    uartv_TxTail = 0;
-    uartv_TxHead = 0;
+  // Initialize Variables
+  uartv_RxTail = 0;
+  uartv_RxHead = 0;
+  uartv_TxTail = 0;
+  uartv_TxHead = 0;
 }
 
-uint8_t * uGetBuf(void)
+MQ_t * uGetBuf(void)
 {
-  if(uartv_pRxBuf != NULL)
+  uint8_t tmp_tail;
+  if(uartv_RxTail != uartv_RxHead)
   {
-    uint8_t * rBuf;
-    rBuf = uartv_pRxBuf;
-    uartv_pRxBuf = NULL;
-    return rBuf;
+    tmp_tail = uartv_RxTail;
+    uartv_RxTail++;
+    if(uartv_RxTail >= UART_RX_QUEUE_SIZE)
+      uartv_RxTail -= UART_RX_QUEUE_SIZE;
+    return uartv_pRxBuf[tmp_tail];
   }
   return NULL;
 }
 
-void uPutBuf(uint8_t *pBuf)
+void uPutBuf(MQ_t * pBuf)
 {
   // Calculate buffer index
   uint8_t tmphead = uartv_TxHead + 1;
   if(tmphead >= UART_TX_QUEUE_SIZE)
     tmphead = 0;
-  if(tmphead == uartv_TxTail)             // Overflow
+  if(tmphead == uartv_TxTail)                   // Overflow
   {
-    mqRelease((MQ_t *)pBuf);
+    mqRelease(pBuf);
     return;
   }
-  uartv_pTxBuf[uartv_TxHead] = pBuf;      // Store pointer in buffer
-  uartv_TxHead = tmphead;                 // Store new index
+  uartv_pTxBuf[uartv_TxHead] = (uint8_t *)pBuf; // Store pointer in buffer
+  uartv_TxHead = tmphead;                       // Store new index
 // Enable the USARTx Transmit interrupt
-  USART_ENABLE_DREINT();                  // Enable UDRE interrupt
+  USART_ENABLE_DREINT();                        // Enable UDRE interrupt
 }
 
 ISR(USART_RX_vect)
 {
-  static uint8_t * uartv_pRxBufTmp;
-  static uint8_t uartv_RxPos = 0;
-  static uint8_t uartv_RxLen = 2;
-  static uint8_t uartv_RxAddr = 0;
-  
-  static bool uartv_rx_db = false;
+  static MQ_t *   uartv_pRxBufTmp = NULL;
+  static uint8_t  uartv_RxPos = 0;
+  static uint8_t  uartv_RxLen = 2;
+  static bool     uartv_rx_db = false;
   
   // Read one byte from the receive data register
   uint8_t data = USART_DATA;
@@ -85,64 +90,81 @@ ISR(USART_RX_vect)
   {
     if(uartv_RxPos == uartv_RxLen)
     {
-      if(uartv_pRxBuf != NULL)
-         mqRelease((MQ_t *)uartv_pRxBuf);
-    
-      uartv_pRxBuf = uartv_pRxBufTmp;
-    }
-    else if(uartv_RxPos > 2)                  // Bad packet
-      mqRelease((MQ_t *)uartv_pRxBufTmp);
+      uint8_t tmp_head;
+      tmp_head = uartv_RxHead + 1;
+      if(tmp_head >= UART_RX_QUEUE_SIZE)
+        tmp_head -= UART_RX_QUEUE_SIZE;
 
-    uartv_RxPos = 0;
-    uartv_RxLen = 2;
-  }
-  else if(uartv_RxPos < uartv_RxLen)
-  {
-    if(data == 0xDB)
-    {
-      uartv_rx_db = true;
-    }
-    else
-    {
-      if(uartv_rx_db)
+      if(tmp_head == uartv_RxTail)            // Overflow
       {
-        uartv_rx_db = false;
-        data ^= 0x20;
-      }
-
-      if(uartv_RxPos == 0)    // Get address
-      {
-        uartv_RxAddr = data;
-        uartv_RxPos = 1;
-      }
-      else if(uartv_RxPos == 1)
-      {
-        if((data > 1) && (data < (MQTTS_MSG_SIZE + 3)))
-        {
-          uartv_RxLen = data + 1;
-          uint8_t * pBuf;
-          pBuf = (uint8_t *)mqAssert();
-          if(pBuf == NULL)              // No memory
-          {
-            uartv_RxPos = 0xFF;
-          }
-          else
-          {
-            uartv_pRxBufTmp = pBuf;
-            uartv_pRxBufTmp[0] = uartv_RxAddr;
-            uartv_pRxBufTmp[1] = data;
-            uartv_RxPos = 2;
-          }
-        }
-        else
-          uartv_RxPos = 0xFF;
+        mqRelease(uartv_pRxBufTmp);
       }
       else
-        uartv_pRxBufTmp[uartv_RxPos++] = data;
+      {
+        uartv_pRxBuf[uartv_RxHead] = uartv_pRxBufTmp;
+        uartv_RxHead = tmp_head;
+      }
     }
+    else if(uartv_pRxBufTmp != NULL)          // Bad packet
+      mqRelease(uartv_pRxBufTmp);
+
+    uartv_pRxBufTmp = NULL;
+    uartv_RxPos = 0;
+    uartv_RxLen = 2;
+    uartv_rx_db = false;
+    return;
   }
-  else
+  
+  if(uartv_RxPos >= uartv_RxLen)
+  {
     uartv_RxPos = 0xFF;
+    return;
+  }
+
+  if(data == 0xDB)
+  {
+    if(uartv_rx_db)
+    {
+      uartv_RxPos = 0xFF;
+      return;
+    }  
+    uartv_rx_db = true;
+    return;
+  }
+  
+  if(uartv_rx_db)
+  {
+    uartv_rx_db = false;
+    data ^= 0x20;
+  }
+
+  switch(uartv_RxPos)
+  {
+    case 0:     // Get address
+      uartv_pRxBufTmp = mqAssert();
+      if(uartv_pRxBufTmp == NULL)              // No memory
+      {
+        uartv_RxPos = 0xFF;
+        return;
+      }
+      uartv_pRxBufTmp->addr = data;
+      break;
+    case 1:     // Get Length
+      if((data > 1) && (data < (MQTTS_MSG_SIZE + 3)))
+      {
+        uartv_RxLen = data + 1;
+        uartv_pRxBufTmp->mq.Length = data;
+        break;
+      }
+      uartv_RxPos = 0xFF;
+      return;
+    case 2:     // Get Message Type
+      uartv_pRxBufTmp->mq.MsgType = data;
+      break;
+    default:
+      uartv_pRxBufTmp->mq.m.raw[uartv_RxPos - 3] = data;
+  }
+  uartv_RxPos++;
 }
 
 ISR(USART_UDRE_vect)

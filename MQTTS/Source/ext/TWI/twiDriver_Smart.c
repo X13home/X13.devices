@@ -3,9 +3,11 @@ Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // TWI Driver for smart devices
@@ -24,8 +26,6 @@ See LICENSE.txt file for license details.
 
 #define SMART_DATA_SIZE         (MQTTS_MSG_SIZE-5)
 
-extern volatile uint8_t twim_access;      // access mode & busy flag
-
 typedef struct
 {
   uint8_t   state;
@@ -40,11 +40,13 @@ enum
   SMART_STATE_WRITE_DATA_WRITES,
   SMART_STATE_STATUS_READY,
   SMART_STATE_READ_DATA_READY,
-}e_POOL_STATE_SMART_DRV;
+}e_POLL_STATE_SMART_DRV;
+
+extern volatile uint8_t twim_access;           // access mode & busy flag
 
 static SMART_BUF_t smart_buf[SMART_MAX_DEV];
 
-uint8_t twi_smart_pool(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twi_smart_poll(subidx_t * pSubidx, uint8_t sleep)
 {
   uint8_t pos = pSubidx->Base & (SMART_MAX_DEV - 1);
   uint8_t addr = pSubidx->Base>>8;
@@ -167,7 +169,7 @@ uint8_t twi_Smart_Config(void)
 
     pIndex->cbRead  =  &twi_smart_read;
     pIndex->cbWrite =  &twi_smart_write;
-    pIndex->cbPool  =  &twi_smart_pool;
+    pIndex->cbPoll  =  &twi_smart_poll;
 
     pIndex->sidx.Place = objSmart;             // Object TWI
     pIndex->sidx.Type =  objArray;             // Variable Type -  Byte Array
@@ -180,4 +182,4 @@ uint8_t twi_Smart_Config(void)
   return pos;
 }
 
-#endif  //  EXTDIO_USED &  TWI_USED & TWI_USE_SMARTDRV
+#endif  //  (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_SMARTDRV)

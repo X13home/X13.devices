@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // Object's Dictionary
@@ -16,9 +18,9 @@ See LICENSE.txt file for license details.
 
 // EEPROM Object's
 #ifdef RF_NODE
-const uint8_t  EEMEM ee_NodeID = 0xFF;                                  // Device Address
-const uint16_t EEMEM ee_GroupID = 0xFFFF;                               // Group ID
-const uint8_t  EEMEM ee_Channel = 0xFF;                                 // Channel
+const uint8_t  EEMEM ee_NodeID  = OD_DEFAULT_ADDR;                      // Device Address
+const uint16_t EEMEM ee_GroupID = OD_DEFAULT_GROUP;                     // Group ID
+const uint8_t  EEMEM ee_Channel = OD_DEFAULT_CHANNEL;                   // Channel
 #endif  //  RF_NODE
 
 #ifdef LAN_NODE
@@ -102,9 +104,9 @@ const PROGMEM indextable_t listPredefOD[] =
     objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
 #endif  //  ASLEEP
 #ifdef RF_NODE
-  {{objEEMEM, objUInt8, (uint16_t)&ee_GroupID},
+  {{objEEMEM, objUInt8, (uint16_t)&ee_NodeID},
     objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
-  {{objEEMEM, objUInt16, (uint16_t)&ee_NodeID},
+  {{objEEMEM, objUInt16, (uint16_t)&ee_GroupID},
     objRFGroup, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
   {{objEEMEM, objUInt8, (uint16_t)&ee_Channel},
     objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
@@ -128,7 +130,7 @@ const PROGMEM indextable_t listPredefOD[] =
 // Local Variables
 static indextable_t ListOD[OD_MAX_INDEX_LIST];                          // Object's List
 static indextable_t tObjectOD;                                          // Temporary Object
-static uint8_t idxUpdate, idxSubscr;                                    // Pool variable
+static uint8_t idxUpdate, idxSubscr;                                    // Poll variable
 
 // Search Object by Index
 static indextable_t * scanIndexOD(uint16_t index, uint8_t topic)
@@ -203,11 +205,7 @@ void InitOD(void)
     WriteOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, 0, &ucTmp);                   // Device Name
 #ifdef RF_NODE
     uint16_t  uiTmp;
-#ifdef OD_DEFAULT_ADDR
     ucTmp = OD_DEFAULT_ADDR;
-#else   //  OD_DEFAULT_ADDR
-    ucTmp = 0xFF;       // DHCP
-#endif  //  OD_DEFAULT_ADDR
     WriteOD(objRFNodeId, MQTTS_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);           // Node Id
     ucTmp = 0;
     WriteOD(objNodeName, MQTTS_FL_TOPICID_PREDEF, 0, &ucTmp);                   // Device Name
@@ -237,7 +235,7 @@ void InitOD(void)
         ListOD[ucTmp].Index = 0xFFFF;
         
     idxUpdate = 0;
-    idxSubscr = POOL_TMR_FREQ - 1;
+    idxSubscr = (POLL_TMR_FREQ - 1);
 
     // Clear ext Object's
     extClean();
@@ -263,7 +261,7 @@ void InitOD(void)
 void CleanOD(void)
 {
   idxUpdate = 0;
-  idxSubscr = POOL_TMR_FREQ - 1;
+  idxSubscr = POLL_TMR_FREQ - 1;
 
   uint8_t ucTmp;
     
@@ -489,7 +487,7 @@ uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf)
     return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
 
-uint16_t PoolOD(uint8_t sleep)
+uint16_t PollOD(uint8_t sleep)
 {
   uint16_t Index;
   MQ_t * piBuf;
@@ -507,14 +505,15 @@ uint16_t PoolOD(uint8_t sleep)
         piBuf->mq.Length = extCvtIdx2TopicId(&ListOD[idxUpdate].sidx, (uint8_t *)&piBuf->mq.m.regist.TopicName);
         if(MQTTS_Register(piBuf) == 0)
           ListOD[idxUpdate].Index = 0xF000;
+
       }
       return 0xFFFF;
     }
     else if(Index == 0xF000)        // Wait a RegAck
       return 0xFFFF;
 
-    if((ListOD[idxUpdate].cbPool != NULL) && 
-       (ListOD[idxUpdate].cbPool)(&ListOD[idxUpdate].sidx, sleep))
+    if((ListOD[idxUpdate].cbPoll != NULL) && 
+       (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, sleep))
       return Index;
       idxUpdate++;
   }
@@ -525,7 +524,8 @@ uint16_t PoolOD(uint8_t sleep)
     idxSubscr--;
     if(idxSubscr == 0)  //  Send Subscribe '#'
       if(MQTTS_Subscribe() == 0xFF)
-        idxSubscr = POOL_TMR_FREQ - 1;
+        idxSubscr = POLL_TMR_FREQ - 1;
   }
   return 0xFFFF;
 }
+

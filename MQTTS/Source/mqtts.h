@@ -372,7 +372,7 @@ typedef struct
 
 typedef struct
 {
-    s_Addr          addr;
+    S_ADDR          addr;
     MQTTS_MESSAGE_t mq;
 }MQ_t;
 
@@ -396,17 +396,17 @@ typedef enum e_MQTTS_STATUS
 
 enum e_MQTTS_POOL_STATUS
 {
-    MQTTS_POOL_STAT_NOP = 0,
-    MQTTS_POOL_STAT_DATA,
+    MQTTS_POLL_STAT_NOP = 0,
+    MQTTS_POLL_STAT_DATA,
 #ifdef ASLEEP
-    MQTTS_POOL_STAT_ASLEEP,
-    MQTTS_POOL_STAT_AWAKE,
+    MQTTS_POLL_STAT_ASLEEP,
+    MQTTS_POLL_STAT_AWAKE,
 #endif  //  ASLEEP
 };
 
 typedef struct
 {
-    s_Addr                  GatewayID;      // Gateway ID
+    S_ADDR                  GatewayID;      // Gateway ID
     e_MQTTS_STATUS_t        Status;         // Actual status
     // Timeouts
     uint8_t                 pfCnt;
@@ -422,7 +422,7 @@ typedef struct
     // Pool FIFO
     uint8_t                 fTail;
     uint8_t                 fHead;
-    MQ_t                  * fBuf[MQTTS_SIZEOF_POOL_FIFO];
+    MQ_t                  * fBuf[MQTTS_SIZEOF_POLL_FIFO];
     uint16_t                MsgID;
     uint16_t                inMsgId;
     
@@ -439,7 +439,7 @@ uint8_t MQTTS_Subscribe(void);
 uint8_t MQTTS_Register(MQ_t * pBuf);
 
 void MQTTS_Init(void);
-uint8_t MQTTS_Pool(uint8_t wakeup);
+uint8_t MQTTS_Poll(uint8_t wakeup);
 uint8_t MQTTS_Parser(MQ_t * pBuf);
 
 uint8_t MQTTS_GetStatus(void);

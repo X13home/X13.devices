@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // TWI Driver GE Sensing CC2Dxx[s], Temperature & Humidity
@@ -39,10 +41,9 @@ typedef union
   uint8_t   c[4];
 }uL2I;
 
-extern volatile uint8_t twim_access;           // access mode & busy flag
-
 static uint8_t  cc2d_stat;
 static uL2I     cc2d_exchg, cc2d_old;
+extern volatile uint8_t twim_access;           // access mode & busy flag
 
 uint8_t twi_CC2D_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
@@ -61,12 +62,12 @@ uint8_t twi_CC2D_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
   return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twi_CC2D_Pool1(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twi_CC2D_Poll1(subidx_t * pSubidx, uint8_t sleep)
 {
 #ifdef ASLEEP
   if(sleep != 0)
   {
-    cc2d_stat = (0xFF-(POOL_TMR_FREQ/2));
+    cc2d_stat = (0xFF-(POLL_TMR_FREQ/2));
     return 0;
   }
 #endif  //  ASLEEP
@@ -110,13 +111,12 @@ uint8_t twi_CC2D_Pool1(subidx_t * pSubidx, uint8_t sleep)
   return 0;
 }
 
-uint8_t twi_CC2D_Pool2(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twi_CC2D_Poll2(subidx_t * pSubidx, uint8_t sleep)
 {
   if((cc2d_stat == 15) && (cc2d_exchg.i[1] != cc2d_old.i[1]))
     return 1;
   return 0;
 }
-
 
 uint8_t twi_CC2D_Config(void)
 {
@@ -144,14 +144,14 @@ uint8_t twi_CC2D_Config(void)
 
     pIndex1->cbRead  =  &twi_CC2D_Read;
     pIndex1->cbWrite =  NULL;
-    pIndex1->cbPool  =  &twi_CC2D_Pool1;
+    pIndex1->cbPoll  =  &twi_CC2D_Poll1;
     pIndex1->sidx.Place = objTWI;                // Object TWI
     pIndex1->sidx.Type =  objUInt16;             // Variables Type -  String
     pIndex1->sidx.Base = (CC2D_ADDR<<8);         // Device address
 
     pIndex2->cbRead  =  &twi_CC2D_Read;
     pIndex2->cbWrite =  NULL;
-    pIndex2->cbPool  =  &twi_CC2D_Pool2;
+    pIndex2->cbPoll  =  &twi_CC2D_Poll2;
     pIndex2->sidx.Place = objTWI;                // Object TWI
     pIndex2->sidx.Type =  objUInt16;             // Variables Type -  String
     pIndex2->sidx.Base = (CC2D_ADDR<<8) + 1;     // Device address
@@ -160,4 +160,4 @@ uint8_t twi_CC2D_Config(void)
   return 2;
 }
 
-#endif  //  (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_DUMMY)
+#endif  //  (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_CC2D)

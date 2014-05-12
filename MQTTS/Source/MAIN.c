@@ -32,10 +32,10 @@ __attribute__((OS_main)) int main(void)
     MQ_t *  pUbBuf;             // USART Backup buffer
     pUbBuf = NULL;
 
-    s_Addr  iAddr;
+    S_ADDR  iAddr;
 #endif  // GATEWAY
     uint8_t bTmp;
-    uint16_t poolIdx = 0xFFFF;
+    uint16_t pollIdx = 0xFFFF;
 
 // Watchdog Stop
     cli();
@@ -58,7 +58,7 @@ __attribute__((OS_main)) int main(void)
     iPool = 0;
     
     // Initialize Task Planer
-    InitTimer();
+    INIT_TIMER();
     // configure Sleep controller & enable interrupts
     set_sleep_mode(SLEEP_MODE_IDLE);    // Standby, Idle
     sei();                              // Enable global interrupts
@@ -75,7 +75,7 @@ __attribute__((OS_main)) int main(void)
             if(MQTTS_Parser(pUBuf) == 0)
               mqRelease(pUBuf);
           }
-          else if(((iAddr != AddrBroadcast) || (MQTTS_Parser(pUBuf) == 0)) &&
+          else if(((iAddr != ADDR_BROADCAST) || (MQTTS_Parser(pUBuf) == 0)) &&
                    (MQTTS_GetStatus() == MQTTS_STATUS_CONNECT))
           {
             if(pUbBuf)
@@ -95,13 +95,13 @@ __attribute__((OS_main)) int main(void)
         if(pRBuf != NULL)
         {
             if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
-                uPutBuf((uint8_t *)pRBuf);
+                uPutBuf(pRBuf);
             else
                 mqRelease(pRBuf);
         }
         
         if(MQTTS_DataRdy())
-          uPutBuf((uint8_t *)MQTTS_Get());
+          uPutBuf(MQTTS_Get());
 #else   // NODE
         MQ_t *  pRBuf;              // RF Buffer
         pRBuf = PHY_GetBuf();
@@ -115,25 +115,25 @@ __attribute__((OS_main)) int main(void)
         {
             iPool &= ~IPOOL_USR;
             
-            PHY_Pool();
+            PHY_Poll();
 
             bTmp = MQTTS_GetStatus();
             if(bTmp == MQTTS_STATUS_CONNECT)
             {
-                poolIdx = PoolOD(0);
-                if(poolIdx != 0xFFFF)
+                pollIdx = PollOD(0);
+                if(pollIdx != 0xFFFF)
                 {
                     // Publish
                     pPBuf = mqAssert();
                     if(pPBuf != NULL)                   // No Memory
                     {
                       pPBuf->mq.Length = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
-                      ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &pPBuf->mq.Length, (uint8_t *)&pPBuf->mq.m.publish.Data);
+                      ReadOD(pollIdx, MQTTS_FL_TOPICID_NORM | 0x80, &pPBuf->mq.Length, (uint8_t *)&pPBuf->mq.m.publish.Data);
                       pPBuf->mq.m.publish.Flags = MQTTS_FL_QOS1;
-                      pPBuf->mq.m.publish.TopicId = poolIdx;
+                      pPBuf->mq.m.publish.TopicId = pollIdx;
                       MQTTS_Publish(pPBuf);
                     }
-                    poolIdx = 0xFFFF;
+                    pollIdx = 0xFFFF;
                 }
             }
 #ifdef ASLEEP
@@ -144,7 +144,7 @@ __attribute__((OS_main)) int main(void)
             }
 #endif  //  ASLEEP
 
-            bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
+            bTmp = MQTTS_Poll(pollIdx != 0xFFFF);
 #ifdef ASLEEP
             if(bTmp == MQTTS_POOL_STAT_ASLEEP)       // Sweet dreams
             {

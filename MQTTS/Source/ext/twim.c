@@ -1,12 +1,16 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
 See LICENSE file for license details.
 */
+
+// TWI(I2C) Master
 
 #include "../config.h"
 
@@ -28,7 +32,7 @@ See LICENSE file for license details.
 #endif  //  TWI_USE_BLINKM
 
 #ifdef TWI_USE_EXPANDER
-#include "twi/twiDriver_EXPANDER.h"
+#include "twi/twiDriver_Expander.h"
 #endif  //  TWI_USE_EXPANDER
 
 #ifdef TWI_USE_HIH61XX
@@ -41,22 +45,21 @@ See LICENSE file for license details.
 
 #ifdef TWI_USE_SHT21
 #include "twi/twiDriver_SHT21.h"
-#ifdef TWI_USE_SI7005
-#error Adress conflickt with SI7005
-#endif
 #endif  //  TWI_USE_SHT21
 
 #ifdef TWI_USE_LM75
 #include "twi/twiDriver_LM75.h"
 #endif  //  TWI_USE_LM75
 
-#ifdef TWI_USE_AM2321
-#include "twi/twiDriver_AM2321.h"
-#endif  //  TWI_USE_AM2321
-
 #ifdef TWI_USE_BMP180
 #include "twi/twiDriver_BMP180.h"
 #endif  //  TWI_USE_BMP180
+
+//
+//
+// Insert here include for Your header file
+//
+//
 
 #ifdef TWI_USE_DUMMY
 #include "twi/twiDriver_Dummy.h"
@@ -149,7 +152,7 @@ uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint
                 // If this is the last byte the master will send NACK to tell the slave 
                 //  that it shall stop transmitting.
                 TWCR = (1<<TWINT) | (1<<TWEN) | ((pos + 1) < twim_bytes2read ? (1<<TWEA) : 0);
-                twimWaitAisr();                       //  Wait for TWI interrupt flag set
+                twimWaitAisr();                             // Wait for TWI interrupt flag set
                 twim_ptr[pos++] = TWDR;
             }
             twim_access &= ~TWIM_READ;
@@ -240,7 +243,7 @@ ISR(TWI_vect)
             TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop
             twim_access &= ~TWIM_READ;
             if(twim_callback != NULL)
-                (twim_callback)();
+              (twim_callback)();
             else
               twim_access &= ~TWIM_BUSY;
             break;
@@ -265,11 +268,17 @@ void twiClean()
 uint8_t twim_read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = 1;
-    *pBuf = twim_addr>>1;
+    *pBuf = (twim_addr>>1);
     return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twim_pool(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twim_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    twim_addr_old = *pBuf;
+    return MQTTS_RET_ACCEPTED;
+}
+
+uint8_t twim_poll(subidx_t * pSubidx, uint8_t sleep)
 {
 #ifdef ASLEEP
   if(sleep != 0)
@@ -343,7 +352,7 @@ void twiConfig(void)
         
     twim_callback = NULL;
     _delay_ms(500);
-
+    
 #ifdef TWI_USE_SMARTDRV
     cnt += twi_Smart_Config();
 #endif  //  TWI_USE_SMARTDRV
@@ -351,7 +360,7 @@ void twiConfig(void)
     cnt += twi_BlinkM_Config();
 #endif  //  TWI_USE_BLINKM
 #ifdef TWI_USE_EXPANDER
-    cnt += twi_EXPANDER_Config();
+    cnt += twi_Expander_Config();
 #endif  //  TWI_USE_EXPANDER
 #ifdef TWI_USE_HIH61XX
     cnt += twi_HIH61xx_Config();
@@ -365,12 +374,15 @@ void twiConfig(void)
 #ifdef TWI_USE_LM75
     cnt += twi_LM75_Config();
 #endif  //  TWI_USE_LM75
-#ifdef TWI_USE_AM2321
-    cnt += twi_AM2321_Config();
-#endif
 #ifdef TWI_USE_BMP180
     cnt += twi_BMP180_Config();
 #endif  //  TWI_USE_BMP180
+
+//
+//
+// Insert here Your driver configuration
+//
+//
 
 #ifdef TWI_USE_DUMMY
     cnt += twi_Dummy_Config();
@@ -396,8 +408,8 @@ void twiConfig(void)
 
     // Status Register
     pIndex->cbRead  =  &twim_read;
-    pIndex->cbWrite =  NULL;
-    pIndex->cbPool  =  &twim_pool;
+    pIndex->cbWrite =  &twim_write;
+    pIndex->cbPoll  =  &twim_poll;
     
     pIndex->sidx.Place = objTWI;
     pIndex->sidx.Type =  objUInt8;

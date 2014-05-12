@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // Global configuration settings
@@ -38,7 +40,7 @@ See LICENSE.txt file for license details.
 // MQTT-S Section
 #define MQTTS_MSG_SIZE          30      // Size of payload(base for all buffers)
 #define MQTTS_SIZEOF_SEND_FIFO  4       // Size of MQTTS Send Buffer
-#define MQTTS_SIZEOF_POOL_FIFO  4       // Size of MQTTS Pool Buffer
+#define MQTTS_SIZEOF_POLL_FIFO  4       // Size of MQTTS Poll Buffer
 
 // Object Dictionary
 #define OD_MAX_INDEX_LIST       12      // Size of identificators list
@@ -52,11 +54,11 @@ See LICENSE.txt file for license details.
 
 // Extensions
 #define EXTDIO_USED             1       // Use Digital Inputs/Outputs
-#define EXTAI_USED              1       // Use Analog Inputs
-#define EXTPWM_USED             1       // enable HW PWM with TIMER0, depence on EXTDIO_USED
-#define EXTSER_TX_USED          1       // enable Serial Output, depence on EXTDIO_USED
-#define EXTSER_RX_USED          1       // enable Serial Input, depence on EXTDIO_USED
-#define TWI_USED                1       // enable TWI, depence on EXTDIO_USED
+#define EXTAIN_USED             1       // Use Analogue Inputs
+#define EXTPWM_USED             1       // enable HW PWM with TIMER0, dependency on EXTDIO_USED
+#define EXTSER_TX_USED          1       // enable Serial Output, dependency on EXTDIO_USED
+#define EXTSER_RX_USED          1       // enable Serial Input, dependency on EXTDIO_USED
+#define TWI_USED                1       // enable TWI, dependency on EXTDIO_USED
 ****/
 
 // Memory Manager
@@ -65,7 +67,7 @@ See LICENSE.txt file for license details.
 // MQTT-S Section
 #define MQTTS_MSG_SIZE          30      // Size of payload(base for all buffers)
 #define MQTTS_SIZEOF_SEND_FIFO  4       // Size of MQTTS Send Buffer
-#define MQTTS_SIZEOF_POOL_FIFO  4       // Size of MQTTS Pool Buffer
+#define MQTTS_SIZEOF_POLL_FIFO  4       // Size of MQTTS Pool Buffer
 
 // Object Dictionary
 #define OD_MAX_INDEX_LIST       12      // Size of identificators list
@@ -73,7 +75,7 @@ See LICENSE.txt file for license details.
 
 #define OD_DEV_SWVERSH          '2'     // Software Version
 #define OD_DEV_SWVERSM          '6'
-#define OD_DEV_SWVERSL          '1'
+#define OD_DEV_SWVERSL          '3'
 
 // RF Section
 //#define RF_BASE_FREQ            433920000UL
@@ -82,20 +84,20 @@ See LICENSE.txt file for license details.
 //#define RF_BASE_FREQ            915000000UL
 
 // Gateway UART Section
+#define UART_RX_QUEUE_SIZE      4       // receive buffer
 #define UART_TX_QUEUE_SIZE      4       // send buffers
 
 // TWI Section
 // TWI Drivers
 #define TWI_USE_SMARTDRV        1       // Smart Driver for smart devices.
-//#define TWI_USE_BLINKM          1       // BlinkM - Blinky RGB Driver
-//#define TWI_USE_EXPANDER        1       // 16bit IO Expander, PCA9535/TCA9535/PCA9555/MCP23016
-//#define TWI_USE_HIH61XX         1       // Honeywell HIH-61xx - Temperature/Humidity
+#define TWI_USE_BLINKM          1       // BlinkM - Blinky RGB Driver
+#define TWI_USE_EXPANDER        1       // 16bit IO Expander, PCA9535/TCA9535/PCA9555/MCP23016
+#define TWI_USE_HIH61XX         1       // Honeywell HIH-61xx - Temperature/Humidity
 #define TWI_USE_CC2D            1       // GE Sensing CC2Dxx[s]  - Temperature/Humidity
-//#define TWI_USE_SHT21           1       // Sensirion SHT21 - Temperature/Humidity
-//#define TWI_USE_LM75            1       // LM75 - Temperature
-//#define TWI_USE_BMP180          1       // Bosh BMP180/BMP085 - Temperature/Pressure
-//#define TWI_USE_AM2321          1       // Aosong AM2321 - Temperature & Humidity Sensor, NOT TESTED !!
-//#define TWI_USE_DUMMY           1       // DUMMY, checks all addresses
+#define TWI_USE_SHT21           1       // Sensirion SHT21 - Temperature/Humidity
+#define TWI_USE_LM75            1       // LM75 - Temperature
+#define TWI_USE_BMP180          1       // Bosh BMP180/BMP085 - Temperature/Pressure
+#define TWI_USE_DUMMY           1       // DUMMY, checks all addresses
 //End TWI Section
 
 #if (defined UNODE)
@@ -113,7 +115,7 @@ See LICENSE.txt file for license details.
 #elif (defined DUMMY)
   #include "Phy/HWconfigDM.h"           // Hardware Dummy
 #elif (defined DUMMY_ATM256)
-  #include "Phy/HWconfigDM_atm256.h"    // Hardware Dummy for ATMega256, NOT TESTED !!
+  #include "Phy/HWconfigDM_atm256.h"    // Hardware Dummy for ATMega256
 #else
   #error Hardware configuration is not defined
 #endif

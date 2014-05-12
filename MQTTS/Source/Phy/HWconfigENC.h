@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 #ifndef _HWCONFIG_ENC_H
@@ -65,100 +67,18 @@ See LICENSE.txt file for license details.
 #define OD_DEV_MAC          {0x06, 0x00,0x04,0xA3,0x00,0x00,0x01}   // LEN - 6 bytes, MAC MSB->LSB
 // End OD Section
 
-#define SystemReset()           {cli();asm("jmp 0x0000");}
-
-// Power Reduction
-#define CONFIG_PRR()            {ACSR = (1<<ACD); \
-                                PRR = (1<<PRTWI) | (1<<PRTIM0) | (1<<PRTIM1) | \
-                                (1<<PRUSART0) | (1<<PRADC);}
-// USART Section
-// ATMEGA 168PA
-#ifndef USART_RX_vect
-#define USART_RX_vect  USART__RX_vect
-#endif  //  USART_RX_vect
-
-#ifndef USART_UDRE_vect
-#define USART_UDRE_vect USART__UDRE_vect
-#endif  //  USART_UDRE_vect
-
-#define USART_DATA              UDR0
-#define USART_SET_BAUD(baud)    {if(baud & 0xF000){baud &= 0x0FFF; UCSR0A |= (1<<U2X0);}    \
-                                 UBRR0H = (baud>>8); UBRR0L = (baud & 0xFF);}
-#define USART_DISABLE_DREINT()  UCSR0B &= ~(1<<UDRIE0)
-#define USART_ENABLE_DREINT()   UCSR0B |= (1<<UDRIE0)
-
-// Serial Output
-#define SER_PIN_TX              25
-#define SER_PIN_RX              24
-
-#define SER_ENABLE()            PRR &= ~(1<<PRUSART0)
-
-#define SER_ENABLE_RX()         {UCSR0B |= (1<<RXCIE0) | (1<<RXEN0); UCSR0C = (3<<UCSZ00);}
-#define SER_DISABLE_RX()        {UCSR0B &= ~((1<<RXCIE0) | (1<<RXEN0));             \
-                                 if((UCSR0B & ((1<<TXEN0) | (1<<RXEN0))) == 0)      \
-                                    PRR &= ~(1<<PRUSART0);}
-#define SER_ENABLE_TX()         {UCSR0B |= (1<<TXEN0); UCSR0C = (3<<UCSZ00);}
-#define SER_DISABLE_TX()        {UCSR0B &= ~(1<<TXEN0);                             \
-                                 if((UCSR0B & ((1<<TXEN0) | (1<<RXEN0))) == 0)      \
-                                    PRR |= (1<<PRUSART0);}
-// Timer Section
-#define POOL_TMR_FREQ           64     // Pool Frequency (Hz)
-#define TIMER_ISR               TIMER2_COMPA_vect
-#define InitTimer()             {TCCR2A = (1<<WGM21); TCNT2 = 0;            \
-                                OCR2A = ((F_CPU/1024/POOL_TMR_FREQ)-1);    \
-                                TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
-                                TCCR2B =(1<<WGM22) | (7<<CS20);}
-// End Timer Section
-
 // Digital IO's
 #define EXTDIO_MAXPORT_NR       2           // Number of digital Ports
+#define EXTDIO_BASE_OFFSET      2           // Numeration started from Port: 0 - A, 1 - B, 2 - C ...
 
-#define PORTNUM2                0
-#define PORTDDR2                DDRC
-#define PORTOUT2                PORTC
-#define PORTIN2                 PINC
-#define PORT2MASK               0xC0        // PC0-PC5
-
-#define PORTNUM3                1
-#define PORTDDR3                DDRD
-#define PORTOUT3                PORTD
-#define PORTIN3                 PIND
-#define PORT3MASK               0x04
-
-// PWM
-#define PWM_PIN0                29
-#define PWM_PIN1                30
-#define PWM_OCR0                OCR0B
-#define PWM_OCR1                OCR0A
-#define DISABLE_PWM0()          TCCR0A &= ~(1<<COM0B1)
-#define DISABLE_PWM1()          TCCR0A &= ~(1<<COM0A1)
-#define ENABLE_PWM0()           TCCR0A |= (1<<COM0B1)
-#define ENABLE_PWM1()           TCCR0A |= (1<<COM0A1)
-#define PWM_ENABLE()        {if((TCCR0A & ((1<<COM0A1) | (1<<COM0B1))) == 0)    \
-                             {PRR &= ~(1<<PRTIM0); TCCR0A = (3<<WGM00); TCCR0B = (4<<CS00);}}
-#define PWM_DISABLE()       {if((TCCR0A & ((1<<COM0A1) | (1<<COM0B1))) == 0)    \
-                             {TCCR0A = 0; TCCR0B = 0; PRR |= (1<<PRTIM0);}}
-// End PWM
+#define PORTNUM_2_PORT          {(uint16_t)&PORTC, (uint16_t)&PORTD}
+#define PORTNUM_2_MASK          {0xC0, 0x00}
 // End Digital IO's
 
 // Analogue Inputs
-#define EXTAI_PORT_NUM          PORTNUM2    // PORTC Analogue Inputs
-#define EXTAI_CHN_MASK          0x0F
-#define EXTAI_BASE_2_APIN       {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
-#define EXTAI_MAXPORT_NR        8          // ADC0-ADC5, ADC7, Vbg
-
-#define ENABLE_ADC()            PRR &= ~(1<<PRADC)
-#define DISABLE_ADC()           {ADCSRA = (1<<ADIF); ADMUX = 0x0F; PRR |= (1<<PRADC);}
+#define EXTAIN_MAXPORT_NR       8          // ADC0-ADC5, ADC7, Vbg
+#define EXTAIN_BASE_2_APIN      {0, 1, 2, 3, 4, 5, 0xFF, 6, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 7, 0xFF}
 // End Analogue Inputs
-
-// TWI(I2C)
-#define TWI_PIN_SDA             20      // Pin base
-#define TWI_PIN_SCL             21      // Pin base
-#define TWI_TWBR                (((F_CPU/100000UL)-16)/2)   // 100kHz
-#define TWI_ENABLE()            {PRR &= ~(1<<PRTWI); \
-                                 TWBR = TWI_TWBR; TWDR = 0xFF; TWCR = (1<<TWEN);}
-#define TWI_DISABLE()           {TWCR = 0; PRR |= (1<<PRTWI);}
-// End TWI
 
 #define LED_ON()                PORTB &= ~(1<<PORTB0)
 #define LED_OFF()               PORTB |= (1<<PORTB0);
@@ -198,8 +118,10 @@ typedef struct
 {
   uint8_t mac[6];
   uint8_t ip[4];
-}s_Addr;
+}S_ADDR;
 
-#define AddrBroadcast {{0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}, {0xFF,0xFF,0xFF,0xFF}}
+#define ADDR_BROADCAST {{0xFF,0xFF,0xFF,0xFF,0xFF,0xFF}, {0xFF,0xFF,0xFF,0xFF}}
+
+#include "HWConfigDefaultATM.h"
 
 #endif

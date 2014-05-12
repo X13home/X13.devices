@@ -10,10 +10,12 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _TWI_DRIVER_SHT21_H
-#define _TWI_DRIVER_SHT21_H
+#ifndef _EXTAIN_H
+#define _EXTAIN_H
 
-uint8_t twi_SHT21_Config(void);
+void ainClean(void);
+uint8_t ainCheckIdx(subidx_t * pSubidx);
+uint8_t ainRegisterOD(indextable_t *pIdx);
+void ainDeleteOD(subidx_t * pSubidx);
 
-#endif
-
+#endif  //  _EXTAIN_H

@@ -1,18 +1,16 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // TWI Driver Bosh - BMP180/BMP085, Pressure & Temperature
-
-// Outs
-//  Tw30464     - Temperature       0,1°C
-//  Td30464     - Pressure          0,01 hPa(mBar)
 
 #include "../../config.h"
 
@@ -21,22 +19,55 @@ See LICENSE.txt file for license details.
 #include "../twim.h"
 #include "twiDriver_BMP180.h"
 
-#define BMP180_OSS                  3       // oversampling settings [0 - Low Power / 3 - Ultra High resolution]
+// Outs
+//  Tw30464     - Temperature       0,1°C
+//  Td30464     - Pressure          0,01 hPa(mBar)
+
+#define BMP180_ADDR                 0x77
+
+#define BMP180_CHIP_ID              0x55
+// Register definitions
+#define BMP180_PROM_START__ADDR     0xAA
+#define BMP180_CHIP_ID_REG          0xD0
+#define BMP180_CTRL_MEAS_REG        0xF4
+#define BMP180_ADC_OUT_MSB_REG      0xF6
+//
+#define BMP180_T_MEASURE            0x2E    // temperature measurent 
+#define BMP180_P_MEASURE            0x34    // pressure measurement
+
+#define SMD500_PARAM_MG             3038    // calibration parameter
+#define SMD500_PARAM_MH            -7357    // calibration parameter
+#define SMD500_PARAM_MI             3791    // calibration parameter
+
+#define BMP180_OSS                    3       // oversampling settings [0 - Low Power / 3 - Ultra High resolution]
 
 //#define BMP180_P_MIN_DELTA          20      // use hysteresis for pressure
 //#define BMP180_T_MIN_DELTA          1       // use hysteresis for temperature
 
-extern volatile uint8_t twim_access;           // access mode & busy flag
+typedef struct
+{
+    // Calibration parameters
+    int16_t  ac1;
+    int16_t  ac2; 
+    int16_t  ac3; 
+    uint16_t ac4;
+    uint16_t ac5;
+    uint16_t ac6;
+    int16_t  b1; 
+    int16_t  b2;
+    int16_t  mb;
+    int16_t  mc;
+    int16_t  md;
+}s_bmp180_calib_t;
 
 static s_bmp180_calib_t bmp180_calib;
-
 static uint8_t bmp180_stat;
-
-static int32_t  bmp180_b5;              // Compensation parameter
+static int32_t  bmp180_b5;                        // Compensation parameter
 static uint16_t bmp180_oldtemp = 0;
 static uint32_t bmp180_oldpress = 0;
-
 uint8_t         bmp180_Buf[3];
+
+extern volatile uint8_t twim_access;           // access mode & busy flag
 
 uint8_t twi_BMP180_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf) 
 {
@@ -53,14 +84,23 @@ uint8_t twi_BMP180_Read(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
   return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twi_BMP180_Pool1(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twi_BMP180_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    if(pSubidx->Base & 1)               // Renew Pressure
+        bmp180_oldpress = *(uint32_t *)pBuf;
+    else                                // Renew Temperature
+        bmp180_oldtemp = *(uint16_t *)pBuf;
+    return MQTTS_RET_ACCEPTED;
+}
+
+uint8_t twi_BMP180_Poll1(subidx_t * pSubidx, uint8_t sleep)
 {
   uint16_t ut;
   int32_t x1,x2;
 #ifdef ASLEEP
   if(sleep != 0)
   {
-    bmp180_stat = (0xFF-(POOL_TMR_FREQ/2));
+    bmp180_stat = (0xFF-(POLL_TMR_FREQ/2));
     return 0;
   }
 #endif  //  ASLEEP
@@ -117,7 +157,7 @@ uint8_t twi_BMP180_Pool1(subidx_t * pSubidx, uint8_t sleep)
   return 0;
 }
 
-uint8_t twi_BMP180_Pool2(subidx_t * pSubidx, uint8_t _unused)
+uint8_t twi_BMP180_Poll2(subidx_t * pSubidx, uint8_t _unused)
 {
   uint32_t up, b4, b7;
   int32_t b6, x1, x2, x3, b3, p;
@@ -238,15 +278,15 @@ uint8_t twi_BMP180_Config(void)
   }
 
   pIndex1->cbRead  =  &twi_BMP180_Read;
-  pIndex1->cbWrite =  NULL;
-  pIndex1->cbPool  =  &twi_BMP180_Pool1;
+  pIndex1->cbWrite =  &twi_BMP180_Write;
+  pIndex1->cbPoll  =  &twi_BMP180_Poll1;
   pIndex1->sidx.Place = objTWI;               // Object TWI
   pIndex1->sidx.Type =  objInt16;             // Variables Type -  UInt16
   pIndex1->sidx.Base = (BMP180_ADDR<<8);      // Device address
 
   pIndex2->cbRead  =  &twi_BMP180_Read;
-  pIndex2->cbWrite =  NULL;
-  pIndex2->cbPool  =  &twi_BMP180_Pool2;
+  pIndex2->cbWrite =  &twi_BMP180_Write;
+  pIndex2->cbPoll  =  &twi_BMP180_Poll2;
   pIndex2->sidx.Place = objTWI;               // Object TWI
   pIndex2->sidx.Type =  objUInt32;            // Variables Type -  UInt32
   pIndex2->sidx.Base = (BMP180_ADDR<<8) + 1;  // Device address
@@ -254,4 +294,4 @@ uint8_t twi_BMP180_Config(void)
   return 2;
 }
 
-#endif
+#endif  //  (defined EXTDIO_USED) && (defined TWI_USED) && (defined TWI_USE_BMP180)

@@ -2,10 +2,12 @@
 Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // Extensions digital inputs/outputs
@@ -15,18 +17,12 @@ See LICENSE.txt file for license details.
 #ifdef EXTDIO_USED
 #include "extdio.h"
 
-#ifdef EXTAI_USED
-#include "extai.h"
-extern uint16_t aiApin2Mask(uint8_t apin);
-extern uint8_t cvtBase2Apin(uint16_t base);
-extern uint8_t checkAnalogBase(uint16_t base);
-
-extern uint16_t ai_busy_mask;
-#endif  //  EXTAI_USED
-
 static uint8_t pin_busy_mask[EXTDIO_MAXPORT_NR];
 static uint8_t pin_read_state[EXTDIO_MAXPORT_NR];
 static uint8_t pin_read_flag[EXTDIO_MAXPORT_NR];
+
+const PROGMEM uint16_t portnum2port[]  = PORTNUM_2_PORT;
+const PROGMEM uint8_t  portnum2mask[]  = PORTNUM_2_MASK;
 
 // Convert Base to Mask
 uint8_t base2Mask(uint16_t base)
@@ -41,185 +37,67 @@ uint8_t base2Mask(uint16_t base)
 // Start DIO HAL
 static uint8_t cvtBase2Port(uint16_t base)     // Digital Ports
 {
-    uint8_t tmp = base & 0xF8;
-    switch(tmp)
-    {
-#ifdef PORTNUM0
-        case 0x00:      // PORT A
-            return PORTNUM0;
-#endif  //  PORTNUM1
-#ifdef PORTNUM1
-        case 0x08:      // PORT B
-            return PORTNUM1;
-#endif  //  PORTNUM1
-#ifdef PORTNUM2
-        case 0x10:      // PORT C
-            return PORTNUM2;
-#endif  //  PORTNUM2
-#ifdef PORTNUM3
-        case 0x18:      // PORT D
-            return PORTNUM3;
-#endif  //  PORTNUM3
-    }
-    return 0xFF;
+  uint8_t tmp = (base & 0xF8)>>3;
+  tmp -= EXTDIO_BASE_OFFSET;
+  if(tmp >= EXTDIO_MAXPORT_NR)
+    return EXTDIO_MAXPORT_NR;
+  return tmp;
 }
 
 uint8_t checkDigBase(uint16_t base)
 {
-    uint8_t pinmask = base2Mask(base);
-    uint8_t tmp = base & 0xF8;
-    switch(tmp)
-    {
-#ifdef PORT0MASK
-        case 0x00:      // PORT A
-            if(PORT0MASK & pinmask)
-                return 2;
-            break;
-#endif  //  PORT0MASK
-#ifdef PORT1MASK
-        case 0x08:      // PORT B
-            if(PORT1MASK & pinmask)
-                return 2;
-            break;
-#endif  //  PORT1MASK
-#ifdef PORT2MASK
-        case 0x10:      // PORT C
-            if(PORT2MASK & pinmask)
-                return 2;
-            break;
-#endif
-#ifdef PORT3MASK
-        case 0x18:      // PORT D
-            if(PORT3MASK & pinmask)
-                return 2;
-            break;
-#endif
-        default:
-            return 2;
-    }
-    
-    if(pin_busy_mask[cvtBase2Port(base)] & pinmask)
-        return 1;
+  uint8_t pinmask = base2Mask(base);
+  uint8_t port = cvtBase2Port(base);
+  uint8_t tmp;
 
-    return 0;
+  if(port == EXTDIO_MAXPORT_NR)
+    return 2;
+
+  tmp = pgm_read_byte(&portnum2mask[port]);
+  if(tmp & pinmask)
+    return 2;
+
+  if(pin_busy_mask[port] & pinmask)
+    return 1;
+
+  return 0;
+}
+
+void out2PORT(uint16_t base, uint8_t set)
+{
+  uint8_t pinmask = base2Mask(base);
+  uint8_t *pPORT;
+
+  pPORT = (uint8_t *)pgm_read_word(&portnum2port[cvtBase2Port(base)]);
+
+  if(set)
+    *pPORT |= pinmask;
+  else
+    *pPORT &= ~pinmask;
 }
 
 static void out2DDR(uint16_t base, uint8_t set)
 {
-    uint8_t pinmask = base2Mask(base);
-    uint8_t tmp = base & 0xF8;
-    switch(tmp)
-    {
-#ifdef PORTDDR0
-        case 0x00:
-            if(set)
-                PORTDDR0 |= pinmask;
-            else
-                PORTDDR0 &= ~pinmask;
-            break;
-#endif
-#ifdef PORTDDR1
-        case 0x08:
-            if(set)
-                PORTDDR1 |= pinmask;
-            else
-                PORTDDR1 &= ~pinmask;
-            break;
-#endif
-#ifdef PORTDDR2
-        case 0x10:
-            if(set)
-                PORTDDR2 |= pinmask;
-            else
-                PORTDDR2 &= ~pinmask;
-            break;
-#endif
-#ifdef PORTDDR3
-        case 0x18:
-            if(set)
-                PORTDDR3 |= pinmask;
-            else
-                PORTDDR3 &= ~pinmask;
-            break;
-#endif
-    }
-}
+  uint8_t pinmask = base2Mask(base);
+  uint8_t *pDDR;
+  pDDR = (uint8_t *)(pgm_read_word(&portnum2port[cvtBase2Port(base)]) - 1);
 
-static void out2PORT(uint16_t base, uint8_t set)
-{
-    uint8_t pinmask = base2Mask(base);
-    uint8_t tmp = base & 0xF8;
-    switch(tmp)
-    {
-#ifdef PORTOUT0
-        case 0x00:
-            if(set)
-                PORTOUT0 |= pinmask;
-            else
-                PORTOUT0 &= ~pinmask;
-            break;
-#endif
-#ifdef PORTOUT1
-        case 0x08:
-            if(set)
-                PORTOUT1 |= pinmask;
-            else
-                PORTOUT1 &= ~pinmask;
-            break;
-#endif
-#ifdef PORTOUT2
-        case 0x10:
-            if(set)
-                PORTOUT2 |= pinmask;
-            else
-                PORTOUT2 &= ~pinmask;
-            break;
-#endif
-#ifdef PORTOUT3
-        case 0x18:
-            if(set)
-                PORTOUT3 |= pinmask;
-            else
-                PORTOUT3 &= ~pinmask;
-            break;
-#endif
-    }
+  if(set)
+    *pDDR |= pinmask;
+  else
+    *pDDR &= ~pinmask;
 }
 
 uint8_t inpPort(uint16_t base)
 {
-    uint8_t tmp = base & 0xF8;
-    switch(tmp)
-    {
-#ifdef PORTIN0
-        case 0x00:
-            return PORTIN0;
-#endif
-#ifdef PORTIN1
-        case 0x08:
-            return PORTIN1;
-#endif
-#ifdef PORTIN2
-        case 0x10:
-            return PORTIN2;
-#endif
-#ifdef PORTIN3
-        case 0x18:
-            return PORTIN3;
-#endif
-    }
-    return 0;
+  uint8_t *pPIN;
+  pPIN = (uint8_t *)(pgm_read_word(&portnum2port[cvtBase2Port(base)]) - 2);
+  return *pPIN;
 }
 // End DIO HAL
 
 void dioClean(void)
 {
-#ifdef EXTPWM_USED
-  DISABLE_PWM0();
-  DISABLE_PWM1();
-  PWM_DISABLE();
-#endif  //  EXTPWM_USED
-
   uint8_t i;
   for(i = 0; i < EXTDIO_MAXPORT_NR; i++)
   {
@@ -232,19 +110,15 @@ void dioClean(void)
 // Check Index digital inp/out
 uint8_t dioCheckIdx(subidx_t * pSubidx)
 {
-    uint16_t base = pSubidx->Base;
-    if((checkDigBase(base) == 2) || 
-       ((pSubidx->Type != objPinNPN) && (pSubidx->Type != objPinPNP)
+  uint16_t base = pSubidx->Base;
+  if((checkDigBase(base) == 2) ||       // Not Exist
+     ((pSubidx->Type != objPinNPN) && (pSubidx->Type != objPinPNP)
 #ifdef ASLEEP
-        && (pSubidx->Type != objActPNP) && (pSubidx->Type != objActNPN)
+     && (pSubidx->Type != objActPNP) && (pSubidx->Type != objActNPN)
 #endif  //  ASLEEP
-       ))
-        return MQTTS_RET_REJ_NOT_SUPP;
-#ifdef EXTPWM_USED
-    if((pSubidx->Place == objPWM) && (base != PWM_PIN0) && (base != PWM_PIN1))
-        return MQTTS_RET_REJ_NOT_SUPP;
-#endif  //  EXTPWM_USED
-    return MQTTS_RET_ACCEPTED;
+     ))
+    return MQTTS_RET_REJ_NOT_SUPP;
+  return MQTTS_RET_ACCEPTED;
 }
 
 // Read digital Inputs
@@ -262,62 +136,41 @@ static uint8_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 // Write DIO Object's
 static uint8_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
-    uint16_t base = pSubidx->Base;
-    uint8_t state = *pBuf;
-    uint8_t place = pSubidx->Place;
-    uint8_t type = pSubidx->Type;
-    if(place == objDin)         // Digital Inputs, check data
-    {
-        uint8_t port = cvtBase2Port(base);
-        uint8_t pinmask = base2Mask(base);
-        if(state)
-            pin_read_state[port] |= pinmask;
-        else
-            pin_read_state[port] &= ~pinmask;
-    }
-    else if(place == objDout)       // Digital outputs
-    {
-        if(type == objPinNPN)
-            state = ~state;
+  uint16_t base = pSubidx->Base;
+  uint8_t state = *pBuf;
+  uint8_t place = pSubidx->Place;
+  uint8_t type = pSubidx->Type;
+  if(place == objDout)                            // Digital outputs
+  {
+    if(type == objPinNPN)
+      state = ~state;
 #ifdef ASLEEP
-        else if(type != objPinPNP)        // Write to Asleep state output
-          return MQTTS_RET_REJ_NOT_SUPP;
+    else if(type != objPinPNP)                    // Write to Asleep state output
+      return MQTTS_RET_REJ_NOT_SUPP;
 #endif
-        out2PORT(base, state & 1);
-    }
-#ifdef EXTPWM_USED
-    else if(place == objPWM)        // LED HW PWM
+    out2PORT(base, state & 1);
+  }
+  else                                            // Inputs renew
+  {
+    uint8_t port, pinmask;
+    port = cvtBase2Port(base);
+    pinmask = base2Mask(base);
+
+    if(state & 1)
     {
-      if(type == objPinNPN)
-        state = ~state;
-      
-      if((state == 0) || (state == 255))
-      {
-        if(base == PWM_PIN0)            // Channel 0
-          DISABLE_PWM0();
-        else
-          DISABLE_PWM1();
-        out2PORT(base, state);
-      }
-      else
-      {
-        if(base == PWM_PIN0)            // Channel 0
-        {
-          ENABLE_PWM0();
-          PWM_OCR0 = state;
-        }
-        else
-        {
-          ENABLE_PWM1();
-          PWM_OCR1 = state;
-        }
-      }
+      pin_read_flag[port] |= pinmask;
+      pin_read_state[port] |= pinmask;
     }
-#endif  //  EXTPWM_USED
-    return MQTTS_RET_ACCEPTED;
+    else
+    {
+      pin_read_flag[port] &= ~pinmask;
+      pin_read_state[port] &= ~pinmask;
+    }    
+  }
+  return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t dioPoolOD(subidx_t * pSubidx, uint8_t sleep)
+static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
   uint16_t base = pSubidx->Base;
   uint8_t place = pSubidx->Place;
@@ -361,78 +214,44 @@ static uint8_t dioPoolOD(subidx_t * pSubidx, uint8_t sleep)
 // Register digital inp/out/pwm Object
 uint8_t dioRegisterOD(indextable_t *pIdx)
 {
-    uint16_t base = pIdx->sidx.Base;
-    if(checkDigBase(base) != 0)
-        return MQTTS_RET_REJ_INV_ID;
-    uint8_t port = cvtBase2Port(base);
-#ifdef EXTAI_USED
-    if(port == EXTAI_PORT_NUM)
-    {
-        uint8_t tmp = checkAnalogBase(base);
-        if(tmp == 1)            // Busy
-            return MQTTS_RET_REJ_INV_ID;
-        else if(tmp == 0)       // Free
-            ai_busy_mask |= aiApin2Mask(cvtBase2Apin(base));
-    }
-#endif  //  EXTAI_USED
-    uint8_t mask = base2Mask(base);
-    pin_busy_mask[port] |= mask;
-    pin_read_state[port] &= ~mask;
-    pin_read_flag[port] &= ~mask;
-    if(pIdx->sidx.Place == objDout)      // Digital output
-    {
-        out2DDR(base, 1);
-    }
-#ifdef EXTPWM_USED
-    else if (pIdx->sidx.Place == objPWM)
-    {
-      out2DDR(base, 1);
-      PWM_ENABLE();
-    }
-#endif  //  EXTPWM_USED
-    else                                  // Digital Input
-        out2DDR(base, 0);
+  uint16_t base = pIdx->sidx.Base;
+  if(checkDigBase(base) != 0)
+    return MQTTS_RET_REJ_INV_ID;
+  
+  uint8_t port = cvtBase2Port(base);
+  int8_t mask = base2Mask(base);
+  pin_busy_mask[port] |= mask;
+  pin_read_state[port] &= ~mask;
+  pin_read_flag[port] &= ~mask;
+  if(pIdx->sidx.Place == objDout)      // Digital output
+    out2DDR(base, 1);
+  else                                  // Digital Input
+    out2DDR(base, 0);
 
-    if((pIdx->sidx.Type == objPinNPN)
+  if((pIdx->sidx.Type == objPinNPN)
 #ifdef ASLEEP
     || (pIdx->sidx.Type == objActPNP)
 #endif  // ASLEEP
     )
-        out2PORT(base, 1);
+    out2PORT(base, 1);
         
-    pIdx->cbRead = &dioReadOD;
-    pIdx->cbWrite = &dioWriteOD;
-    pIdx->cbPool = &dioPoolOD;
-    return MQTTS_RET_ACCEPTED;
+  pIdx->cbRead = &dioReadOD;
+  pIdx->cbWrite = &dioWriteOD;
+  pIdx->cbPoll = &dioPollOD;
+  return MQTTS_RET_ACCEPTED;
 }
 
 void dioDeleteOD(subidx_t * pSubidx)
 {
-    uint16_t base = pSubidx->Base;
-    uint8_t port = cvtBase2Port(base);
-    uint8_t mask = base2Mask(base);
+  uint16_t base = pSubidx->Base;
+  uint8_t port = cvtBase2Port(base);
+  uint8_t mask = base2Mask(base);
 
-    pin_busy_mask[port] &= ~mask;
-    pin_read_state[port] &= ~mask;
-    pin_read_flag[port] &= ~mask;
-    
-#ifdef EXTAI_USED
-    if((port == EXTAI_PORT_NUM) && (checkAnalogBase(base) == 1))
-        ai_busy_mask &= ~aiApin2Mask(cvtBase2Apin(base));
-#endif  //  EXTAI_USED
-#ifdef EXTPWM_USED
-    if(pSubidx->Place == objPWM)
-    {
-        if(pSubidx->Base == PWM_PIN0)   // Channel 0
-            DISABLE_PWM0();
-        else                            // Channel 1
-            DISABLE_PWM1();
-        PWM_DISABLE();
-    }
-#endif  //  EXTPWM_USED
+  pin_busy_mask[port] &= ~mask;
+  pin_read_state[port] &= ~mask;
+  pin_read_flag[port] &= ~mask;
 
-    out2PORT(base, 0);
-    out2DDR(base, 0);
+  out2PORT(base, 0);
+  out2DDR(base, 0);
 }
-
 #endif    //  EXTDIO_USED

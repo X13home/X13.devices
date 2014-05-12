@@ -118,11 +118,11 @@
           <ListValues>
             <Value>UNODE20=1</Value>
             <Value>F_CPU=8000000UL</Value>
+            <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
             <Value>EXTAI_USED=1</Value>
             <Value>TWI_USED=1</Value>
-            <Value>GATEWAY=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -155,11 +155,11 @@
           <ListValues>
             <Value>DUMMY=1</Value>
             <Value>F_CPU=8000000UL</Value>
+            <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
             <Value>EXTAI_USED=1</Value>
             <Value>TWI_USED=1</Value>
-            <Value>GATEWAY=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -192,11 +192,11 @@
           <ListValues>
             <Value>UNODE=1</Value>
             <Value>F_CPU=14745600UL</Value>
+            <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
             <Value>EXTAI_USED=1</Value>
             <Value>TWI_USED=1</Value>
-            <Value>GATEWAY=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -268,11 +268,11 @@
           <ListValues>
             <Value>JEENODE=1</Value>
             <Value>F_CPU=16000000UL</Value>
+            <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
             <Value>EXTAI_USED=1</Value>
             <Value>TWI_USED=1</Value>
-            <Value>GATEWAY=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -344,12 +344,12 @@
           <ListValues>
             <Value>PANSTAMP=1</Value>
             <Value>F_CPU=8000000UL</Value>
+            <Value>USE_RTC_OSC=1</Value>
+            <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
             <Value>EXTAI_USED=1</Value>
             <Value>TWI_USED=1</Value>
-            <Value>GATEWAY=1</Value>
-            <Value>USE_RTC_OSC=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -382,6 +382,7 @@
           <ListValues>
             <Value>PANSTAMP=1</Value>
             <Value>F_CPU=8000000UL</Value>
+            <Value>USE_RTC_OSC=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
             <Value>EXTAI_USED=1</Value>
@@ -389,7 +390,6 @@
             <Value>EXTSER_RX_USED=1</Value>
             <Value>TWI_USED=1</Value>
             <Value>ASLEEP=1</Value>
-            <Value>USE_RTC_OSC=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
         <avrgcc.compiler.optimization.level>Optimize for size (-Os)</avrgcc.compiler.optimization.level>
@@ -434,16 +434,22 @@
     <Compile Include="Source\ext.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\ext\extai.c">
+    <Compile Include="Source\ext\extain.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\ext\extai.h">
+    <Compile Include="Source\ext\extain_poll.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\extdio.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\extdio.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\extpwm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\extpwm.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\extSer.c">
@@ -456,12 +462,6 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\twim.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\ext\twi\twiDriver_Am2321.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Source\ext\twi\twiDriver_Am2321.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\ext\twi\twiDriver_BlinkM.c">

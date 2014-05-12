@@ -44,7 +44,7 @@ void PHY_Send(MQ_t * pBuf)
   mqRelease(pBuf);
 }
 
-void PHY_Pool(void)
+void PHY_Poll(void)
 {}
 
 uint8_t PHY_BuildName(uint8_t * pBuf)

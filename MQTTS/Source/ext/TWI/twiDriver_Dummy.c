@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // Dummy driver, prototypes
@@ -37,7 +39,7 @@ uint8_t twi_Dummy_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
   return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twi_Dummy_Pool(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twi_Dummy_Poll(subidx_t * pSubidx, uint8_t sleep)
 {
 #ifdef ASLEEP
   if(sleep != 0)
@@ -46,7 +48,7 @@ uint8_t twi_Dummy_Pool(subidx_t * pSubidx, uint8_t sleep)
     return 0;
   }
 #endif  //  ASLEEP
-  // Place here your Pool code
+  // Place here your Polling code
 
   return 0;
 }
@@ -71,7 +73,7 @@ uint8_t twi_Dummy_Config(void)
 
       pIndex->cbRead  =  &twi_Dummy_Read;
       pIndex->cbWrite =  &twi_Dummy_Write;
-      pIndex->cbPool  =  &twi_Dummy_Pool;
+      pIndex->cbPoll  =  &twi_Dummy_Poll;
       pIndex->sidx.Place = objTWI;                // Object TWI
       pIndex->sidx.Type =  objString;             // Variables Type -  String
       pIndex->sidx.Base = (addr<<8);              // Device address

@@ -9,3 +9,4 @@
 *.mk
 *.atsuo
 Makefile
+/MQTTS/DMGWDM/*.hex

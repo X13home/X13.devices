@@ -1,24 +1,27 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // Memory manager
 
 #include "config.h"
 
-#define MQMEM_TTL   64
+//#define MQMEM_TTL   64
 
 MQ_t    memRaw[MQMEM_SIZEOF_QUEUE];
 static uint8_t memTTL[MQMEM_SIZEOF_QUEUE];  
 #ifdef MQ_DEBUG
 uint8_t memFreeCnt;
 #endif // MQ_DEBUG
+
 //#define mqInit()
 void mqInit(void)
 {
@@ -48,7 +51,11 @@ MQ_t * mqAssert(void)
 #ifdef MQ_DEBUG
       memFreeCnt--;
 #endif  //  MQ_DEBUF
+#ifdef  MQMEM_TTL
       memTTL[pnt] = MQMEM_TTL;
+#else   //  !MQMEM_TTL
+      memTTL[pnt] = 0xFF;
+#endif  //  MQMEM_TTL
       return &memRaw[pnt];
     }
   };
@@ -67,7 +74,11 @@ void mqRelease(MQ_t * pBuf)
 #ifdef MQ_DEBUG
       memFreeCnt++;
 #endif  //  MQ_DEBUG
+#ifndef MQMEM_TTL
+      break;
+#endif  //  MQMEM_TTL
     }
+#ifdef  MQMEM_TTL
     else if(memTTL[i] > 0)
     {
       memTTL[i]--;
@@ -76,6 +87,7 @@ void mqRelease(MQ_t * pBuf)
         memFreeCnt++;
 #endif  //  MQ_DEBUG
     }
+#endif  // MQMEM_TTL
 }
 
 #ifdef MQ_DEBUG
