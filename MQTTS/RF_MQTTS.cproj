@@ -81,7 +81,7 @@
             <Value>F_CPU=8000000UL</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
+            <Value>EXTAIN_USED=1</Value>
             <Value>EXTSER_TX_USED=1</Value>
             <Value>EXTSER_RX_USED=1</Value>
             <Value>TWI_USED=1</Value>
@@ -121,7 +121,7 @@
             <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
+            <Value>EXTAIN_USED=1</Value>
             <Value>TWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -158,7 +158,7 @@
             <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
+            <Value>EXTAIN_USED=1</Value>
             <Value>TWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -195,7 +195,7 @@
             <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
+            <Value>EXTAIN_USED=1</Value>
             <Value>TWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -231,7 +231,7 @@
             <Value>F_CPU=8000000UL</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
+            <Value>EXTAIN_USED=1</Value>
             <Value>EXTSER_TX_USED=1</Value>
             <Value>EXTSER_RX_USED=1</Value>
             <Value>TWI_USED=1</Value>
@@ -271,7 +271,7 @@
             <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
+            <Value>EXTAIN_USED=1</Value>
             <Value>TWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -307,7 +307,7 @@
             <Value>F_CPU=16000000UL</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
+            <Value>EXTAIN_USED=1</Value>
             <Value>EXTSER_TX_USED=1</Value>
             <Value>EXTSER_RX_USED=1</Value>
             <Value>TWI_USED=1</Value>
@@ -348,7 +348,7 @@
             <Value>GATEWAY=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
+            <Value>EXTAIN_USED=1</Value>
             <Value>TWI_USED=1</Value>
           </ListValues>
         </avrgcc.compiler.symbols.DefSymbols>
@@ -385,7 +385,7 @@
             <Value>USE_RTC_OSC=1</Value>
             <Value>EXTDIO_USED=1</Value>
             <Value>EXTPWM_USED=1</Value>
-            <Value>EXTAI_USED=1</Value>
+            <Value>EXTAIN_USED=1</Value>
             <Value>EXTSER_TX_USED=1</Value>
             <Value>EXTSER_RX_USED=1</Value>
             <Value>TWI_USED=1</Value>
