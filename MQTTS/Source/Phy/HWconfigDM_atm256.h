@@ -63,11 +63,11 @@ See LICENSE.txt file for license details.
 // End USART Section
 
 // Timer Section
-#define POOL_TMR_FREQ           64     // Pool Frequency (Hz)
+#define POLL_TMR_FREQ           64     // Poll Frequency (Hz)
 #define TIMER_ISR               TIMER2_COMPA_vect
 
 #define InitTimer()             {TCCR2A = (1<<WGM21); TCNT2 = 0;            \
-                                 OCR2A = ((F_CPU/1024/POOL_TMR_FREQ)-1);    \
+                                 OCR2A = ((F_CPU/1024/POLL_TMR_FREQ)-1);    \
                                  TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
                                  TCCR2B =(1<<WGM22) | (7<<CS20);}
 #define config_sleep_wdt()      {wdt_reset(); MCUSR &= ~(1<<WDRF);                      \

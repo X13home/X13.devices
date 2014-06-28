@@ -1,5 +1,6 @@
 Version 2.6.3
 
+Optimization, Bugfix ADIN, Actualize file-list, typo correction       28.Jun.2014
 Bugfix    UART
 
 =================================================================================
@@ -95,7 +96,7 @@ Version 2.4.0
 Version 2.4
 
 [+] TWI Watchdog
-[*] RF aggressive pool method
+[*] RF aggressive poll method
 [*] OD API
 =================================================================================
 Version 2.3

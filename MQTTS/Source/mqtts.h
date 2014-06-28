@@ -394,7 +394,7 @@ typedef enum e_MQTTS_STATUS
 #endif  //  ASLEEP
 }e_MQTTS_STATUS_t;
 
-enum e_MQTTS_POOL_STATUS
+enum e_MQTTS_POLL_STATUS
 {
     MQTTS_POLL_STAT_NOP = 0,
     MQTTS_POLL_STAT_DATA,
@@ -419,7 +419,7 @@ typedef struct
     uint8_t                 tail;
     uint8_t                 head;
     MQ_t                  * buf[MQTTS_SIZEOF_SEND_FIFO];
-    // Pool FIFO
+    // Poll FIFO
     uint8_t                 fTail;
     uint8_t                 fHead;
     MQ_t                  * fBuf[MQTTS_SIZEOF_POLL_FIFO];

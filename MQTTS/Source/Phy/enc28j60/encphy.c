@@ -103,15 +103,15 @@ void PHY_Send(MQ_t * pBuf)
   send_udp_transmit(buf, datalen);
 }
 
-void PHY_Pool(void)
+void PHY_Poll(void)
 {
-  static uint8_t PoolCnt = POOL_TMR_FREQ - 1;
+  static uint8_t PollCnt = POLL_TMR_FREQ - 1;
 
-  if(PoolCnt)
-    PoolCnt--;
+  if(PollCnt)
+    PollCnt--;
   else
   {
-    PoolCnt = POOL_TMR_FREQ - 1;
+    PollCnt = POLL_TMR_FREQ - 1;
     sec_tick_lan();
   }
 }

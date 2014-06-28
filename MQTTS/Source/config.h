@@ -67,7 +67,7 @@ See LICENSE file for license details.
 // MQTT-S Section
 #define MQTTS_MSG_SIZE          30      // Size of payload(base for all buffers)
 #define MQTTS_SIZEOF_SEND_FIFO  4       // Size of MQTTS Send Buffer
-#define MQTTS_SIZEOF_POLL_FIFO  4       // Size of MQTTS Pool Buffer
+#define MQTTS_SIZEOF_POLL_FIFO  4       // Size of MQTTS Poll Buffer
 
 // Object Dictionary
 #define OD_MAX_INDEX_LIST       12      // Size of identificators list
@@ -89,8 +89,8 @@ See LICENSE file for license details.
 
 // TWI Section
 // TWI Drivers
-#define TWI_USE_SMARTDRV        1       // Smart Driver for smart devices.
-//#define TWI_USE_BLINKM          1       // BlinkM - Blinky RGB Driver
+//#define TWI_USE_SMARTDRV        1       // Smart Driver for smart devices.
+#define TWI_USE_BLINKM          1       // BlinkM - Blinky RGB Driver
 #define TWI_USE_EXPANDER        1       // 16bit IO Expander, PCA9535/TCA9535/PCA9555/MCP23016
 #define TWI_USE_HIH61XX         1       // Honeywell HIH-61xx - Temperature/Humidity
 #define TWI_USE_CC2D            1       // GE Sensing CC2Dxx[s]  - Temperature/Humidity

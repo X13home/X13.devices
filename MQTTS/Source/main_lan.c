@@ -10,11 +10,11 @@ See LICENSE.txt file for license details.
 
 #include "config.h"
 
-volatile uint8_t iPool;
-#define IPOOL_USR   0x01
-#define IPOOL_LED_ONL   0x10
-#define IPOOL_LED_CONN  0x20
-#define IPOOL_LED_ACT   0x40
+volatile uint8_t iPoll;
+#define IPOLL_USR   0x01
+#define IPOLL_LED_ONL   0x10
+#define IPOLL_LED_CONN  0x20
+#define IPOLL_LED_ACT   0x40
 
 __attribute__((OS_main)) int main(void)
 {
@@ -33,18 +33,18 @@ __attribute__((OS_main)) int main(void)
   // Initialise PHY
   PHY_Init();
   // Initialise  variables
-  iPool = 0;
+  iPoll = 0;
 
-  uint16_t poolIdx = 0xFFFF;
+  uint16_t pollIdx = 0xFFFF;
 
   // Initialize Task Planer
-  InitTimer();
+  INIT_TIMER();
   // configure Sleep controller & enable interrupts
   set_sleep_mode(SLEEP_MODE_IDLE);    // Standby, Idle
   sei();                              // Enable global interrupts
   
   PHY_Start();
-  iPool |= IPOOL_LED_ONL;
+  iPoll |= IPOLL_LED_ONL;
 
   MQ_t * pRBuf;                   // RF Buffer
   MQ_t * pMBuf;                   // MQTTS Buffer
@@ -54,45 +54,45 @@ __attribute__((OS_main)) int main(void)
   {
     if((pRBuf = PHY_GetBuf()) != NULL)
     {
-      iPool |= IPOOL_LED_ACT;
+      iPoll |= IPOLL_LED_ACT;
       if(MQTTS_Parser(pRBuf) == 0)
         mqRelease(pRBuf);
     }
 
     if((pMBuf = MQTTS_Get()) != NULL)
     {
-      iPool |= IPOOL_LED_ACT;
+      iPoll |= IPOLL_LED_ACT;
       PHY_Send(pMBuf);
     }
     
-    if(iPool & IPOOL_USR)
+    if(iPoll & IPOLL_USR)
     {
-      iPool &= ~IPOOL_USR;
+      iPoll &= ~IPOLL_USR;
 
       if(MQTTS_GetStatus() == MQTTS_STATUS_CONNECT)
       {
-        iPool |= IPOOL_LED_CONN;
+        iPoll |= IPOLL_LED_CONN;
 
-        poolIdx = PoolOD(0);
-        if(poolIdx != 0xFFFF)
+        pollIdx = PollOD(0);
+        if(pollIdx != 0xFFFF)
         {
           // Publish
           pPBuf = mqAssert();
           if(pPBuf != NULL)                   // No Memory
           {
             pPBuf->mq.Length = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
-            ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &pPBuf->mq.Length, (uint8_t *)&pPBuf->mq.m.publish.Data);
+            ReadOD(pollIdx, MQTTS_FL_TOPICID_NORM | 0x80, &pPBuf->mq.Length, (uint8_t *)&pPBuf->mq.m.publish.Data);
             pPBuf->mq.m.publish.Flags = MQTTS_FL_QOS1;
-            pPBuf->mq.m.publish.TopicId = poolIdx;
+            pPBuf->mq.m.publish.TopicId = pollIdx;
             MQTTS_Publish(pPBuf);
           }
-          poolIdx = 0xFFFF;
+          pollIdx = 0xFFFF;
         }
       }
       else
-        iPool &= ~IPOOL_LED_CONN;
+        iPoll &= ~IPOLL_LED_CONN;
 
-      MQTTS_Pool(poolIdx != 0xFFFF);
+      MQTTS_Poll(pollIdx != 0xFFFF);
     }
   }
 }
@@ -101,9 +101,9 @@ ISR(TIMER_ISR)
 {
   static uint8_t led_cnt = 0;
 
-  iPool |= IPOOL_USR;
+  iPoll |= IPOLL_USR;
   
-  PHY_Pool();
+  PHY_Poll();
 
   if(led_cnt)
   {
@@ -111,29 +111,29 @@ ISR(TIMER_ISR)
   }
   else
   {
-    if(iPool & IPOOL_LED_ONL)
+    if(iPoll & IPOLL_LED_ONL)
     {
-      if(iPool & IPOOL_LED_CONN)
+      if(iPoll & IPOLL_LED_CONN)
       {
-        if(iPool & IPOOL_LED_ACT)     // Led blinks on Activity
+        if(iPoll & IPOLL_LED_ACT)     // Led blinks on Activity
         {
           LED_OFF();
-          iPool &= ~IPOOL_LED_ACT;
+          iPoll &= ~IPOLL_LED_ACT;
         }
         else
           LED_ON();
 
-        led_cnt = (POOL_TMR_FREQ/32);  // 125mS Period
+        led_cnt = (POLL_TMR_FREQ/32);  // 125mS Period
       }
       else                            // LED blinks slow when not connected to broker
       {
-        led_cnt = (POOL_TMR_FREQ/4);  // 500mS Period
+        led_cnt = (POLL_TMR_FREQ/4);  // 500mS Period
         LED_TGL();
       }
     }
     else                              // LED blinks fast if not connected to Net or/and DHCP
     {
-      led_cnt = (POOL_TMR_FREQ/32);  // 125mS Period
+      led_cnt = (POLL_TMR_FREQ/32);  // 125mS Period
       LED_TGL();
     }
   }

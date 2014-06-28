@@ -301,7 +301,7 @@ uint8_t MQTTS_Poll(uint8_t wakeup)
             if(vMQTTS.Nretry)
                 vMQTTS.Nretry--;
             else
-                SystemReset();
+                SYSTEM_RESET();
 #else  //  ASLEEP
             if(vMQTTS.Tretry)
             {

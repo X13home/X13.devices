@@ -10,7 +10,7 @@ See LICENSE.txt file for license details.
 
 #include "config.h"
 
-static volatile uint8_t iPool;
+static volatile uint8_t iPoll;
 #define IPOLL_USR   0x01
 #define IPOLL_CALIB 0x02
 
@@ -55,7 +55,7 @@ __attribute__((OS_main)) int main(void)
     // Initialise PHY
     PHY_Init();
     // Initialise  variables
-    iPool = 0;
+    iPoll = 0;
     
     // Initialize Task Planer
     INIT_TIMER();
@@ -111,9 +111,9 @@ __attribute__((OS_main)) int main(void)
         if(MQTTS_DataRdy() && PHY_CanSend())
           PHY_Send(MQTTS_Get());
 #endif  //  GATEWAY
-        if(iPool & IPOLL_USR)
+        if(iPoll & IPOLL_USR)
         {
-            iPool &= ~IPOLL_USR;
+            iPoll &= ~IPOLL_USR;
             
             PHY_Poll();
 
@@ -170,7 +170,7 @@ ISR(TIMER_ISR)
 
 //  Calibrate internal RC Osc
 // !!!! for ATMEGA xx8P only, used Timer 1
-    if(iPool & IPOLL_CALIB)
+    if(iPoll & IPOLL_CALIB)
     {
         tmp = TCNT1;
         TCCR1B = 0;
@@ -180,23 +180,23 @@ ISR(TIMER_ISR)
         else if(tmp > BASE_TICK_MAX)    // Clock is running too fast
             OSCCAL--;
 
-        iPool &= ~IPOLL_CALIB;
+        iPoll &= ~IPOLL_CALIB;
     }
     else 
 #ifdef ASLEEP
-    if(!(iPool & IPOLL_SLEEP))
+    if(!(iPoll & IPOLL_SLEEP))
 #endif  //  ASLEEP
     {
         TCNT1 = 0;
         TCCR1B = (2<<CS10);
-        iPool |= IPOLL_CALIB;
+        iPoll |= IPOLL_CALIB;
     }
 #else   //  !USE_RTC_OSC
 #ifdef ASLEEP
-    if(!(iPool & IPOLL_SLEEP))
+    if(!(iPoll & IPOLL_SLEEP))
 #endif  //  ASLEEP
 #endif  //  USE_RTC_OSC
-        iPool |= IPOLL_USR;
+        iPoll |= IPOLL_USR;
 }
 
 #ifdef ASLEEP
@@ -204,14 +204,14 @@ ISR(TIMER_ISR)
 ISR(WDT_vect)
 {
     wdt_reset();
-    if(iPool & IPOLL_SLEEP)
-        iPool |= IPOLL_USR;
+    if(iPoll & IPOLL_SLEEP)
+        iPoll |= IPOLL_USR;
 }
 #endif  //  !USE_RTC_OSC
 
 static void goToSleep(void)
 {
-    iPool = IPOLL_SLEEP;
+    iPoll = IPOLL_SLEEP;
     rf_SetState(RF_TRVASLEEP);
 #ifdef USE_RTC_OSC
     CONFIG_SLEEP_RTC();
@@ -231,6 +231,6 @@ static void wakeUp(void)
     wdt_reset();
     wdt_disable();
 #endif  //  USE_RTC_OSC
-    iPool = 0;
+    iPoll = 0;
 }
 #endif  //  ASLEEP

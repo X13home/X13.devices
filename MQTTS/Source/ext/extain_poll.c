@@ -102,7 +102,7 @@ uint8_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
   uint8_t apin = ainBase2Apin(pSubidx->Base);
   *pLen = 2;
-  *(uint16_t *)pBuf = (ainOldVal[apin] + 8)>>4;;
+  *(uint16_t *)pBuf = ainOldVal[apin];
   return MQTTS_RET_ACCEPTED;
 }
 
@@ -160,6 +160,8 @@ uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
   
   ADCSRA = (1<<ADIF);                     // Disable ADC, Stop Conversion
   ainTimeout[apin] = POLL_TMR_FREQ;
+  ActVal += 8;
+  ActVal >>= 4;
 
   if(ainOldVal[apin] != ActVal)
   {
