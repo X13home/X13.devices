@@ -1,10 +1,17 @@
+/*
+Copyright (c) 2011-2014 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #ifndef _TWI_DRIVER_BLINKM_H
 #define _TWI_DRIVER_BLINKM_H
-
-#define BLINKM_START_ADDR           8
-#define BLINKM_STOP_ADDR            31
-
-#define BLINKM_MAX_DEV              4           // 8/4/2/1
 
 uint8_t twi_BlinkM_Config(void);
 

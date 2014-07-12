@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 #ifndef _HWCONFIG_ENC_H
@@ -102,10 +104,10 @@ See LICENSE.txt file for license details.
                                  if((UCSR0B & ((1<<TXEN0) | (1<<RXEN0))) == 0)      \
                                     PRR |= (1<<PRUSART0);}
 // Timer Section
-#define POOL_TMR_FREQ           64     // Pool Frequency (Hz)
+#define POLL_TMR_FREQ           64     // Poll Frequency (Hz)
 #define TIMER_ISR               TIMER2_COMPA_vect
 #define InitTimer()             {TCCR2A = (1<<WGM21); TCNT2 = 0;            \
-                                OCR2A = ((F_CPU/1024/POOL_TMR_FREQ)-1);    \
+                                OCR2A = ((F_CPU/1024/POLL_TMR_FREQ)-1);    \
                                 TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
                                 TCCR2B =(1<<WGM22) | (7<<CS20);}
 // End Timer Section

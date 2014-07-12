@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2012 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // MRF49XA/RFM12 RF Transceiver
@@ -406,7 +408,7 @@ void PHY_Send(MQ_t * pBuf)
 }
 
 // Periodical 
-void PHY_Pool(void)
+void PHY_Poll(void)
 {
   if(rfm12v_State == RF_TRVPOR)
     PHY_Init();

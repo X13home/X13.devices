@@ -2,11 +2,15 @@ Addr    Parm1   Parm2   Device
 0x08    2048            BlinkM
 ..
 0x1F    7936-           BlinkM
-0x20                    Bus Extender
+0x08    2048            Smart Device
 ..
-0x27                    Bus Extender
+0x1F    7936-           Smart Device
+0x20                    Bus Expander
+..
+0x26                    Bus Expander
 0x27    9984    9985    HIH61xx
-0x40    16384   16385   SI7005
+0x28    10240   10241   CC2D
+0x40    16384   16385   SHT21
 0x48    18432           LM75
 ..
 0x4F    20224-          LM75

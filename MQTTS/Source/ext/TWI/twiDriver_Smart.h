@@ -10,9 +10,9 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _TWI_DRIVER_HIH61XX_H
-#define _TWI_DRIVER_HIH61XX_H
+#ifndef _TWI_DRIVER_SMART_H
+#define _TWI_DRIVER_SMART_H
 
-uint8_t twi_HIH61xx_Config(void);
+uint8_t twi_Smart_Config(void);
 
 #endif

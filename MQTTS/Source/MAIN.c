@@ -1,21 +1,23 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 #include "config.h"
 
-static volatile uint8_t iPool;
-#define IPOOL_USR   0x01
-#define IPOOL_CALIB 0x02
+static volatile uint8_t iPoll;
+#define IPOLL_USR   0x01
+#define IPOLL_CALIB 0x02
 
 #ifdef ASLEEP
-#define IPOOL_SLEEP 0x04
+#define IPOLL_SLEEP 0x04
 static void goToSleep(void);
 static void wakeUp(void);
 #endif  //  ASLEEP
@@ -35,7 +37,7 @@ __attribute__((OS_main)) int main(void)
     s_Addr  iAddr;
 #endif  // GATEWAY
     uint8_t bTmp;
-    uint16_t poolIdx = 0xFFFF;
+    uint16_t pollIdx = 0xFFFF;
 
 // Watchdog Stop
     cli();
@@ -55,7 +57,7 @@ __attribute__((OS_main)) int main(void)
     // Initialise PHY
     PHY_Init();
     // Initialise  variables
-    iPool = 0;
+    iPoll = 0;
     
     // Initialize Task Planer
     InitTimer();
@@ -111,19 +113,19 @@ __attribute__((OS_main)) int main(void)
         if(MQTTS_DataRdy() && PHY_CanSend())
           PHY_Send(MQTTS_Get());
 #endif  //  GATEWAY
-        if(iPool & IPOOL_USR)
+        if(iPoll & IPOLL_USR)
         {
-            iPool &= ~IPOOL_USR;
+            iPoll &= ~IPOLL_USR;
             
-            PHY_Pool();
+            PHY_Poll();
 
             bTmp = MQTTS_GetStatus();
             if(bTmp == MQTTS_STATUS_CONNECT)
             {
-                if(poolIdx == 0xFFFF)
-                    poolIdx = PoolOD(0);
+                if(pollIdx == 0xFFFF)
+                    pollIdx = PollOD(0);
             
-                if(poolIdx != 0xFFFF)
+                if(pollIdx != 0xFFFF)
                 {
                     // Publish
                     pPBuf = (uint8_t *)mqAssert();
@@ -131,29 +133,29 @@ __attribute__((OS_main)) int main(void)
                     {
                         bTmp = (MQTTS_MSG_SIZE - MQTTS_SIZEOF_MSG_PUBLISH);
 
-                        ReadOD(poolIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
-                        MQTTS_Publish(poolIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
+                        ReadOD(pollIdx, MQTTS_FL_TOPICID_NORM | 0x80, &bTmp, pPBuf);
+                        MQTTS_Publish(pollIdx, MQTTS_FL_QOS1, bTmp, pPBuf);
                         mqRelease((MQ_t *)pPBuf);
-                        poolIdx = 0xFFFF;
+                        pollIdx = 0xFFFF;
                     }
                 }
             }
 #ifdef ASLEEP
             else if(bTmp == MQTTS_STATUS_AWAKE)
             {
-                if(poolIdx == 0xFFFF)
-                    poolIdx = PoolOD(0);
+                if(pollIdx == 0xFFFF)
+                    pollIdx = PollOD(0);
             }
 #endif  //  ASLEEP
 
-            bTmp = MQTTS_Pool(poolIdx != 0xFFFF);
+            bTmp = MQTTS_Poll(pollIdx != 0xFFFF);
 #ifdef ASLEEP
-            if(bTmp == MQTTS_POOL_STAT_ASLEEP)       // Sweet dreams
+            if(bTmp == MQTTS_POLL_STAT_ASLEEP)       // Sweet dreams
             {
-                PoolOD(1);
+                PollOD(1);
                 goToSleep();
             }
-            else if(bTmp == MQTTS_POOL_STAT_AWAKE)   // Wake UP
+            else if(bTmp == MQTTS_POLL_STAT_AWAKE)   // Wake UP
                 wakeUp();
 #endif  //  ASLEEP
         }
@@ -164,7 +166,7 @@ __attribute__((OS_main)) int main(void)
 ISR(TIMER_ISR)
 {
 #ifdef USE_RTC_OSC
-#define BASE_TICK       (F_CPU/8/POOL_TMR_FREQ)
+#define BASE_TICK       (F_CPU/8/POLL_TMR_FREQ)
 #define BASE_TICK_MIN   (uint16_t)(BASE_TICK/1.005)
 #define BASE_TICK_MAX   (uint16_t)(BASE_TICK*1.005)
 
@@ -172,7 +174,7 @@ ISR(TIMER_ISR)
 
 //  Calibrate internal RC Osc
 // !!!! for ATMEGA xx8P only, used Timer 1
-    if(iPool & IPOOL_CALIB)
+    if(iPoll & IPOLL_CALIB)
     {
         tmp = TCNT1;
         TCCR1B = 0;
@@ -182,23 +184,23 @@ ISR(TIMER_ISR)
         else if(tmp > BASE_TICK_MAX)    // Clock is running too fast
             OSCCAL--;
 
-        iPool &= ~IPOOL_CALIB;
+        iPoll &= ~IPOLL_CALIB;
     }
     else 
 #ifdef ASLEEP
-    if(!(iPool & IPOOL_SLEEP))
+    if(!(iPoll & IPOLL_SLEEP))
 #endif  //  ASLEEP
     {
         TCNT1 = 0;
         TCCR1B = (2<<CS10);
-        iPool |= IPOOL_CALIB;
+        iPoll |= IPOLL_CALIB;
     }
 #else   //  !USE_RTC_OSC
 #ifdef ASLEEP
-    if(!(iPool & IPOOL_SLEEP))
+    if(!(iPoll & IPOLL_SLEEP))
 #endif  //  ASLEEP
 #endif  //  USE_RTC_OSC
-        iPool |= IPOOL_USR;
+        iPoll |= IPOLL_USR;
 }
 
 #ifdef ASLEEP
@@ -206,14 +208,14 @@ ISR(TIMER_ISR)
 ISR(WDT_vect)
 {
     wdt_reset();
-    if(iPool & IPOOL_SLEEP)
-        iPool |= IPOOL_USR;
+    if(iPoll & IPOLL_SLEEP)
+        iPoll |= IPOLL_USR;
 }
 #endif  //  !USE_RTC_OSC
 
 static void goToSleep(void)
 {
-    iPool = IPOOL_SLEEP;
+    iPoll = IPOLL_SLEEP;
     rf_SetState(RF_TRVASLEEP);
 #ifdef USE_RTC_OSC
     config_sleep_rtc();
@@ -233,6 +235,6 @@ static void wakeUp(void)
     wdt_reset();
     wdt_disable();
 #endif  //  USE_RTC_OSC
-    iPool = 0;
+    iPoll = 0;
 }
 #endif  //  ASLEEP

@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // TWI Driver LM75, Temperature
@@ -23,6 +25,26 @@ See LICENSE.txt file for license details.
 
 #include "../twim.h"
 #include "twiDriver_LM75.h"
+
+#define LM75_START_ADDR             0x48
+#define LM75_STOP_ADDR              0x4F
+
+#define LM75_MAX_DEV                8           // 8/4/2/1
+
+// LM75 Registers
+#define LM75_REG_TEMP               0x00        // Temperature
+#define LM75_REG_CONF               0x01        // Configuration
+#define LM75_REG_THYST              0x02        // Hysteresis
+#define LM75_REG_TOS                0x03        // Over temperature
+
+// Config Register
+#define LM75_CONFIG_PD              0x01        // shutdown, 0 - Normal operation, 1 - shutdown
+#define LM75_CONFIG_OS_MODE_INT     0x02        // OS mode 0 -  Comparator, 1 - interrupt
+#define LM75_CONFIG_OS_POL_HI       0x04        // OS active level; 0 - Low, 1 - High
+#define LM75_CONFIG_QS_QUE_1        0x00        // OS fault queue = 1
+#define LM75_CONFIG_QS_QUE_2        0x08        // OS fault queue = 2
+#define LM75_CONFIG_QS_QUE_4        0x10        // OS fault queue = 4
+#define LM75_CONFIG_QS_QUE_6        0x18        // OS fault queue = 6
 
 //#define LM75_T_MIN_DELTA            63          // use hysteresis for temperature
 
@@ -54,61 +76,57 @@ uint8_t twi_lm75_Write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twi_lm75_Pool(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twi_lm75_Poll(subidx_t * pSubidx, uint8_t sleep)
 {
-    uint8_t base = pSubidx->Base & (LM75_MAX_DEV - 1);
+  uint8_t base, tmp;
+  uint16_t val;
+
+  base = pSubidx->Base & (LM75_MAX_DEV - 1);
+
 #ifdef ASLEEP
-    if(sleep != 0)
-    {
-      lm75_stat[base] = (0xFF-(POOL_TMR_FREQ/2));
-      return 0;
-    }
-#endif  //  ASLEEP
-    uint16_t val;
-
-    if(twim_access & (TWIM_ERROR | TWIM_RELEASE))   // Bus Error, or request to release bus
-    {
-        if(lm75_stat[base] != 0)
-        {
-            lm75_stat[base] = 0x40;
-            if(twim_access & TWIM_RELEASE)
-                twim_access = TWIM_RELEASE;
-        }
-        return 0;
-    }
-    
-    if(twim_access & (TWIM_READ | TWIM_WRITE))      // Bus Busy
-        return 0;
-
-    switch(lm75_stat[base])
-    {
-        case 0:
-            if(twim_access & TWIM_BUSY)
-                return 0;
-            lm75_stat[base] = 1;
-        case 1:
-            lm75_buf[0] = LM75_REG_TEMP;
-            twimExch_ISR(pSubidx->Base>>8, (TWIM_BUSY | TWIM_WRITE | TWIM_READ), 1, 2, lm75_buf, NULL);
-            break;
-        case 2:
-            val = ((uint16_t)lm75_buf[0]<<8) | (lm75_buf[1]);
-            lm75_stat[base]++;
-#if (defined LM75_T_MIN_DELTA) && (LM75_T_MIN_DELTA > 0)
-            if((val > lm75_oldVal[base] ? val - lm75_oldVal[base] : lm75_oldVal[base] - val) > LM75_T_MIN_DELTA)
-#else
-            if(val != lm75_oldVal[base])
-#endif  //  LM75_T_MIN_DELTA
-            {
-                lm75_oldVal[base] = val;
-                return 1;
-            }
-        case 3:
-            twim_access = 0;        // Bus Free
-            break;
-    }
-
-    lm75_stat[base]++;
+  if(sleep != 0)
+  {
+    lm75_stat[base] = (0xFF-(POLL_TMR_FREQ/2));
     return 0;
+  }
+#endif  //  ASLEEP
+
+  tmp = lm75_stat[base];
+
+  if(twim_access & TWIM_ERROR)   // Bus Error
+  {
+    if(tmp < 2)
+        lm75_stat[base] = 2;
+    return 0;
+  }
+
+  if(tmp == 0)
+  {
+    if(twim_access == 0)
+    {
+      lm75_stat[base] = 1;
+      lm75_buf[0] = LM75_REG_TEMP;
+      twimExch_ISR(pSubidx->Base>>8, (TWIM_WRITE | TWIM_READ), 1, 2, lm75_buf, NULL);
+    }
+    return 0;
+  }
+  else if(tmp == 1)
+  {
+    val = ((uint16_t)lm75_buf[0]<<8) | (lm75_buf[1]);
+    lm75_stat[base] = 2;
+#if (defined LM75_T_MIN_DELTA) && (LM75_T_MIN_DELTA > 0)
+    if((val > lm75_oldVal[base] ? val - lm75_oldVal[base] : lm75_oldVal[base] - val) > LM75_T_MIN_DELTA)
+#else
+    if(val != lm75_oldVal[base])
+#endif  //  LM75_T_MIN_DELTA
+    {
+      lm75_oldVal[base] = val;
+      return 1;
+    }
+  }
+  else
+    lm75_stat[base]++;
+  return 0;
 }
 
 uint8_t twi_LM75_Config(void)
@@ -135,7 +153,7 @@ uint8_t twi_LM75_Config(void)
             
             pIndex->cbRead  =  &twi_lm75_Read;
             pIndex->cbWrite =  &twi_lm75_Write;
-            pIndex->cbPool  =  &twi_lm75_Pool;
+            pIndex->cbPoll  =  &twi_lm75_Poll;
             pIndex->sidx.Place = objTWI;                   // Object TWI
             pIndex->sidx.Type =  objInt16;                 // Variables Type -  UInt16
             pIndex->sidx.Base = ((uint16_t)addr<<8) | pos;

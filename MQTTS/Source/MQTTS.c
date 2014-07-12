@@ -1,18 +1,20 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // MQTT-S Library
 
 #include "config.h"
 
-#define POOL_TMR_FREQ_FAST  (POOL_TMR_FREQ/4 - 1)
+#define POLL_TMR_FREQ_FAST  (POLL_TMR_FREQ/4 - 1)
 
 static MQTTS_VAR_t vMQTTS;
 
@@ -52,7 +54,7 @@ static void mqtts_inc_tail(void)
       vMQTTS.fTail = 0;
     
       vMQTTS.Tretry = 0;
-      vMQTTS.pfCnt = (POOL_TMR_FREQ - 1);
+      vMQTTS.pfCnt = (POLL_TMR_FREQ - 1);
     }
 
     vMQTTS.Nretry = MQTTS_DEF_NRETRY;
@@ -113,7 +115,7 @@ static uint8_t MQTTS_ToBuf(MQ_t * pBuf)
         if(vMQTTS.fHead == vMQTTS.fTail)
         {
             vMQTTS.Tretry = 0;
-            vMQTTS.pfCnt = POOL_TMR_FREQ_FAST;
+            vMQTTS.pfCnt = POLL_TMR_FREQ_FAST;
         }
 
         vMQTTS.fBuf[vMQTTS.fHead] = ppBuf;
@@ -153,7 +155,7 @@ static void MQTTS_Disconnect(void)
 #else   // Gateway
     vMQTTS.Status = MQTTS_STATUS_OFFLINE;
 #endif  // Gateway
-    vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+    vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
     vMQTTS.Tretry = 0;
     vMQTTS.Nretry = MQTTS_DEF_NRETRY;
     vMQTTS.MsgID = 0;
@@ -303,12 +305,12 @@ static void mqtts_send_ping()       // Send Ping request
     MQTTS_Push(pBuf);
 }
 
-uint8_t MQTTS_Pool(uint8_t wakeup)
+uint8_t MQTTS_Poll(uint8_t wakeup)
 {
     if(vMQTTS.pfCnt)
     {
         vMQTTS.pfCnt--;
-        return MQTTS_POOL_STAT_NOP;
+        return MQTTS_POLL_STAT_NOP;
     }
 
     switch(vMQTTS.Status)
@@ -316,7 +318,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
 #ifndef GATEWAY
         case MQTTS_STATUS_SEARCHGW:
 #ifndef ASLEEP
-            vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+            vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
             if(vMQTTS.Tretry)
             {
                 vMQTTS.Tretry--;
@@ -334,29 +336,29 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 vMQTTS.Tretry--;
                 if(vMQTTS.Tretry == (MQTTS_DEF_TSGW - 2))
                 {
-                    return MQTTS_POOL_STAT_ASLEEP;          // ASLeep
+                    return MQTTS_POLL_STAT_ASLEEP;          // ASLeep
                 }
                 else if(vMQTTS.Tretry == 0)
                 {
                     if(vMQTTS.Nretry)
                     {
                         vMQTTS.Nretry--;
-                        vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
-                        return  MQTTS_POOL_STAT_AWAKE;          // WakeUp
+                        vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
+                        return  MQTTS_POLL_STAT_AWAKE;          // WakeUp
                     }
                     // Not found many times
                     SystemReset();
                 }
                 break;
             }
-            vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+            vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
             vMQTTS.Tretry = MQTTS_DEF_TSGW - 1;
 #endif  //  ASLEEP
             mqtts_send_search_gw();
             break;
 #endif  //  GATEWAY
         case MQTTS_STATUS_OFFLINE:      // Connect to Broker
-            vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+            vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
             
             if(vMQTTS.Tretry)
             {
@@ -381,7 +383,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
             mqtts_send_connect();
             break;
         case MQTTS_STATUS_CONNECT:
-            vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+            vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
             
             if(vMQTTS.Tretry)
             {
@@ -412,13 +414,13 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                     MQTTS_Push(pBuf);
                 }
 
-                vMQTTS.pfCnt = POOL_TMR_FREQ_FAST;
+                vMQTTS.pfCnt = POLL_TMR_FREQ_FAST;
             }
             break;
 #ifdef ASLEEP
         case MQTTS_STATUS_POST_CONNECT:
             {
-            vMQTTS.pfCnt = (POOL_TMR_FREQ - 1);
+            vMQTTS.pfCnt = (POLL_TMR_FREQ - 1);
             MQ_t * pBuf;
             pBuf = mqAssert();
             if(pBuf != NULL)    // no memory
@@ -438,7 +440,7 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
         case MQTTS_STATUS_PRE_ASLEEP:
             vMQTTS.Status = MQTTS_STATUS_ASLEEP;
             vMQTTS.Tretry = vMQTTS.Tasleep;
-            return MQTTS_POOL_STAT_ASLEEP;
+            return MQTTS_POLL_STAT_ASLEEP;
         case MQTTS_STATUS_ASLEEP:
             if(vMQTTS.Tretry)
             {
@@ -446,12 +448,12 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 break;
             }
             
-            vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+            vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
             vMQTTS.Status = MQTTS_STATUS_AWAKE;
             vMQTTS.Nretry = MQTTS_DEF_NRETRY;
-            return MQTTS_POOL_STAT_AWAKE;
+            return MQTTS_POLL_STAT_AWAKE;
         case MQTTS_STATUS_AWAKE:
-            vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+            vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
 
             if(vMQTTS.Nretry)
             {
@@ -468,12 +470,12 @@ uint8_t MQTTS_Pool(uint8_t wakeup)
                 break;
             }
 
-            vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+            vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
             vMQTTS.Status = MQTTS_STATUS_PRE_ASLEEP;
             break;
 #endif  //  ASLEEP
     }
-    return MQTTS_POOL_STAT_NOP;
+    return MQTTS_POLL_STAT_NOP;
 }
 
 uint8_t MQTTS_Parser(MQ_t * pBuf)
@@ -509,7 +511,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
         case MQTTS_MSGTYP_CONNACK:
             if(vMQTTS.Status == MQTTS_STATUS_OFFLINE)
             {
-                vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+                vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
                 if(pBuf->mq.m.connack.ReturnCode == MQTTS_RET_ACCEPTED)
                 {
                     vMQTTS.Status = MQTTS_STATUS_CONNECT;
@@ -570,7 +572,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
             )
                 break;
 
-            vMQTTS.pfCnt = (POOL_TMR_FREQ - 1);
+            vMQTTS.pfCnt = (POLL_TMR_FREQ - 1);
             vMQTTS.Nretry = MQTTS_DEF_NRETRY;
 
             tmp = mqtts_check_msgid(pBuf->mq.m.publish.MsgId);
@@ -632,7 +634,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
             break;
             
           vMQTTS.Nretry = MQTTS_DEF_NRETRY;
-          vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+          vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
 
           break;
         case MQTTS_MSGTYP_DISCONNECT:
@@ -640,7 +642,7 @@ uint8_t MQTTS_Parser(MQ_t * pBuf)
             if(vMQTTS.Status == MQTTS_STATUS_POST_CONNECT)
             {
                 vMQTTS.Status = MQTTS_STATUS_PRE_ASLEEP;
-                vMQTTS.pfCnt = POOL_TMR_FREQ - 1;
+                vMQTTS.pfCnt = POLL_TMR_FREQ - 1;
                 break;
             }
 #endif  //  ASLEEP

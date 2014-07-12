@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // Hardware definitions uNode v2.0  ATMega 328P + CC1101
@@ -128,20 +130,20 @@ See LICENSE.txt file for license details.
 #endif  //  GATEWAY
 
 // Timer Section
-#define POOL_TMR_FREQ           64     // Pool Frequency (Hz)
+#define POLL_TMR_FREQ           64     // Poll Frequency (Hz)
 #define TIMER_ISR               TIMER2_COMPA_vect
 
 #ifdef USE_RTC_OSC
 #define InitTimer()             {ASSR = (1<<AS2);                                   \
                                  TCCR2A = (1<<WGM21); TCNT2 = 0;                    \
-                                 OCR2A = ((32768/8/POOL_TMR_FREQ)-1);               \
+                                 OCR2A = ((32768/8/POLL_TMR_FREQ)-1);               \
                                  TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);          \
                                  TCCR2B = (1<<WGM22) | (2 << CS20);                 \
                                  while(ASSR & 0x1F);}
 #define config_sleep_rtc()      {TCCR2A = 0; TCCR2B = (5 << CS20); while(ASSR & 0x1F);}
 #else   //  USE_RTC_OSC
 #define InitTimer()             {TCCR2A = (1<<WGM21); TCNT2 = 0;            \
-                                 OCR2A = ((F_CPU/1024/POOL_TMR_FREQ)-1);    \
+                                 OCR2A = ((F_CPU/1024/POLL_TMR_FREQ)-1);    \
                                  TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
                                  TCCR2B =(1<<WGM22) | (7<<CS20);}
 #define config_sleep_wdt()      {wdt_reset(); MCUSR &= ~(1<<WDRF);                      \

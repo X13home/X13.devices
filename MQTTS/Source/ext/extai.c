@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // Extensions - Analogue Inputs
@@ -139,7 +141,7 @@ uint8_t aiWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t aiPoolOD(subidx_t * pSubidx, uint8_t sleep)
+uint8_t aiPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
   uint8_t apin;
   uint16_t ActVal;
@@ -148,7 +150,7 @@ uint8_t aiPoolOD(subidx_t * pSubidx, uint8_t sleep)
 #ifdef ASLEEP
   if(sleep != 0)
   {
-    aiTimeout[apin] = POOL_TMR_FREQ;
+    aiTimeout[apin] = POLL_TMR_FREQ;
 
     if(~PRR & (1<<PRADC))
       DISABLE_ADC();
@@ -187,7 +189,7 @@ uint8_t aiRegisterOD(indextable_t *pIdx)
     
     pIdx->cbRead = &aiReadOD;
     pIdx->cbWrite = &aiWriteOD;
-    pIdx->cbPool = &aiPoolOD;
+    pIdx->cbPoll = &aiPollOD;
 
     aiTimeout[apin] = 0;
     aiOldVal[apin] = 0;

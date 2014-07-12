@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 #ifndef _OBJ_DICT_H_
@@ -86,7 +88,7 @@ typedef struct
 
 typedef uint8_t (*cbRead_t)(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);  // Callback Read
 typedef uint8_t (*cbWrite_t)(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);   // Callback Write
-typedef uint8_t (*cbPool_t)(subidx_t * pSubidx, uint8_t sleep);                  // Callback Pool
+typedef uint8_t (*cbPoll_t)(subidx_t * pSubidx, uint8_t sleep);                  // Callback Poll
 
 // Struct for creating entries
 typedef struct
@@ -95,7 +97,7 @@ typedef struct
     uint16_t    Index;
     cbRead_t    cbRead;
     cbWrite_t   cbWrite;
-    cbPool_t    cbPool;
+    cbPoll_t    cbPoll;
 }indextable_t;
 
 void InitOD(void);
@@ -109,7 +111,7 @@ void RegAckOD(uint16_t index);
 uint8_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf);
 uint8_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBuf);
 
-uint16_t PoolOD(uint8_t sleep);
+uint16_t PollOD(uint8_t sleep);
 
 #endif
  

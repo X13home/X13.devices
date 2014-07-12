@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // Global configuration settings
@@ -38,7 +40,7 @@ See LICENSE.txt file for license details.
 // MQTT-S Section
 #define MQTTS_MSG_SIZE          30      // Size of payload(base for all buffers)
 #define MQTTS_SIZEOF_SEND_FIFO  4       // Size of MQTTS Send Buffer
-#define MQTTS_SIZEOF_POOL_FIFO  4       // Size of MQTTS Pool Buffer
+#define MQTTS_SIZEOF_POLL_FIFO  4       // Size of MQTTS Poll Buffer
 
 // Object Dictionary
 #define OD_MAX_INDEX_LIST       12      // Size of identificators list
@@ -65,7 +67,7 @@ See LICENSE.txt file for license details.
 // MQTT-S Section
 #define MQTTS_MSG_SIZE          30      // Size of payload(base for all buffers)
 #define MQTTS_SIZEOF_SEND_FIFO  4       // Size of MQTTS Send Buffer
-#define MQTTS_SIZEOF_POOL_FIFO  4       // Size of MQTTS Pool Buffer
+#define MQTTS_SIZEOF_POLL_FIFO  4       // Size of MQTTS Poll Buffer
 
 // Object Dictionary
 #define OD_MAX_INDEX_LIST       12      // Size of identificators list
@@ -86,11 +88,15 @@ See LICENSE.txt file for license details.
 
 // TWI Section
 // TWI Drivers
-#define TWI_USE_BMP180          1       // TWI Driver Bosh BMP180/BMP085 - Temperature/Pressure
-#define TWI_USE_HIH61XX         1       // TWI Driver Honeywell HIH-61xx - Temperature/Humidity
-#define TWI_USE_SI7005          1       // TWI Driver Silicon Si7005 - Temperature/Humidity
-#define TWI_USE_LM75            1       // TWI Driver, LM75 - Temperature
-#define TWI_USE_BLINKM          1       // TWI Driver, BlinkM - Blinky RGB Driver
+//#define TWI_USE_SMARTDRV        1       // Smart Driver for smart devices.
+#define TWI_USE_BLINKM          1       // BlinkM - Blinky RGB Driver
+#define TWI_USE_EXPANDER        1       // 16bit IO Expander, PCA9535/TCA9535/PCA9555/MCP23016
+#define TWI_USE_HIH61XX         1       // Honeywell HIH-61xx - Temperature/Humidity
+#define TWI_USE_CC2D            1       // GE Sensing CC2Dxx[s]  - Temperature/Humidity
+#define TWI_USE_SHT21           1       // Sensirion SHT21 - Temperature/Humidity
+#define TWI_USE_LM75            1       // LM75 - Temperature
+#define TWI_USE_BMP180          1       // Bosh BMP180/BMP085 - Temperature/Pressure
+//#define TWI_USE_DUMMY           1       // DUMMY, checks all addresses
 //End TWI Section
 
 #if (defined UNODE)

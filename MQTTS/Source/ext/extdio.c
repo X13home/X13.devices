@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 // Extensions digital inputs/outputs
@@ -293,7 +295,7 @@ static uint8_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
-static uint8_t dioPoolOD(subidx_t * pSubidx, uint8_t sleep)
+static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
   uint16_t base = pSubidx->Base;
   uint8_t place = pSubidx->Place;
@@ -424,7 +426,7 @@ uint8_t dioRegisterOD(indextable_t *pIdx)
         
     pIdx->cbRead = &dioReadOD;
     pIdx->cbWrite = &dioWriteOD;
-    pIdx->cbPool = &dioPoolOD;
+    pIdx->cbPoll = &dioPollOD;
     return MQTTS_RET_ACCEPTED;
 }
 

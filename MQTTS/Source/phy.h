@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 #ifndef _PHY_H
@@ -47,12 +49,11 @@ void PHY_Start(void);
 
 #endif  //  RF_NODE
 
-// New Section
-void PHY_LoadConfig(void);
-void PHY_Init(void);
-MQ_t * PHY_GetBuf(void);
-void PHY_Send(MQ_t * pBuf);
-void PHY_Pool(void);
-uint8_t PHY_BuildName(uint8_t * pBuf);
-
+// PHY API
+void PHY_LoadConfig(void);                  // Load PHY Configuration from database
+void PHY_Init(void);                        // Initialise PHY
+MQ_t * PHY_GetBuf(void);                    // Get Data from PHY, return pointer to data or NULL
+void PHY_Send(MQ_t * pBuf);                 // Send data via PHY
+void PHY_Poll(void);                        // PHY polling
+uint8_t PHY_BuildName(uint8_t * pBuf);      // Build Node name
 #endif  //  _RF_H

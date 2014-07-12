@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 #include "../config.h"
@@ -115,7 +117,7 @@ uint8_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 #endif  //  EXTSER_TX_USED
 
 #ifdef EXTSER_RX_USED
-uint8_t serPoolOD(subidx_t * pSubidx, uint8_t _unused)
+uint8_t serPollOD(subidx_t * pSubidx, uint8_t _unused)
 {
     if(serRxPos > 0)
     {
@@ -156,7 +158,7 @@ uint8_t serRegisterOD(indextable_t *pIdx)
         
         pIdx->cbRead = NULL;
         pIdx->cbWrite = &serWriteOD;
-        pIdx->cbPool = NULL;
+        pIdx->cbPoll = NULL;
     }
     else 
 #endif  //  EXTSER_TX_USED
@@ -184,7 +186,7 @@ uint8_t serRegisterOD(indextable_t *pIdx)
         
         pIdx->cbRead = &serReadOD;
         pIdx->cbWrite = NULL;
-        pIdx->cbPool = &serPoolOD;
+        pIdx->cbPoll = &serPollOD;
     }
     else
 #endif  //  EXTSER_RX_USED

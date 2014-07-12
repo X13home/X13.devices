@@ -1,12 +1,16 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
+
+// TWI(I2C) Master
 
 #include "../config.h"
 
@@ -19,25 +23,47 @@ See LICENSE.txt file for license details.
 #include "extdio.h"
 #include "twim.h"
 
-#ifdef TWI_USE_BMP180
-#include "twi/twiDriver_BMP180.h"
-#endif  //  TWI_USE_BMP180
+#ifdef TWI_USE_SMARTDRV
+#include "twi/twiDriver_Smart.h"
+#endif  //  TWI_USE_SMARTDRV
+
+#ifdef TWI_USE_BLINKM
+#include "twi/twiDriver_BlinkM.h"
+#endif  //  TWI_USE_BLINKM
+
+#ifdef TWI_USE_EXPANDER
+#include "twi/twiDriver_Expander.h"
+#endif  //  TWI_USE_EXPANDER
 
 #ifdef TWI_USE_HIH61XX
 #include "twi/twiDriver_HIH61XX.h"
 #endif  //  TWI_USE_HIH61XX
 
-#ifdef TWI_USE_SI7005
-#include "twi/twiDriver_SI7005.h"
-#endif  //  TWI_USE_SI7005
+#ifdef TWI_USE_CC2D
+#include "twi/twiDriver_CC2D.h"
+#endif  //  TWI_USE_CC2D
+
+#ifdef TWI_USE_SHT21
+#include "twi/twiDriver_SHT21.h"
+#endif  //  TWI_USE_SHT21
 
 #ifdef TWI_USE_LM75
 #include "twi/twiDriver_LM75.h"
 #endif  //  TWI_USE_LM75
 
-#ifdef TWI_USE_BLINKM
-#include "twi/twiDriver_BlinkM.h"
-#endif
+#ifdef TWI_USE_BMP180
+#include "twi/twiDriver_BMP180.h"
+#endif  //  TWI_USE_BMP180
+
+//
+//
+// Insert here include for Your header file
+//
+//
+
+#ifdef TWI_USE_DUMMY
+#include "twi/twiDriver_Dummy.h"
+#endif  //  TWI_USE_DUMMY
 
 // ExtDIO internal subroutines
 extern uint8_t base2Mask(uint16_t base);
@@ -56,6 +82,12 @@ static cbTWI twim_callback;             // callback function
 static uint8_t twim_addr_old;           // WatchDog address
 static uint8_t twim_busy_cnt;           // Busy counter
 
+void twimWaitAisr(void)
+{
+  uint16_t cnt = 0;
+  while((!(TWCR & (1<<TWINT))) && --cnt);
+}
+
 // Read/Write data from/to buffer
 uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint8_t *pBuf)
 {
@@ -70,7 +102,7 @@ uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint
     while(twim_access & (TWIM_WRITE | TWIM_READ))
     {
         TWCR = (1<<TWINT) | (1<<TWSTA) | (1<<TWEN); // Send START
-        while(!(TWCR & (1<<TWINT)));                // Wait for TWI interrupt flag set
+        twimWaitAisr();                             // Wait for TWI interrupt flag set
         if((TWSR != TW_START) &&                    // If status other than START transmitted(0x08)
            (TWSR != TW_REP_START))                  // or Repeated START transmitted(0x10)
         {
@@ -84,7 +116,7 @@ uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint
             TWDR = twim_addr | TW_READ;
 
         TWCR = (1<<TWINT) | (1<<TWEN);              // Clear interrupt flag to send byte
-        while(!(TWCR & (1<<TWINT)));                // Wait for TWI interrupt flag set
+        twimWaitAisr();                             // Wait for TWI interrupt flag set
         if((TWSR != TW_MT_SLA_ACK) &&
             (TWSR != TW_MR_SLA_ACK))
         {
@@ -100,7 +132,7 @@ uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint
                 // Send one byte to the bus.
                 TWDR = twim_ptr[pos++];
                 TWCR = (1<<TWINT) | (1<<TWEN);          // Clear interrupt flag to send byte
-                while(!(TWCR & (1<<TWINT)));            // Wait for TWI interrupt flag set
+                twimWaitAisr();                         // Wait for TWI interrupt flag set
 
                 if((pos < twim_bytes2write) &&          // Not Last Byte
                     (TWSR != TW_MT_DATA_ACK))           // If NACK received return TWSR
@@ -120,7 +152,7 @@ uint8_t twimExch(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uint
                 // If this is the last byte the master will send NACK to tell the slave 
                 //  that it shall stop transmitting.
                 TWCR = (1<<TWINT) | (1<<TWEN) | ((pos + 1) < twim_bytes2read ? (1<<TWEA) : 0);
-                while(!(TWCR & (1<<TWINT)));            //  Wait for TWI interrupt flag set
+                twimWaitAisr();                             // Wait for TWI interrupt flag set
                 twim_ptr[pos++] = TWDR;
             }
             twim_access &= ~TWIM_READ;
@@ -141,7 +173,7 @@ void twimExch_ISR(uint8_t addr, uint8_t access, uint8_t write, uint8_t read, uin
         return;
 
     twim_addr = (addr<<1);
-    twim_access = access;
+    twim_access = access | TWIM_BUSY;
     twim_bytes2write = write; 
     twim_bytes2read = read;
     twim_ptr = pBuf;
@@ -187,6 +219,8 @@ ISR(TWI_vect)
                 TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop
                 if(twim_callback != NULL)
                     (twim_callback)();
+                else
+                  twim_access &= ~TWIM_BUSY;
             }
             break;
         case TW_MR_DATA_ACK:                    // Data byte has been received and ACK transmitted
@@ -209,11 +243,15 @@ ISR(TWI_vect)
             TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop
             twim_access &= ~TWIM_READ;
             if(twim_callback != NULL)
-                (twim_callback)();
+              (twim_callback)();
+            else
+              twim_access &= ~TWIM_BUSY;
             break;
         default:                                // Error
             twim_access |= TWIM_ERROR;
             TWCR = (1<<TWEN) | (1<<TWINT) | (1<<TWSTO); // Send Stop, Disable Interrupt
+            if(twim_callback != NULL)
+              (twim_callback)();
             break;
     }
 }
@@ -240,7 +278,7 @@ uint8_t twim_write(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTS_RET_ACCEPTED;
 }
 
-uint8_t twim_pool(subidx_t * pSubidx, uint8_t sleep)
+uint8_t twim_poll(subidx_t * pSubidx, uint8_t sleep)
 {
 #ifdef ASLEEP
   if(sleep != 0)
@@ -307,6 +345,7 @@ void twiConfig(void)
     uint8_t cnt = 0;
     indextable_t * pIndex;
     
+    // Reserve variable for Status
     pIndex = getFreeIdxOD();
     if(pIndex == NULL)
         return;
@@ -314,22 +353,42 @@ void twiConfig(void)
     twim_callback = NULL;
     _delay_ms(500);
     
-#ifdef TWI_USE_BMP180
-    cnt += twi_BMP180_Config();
-#endif
-#ifdef TWI_USE_HIH61XX
-    cnt += twi_HIH61xx_Config();
-#endif
-#ifdef TWI_USE_LM75
-    cnt += twi_LM75_Config();
-#endif
-#ifdef TWI_USE_SI7005
-    cnt += twi_SI7005_Config();
-#endif
+#ifdef TWI_USE_SMARTDRV
+    cnt += twi_Smart_Config();
+#endif  //  TWI_USE_SMARTDRV
 #ifdef  TWI_USE_BLINKM
     cnt += twi_BlinkM_Config();
 #endif  //  TWI_USE_BLINKM
+#ifdef TWI_USE_EXPANDER
+    cnt += twi_Expander_Config();
+#endif  //  TWI_USE_EXPANDER
+#ifdef TWI_USE_HIH61XX
+    cnt += twi_HIH61xx_Config();
+#endif  //  TWI_USE_HIH61XX
+#ifdef TWI_USE_CC2D
+    cnt += twi_CC2D_Config();
+#endif  //  TWI_USE_CC2D
+#ifdef TWI_USE_SHT21
+    cnt += twi_SHT21_Config();
+#endif  //  TWI_USE_SHT21
+#ifdef TWI_USE_LM75
+    cnt += twi_LM75_Config();
+#endif  //  TWI_USE_LM75
+#ifdef TWI_USE_BMP180
+    cnt += twi_BMP180_Config();
+#endif  //  TWI_USE_BMP180
 
+//
+//
+// Insert here Your driver configuration
+//
+//
+
+#ifdef TWI_USE_DUMMY
+    cnt += twi_Dummy_Config();
+#endif  //  TWI_USE_DUMMY
+
+    // No active drivers
     if(cnt == 0)
     {
         pIndex->Index = 0xFFFF;
@@ -339,6 +398,7 @@ void twiConfig(void)
 
     twiClean();
 
+    // Register Status variable
     pIndex->sidx.Place = objDin;
     pIndex->sidx.Type = objPinPNP;
     pIndex->sidx.Base = TWI_PIN_SDA;
@@ -349,7 +409,7 @@ void twiConfig(void)
     // Status Register
     pIndex->cbRead  =  &twim_read;
     pIndex->cbWrite =  &twim_write;
-    pIndex->cbPool  =  &twim_pool;
+    pIndex->cbPoll  =  &twim_poll;
     
     pIndex->sidx.Place = objTWI;
     pIndex->sidx.Type =  objUInt8;

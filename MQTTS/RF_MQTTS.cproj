@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectVersion>6.1</ProjectVersion>
+    <ProjectVersion>6.2</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
     <ProjectGuid>{e4da1896-b635-4689-a924-8b52b4d6b158}</ProjectGuid>
     <avrdevice>ATmega328P</avrdevice>
@@ -165,7 +165,7 @@
     </ToolchainSettings>
     <OutputFileName>DMGWDM</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
-    <OutputPath>RFGWDM\</OutputPath>
+    <OutputPath>DMGWDM\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'RFGWUN' ">
     <ToolchainSettings>
@@ -458,6 +458,24 @@
     <Compile Include="Source\ext\twi\twiDriver_BMP180.h">
       <SubType>compile</SubType>
     </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_CC2D.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_CC2D.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_Dummy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_Dummy.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_EXPANDER.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_EXPANDER.h">
+      <SubType>compile</SubType>
+    </Compile>
     <Compile Include="Source\ext\twi\twiDriver_HIH61xx.c">
       <SubType>compile</SubType>
     </Compile>
@@ -470,10 +488,16 @@
     <Compile Include="Source\ext\twi\twiDriver_LM75.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\ext\twi\twiDriver_SI7005.c">
+    <Compile Include="Source\ext\twi\twiDriver_SHT21.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Source\ext\twi\twiDriver_SI7005.h">
+    <Compile Include="Source\ext\twi\twiDriver_SHT21.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_Smart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\ext\twi\twiDriver_Smart.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\MAIN.c">

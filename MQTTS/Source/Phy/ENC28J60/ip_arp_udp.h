@@ -1,13 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
-
-Based on IPstack for AVR from Guido Socher and Pascal Stang
+See LICENSE file for license details.
 */
 
 #ifndef IP_ARP_UDP_H

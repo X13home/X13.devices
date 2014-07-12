@@ -1,11 +1,13 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
 #ifndef _MQTTS_H
@@ -394,13 +396,13 @@ typedef enum e_MQTTS_STATUS
 #endif  //  ASLEEP
 }e_MQTTS_STATUS_t;
 
-enum e_MQTTS_POOL_STATUS
+enum e_MQTTS_POLL_STATUS
 {
-    MQTTS_POOL_STAT_NOP = 0,
-    MQTTS_POOL_STAT_DATA,
+    MQTTS_POLL_STAT_NOP = 0,
+    MQTTS_POLL_STAT_DATA,
 #ifdef ASLEEP
-    MQTTS_POOL_STAT_ASLEEP,
-    MQTTS_POOL_STAT_AWAKE,
+    MQTTS_POLL_STAT_ASLEEP,
+    MQTTS_POLL_STAT_AWAKE,
 #endif  //  ASLEEP
 };
 
@@ -419,10 +421,10 @@ typedef struct
     uint8_t                 tail;
     uint8_t                 head;
     MQ_t                  * buf[MQTTS_SIZEOF_SEND_FIFO];
-    // Pool FIFO
+    // Poll FIFO
     uint8_t                 fTail;
     uint8_t                 fHead;
-    MQ_t                  * fBuf[MQTTS_SIZEOF_POOL_FIFO];
+    MQ_t                  * fBuf[MQTTS_SIZEOF_POLL_FIFO];
     uint16_t                MsgID;
     uint16_t                inMsgId;
     
@@ -439,7 +441,7 @@ uint8_t MQTTS_Subscribe(uint8_t Flags, uint8_t Size, uint8_t * ipBuf);
 uint8_t MQTTS_Register(uint16_t TopicID, uint8_t Size, uint8_t * ipBuf);
 
 void MQTTS_Init(void);
-uint8_t MQTTS_Pool(uint8_t wakeup);
+uint8_t MQTTS_Poll(uint8_t wakeup);
 uint8_t MQTTS_Parser(MQ_t * pBuf);
 
 uint8_t MQTTS_GetStatus(void);
