@@ -98,7 +98,7 @@ See LICENSE file for license details.
 #define SER_ENABLE_RX()         {UCSR0B |= (1<<RXCIE0) | (1<<RXEN0); UCSR0C = (3<<UCSZ00);}
 #define SER_DISABLE_RX()        {UCSR0B &= ~((1<<RXCIE0) | (1<<RXEN0));             \
                                  if((UCSR0B & ((1<<TXEN0) | (1<<RXEN0))) == 0)      \
-                                    PRR &= ~(1<<PRUSART0);}
+                                    PRR |= (1<<PRUSART0);}
 #define SER_ENABLE_TX()         {UCSR0B |= (1<<TXEN0); UCSR0C = (3<<UCSZ00);}
 #define SER_DISABLE_TX()        {UCSR0B &= ~(1<<TXEN0);                             \
                                  if((UCSR0B & ((1<<TXEN0) | (1<<RXEN0))) == 0)      \
@@ -109,7 +109,7 @@ See LICENSE file for license details.
 #define InitTimer()             {TCCR2A = (1<<WGM21); TCNT2 = 0;            \
                                 OCR2A = ((F_CPU/1024/POLL_TMR_FREQ)-1);    \
                                 TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
-                                TCCR2B =(1<<WGM22) | (7<<CS20);}
+                                TCCR2B = (7<<CS20);}
 // End Timer Section
 
 // Digital IO's
