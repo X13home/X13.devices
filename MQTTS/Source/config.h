@@ -115,7 +115,7 @@ See LICENSE file for license details.
 #elif (defined DUMMY)
   #include "Phy/HWconfigDM.h"           // Hardware Dummy
 #elif (defined DUMMY_ATM256)
-  #include "Phy/HWconfigDM_atm256.h"    // Hardware Dummy for ATMega256
+  #include "Phy/HWconfigDM_atm256.h"    // Hardware Dummy for ATMega2560
 #else
   #error Hardware configuration is not defined
 #endif

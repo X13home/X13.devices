@@ -1,14 +1,16 @@
 /*
-Copyright (c) 2011-2013 <comparator@gmx.de>
+Copyright (c) 2011-2014 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
-http://X13home.github.com
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
 
 BSD New License
-See LICENSE.txt file for license details.
+See LICENSE file for license details.
 */
 
-// Hardware definitions Dummy ATMega 256
+// Hardware definitions Dummy ATMega2560
 
 #ifndef _HWCONFIG_DM_ATM256_H
 #define _HWCONFIG_DM_ATM256_H
@@ -62,47 +64,22 @@ See LICENSE.txt file for license details.
                                  UCSR0C = (3<<UCSZ00);}
 // End USART Section
 
-// Timer Section
-#define POLL_TMR_FREQ           64     // Poll Frequency (Hz)
-#define TIMER_ISR               TIMER2_COMPA_vect
-
-#define InitTimer()             {TCCR2A = (1<<WGM21); TCNT2 = 0;            \
-                                 OCR2A = ((F_CPU/1024/POLL_TMR_FREQ)-1);    \
-                                 TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
-                                 TCCR2B =(1<<WGM22) | (7<<CS20);}
-#define config_sleep_wdt()      {wdt_reset(); MCUSR &= ~(1<<WDRF);                      \
-                                 WDTCSR |= (1<<WDCE) | (1<<WDE); WDTCSR = (6<<WDP0);    \
-                                 WDTCSR |= (1<<WDIF); WDTCSR |= (1<<WDIE);}
-// End Timer Section
-
 // Digital IO's
-#define EXTDIO_MAXPORT_NR       3           // Number of digital Ports
+#define EXTDIO_MAXPORT_NR       4           // Number of digital Ports
+#define EXTDIO_BASE_OFFSET      0           // Numeration started from Port: 0 - A, 1 - B, 2 - C ...
 
-#define PORTNUM0                0
-#define PORTDDR0                DDRA
-#define PORTOUT0                PORTA
-#define PORTIN0                 PINA
-#define PORT1MASK               0x00
+#define PORTNUM_2_PORT          {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
+#define PORTNUM_2_MASK          {0x00, 0x00, 0x00, 0x00}
+// End Digital IO's
 
-#define PORTNUM1                1
-#define PORTDDR1                DDRB
-#define PORTOUT1                PORTB
-#define PORTIN1                 PINB
-#define PORT1MASK               0x00
-
-#define PORTNUM2                2
-#define PORTDDR2                DDRC
-#define PORTOUT2                PORTC
-#define PORTIN2                 PINC
-#define PORT2MASK               0x00
+// Analogue Inputs
+#define EXTAIN_MAXPORT_NR       8          // ADC0-ADC7
+#define EXTAIN_BASE_2_APIN      {0, 1, 2, 3, 4, 5, 6, 7, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF}
+// End Analogue Inputs
 
 #define RF_NODE                 1
-#define OD_DEFAULT_GROUP        0x2DD4
-#define OD_DEFAULT_CHANNEL      0x12
+#define DUMMY                   1
 
-#define DUMMY
-
-#define s_Addr                  uint8_t
-#define AddrBroadcast           0
+#include "HWConfigDefaultATM.h"
 
 #endif  //  _HWCONFIG_DM_ATM256_H

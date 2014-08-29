@@ -1,5 +1,6 @@
 Version 2.6.3
-
+          
+          Typo correction, HWconfigDefaultATM.h, Timer Init.          29.Aug.2014
 Optimization, Bugfix ADIN, Actualize file-list, typo correction       28.Jun.2014
 Bugfix    UART
 

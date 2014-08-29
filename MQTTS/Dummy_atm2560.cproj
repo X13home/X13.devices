@@ -2,7 +2,7 @@
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectVersion>6.1</ProjectVersion>
+    <ProjectVersion>6.2</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
     <ProjectGuid>{f3eba7bd-72fe-4b98-99ca-bda438f49ee1}</ProjectGuid>
     <avrdevice>ATmega2560</avrdevice>
@@ -119,6 +119,9 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\Phy\Dummy\dummy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Source\Phy\HWconfigDefaultATM.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Source\Phy\HWconfigDM_atm256.h">
