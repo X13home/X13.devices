@@ -73,8 +73,6 @@ See LICENSE file for license details.
 
 #define SYSTEM_RESET()          {cli();RxLEDon(); WDTCSR = (1<<WDCE) | (1<<WDE); WDTCSR = (1<<WDE);}
 
-asm("jmp 0x0000");}
-
 // Digital IO's
 #define EXTDIO_MAXPORT_NR       2           // Number of digital Ports
 #define EXTDIO_BASE_OFFSET      2           // Numeration started from Port: 0 - A, 1 - B, 2 - C ...
