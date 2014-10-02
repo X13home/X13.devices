@@ -1,6 +1,8 @@
 Version 2.6.3
-          
-          Typo correction, HWconfigDefaultATM.h, Timer Init.          29.Aug.2014
+
+Added   Pseudo random delay between publish retry's                   02.Oct.2014
+Changed Hw config UN,UP, SYSTEM_RESET with WatchDog                   02.Oct.2014
+        Typo correction, HWconfigDefaultATM.h, Timer Init.            29.Aug.2014
 Optimization, Bugfix ADIN, Actualize file-list, typo correction       28.Jun.2014
 Bugfix    UART
 

@@ -71,7 +71,9 @@ See LICENSE file for license details.
 #endif  //  GATEWAY
 // End OD Section
 
-#define SYSTEM_RESET()          {cli();RxLEDon();asm("jmp 0x0000");}
+#define SYSTEM_RESET()          {cli();RxLEDon(); WDTCSR = (1<<WDCE) | (1<<WDE); WDTCSR = (1<<WDE);}
+
+asm("jmp 0x0000");}
 
 // Digital IO's
 #define EXTDIO_MAXPORT_NR       2           // Number of digital Ports

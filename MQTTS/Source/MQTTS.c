@@ -14,7 +14,22 @@ See LICENSE file for license details.
 
 #include "config.h"
 
-#define POLL_TMR_FREQ_FAST  (POLL_TMR_FREQ/4 - 1)
+static uint8_t mqtts_publish_timeout(void)
+{
+    #define POLINOM_LFSR8       0x09        // Degree 4
+
+    static uint8_t pb_time = 1;
+    
+    if(pb_time & 1)
+    {
+        pb_time >>= 1;
+        pb_time ^= POLINOM_LFSR8;
+    }
+    else
+        pb_time >>= 1;
+    
+    return (pb_time & 0x0F) + 0x07;
+}
 
 static MQTTS_VAR_t vMQTTS;
 
@@ -115,7 +130,7 @@ static uint8_t MQTTS_ToBuf(MQ_t * pBuf)
         if(vMQTTS.fHead == vMQTTS.fTail)
         {
             vMQTTS.Tretry = 0;
-            vMQTTS.pfCnt = POLL_TMR_FREQ_FAST;
+            vMQTTS.pfCnt = mqtts_publish_timeout();
         }
 
         vMQTTS.fBuf[vMQTTS.fHead] = ppBuf;
@@ -387,7 +402,7 @@ uint8_t MQTTS_Poll(uint8_t wakeup)
                     MQTTS_Push(pBuf);
                 }
 
-                vMQTTS.pfCnt = POLL_TMR_FREQ_FAST;
+                vMQTTS.pfCnt = mqtts_publish_timeout();
             }
 #ifdef MQ_DEBUG
             // Debug

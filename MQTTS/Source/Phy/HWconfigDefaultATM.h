@@ -274,8 +274,8 @@ See LICENSE file for license details.
                                  TIFR2 = (1<<OCF2A); TIMSK2 = (1<<OCIE2A);  \
                                  TCCR2B = (7<<CS20);}
 #define CONFIG_SLEEP_WDT()      {wdt_reset(); MCUSR &= ~(1<<WDRF);                      \
-                                 WDTCSR |= (1<<WDCE) | (1<<WDE); WDTCSR = (6<<WDP0);    \
-                                 WDTCSR |= (1<<WDIF); WDTCSR |= (1<<WDIE);}
+                                 WDTCSR = (1<<WDCE) | (1<<WDE);                         \
+                                 WDTCSR = (1<<WDIF) | (1<<WDIE) | (1<<WDE) | (6<<WDP0);}
 #endif  //  USE_RTC_OSC
 #endif  //  InitTimer
 // End Timer Section
