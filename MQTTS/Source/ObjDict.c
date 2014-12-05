@@ -334,14 +334,14 @@ uint8_t RegisterOD(MQ_t *pBuf)
         if(memcmp((const void *)&Subidx, (const void *)&ListOD[id].sidx,sizeof(subidx_t)) == 0)
             break;                                                // Object exist but not registered
 
-        if(((ListOD[id].Index == TopicId) && (TopicId != 0)) ||   // Object exist & registered
+        if(((ListOD[id].Index == TopicId) && (TopicId != 0xFFFF)) ||   // Object exist & registered
             (++id == OD_MAX_INDEX_LIST))                          // Table full
             return MQTTS_RET_REJ_INV_ID;
     }
 
     if(ListOD[id].Index == 0xFFFF)                                // New variable
     {
-        if(TopicId == 0)                                          // Try to delete not exist variable
+        if(TopicId == 0xFFFF)                                          // Try to delete not exist variable
             return MQTTS_RET_REJ_INV_ID;
         
         ListOD[id].sidx = Subidx;
@@ -368,7 +368,7 @@ uint8_t RegisterOD(MQ_t *pBuf)
             }
         }
     }
-    else if(TopicId == 0)       // Delete Variable
+    else if(TopicId == 0xFFFF)       // Delete Variable
         deleteIndexOD(id);
 
     return MQTTS_RET_ACCEPTED;

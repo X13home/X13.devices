@@ -19,6 +19,48 @@ See LICENSE.txt file for license details.
 
 #define RF_WAIT_LOW_MISO()  while(RF_PIN & (1<<RF_PIN_MISO))
 
+#ifndef CC11_ANAREN     // Fosc = 26M
+
+// 433 MHz
+#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
+#define CC11_DEFVAL_FREQ2       0x10
+#define CC11_DEFVAL_FREQ1       0xA7
+#define CC11_DEFVAL_FREQ0       0x62
+// 868 MHz
+#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
+#define CC11_DEFVAL_FREQ2       0x21
+#define CC11_DEFVAL_FREQ1       0x62
+#define CC11_DEFVAL_FREQ0       0x76
+// 915 MHz
+#elif (RF_BASE_FREQ > 902000000UL) && (RF_BASE_FREQ < 928000000UL)
+#define CC11_DEFVAL_FREQ2       0x22
+#define CC11_DEFVAL_FREQ1       0xB1
+#define CC11_DEFVAL_FREQ0       0x3B
+//
+#endif  // RF_BASE_FREQ
+
+#define CC11_MDMCFG3_VAL        0x83    // Data Rate = 38,383 kBaud
+#define CC11_DEVIATN_VAL        0x33    // Deviation 17,46 kHz
+
+#else   // Fosc = 27M
+
+// 433 MHz
+#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
+#define CC11_DEFVAL_FREQ2       0x10
+#define CC11_DEFVAL_FREQ1       0x09
+#define CC11_DEFVAL_FREQ0       0x7B
+// 868 MHz
+#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
+#define CC11_DEFVAL_FREQ2       0x20
+#define CC11_DEFVAL_FREQ1       0x25
+#define CC11_DEFVAL_FREQ0       0xED
+#endif  //  RF_BASE_FREQ
+
+#define CC11_MDMCFG3_VAL        0x75    // Data Rate = 38,4178 kBaud
+#define CC11_DEVIATN_VAL        0x32    // Deviation 16,5 kHz
+
+#endif  //  CC11_ANAREN
+
 #define CC11_RF_POWER   0x50
 
 // Constants
@@ -40,14 +82,16 @@ const PROGMEM uint8_t cc11config[][2] =
     {CC11_PKTLEN,   0x3D},              // default packet length 61 byte
     {CC11_PKTCTRL1, 0x06},              // Append Status, Check Address and Broadcast
     {CC11_PKTCTRL0, 0x05},              // CRC calculation: enable, variable packet length
-    {CC11_FSCTRL1,  0x06},              // IF = 152,3 kHz
+    {CC11_FSCTRL1,  0x08},              // IF = 100 kHz
     {CC11_FREQ2,    CC11_DEFVAL_FREQ2}, // Set default carrier frequency
     {CC11_FREQ1,    CC11_DEFVAL_FREQ1},
     {CC11_FREQ0,    CC11_DEFVAL_FREQ0},
     {CC11_MDMCFG4,  0xCA},              // RX filter BW 101,6 kHz
-    {CC11_MDMCFG3,  0x83},              // Data Rate = 38,383 kBaud
-    {CC11_MDMCFG2,  0x13},              // Sensitivity optimized, GFSK, sync word 30/32 bit detected
-    {CC11_DEVIATN,  0x35},              // Deviation 20 kHz
+    {CC11_MDMCFG3,  CC11_MDMCFG3_VAL},  // Data Rate
+    {CC11_MDMCFG2,  0x93},              // Current optimized, GFSK, sync word 30/32 bit detected
+    {CC11_MDMCFG1,  0x00},              // Channel spacing 25 kHz
+    {CC11_MDMCFG0,  0x00},
+    {CC11_DEVIATN,  CC11_DEVIATN_VAL},  // Deviation 20 kHz
     {CC11_MCSM0,    0x18},              // Automatically calibrate when going from IDLE to RX or TX,  PO_TIMEOUT: 150uS
     {CC11_FOCCFG,   0x16},              // Frequency offset compensation 67,5 kHz
     {CC11_AGCCTRL2, 0x43},              // The highest gain setting can not be used, Target amplitude from channel filter: 33 dB 
@@ -209,9 +253,6 @@ void PHY_LoadConfig(void)
   if((cc11s_NodeID != 0) && (cc11s_NodeID != NodeID))
     cc11_writeReg(CC11_ADDR, NodeID);
   cc11s_NodeID = NodeID;
-
-  // !!!  Channel Space = 200 kHz not 25
-  Channel >>= 3;
 
   if((cc11s_Channel != 0xFF) && (cc11s_Channel != Channel))
     cc11_writeReg(CC11_CHANNR, Channel);
