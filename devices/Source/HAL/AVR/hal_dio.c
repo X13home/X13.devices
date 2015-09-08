@@ -4,7 +4,44 @@
 
 #include <avr/pgmspace.h>
 
-const const PROGMEM uint8_t hal_dio_portnum2port[]  = EXTDIO_PORTNUM2PORT;
+static const PROGMEM uint16_t hal_dio_portnum2port[] = {
+    #ifdef PORTA
+        (uint16_t)&PORTA,
+    #endif  //  PORTA
+    #ifdef PORTB
+        (uint16_t)&PORTB,
+    #endif  //  PORTB
+    #ifdef PORTC
+        (uint16_t)&PORTC,
+    #endif  //  PORTC
+    #ifdef PORTD
+        (uint16_t)&PORTD,
+    #endif  //  PORTD
+    #ifdef PORTE
+        (uint16_t)&PORTE,
+    #endif  //  PORTE
+    #ifdef PORTF
+        (uint16_t)&PORTF,
+    #endif  //  PORTF
+    #ifdef PORTG
+        (uint16_t)&PORTG,
+    #endif  //  PORTG
+    #ifdef PORTH
+        (uint16_t)&PORTH,
+    #endif  //  PORTH
+    #ifdef PORTI
+        (uint16_t)&PORTI,
+    #endif  //  PORTI
+    #ifdef PORTJ
+        (uint16_t)&PORTJ,
+    #endif  //  PORTJ
+    #ifdef PORTK
+        (uint16_t)&PORTK,
+    #endif  //  PORTK
+    #ifdef PORTL
+        (uint16_t)&PORTL,
+    #endif  //  PORTL
+};
 
 void hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint16_t Mode)
 {

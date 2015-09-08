@@ -17,7 +17,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-uint8_t pwmCheckIdx(subidx_t * pSubidx);
+bool pwmCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t pwmRegisterOD(indextable_t *pIdx);
 void pwmDeleteOD(subidx_t * pSubidx);
 

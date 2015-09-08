@@ -4,7 +4,8 @@
 
 #include <avr/pgmspace.h>
 
-static const PROGMEM uint8_t  hal_pwm_port2dio[] = EXTPWM_PORT2DIO;
+static const PROGMEM uint8_t hal_pwm_port2dio[] = EXTPWM_PORT2DIO;
+static const PROGMEM uint8_t hal_pwm_port2cfg[] = EXTPWM_PORT2CFG;
 
 uint8_t hal_pwm_base2dio(uint16_t base)
 {
@@ -14,8 +15,146 @@ uint8_t hal_pwm_base2dio(uint16_t base)
     return pgm_read_byte(&hal_pwm_port2dio[base]);
 }
 
+void hal_pwm_configure(uint16_t base)
+{
+    // Configure port
+    uint8_t port, mask;
+    port = pgm_read_byte(&hal_pwm_port2dio[base]);
+    mask = (1<<(port & 0x07));
+    port >>= 3;
+
+#ifdef EXTDIO_BASE_OFFSET
+    port -= EXTDIO_BASE_OFFSET;
+#endif  //  EXTDIO_BASE_OFFSET
+    hal_dio_configure(port, mask, DIO_MODE_OUT_PP);
+    
+    // configure timer
+    uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
+    uint8_t channel = Config & 0x07;
+    uint8_t tccra;
+
+    volatile uint8_t * pTIM;
+    
+    switch(Config>>3)
+    {
+        case 0:     // Timer 0
+            tccra = TCCR0A & ((1<<COM0A1) | (1<<COM0B1));
+            if(channel == 0)
+                tccra |= (1<<COM0A1);
+            else
+                tccra |= (1<<COM0B1);
+
+            TCCR0A = tccra | (1<<WGM00);    // PWM, Phase Correct, 0x00 - 0xFF
+            TCCR0B = (4<<CS00);             // Clock = Fcpu/256
+                                            // Fpwm = Clock/512
+            return;
+        case 1:         //  Timer 1
+            pTIM = &TCCR1A;
+            break;
+        default:
+            return;
+    }
+
+#ifndef OCR1C   // ATM328 + ATM1284
+    tccra = *pTIM & ((1<<COM0A1) | (1<<COM0B1));
+#else           // ATM2560
+    tccra = *pTIM & ((1<<COM1A1) | (1<<COM1B1) | (1<<COM1C1));
+    if(channel == 2)
+    {
+        tccra |= (1<<COM1C1);
+        *(uint16_t *)(pTIM + 0x0C) = 0;     // OCRnC
+    }
+    else
+#endif  //  OCR1C
+    if(channel == 0)        // Channel 0
+    {
+        tccra |= (1<<COM1A1);
+        *(uint16_t *)(pTIM + 0x08) = 0;     // OCRnA
+    }
+    else                    // Channel 1
+    {
+        tccra |= (1<<COM1B1);
+        *(uint16_t *)(pTIM + 0x0A) = 0;     // OCRnB
+    }
+
+    *(uint16_t *)(pTIM + 0x06) = 0xFFFF;    // ICRn
+    *(pTIM + 0) = tccra | (1<<WGM11);       // PWM Phase Correct, top in ICR1
+    *(pTIM + 1) = (1<<WGM13) | (1<<CS00);   // Clock = Fosc
+                                            // Fpwm = Clock/131072
+}
+
+void hal_pwm_delete(uint16_t base)
+{
+    // configure timer
+    uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
+    uint8_t channel = Config & 0x07;
+
+    //volatile uint8_t * pTIM;
+    
+    switch(Config>>3)
+    {
+        case 0:     // Timer 0
+            if(channel == 0)
+                TCCR0A &= ~(1<<COM0A1);
+            else
+                TCCR0A &= ~(1<<COM0B1);
+
+            if((TCCR0A & ((1<<COM0A1) | (1<<COM0B1))) == 0)     // stop timer
+            {
+                TCCR0A = 0;
+                TCCR0B = 0;
+            }
+            return;
+        default:
+            return;
+    }
+
+    // Configure port
+    uint8_t port, mask;
+    port = pgm_read_byte(&hal_pwm_port2dio[base]);
+    mask = (1<<(port & 0x07));
+    port >>= 3;
+
+#ifdef EXTDIO_BASE_OFFSET
+    port -= EXTDIO_BASE_OFFSET;
+#endif  //  EXTDIO_BASE_OFFSET
+    hal_dio_configure(port, mask, DIO_MODE_IN_FLOAT);
+}
+
+void hal_pwm_write(uint16_t base, uint16_t value)
+{
+    uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
+    uint8_t channel = Config & 0x07;
+
+    volatile uint8_t * pTIM;
+    
+    switch(Config>>3)
+    {
+        case 0:
+            if(channel == 0)
+                OCR0A = value>>8;
+            else
+                OCR0B = value>>8;
+            break;
+        case 1:         //  Timer 1
+            pTIM = &TCCR1A;
+            break;
+        default:
+            return;
+    }
+
+#ifdef OCR1C
+    if(channel == 2)
+        *(uint16_t *)(pTIM + 0x0C) = value;     // OCRnC
+    else
+#endif  //  OCR1C
+    if(channel == 0)        // Channel 0
+        *(uint16_t *)(pTIM + 0x08) = value;     // OCRnA
+    else                    // Channel 1
+        *(uint16_t *)(pTIM + 0x0A) = value;     // OCRnB
+}
 /*
-void hal_pwm_write(uint8_t Config, uint16_t value)
+static void hal_pwm_wr(uint8_t Config, uint16_t value)
 {
     uint8_t channel = Config & 0x07;
     
@@ -30,28 +169,30 @@ void hal_pwm_write(uint8_t Config, uint16_t value)
             if(channel == 0)
             {
                 OCR0A = value>>8;
-                if(value != 0)
+//                if(value != 0)
                     tccra |= (1<<COM0A1);
-                else
-                    tccra &= ~(1<<COM0A1);
+//                else
+//                    tccra &= ~(1<<COM0A1);
             }
             else
             {
                 OCR0B = value>>8;
-                if(value != 0)
+//                if(value != 0)
                     tccra |= (1<<COM0B1);
-                else
-                    tccra &= ~(1<<COM0B1);
+//                else
+//                    tccra &= ~(1<<COM0B1);
             }
 
-            if(tccra == 0)  // stop timer
+//            if(tccra == 0)  // stop timer
+//            {
+//                TCCR0A = 0;
+//                TCCR0B = 0;
+//            }
+//            else
             {
-                TCCR0A = 0;
-                TCCR0B = 0;
-            }
-            else
-            {
-                TCCR0A = tccra | (3<<WGM00);    // FastPWM 0x00 - 0xFF
+                //TCCR0A = tccra | (3<<WGM00);    // FastPWM 0x00 - 0xFF
+                
+                TCCR0A = tccra | (1<<WGM00);    // PWM, Phase Correct, 0x00 - 0xFF
                 TCCR0B = (4<<CS00);             // Clock = Fcpu/256
             }
             return;
@@ -121,5 +262,4 @@ void hal_pwm_write(uint8_t Config, uint16_t value)
     }
 }
 */
-
 #endif  //  (defined EXTDIO_USED) && (defined EXTPWM_USED)

@@ -59,15 +59,14 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_BASE_OFFSET          1
 #define EXTDIO_MAXPORT_NR           3                                     // Number of digital Ports
-#define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0xC0, (uint8_t)0x03}
 // End DIO Section
 
 // PWM Section
 //#define EXTPWM_USED                 1
-#define EXTPWM_MAXPORT_NR           4
-#define EXTPWM_PORT2CFG             {1, 0, 8, 9}            // bits 7-3 Timer, bits 2-0 Channel
-#define EXTPWM_PORT2DIO             {29, 30, 9, 10}         // Mapping PWM channel to DIO
+//#define EXTPWM_MAXPORT_NR           4
+//#define EXTPWM_PORT2CFG             {1, 0, 8, 9}            // bits 7-3 Timer, bits 2-0 Channel
+//#define EXTPWM_PORT2DIO             {29, 30, 9, 10}         // Mapping PWM channel to DIO
 // End PWM Section
 
 // Analogue Inputs
@@ -82,9 +81,9 @@ extern "C" {
 // End TWI Section
 
 // LEDs
-#define LED1_On()                   PORTB &= ~(1<<PB0)
-#define LED1_Off()                  PORTB |= (1<<PB0)
-#define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
+//#define LED1_On()                   PORTB &= ~(1<<PB0)
+//#define LED1_Off()                  PORTB |= (1<<PB0)
+//#define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // UART Section
 #define HAL_USE_USART0              0       // Logical Port Number 0,1,2,...

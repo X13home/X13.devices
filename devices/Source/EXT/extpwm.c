@@ -69,8 +69,7 @@ e_MQTTSN_RETURNS_t pwmRegisterOD(indextable_t *pIdx)
 void pwmDeleteOD(subidx_t * pSubidx)
 {
     uint16_t base = pSubidx->Base;
-    uint8_t dio = hal_pwm_base2dio(base);
-    
+
     hal_pwm_delete(base);
     dioRelease(hal_pwm_base2dio(base));
 }

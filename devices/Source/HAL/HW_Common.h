@@ -41,6 +41,9 @@ void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask);
 //////////////////////////////////////////////////////////////
 // PWM HAL
 uint8_t hal_pwm_base2dio(uint16_t base);
+void hal_pwm_configure(uint16_t base);
+void hal_pwm_delete(uint16_t base);
+void hal_pwm_write(uint16_t base, uint16_t value);
 // PWM HAL
 //////////////////////////////////////////////////////////////
 

@@ -59,6 +59,8 @@ extern "C" {
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0xE700, (uint16_t)0xFF3C}
 // End DIO Section
 
+#define EXTPWM_USED                 1
+
 // PA0-PA7: 0 - 7
 // PB0-PB1: 8 - 9
 // Analogue Inputs
