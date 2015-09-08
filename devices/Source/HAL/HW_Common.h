@@ -22,7 +22,7 @@ See LICENSE file for license details.
 void StartSheduler(void);
 void SystemTick(void);
 
-uint32_t hal_get_ms(void);
+uint16_t hal_get_ms(void);
 uint32_t hal_get_sec(void);
 
 uint16_t halRNG(void);

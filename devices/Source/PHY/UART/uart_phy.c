@@ -79,7 +79,7 @@ void * UART_Get(void)
     static uint8_t  rx_pos = 0;
     static uint8_t  rx_len = 0;
     static MQ_t   * pRx_buf;
-    static uint32_t  rx_wd = 0;
+    static uint16_t  rx_wd = 0;
 
     while(hal_uart_datardy(UART_PHY_PORT))
     {

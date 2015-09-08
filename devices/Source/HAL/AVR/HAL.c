@@ -54,10 +54,10 @@ uint16_t halRNG(void)
     return rand16;
 }
 
-static volatile uint32_t hal_ms_counter = 0;
+static volatile uint16_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;        // Max Uptime 136 Jr.
 
-uint32_t hal_get_ms(void)
+uint16_t hal_get_ms(void)
 {
     return hal_ms_counter;
 }
