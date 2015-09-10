@@ -8,20 +8,20 @@ static uint32_t diag_timeout;
 
 void DIAG_Init(void)
 {
-    diag_timeout = hal_get_sec() + DIAG_DEF_TIMEOUT;
+    diag_timeout = hal_get_sec();
 }
 
 void DIAG_Poll(void)
 {
-    if(diag_timeout > hal_get_sec())
+    if((hal_get_sec() - diag_timeout) < DIAG_DEF_TIMEOUT)
         return;
-    
-    diag_timeout = hal_get_sec() + DIAG_DEF_TIMEOUT;
-    
+
+    diag_timeout = hal_get_sec();
+
     MQ_t * pMessage = mqAlloc(sizeof(MQ_t));
     if(pMessage == NULL)
         return;
-        
+
     uint16_t min, max, act;
     mqGetHeapStat(&act, &max, &min);
     

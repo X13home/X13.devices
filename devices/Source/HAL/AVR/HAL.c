@@ -72,7 +72,7 @@ ISR(TIMER2_COMPA_vect)
     hal_ms_counter++;
 
     static uint16_t ms_counter = 0;
-    if(++ms_counter > 999)
+    if(++ms_counter >= 999)
     {
         ms_counter = 0;
         hal_sec_counter++;

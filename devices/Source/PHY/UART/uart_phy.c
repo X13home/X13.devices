@@ -85,7 +85,7 @@ void * UART_Get(void)
     {
         uint8_t data = hal_uart_get(UART_PHY_PORT);
 
-        rx_wd = hal_get_ms() + 50;
+        rx_wd = hal_get_ms();
 
         if(rx_len == 0)
         {
@@ -114,7 +114,7 @@ void * UART_Get(void)
         }
     }
 
-    if((rx_len != 0) && (rx_wd < hal_get_ms()))
+    if((rx_len != 0) && ((hal_get_ms() - rx_wd) > 50))
         rx_len = 0;
 
     return NULL;

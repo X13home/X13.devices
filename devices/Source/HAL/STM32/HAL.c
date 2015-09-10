@@ -53,7 +53,7 @@ void StartSheduler(void)
 
 // IRQ handlers.
 
-static volatile uint32_t hal_ms_counter = 0;
+static volatile uint16_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;    // Max Uptime 136 Jr.
 
 // 1ms Ticks
@@ -66,7 +66,7 @@ void SysTick_Handler(void)
     
     static uint16_t ms_counter  = 0;
     ms_counter++;
-    if(ms_counter > 999)
+    if(ms_counter >= 999)
     {
         ms_counter = 0;
         hal_sec_counter++;
@@ -92,7 +92,7 @@ void HardFault_Handler(void)
     while(1);
 }
 
-uint32_t hal_get_ms(void)
+uint16_t hal_get_ms(void)
 {
     return hal_ms_counter;
 }
