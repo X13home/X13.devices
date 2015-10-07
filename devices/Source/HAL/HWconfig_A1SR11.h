@@ -59,7 +59,6 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_BASE_OFFSET          2
 #define EXTDIO_MAXPORT_NR           2                                     // Number of digital Ports
-#define EXTDIO_PORTNUM2PORT         {(uint16_t)&PORTC, (uint16_t)&PORTD}
 #define EXTDIO_PORTNUM2MASK         {(uint8_t)0xC0, (uint8_t)0x03}
 // End DIO Section
 

@@ -127,11 +127,29 @@ void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
 
 #ifdef EXTDIO_USED
 
-static const GPIO_TypeDef * dio_pGPIOx[] = EXTDIO_PORTNUM2PORT;
+static const GPIO_TypeDef * dio_pGPIOx[] = 
+{
+#ifdef GPIOA
+    GPIOA,
+#else
+    NULL,
+#endif  //  GPIOA
+#ifdef GPIOB
+    GPIOB,
+#else
+    NULL,
+#endif  //  GPIOB
+#ifdef GPIOC
+    GPIOC,
+#else
+    NULL,
+#endif  //  GPIOC
+    NULL
+};
 
 static GPIO_TypeDef * dioPortNr2GPIOx(uint8_t PortNr)
 {
-    if(PortNr < EXTDIO_MAXPORT_NR)
+    if(PortNr < (const uint8_t)(sizeof(dio_pGPIOx) / sizeof(dio_pGPIOx[0])))
         return (GPIO_TypeDef *)dio_pGPIOx[PortNr];
 
     return NULL;

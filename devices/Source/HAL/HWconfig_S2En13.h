@@ -69,7 +69,7 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
-#define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB}
+#define EXTDIO_MAPPING              {17, 16, 7, 6, 5, 4, 10, 9, 12, 11, 3, 2, 1, 0, 27, 26}
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0xE100, (uint16_t)0xF3FC}
 // End DIO Section
 
@@ -77,8 +77,8 @@ extern "C" {
 // PB0-PB1: 8 - 9
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           10
-#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0xFF, 0xFF}  // MUST BE ALIGNED TO 4
+#define EXTAIN_MAXPORT_NR           16
+#define EXTAIN_BASE_2_APIN          {9, 8, 7, 6, 5, 4, 0xFF, 0xFF, 0xFF, 0xFF, 3, 2, 1, 0, 0xFF, 0xFF}  // MUST BE ALIGNED TO 4
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 

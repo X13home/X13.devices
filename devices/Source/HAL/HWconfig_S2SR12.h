@@ -87,7 +87,6 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
-#define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB, GPIOC}
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0x600C, (uint16_t)0xF800, (uint16_t)0x0300}
 // End DIO Section
 

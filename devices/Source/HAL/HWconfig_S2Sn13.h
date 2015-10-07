@@ -69,7 +69,6 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
-#define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB}
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0xE100, (uint16_t)0xF3FC}
 
 #define EXTDIO_MAPPING              {0,1,2,3,11,12,9,10,26,27,4,5,6,7,16,17}    // Mapping logical ports to physical, only for ext_dio

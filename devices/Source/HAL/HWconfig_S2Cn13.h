@@ -55,7 +55,6 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
-#define EXTDIO_PORTNUM2PORT         {GPIOA, GPIOB}
 #define EXTDIO_PORTNUM2MASK         {(uint16_t)0xE100, (uint16_t)0xFF3C}
 // End DIO Section
 
