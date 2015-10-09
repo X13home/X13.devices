@@ -13,6 +13,11 @@ void INIT_SYSTEM(void)
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN;
 #elif (defined __STM32F10x_H)
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN;
+     // disable JTAG
+    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+    AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
+    // TIM4 used in delay_us
+    //RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;    
 #elif (defined STM32F4XX)
     RCC->AHB1ENR |= RCC_AHB1ENR_GPIOAEN | RCC_AHB1ENR_GPIOBEN | RCC_AHB1ENR_GPIOCEN | RCC_AHB1ENR_GPIODEN;
 #else
@@ -102,26 +107,43 @@ uint32_t hal_get_sec(void)
     return hal_sec_counter;
 }
 
-void _delay_ms(uint32_t ms)
+void _delay_ms(uint16_t ms)
 {
+    uint32_t new_ms;
+    
     if(SysTick->CTRL & SysTick_CTRL_ENABLE_Msk)
     {
-        uint32_t new_ms = hal_ms_counter + ms;
+        new_ms = hal_ms_counter + ms;
         while(hal_ms_counter != new_ms);
     }
     else
     {
-        ms *= (SystemCoreClock / 12000UL);
-        while(ms > 0)
-            ms--;
+        new_ms = (const uint32_t)(SystemCoreClock / 12000UL);
+        new_ms *= ms;
+        while(new_ms > 0)
+            new_ms--;
     }
 }
 
-void _delay_us(uint32_t us)
+void _delay_us(uint16_t us)
 {
-  us *= (SystemCoreClock / 12000000UL);
-  while(us > 0)
-    us--;
+/*
+    TIM4->CR1 = TIM_CR1_OPM;
+    
+    TIM4->PSC = (const uint16_t)((SystemCoreClock / 1000000) - 1);
+    TIM4->CNT = 0;
+    TIM4->ARR = us;
+
+    TIM4->EGR = TIM_EGR_UG;
+    TIM4->CR1 |= TIM_CR1_CEN;
+    
+    while((TIM4->CR1 & TIM_CR1_CEN) != 0);
+*/
+    uint32_t ticks = (const uint32_t)(SystemCoreClock / 12000000UL);
+    ticks *= us;
+
+    while(ticks > 0)
+        ticks--;
 }
 
 // Generate pseudo random uint16

@@ -13,11 +13,14 @@ See LICENSE file for license details.
 #ifndef HW_STM32F1_H
 #define HW_STM32F1_H
 
-// STM32F10x
+// Olimexino, STM32F103
 #if   (defined CFG_S3En12)
 #include "HAL/HWconfig_S3En12.h"    // ENC28J60
 #elif   (defined CFG_S3Sn12)
 #include "HAL/HWconfig_S3Sn12.h"    // UART
+ // Maple Mini, STM32F103CBT6
+#elif (defined CFG_S3SC11)
+#include "HAL/HWconfig_S3SC11.h"    // UART + CC11
 #else
 #error Unknown configuration
 #endif  //  Configuration
