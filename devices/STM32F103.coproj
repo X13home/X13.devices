@@ -216,8 +216,8 @@
     <Component id="455" name="FLASH" path="" type="2"/>
   </Components>
   <Files>
-    <File name="stm32_lib/inc/stm32f10x_gpio.h" path="stm32_lib/inc/stm32f10x_gpio.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_hw.c" path="Source/PHY/ENC28J60/enc28j60_hw.c" type="1"/>
+    <File name="stm32_lib/inc/stm32f10x_gpio.h" path="stm32_lib/inc/stm32f10x_gpio.h" type="1"/>
     <File name="Source/HAL/HW_Common.h" path="Source/HAL/HW_Common.h" type="1"/>
     <File name="Source/PHY/ENC28J60" path="" type="2"/>
     <File name="Source/HAL/HWconfig_S3En12.h" path="Source/HAL/HWconfig_S3En12.h" type="1"/>
@@ -256,9 +256,9 @@
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
     <File name="cmsis/core_cm3.h" path="cmsis/core_cm3.h" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
-    <File name="Source/EXT/extain.c" path="Source/EXT/extain.c" type="1"/>
-    <File name="stm32_lib" path="" type="2"/>
     <File name="Source/diag.h" path="Source/diag.h" type="1"/>
+    <File name="stm32_lib" path="" type="2"/>
+    <File name="Source/EXT/extain.c" path="Source/EXT/extain.c" type="1"/>
     <File name="Source/PHY/CC1101/cc11_reg.h" path="Source/PHY/CC1101/cc11_reg.h" type="1"/>
     <File name="Source/PHY/CC1101/cc11_phy.h" path="Source/PHY/CC1101/cc11_phy.h" type="1"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>
@@ -280,8 +280,8 @@
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="Source/diag.c" path="Source/diag.c" type="1"/>
     <File name="cmsis_boot/system_stm32f10x.h" path="cmsis_boot/system_stm32f10x.h" type="1"/>
-    <File name="Source/EXT/extser.c" path="Source/EXT/extser.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_def.h" path="Source/PHY/ENC28J60/enc28j60_def.h" type="1"/>
+    <File name="Source/EXT/extser.c" path="Source/EXT/extser.c" type="1"/>
     <File name="Source/main.c" path="Source/main.c" type="1"/>
     <File name="Source/HAL/STM32/hal_twi.c" path="Source/HAL/STM32/hal_twi.c" type="1"/>
     <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
