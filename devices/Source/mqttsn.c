@@ -363,12 +363,13 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                        (vMQTTSN.pMessage->mq.subscribe.MsgId[1] == pPHY1outBuf->mq.suback.MsgId[1]))
                     {
                         mqFree(vMQTTSN.pMessage);
-                        vMQTTSN.MsgType = MQTTSN_MSGTYP_PINGREQ;
 
+                        vMQTTSN.MsgType = MQTTSN_MSGTYP_PINGREQ;
                         vMQTTSN.Status = MQTTSN_STATUS_CONNECT;
-                        
-                        vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
                         vMQTTSN.Nretry = MQTTSN_N_RETRIES;
+                        // ToDo ASLEEP
+                        vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                        
                     }
                 }
             }
@@ -394,6 +395,8 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
             }
             else if(msg_from_gw)
             {
+                // ToDo ASLEEP
+                
                 vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
                 vMQTTSN.Tretry = 1;
                 vMQTTSN.Nretry = MQTTSN_N_RETRIES;
@@ -666,7 +669,7 @@ static void mqttsn_send_gwinfo(uint8_t phy)
         pGWInfo = mqAlloc(sizeof(MQ_t));
         if(pGWInfo == NULL)
             return;
-    
+
         memcpy(pGWInfo->phy2addr, &addr2_broad, sizeof(PHY2_ADDR_t));
         pGWInfo->Length = MQTTSN_SIZEOF_MSG_GWINFO;
         pGWInfo->mq.Length = MQTTSN_SIZEOF_MSG_GWINFO;
@@ -871,6 +874,7 @@ void MQTTSN_Poll(void)
                 vMQTTSN.Nretry--;
             else
             {
+                vMQTTSN.MsgId = 0;
                 vMQTTSN.Radius = 1;
                 vMQTTSN.Nretry = MQTTSN_N_RETRIES;
                 vMQTTSN.Tretry = MQTTSN_T_SEARCHGW;
@@ -886,7 +890,12 @@ void MQTTSN_Poll(void)
             // Make connect message
             memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
             pMessage->mq.MsgType = MQTTSN_MSGTYP_CONNECT;
-            pMessage->mq.connect.Flags = MQTTSN_FL_CLEANSESSION;
+
+            if(vMQTTSN.MsgId == 0)
+                pMessage->mq.connect.Flags = MQTTSN_FL_CLEANSESSION;
+            else
+                pMessage->mq.connect.Flags = 0;
+
             pMessage->mq.connect.ProtocolId = MQTTSN_PROTOCOLID;
             pMessage->mq.connect.Duration[0] = (MQTTSN_T_KEEPALIVE>>8);
             pMessage->mq.connect.Duration[1] = (MQTTSN_T_KEEPALIVE & 0xFF);

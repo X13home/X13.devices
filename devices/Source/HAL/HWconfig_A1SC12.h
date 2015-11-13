@@ -15,7 +15,8 @@ See LICENSE file for license details.
 
 // uNode Version 2.0
 // uc ATMega328p
-// Phy1: CC1101
+// PHY1: UART
+// PHY2: CC1101
 
 // 0 - 7    PORTA - not exist
 // PORTB
@@ -82,8 +83,8 @@ extern "C" {
 // End TWI Section
 
 // LEDs
-#define LED1_On()                   PORTB &= ~(1<<PB0)
-#define LED1_Off()                  PORTB |= (1<<PB0)
+#define LED2_On()                   PORTB &= ~(1<<PB0)
+#define LED2_Off()                  PORTB |= (1<<PB0)
 #define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // UART Section
