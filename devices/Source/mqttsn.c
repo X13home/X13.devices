@@ -399,7 +399,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
 #ifdef ASLEEP
                 else if(vMQTTSN.Status == MQTTSN_STATUS_AWAKE)
                 {
-                    vMQTTSN.Status = MQTTSN_STATUS_POST_CONNECT;
+                    vMQTTSN.Status = MQTTSN_STATUS_POST_AWAKE;
                 }
 #endif  //  ASLEEP
             }
@@ -1023,7 +1023,7 @@ void MQTTSN_Poll(void)
             vMQTTSN.Status = MQTTSN_STATUS_AWAKE;
             vMQTTSN.Nretry = MQTTSN_N_RETRIES;
             vMQTTSN.Tretry = MQTTSN_T_ACCEL;
-            break;
+            return;
         }
         case MQTTSN_STATUS_AWAKE:
         {
@@ -1047,6 +1047,12 @@ void MQTTSN_Poll(void)
             pMessage->mq.MsgType = MQTTSN_MSGTYP_PINGREQ;
             vMQTTSN.Tretry = (MQTTSN_T_AWAKE * POLL_TMR_FREQ);
             break;
+        }
+        case MQTTSN_STATUS_POST_AWAKE:
+        {
+            // ToDo disable ext's
+            vMQTTSN.Status = MQTTSN_STATUS_ASLEEP;
+            return;
         }
 #endif  //  ASLEEP
 
