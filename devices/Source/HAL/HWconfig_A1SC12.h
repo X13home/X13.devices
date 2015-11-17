@@ -65,7 +65,7 @@ extern "C" {
 // End DIO Section
 
 // PWM Section
-//#define EXTPWM_USED                 1
+#define EXTPWM_USED                 1
 #define EXTPWM_MAXPORT_NR           2
 #define EXTPWM_PORT2CFG             {1, 0}          // bits 7-3 Timer, bits 2-0 Channel
 #define EXTPWM_PORT2DIO             {29,30}         // Mapping PWM channel to DIO

@@ -37,8 +37,8 @@ static const indextable_t listPredefOD[] =
     {{objEEMEM, objString, eeNodeName},
         objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #ifdef ASLEEP
-    {{objEEMEM, objUInt16, eeTAsleep},
-        objTAsleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
+    {{objEEMEM, objUInt16, eeTASleep},
+        objTASleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&eepromWriteOD, NULL},
 #endif  //  ASLEEP
 #ifdef EXTAIN_USED
     {{objEEMEM, objUInt16, eeADCaverage},
@@ -438,7 +438,7 @@ void InitOD(void)
 #endif  //  EXTAIN_USED
 #ifdef ASLEEP
         uiTmp = OD_DEFAULT_TASLEEP;
-        WriteOD(objTAsleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Sleep Time
+        WriteOD(objTASleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Sleep Time
 #endif  //  ASLEEP
         ucTmp = 0;
         WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                          // Device Name
@@ -752,76 +752,83 @@ void OD_Poll(void)
     extProc();
 
     // Send Data to Broker
-    e_MQTTSN_STATUS_t mqstat = MQTTSN_GetStatus();
-    if(mqstat == MQTTSN_STATUS_CONNECT)
+    switch(MQTTSN_GetStatus())
     {
-        if(idxUpdate >= OD_MAX_INDEX_LIST)
-            idxUpdate = 0;
-
-        while(MQTTSN_CanSend() && (idxUpdate < OD_MAX_INDEX_LIST))
+        case MQTTSN_STATUS_CONNECT:
         {
-            uint16_t index = ListOD[idxUpdate].Index;
+            if(idxUpdate >= OD_MAX_INDEX_LIST)
+                idxUpdate = 0;
 
-            if(index == 0x0000)                         // Register new variable
+            while(MQTTSN_CanSend() && (idxUpdate < OD_MAX_INDEX_LIST))
             {
-                MQTTSN_Send(MQTTSN_MSGTYP_REGISTER,     // Message type
-                            idxUpdate,                  // Flags
-                            index);                     // Topic Id
-            }
-            else if(index != 0xFFFF)                    // Poll data & publish on ready
-            {
-                if((ListOD[idxUpdate].cbPoll != NULL) &&
-                   (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
+                uint16_t index = ListOD[idxUpdate].Index;
+
+                if(index == 0x0000)                         // Register new variable
                 {
-                    MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
-                            (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
-                            index);
-                }
-            }
-            idxUpdate++;
-        }
-    }
-    else if(mqstat == MQTTSN_STATUS_PRE_CONNECT)
-    {
-        // Register variables
-        if(idxUpdate < OD_MAX_INDEX_LIST)
-        {
-            if(ListOD[idxUpdate].Index != 0xFFFF)
-            {
-                if(MQTTSN_CanSend())
                     MQTTSN_Send(MQTTSN_MSGTYP_REGISTER,     // Message type
                                 idxUpdate,                  // Flags
-                                ListOD[idxUpdate].Index);   // Topic Id
-            }
-            else
-                idxUpdate++;
-        }
-        // Publish device info
-        else if(idxUpdate < 0xFFFF)
-        {
-            if(idxUpdate < 0xFFC0)
-                idxUpdate = 0xFFC0;
-                
-            if(MQTTSN_CanSend())
-            {
-                if(scanIndexOD(idxUpdate, MQTTSN_FL_TOPICID_PREDEF) != NULL)
+                                index);                     // Topic Id
+                }
+                else if(index != 0xFFFF)                    // Poll data & publish on ready
                 {
-                    MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
-                               (MQTTSN_FL_QOS1 | MQTTSN_FL_RETAIN | MQTTSN_FL_TOPICID_PREDEF),
-                               idxUpdate);
-                    idxUpdate++;
+                    if((ListOD[idxUpdate].cbPoll != NULL) &&
+                       (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
+                    {
+                        MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
+                                   (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
+                                   index);
+                    }
+                }
+                idxUpdate++;
+            }
+            break;
+        }
+        case MQTTSN_STATUS_PRE_CONNECT:
+        {
+            // Register variables
+            if(idxUpdate < OD_MAX_INDEX_LIST)
+            {
+                if(ListOD[idxUpdate].Index != 0xFFFF)
+                {
+                    if(MQTTSN_CanSend())
+                        MQTTSN_Send(MQTTSN_MSGTYP_REGISTER,     // Message type
+                                    idxUpdate,                  // Flags
+                                    ListOD[idxUpdate].Index);   // Topic Id
                 }
                 else
-                    idxUpdate = 0xFFFF;
+                    idxUpdate++;
+            }
+            // Publish device info
+            else if(idxUpdate < 0xFFFF)
+            {
+                if(idxUpdate < 0xFFC0)
+                    idxUpdate = 0xFFC0;
+
+                if(MQTTSN_CanSend())
+                {
+                    if(scanIndexOD(idxUpdate, MQTTSN_FL_TOPICID_PREDEF) != NULL)
+                    {
+                        MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
+                                    (MQTTSN_FL_QOS1 | MQTTSN_FL_RETAIN | MQTTSN_FL_TOPICID_PREDEF),
+                                    idxUpdate);
+                        idxUpdate++;
+                    }
+                    else
+                        idxUpdate = 0xFFFF;
+                }
+            }
+            // Send Subscribe
+            else
+            {
+                if(MQTTSN_CanSend())
+                    MQTTSN_Send(MQTTSN_MSGTYP_SUBSCRIBE, (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM), 0);
             }
         }
-        // Send Subscribe
-        else
-        {
-            if(MQTTSN_CanSend())
-                MQTTSN_Send(MQTTSN_MSGTYP_SUBSCRIBE, (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM), 0);
-        }
+#ifdef ASLEEP
+        case MQTTSN_STATUS_AWAKE:
+            break;
+#endif  //  ASLEEP    
+        default:
+            idxUpdate = 0x00;
     }
-    else 
-        idxUpdate = 0x00;
 }

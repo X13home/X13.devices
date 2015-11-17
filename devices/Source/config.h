@@ -49,6 +49,9 @@ extern "C" {
 
 //#define DIAG_USED               1       // Enable diagnostic messages
 
+#define ASLEEP                  1       // Enable ASleep mode
+#define OD_DEFAULT_TASLEEP      0
+
 // Include Hardware definitions
 // Atmel
 // ATM328P

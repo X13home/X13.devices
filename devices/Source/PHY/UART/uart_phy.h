@@ -25,6 +25,8 @@ See LICENSE file for license details.
 #define PHY1_GetAddr                UART_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objRFGateId
+#define PHY1_ASleep()
+#define PHY1_AWake()
 
 #elif (UART_PHY == 2)
     

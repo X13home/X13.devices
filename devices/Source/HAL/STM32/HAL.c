@@ -162,3 +162,11 @@ uint16_t halRNG(void)
   
     return rand16;
 }
+
+void hal_ASleep(uint16_t duration)
+{
+    // ToDo ASleep dummy function
+
+    uint32_t sec_cnt = hal_get_sec() + duration;
+    while(sec_cnt != hal_get_sec());
+}

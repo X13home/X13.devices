@@ -24,7 +24,7 @@ typedef enum
 {
   // Global Settings
   objNodeName   = (uint16_t)0xFF00, // _sName<String>
-  objTAsleep    = (uint16_t)0xFF01, // cfg/XD_SleepTime<UIint16>
+  objTASleep    = (uint16_t)0xFF01, // cfg/XD_SleepTime<UIint16>
   objADCaverage = (uint16_t)0xFF08, // cfg/XD_ADCintegrate<UIint16>
   // RF Node
   objRFNodeId   = (uint16_t)0xFF10, // cfg/XD_DeviceAddr<UInt8>
@@ -127,10 +127,10 @@ enum
     eeNodeName = 2,
     eeNodeNamebody = eeNodeName + MQTTSN_SIZEOF_CLIENTID - 2,
 // ASLEEP
-    eeTAsleep,
-    eeTAsleepbody = eeTAsleep + sizeof(uint16_t) - 1,
+    eeTASleep,
+    eeTASleepbody,
     eeADCaverage,
-    eeADCaveragebody = eeADCaverage + sizeof(uint16_t) - 1,
+    eeADCaveragebody,
 // BackUp Objects
     eelistOdbu,
     eelistOdbubody = eelistOdbu + OD_MAX_INDEX_LIST * sizeof(subidx_t) - 1,
@@ -152,7 +152,7 @@ enum
     eeGateID,
     eeGateIDbody = eeGateID + sizeof(RF_ADDR_t) - 1,
     eeGroupID,
-    eeGroupIDbody = eeGroupID + sizeof(uint16_t) - 1,
+    eeGroupIDbody,
     eeChannel,
 #endif  //  RF_ADDR_t
 
