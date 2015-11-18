@@ -27,7 +27,6 @@ typedef enum e_MQTTSN_STATUS
   MQTTSN_STATUS_PRE_CONNECT,
   MQTTSN_STATUS_CONNECT,
 #ifdef ASLEEP
-  MQTTSN_STATUS_ASLEEP_PREPARE,
   MQTTSN_STATUS_ASLEEP_DISCONNECT,
   MQTTSN_STATUS_ASLEEP,
   MQTTSN_STATUS_AWAKE
@@ -48,6 +47,9 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf);
 void mqttsn_parser_phy2(MQ_t * pPHY2outBuf);
 
 void MQTTSN_Init(void);
+#ifdef ASLEEP
+void MQTTSN_Set_ASleep(uint16_t val);
+#endif  //  ASLEEP
 e_MQTTSN_STATUS_t MQTTSN_GetStatus(void);
 
 void MQTTSN_Poll(void);

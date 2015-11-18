@@ -31,6 +31,10 @@ static uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 #endif  //  LAN_NODE
 
+#ifdef ASLEEP
+static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+#endif  //  ASLEEP
+
 // List of pre defined objects
 static const indextable_t listPredefOD[] = 
 {
@@ -38,7 +42,7 @@ static const indextable_t listPredefOD[] =
         objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #ifdef ASLEEP
     {{objEEMEM, objUInt16, eeTASleep},
-        objTASleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&eepromWriteOD, NULL},
+        objTASleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
 #endif  //  ASLEEP
 #ifdef EXTAIN_USED
     {{objEEMEM, objUInt16, eeADCaverage},
@@ -108,7 +112,7 @@ static uint8_t cbWriteADCaverage(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 #ifdef LAN_NODE
 // Convert raw data from mqtt-sn packet to LAN variables
-uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+static uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     uint16_t Base = pSubidx->Base;
 
@@ -124,7 +128,7 @@ uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 
-uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
+static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     uint16_t Base = pSubidx->Base;
 
@@ -137,6 +141,20 @@ uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 #endif  //  LAN_NODE
+
+#ifdef ASLEEP
+static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    uint16_t val;
+    val = pBuf[1];
+    val <<= 8;
+    val |= pBuf[0];
+    MQTTSN_Set_ASleep(val);
+    eeprom_write(pBuf, pSubidx->Base, Len);
+    return MQTTSN_RET_ACCEPTED;
+}
+#endif  //  ASLEEP
+
 // End callback's
 //////////////////////////
 
