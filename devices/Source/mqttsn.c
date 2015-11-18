@@ -16,8 +16,9 @@ See LICENSE file for license details.
 
 // Keep Alive Time
 #define MQTTSN_T_KEEPALIVE      (uint16_t)300
+#define MQTTSN_T_SHORT          (const uint16_t)(2 * POLL_TMR_FREQ)
 // AWake time
-#define MQTTSN_T_AWAKE          (uint16_t)3
+#define MQTTSN_T_AWAKE          (const uint16_t)(3 * POLL_TMR_FREQ)
 
 // Number of retries
 #define MQTTSN_N_RETRIES        (uint8_t)3
@@ -246,19 +247,27 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
         case MQTTSN_MSGTYP_CONNACK:
             if(msg_from_gw)
             {
-                if(vMQTTSN.Status == MQTTSN_STATUS_OFFLINE)
+                if(pPHY1outBuf->mq.connack.ReturnCode == MQTTSN_RET_ACCEPTED)
                 {
-                    if(pPHY1outBuf->mq.connack.ReturnCode == MQTTSN_RET_ACCEPTED)
+                    if(vMQTTSN.Status == MQTTSN_STATUS_OFFLINE)
                     {
                         vMQTTSN.Status = MQTTSN_STATUS_PRE_CONNECT;
-                        vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                        vMQTTSN.Tretry = MQTTSN_T_SHORT;
                         vMQTTSN.Nretry = MQTTSN_N_RETRIES;
                     }
+#ifdef  ASLEEP
+                    else if(vMQTTSN.Status == MQTTSN_STATUS_AWAKE)
+                    {
+                        vMQTTSN.Status = MQTTSN_STATUS_CONNECT;
+                        vMQTTSN.Tretry = MQTTSN_T_SHORT;
+                        vMQTTSN.Nretry = MQTTSN_N_RETRIES;
+                    }
+#endif  //  ASLEEP
+                    // else
+                    // ToDo
+                    // Message lost, broker - gateway Problems, Connected another Node with same Address.
+                    // Potential dangerous
                 }
-                // else
-                // ToDo
-                // Message lost, broker - gateway Problems, Connected another Node with same Address.
-                // Potential dangerous
             }
             break;
         // Register Topic request
@@ -298,7 +307,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                             index = 0;
                         RegAckOD(index);
                         
-                        vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                        vMQTTSN.Tretry = MQTTSN_T_SHORT;
                         vMQTTSN.Nretry = MQTTSN_N_RETRIES;
                     }
                 }
@@ -355,9 +364,13 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                     {
                         mqFree(vMQTTSN.pMessage);
                         vMQTTSN.MsgType = MQTTSN_MSGTYP_PINGREQ;
-
-                        vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
                         vMQTTSN.Nretry = MQTTSN_N_RETRIES;
+#ifdef ASLEEP
+                        if(vMQTTSN.tASleep != 0)
+                            vMQTTSN.Tretry = MQTTSN_T_AWAKE;
+                        else
+#endif  //  ASLEEP
+                            vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
                     }
                 }
             }
@@ -379,10 +392,10 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                         vMQTTSN.Nretry = MQTTSN_N_RETRIES;
 #ifdef ASLEEP
                         if(vMQTTSN.tASleep != 0)
-                            vMQTTSN.Tretry = (MQTTSN_T_AWAKE * POLL_TMR_FREQ);
+                            vMQTTSN.Tretry = MQTTSN_T_AWAKE;
                         else
 #endif  //  ASLEEP
-                            vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);    
+                            vMQTTSN.Tretry = (MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
                     }
                 }
             }
@@ -399,7 +412,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
 #ifdef ASLEEP
                 else if(vMQTTSN.Status == MQTTSN_STATUS_AWAKE)
                 {
-                    vMQTTSN.Status = MQTTSN_STATUS_POST_AWAKE;
+                    vMQTTSN.Status = MQTTSN_STATUS_ASLEEP_PREPARE;
                 }
 #endif  //  ASLEEP
             }
@@ -418,7 +431,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                 vMQTTSN.Tretry = 1;
                 vMQTTSN.Nretry = MQTTSN_N_RETRIES;
 #ifdef ASLEEP
-                if(vMQTTSN.Status == MQTTSN_STATUS_PRE_ASLEEP)
+                if(vMQTTSN.Status == MQTTSN_STATUS_ASLEEP_DISCONNECT)
                     vMQTTSN.Status = MQTTSN_STATUS_ASLEEP;
                 else
 #endif  //  ASLEEP
@@ -786,7 +799,7 @@ void MQTTSN_Poll(void)
 #ifdef ASLEEP
                 if(vMQTTSN.tASleep != 0)
                 {
-                    vMQTTSN.Status = MQTTSN_STATUS_POST_CONNECT;
+                    vMQTTSN.Status = MQTTSN_STATUS_ASLEEP_PREPARE;
                     return;
                 }
 #endif  //  ASLEEP
@@ -980,15 +993,15 @@ void MQTTSN_Poll(void)
         }
 
 #ifdef ASLEEP
-        case MQTTSN_STATUS_POST_CONNECT:
+        case MQTTSN_STATUS_ASLEEP_PREPARE:
         {
             // ToDo disable ext's
             
             vMQTTSN.Nretry = MQTTSN_N_RETRIES;
-            vMQTTSN.Status = MQTTSN_STATUS_PRE_ASLEEP;
+            vMQTTSN.Status = MQTTSN_STATUS_ASLEEP_DISCONNECT;
             // No break, It's NOT error.
         }
-        case MQTTSN_STATUS_PRE_ASLEEP:
+        case MQTTSN_STATUS_ASLEEP_DISCONNECT:
         {
             // Send Disconnect with Asleep duration
             if(vMQTTSN.Nretry > 0)
@@ -1017,7 +1030,7 @@ void MQTTSN_Poll(void)
         {
             PHY1_ASleep();                  // Disable PHY
             hal_ASleep(vMQTTSN.tASleep);    // Enter to Sleep mode
-            PHY1_AWake();                   // ReEnable PHY
+            PHY1_AWake();                   // Enable PHY
             
             // ToDo enable ext's
             vMQTTSN.Status = MQTTSN_STATUS_AWAKE;
@@ -1036,23 +1049,35 @@ void MQTTSN_Poll(void)
                 return;
             }
             
-            // ToDo send Ping
             pMessage = mqAlloc(sizeof(MQ_t));
             if(pMessage == NULL)
                 return;
 
             memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
-            pMessage->Length = MQTTSN_SIZEOF_MSG_PINGREQ;
-            pMessage->mq.Length = MQTTSN_SIZEOF_MSG_PINGREQ;
-            pMessage->mq.MsgType = MQTTSN_MSGTYP_PINGREQ;
-            vMQTTSN.Tretry = (MQTTSN_T_AWAKE * POLL_TMR_FREQ);
+
+            if(vMQTTSN.MsgType == MQTTSN_MSGTYP_PINGREQ)
+            {
+                // Make ping message
+                pMessage->Length = MQTTSN_SIZEOF_MSG_PINGREQ;
+                pMessage->mq.Length = MQTTSN_SIZEOF_MSG_PINGREQ;
+                pMessage->mq.MsgType = MQTTSN_MSGTYP_PINGREQ;
+                vMQTTSN.Tretry = MQTTSN_T_AWAKE;
+            }
+            else    // data present
+            {
+                // Make connect message
+                pMessage->mq.MsgType = MQTTSN_MSGTYP_CONNECT;
+                pMessage->mq.connect.Flags = 0;
+                pMessage->mq.connect.ProtocolId = MQTTSN_PROTOCOLID;
+                pMessage->mq.connect.Duration[0] = (MQTTSN_T_KEEPALIVE>>8);
+                pMessage->mq.connect.Duration[1] = (MQTTSN_T_KEEPALIVE & 0xFF);
+
+                uint8_t Length = mqttsn_build_node_name((uint8_t *)&pMessage->mq.connect.ClientId);
+                Length += MQTTSN_SIZEOF_MSG_CONNECT;
+                pMessage->Length = Length;
+                pMessage->mq.Length = Length;
+            }
             break;
-        }
-        case MQTTSN_STATUS_POST_AWAKE:
-        {
-            // ToDo disable ext's
-            vMQTTSN.Status = MQTTSN_STATUS_ASLEEP;
-            return;
         }
 #endif  //  ASLEEP
 
