@@ -1,6 +1,7 @@
 #include "../../config.h"
 
 #include <avr/interrupt.h>
+#include <avr/sleep.h>
 
 // Hardware constants for timer 2.
 #if (((F_CPU/8000) - 1) < 255)
@@ -87,3 +88,38 @@ ISR(TIMER2_COMPA_vect)
         ticks_counter = 1;
     }
 }
+
+// ASLeep Section
+#ifdef ASLEEP
+ISR(WDT_vect)
+{
+}
+
+void hal_ASleep(uint16_t duration)
+{
+    duration >>= 3; // Minimal Sleep Time 8S
+
+    MCUSR &= ~(1<<WDRF);
+    __asm__ __volatile__ ("wdr");
+
+    // start timed sequence
+    WDTCSR |= (1<<WDCE) | (1<<WDE);
+    // set new watchdog timeout value
+    WDTCSR = (1<<WDCE) | (1<<WDP3) | (1<<WDP0); // 8S
+    WDTCSR |= (1<<WDIE);                        // Enable WatchDog Interrupt
+
+    set_sleep_mode(SLEEP_MODE_PWR_DOWN);
+    sleep_enable();
+
+    while(duration > 0)
+    {
+        sleep_mode();
+        duration--;
+    }
+    
+    WDTCSR |= (1<<WDCE) | (1<<WDE);
+    WDTCSR = 0;
+
+    sleep_disable();
+}
+#endif  //  ASLEEP

@@ -354,4 +354,19 @@ void * CC11_GetAddr(void)
     return &cc11s_NodeID;
 }
 
+#ifdef ASLEEP
+void CC11_ASleep(void)
+{
+    // We need to enter the IDLE state first
+    cc11_cmdStrobe(CC11_SIDLE);
+    // Enter Power-down state
+    cc11_cmdStrobe(CC11_SPWD);
+}
+
+void CC11_AWake(void)
+{
+    cc11_cmdStrobe(CC11_SIDLE);
+}
+#endif  //  ASLEEP
+
 #endif  //  CC11_PHY

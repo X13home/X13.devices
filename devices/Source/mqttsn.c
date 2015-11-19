@@ -259,7 +259,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                     else if(vMQTTSN.Status == MQTTSN_STATUS_AWAKE)
                     {
                         vMQTTSN.Status = MQTTSN_STATUS_CONNECT;
-                        vMQTTSN.Tretry = MQTTSN_T_SHORT;
+                        vMQTTSN.Tretry = 1;
                         vMQTTSN.Nretry = MQTTSN_N_RETRIES;
                     }
 #endif  //  ASLEEP
@@ -432,16 +432,8 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
 #ifdef ASLEEP
                 else if(vMQTTSN.Status == MQTTSN_STATUS_AWAKE)
                 {
-                    vMQTTSN.Tretry = 1;
-                    if(vMQTTSN.tASleep != 0)
-                    {
-                        vMQTTSN.Status = MQTTSN_STATUS_ASLEEP;
-                        // ToDo disable ext's
-                    }
-                    else
-                    {
-                        
-                    }
+                    vMQTTSN.Tretry = MQTTSN_T_SHORT;
+                    vMQTTSN.Status = MQTTSN_STATUS_ASLEEP;
                 }
 #endif  //  ASLEEP
             }
@@ -828,11 +820,8 @@ void MQTTSN_Poll(void)
 #ifdef ASLEEP
                 if(vMQTTSN.tASleep != 0)
                 {
-                    // ToDo disable ext's
-            
                     vMQTTSN.Nretry = MQTTSN_N_RETRIES;
                     vMQTTSN.Status = MQTTSN_STATUS_ASLEEP_DISCONNECT;
-                    
                     return;
                 }
 #endif  //  ASLEEP
@@ -1053,15 +1042,20 @@ void MQTTSN_Poll(void)
         }
         case MQTTSN_STATUS_ASLEEP:
         {
-            PHY1_ASleep();                  // Disable PHY
-            hal_ASleep(vMQTTSN.tASleep);    // Enter to Sleep mode
-            PHY1_AWake();                   // Enable PHY
-
-            // ToDo enable ext's
-            vMQTTSN.Status = MQTTSN_STATUS_AWAKE;
             vMQTTSN.Nretry = MQTTSN_N_RETRIES;
-            vMQTTSN.Tretry = MQTTSN_T_AWAKE;
-            return;
+            vMQTTSN.Status = MQTTSN_STATUS_AWAKE;
+
+            if((vMQTTSN.MsgType == MQTTSN_MSGTYP_PINGREQ) && (vMQTTSN.tASleep != 0))
+            {
+                OD_ASleep();
+                PHY1_ASleep();                  // Disable PHY
+                hal_ASleep(vMQTTSN.tASleep);    // Enter to Sleep mode
+                PHY1_AWake();                   // Enable PHY
+                OD_AWake();
+                vMQTTSN.Tretry = MQTTSN_T_AWAKE;
+                return;
+            }
+            // No break or return, it's OK
         }
         case MQTTSN_STATUS_AWAKE:
         {
@@ -1240,6 +1234,10 @@ void MQTTSN_Send(e_MQTTSN_MSGTYPE_t      MsgType,
     
     vMQTTSN.pMessage = pMessage;
 
-    vMQTTSN.Tretry = 0;
-    vMQTTSN.Nretry = MQTTSN_N_RETRIES;
+    if((vMQTTSN.Status == MQTTSN_STATUS_PRE_CONNECT) ||
+       (vMQTTSN.Status == MQTTSN_STATUS_CONNECT))
+    {
+        vMQTTSN.Tretry = 0;
+        vMQTTSN.Nretry = MQTTSN_N_RETRIES;
+    }
 }

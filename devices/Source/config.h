@@ -49,9 +49,6 @@ extern "C" {
 
 //#define DIAG_USED               1       // Enable diagnostic messages
 
-#define ASLEEP                  1       // Enable ASleep mode
-#define OD_DEFAULT_TASLEEP      0
-
 // Include Hardware definitions
 // Atmel
 // ATM328P
@@ -73,6 +70,10 @@ extern "C" {
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"
+
+#if (defined PHY2_ADDR_t) && (defined ASLEEP)
+#error Incompatible options ASLEEP for Gateway
+#endif  //  
 
 #ifdef __cplusplus
 }

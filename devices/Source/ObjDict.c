@@ -774,7 +774,7 @@ void OD_Poll(void)
     
     if((status == MQTTSN_STATUS_CONNECT)
 #ifdef ASLEEP
-        || (status == MQTTSN_STATUS_AWAKE)
+        || (status == MQTTSN_STATUS_AWAKE) || (status == MQTTSN_STATUS_ASLEEP)
 #endif  //  ASLEEP
         )
     {
@@ -847,3 +847,17 @@ void OD_Poll(void)
     else
         idxUpdate = 0x00;
 }
+
+
+#ifdef ASLEEP
+void OD_ASleep(void)
+{
+    
+}
+
+void OD_AWake(void)
+{
+    
+}
+
+#endif  //  ASLEEP

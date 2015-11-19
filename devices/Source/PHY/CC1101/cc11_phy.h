@@ -40,6 +40,8 @@ See LICENSE file for license details.
 #define PHY1_GetAddr                CC11_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objRFGateId
+#define PHY1_ASleep                 CC11_ASleep
+#define PHY1_AWake                  CC11_AWake
     
 #elif   (CC11_PHY == 2)
 
@@ -72,5 +74,8 @@ void CC11_Send(void *pBuf);
 void * CC11_Get(void);
 uint8_t CC11_GetRSSI(void);
 void * CC11_GetAddr(void);
+
+void CC11_ASleep(void);
+void CC11_AWake(void);
 
 #endif  //  _CC11_PHY_H

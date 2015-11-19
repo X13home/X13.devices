@@ -178,6 +178,9 @@ e_MQTTSN_RETURNS_t WriteODpack(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t 
 
 void OD_Poll(void);
 
+void OD_ASleep(void);
+void OD_AWake(void);
+
 #ifdef __cplusplus
 }
 #endif
