@@ -136,7 +136,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
 {
     bool msg_from_gw = (memcmp(pPHY1outBuf->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t)) == 0);
 
-#ifdef MQTTSN_TRANSIT_ON_PHY1
+#ifdef MQTTSN_USE_MESH
     // Transit messages on PHY1
     if(!msg_from_gw && (vMQTTSN.Status == MQTTSN_STATUS_CONNECT))
     {
@@ -194,7 +194,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
         mqFree(pPHY1outBuf);
         return;
     }
-#endif  //  MQTTSN_TRANSIT_ON_PHY1
+#endif  //  MQTTSN_USE_MESH
 
     switch(pPHY1outBuf->mq.MsgType)
     {
@@ -514,7 +514,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
             break;
 #endif  //  MQTTSN_USE_DHCP
         // Forward message
-#if ((defined MQTTSN_TRANSIT_ON_PHY1) || (defined PHY2_Send))
+#if ((defined MQTTSN_USE_MESH) || (defined PHY2_Send))
         case MQTTSN_MSGTYP_FORWARD:
             if(vMQTTSN.Status == MQTTSN_STATUS_CONNECT)
             {
@@ -522,7 +522,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                 {
                     uint8_t Length = pPHY1outBuf->mq.Length;
                     uint8_t phynr = pPHY1outBuf->mq.forward.wNodeID[0];
-#ifdef MQTTSN_TRANSIT_ON_PHY1
+#ifdef MQTTSN_USE_MESH
                     // Direction: Gateway to Remote node on PHY1
                     if((phynr == 1) && (Length == (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY1_ADDR_t) + 1)))
                     {
@@ -533,7 +533,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                         PHY1_Send(pPHY1outBuf);
                         return;
                     }
-#endif  //  MQTTSN_TRANSIT_ON_PHY1
+#endif  //  MQTTSN_USE_MESH
 #ifdef PHY2_Send
                     // Direction Gateway to PHY2
                     if((phynr == 2) && (Length == (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY2_ADDR_t) + 1)))
@@ -549,7 +549,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                 }
             }
             break;
-#endif  //  ((defined MQTTSN_TRANSIT_ON_PHY1) || (defined PHY2_Send))
+#endif  //  ((defined MQTTSN_USE_MESH) || (defined PHY2_Send))
         // Unknown message type
         default:
             break;

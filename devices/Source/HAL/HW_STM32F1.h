@@ -19,8 +19,10 @@ See LICENSE file for license details.
 #elif   (defined CFG_S3Sn12)
 #include "HAL/HWconfig_S3Sn12.h"    // UART
  // Maple Mini, STM32F103CBT6
+#elif (defined CFG_S3Cn11)
+#include "HAL/HWconfig_S3Cn11.h"    // CC1101
 #elif (defined CFG_S3SC11)
-#include "HAL/HWconfig_S3SC11.h"    // UART + CC11
+#include "HAL/HWconfig_S3SC11.h"    // UART + CC1101
 #else
 #error Unknown configuration
 #endif  //  Configuration

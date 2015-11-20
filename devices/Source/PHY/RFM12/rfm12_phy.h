@@ -26,6 +26,8 @@ See LICENSE file for license details.
 #define PHY1_GetAddr                RFM12_GetAddr
 #define PHY1_NodeId                 objRFNodeId
 #define PHY1_GateId                 objRFGateId
+#define PHY1_ASleep                 RFM12_ASleep
+#define PHY1_AWake                  RFM12_AWake
 
 #elif (RFM12_PHY == 2)
     
@@ -77,5 +79,8 @@ void RFM12_Init(void);
 void RFM12_Send(void *pBuf);
 void * RFM12_Get(void);
 void * RFM12_GetAddr(void);
+
+void RFM12_ASleep(void);
+void RFM12_AWake(void);
 
 #endif  //  _RFM12_PHY_H

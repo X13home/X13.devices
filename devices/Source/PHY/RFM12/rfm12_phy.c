@@ -481,4 +481,18 @@ void * RFM12_GetAddr(void)
     return &rfm12_tx_hdr.Src;
 }
 
+#ifdef ASLEEP
+void RFM12_ASleep(void)
+{
+    hal_rfm12_spiExch(RFM12_SLEEP_MODE);
+    rfm12_state = RFM12_TRVASLEEP;
+}
+
+void RFM12_AWake(void)
+{
+    hal_rfm12_spiExch(RFM12_IDLE_MODE);
+    rfm12_state = RFM12_TRVIDLE;
+}
+#endif  //  ASLEEP
+
 #endif  //  RFM12_PHY
