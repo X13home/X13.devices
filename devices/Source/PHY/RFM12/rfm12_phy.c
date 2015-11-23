@@ -31,7 +31,7 @@ See LICENSE file for license details.
 #define RFM12_DRSSI         RFM12_RXCTRL_RSSI_91
 #define RFM12_POWER         RFM12_TXCONF_POWER_0
 
-#define RFM12_TX_RETRYS     64
+#define RFM12_TX_RETRYS     5   // delay 15 - 50 ms
 
 // RF States
 typedef enum
@@ -97,6 +97,7 @@ static void rfm12_tx_task(void)
 {
     static uint8_t rfm12_tx_delay = 0;
     static uint8_t rfm12_tx_retry = RFM12_TX_RETRYS;
+    static uint16_t rfm12_ms = 0;
 
     if(rfm12_tx_queue.Size == 0)
         return;
@@ -104,6 +105,9 @@ static void rfm12_tx_task(void)
     // CDMA
     if(rfm12_tx_delay > 0)
     {
+        if(rfm12_ms == hal_get_ms())
+            return;
+        rfm12_ms = hal_get_ms();
         rfm12_tx_delay--;
         return;
     }
@@ -114,8 +118,7 @@ static void rfm12_tx_task(void)
         if(rfm12_tx_retry > 0)
         {
             rfm12_tx_retry--;
-            rfm12_tx_delay = rfm12_tx_hdr.Src >> 1;
-            rfm12_tx_delay += (halRNG() & 0x7F);
+            rfm12_tx_delay = (halRNG() & 0x7) + 3;
             return;
         }
     }

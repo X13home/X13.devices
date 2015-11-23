@@ -135,12 +135,13 @@ static uint8_t cc11_readReg(uint8_t Addr)
     return retval;
 }
 
-#define CC11_TX_RETRYS  64
+#define CC11_TX_RETRYS  5   // delay 15 - 50 ms
 
 static void cc11_tx_task(void)
 {
     static uint8_t cc11_tx_delay = 0;
     static uint8_t cc11_tx_retry = CC11_TX_RETRYS;
+    static uint16_t cc11_ms = 0;
 
     if(cc11_tx_queue.Size == 0)
         return;
@@ -148,6 +149,9 @@ static void cc11_tx_task(void)
     // CDMA
     if(cc11_tx_delay > 0)
     {
+        if(cc11_ms == hal_get_ms())
+            return;
+        cc11_ms = hal_get_ms();
         cc11_tx_delay--;
         return;
     }
@@ -157,7 +161,7 @@ static void cc11_tx_task(void)
         if(cc11_tx_retry > 0)
         {
             cc11_tx_retry--;
-            cc11_tx_delay = (cc11s_NodeID>>1) + (halRNG() & 0x7F);
+            cc11_tx_delay = (halRNG() & 0x7) + 3;
             return;
         }
         //cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state
