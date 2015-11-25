@@ -37,7 +37,6 @@ See LICENSE file for license details.
 typedef enum
 {
     RFM12_TRVPOR = 0,
-    RFM12_TRVSLEEP,
     RFM12_TRVIDLE,
     RFM12_TRVRXIDLE,
     RFM12_TRVRXHDR_DST,
@@ -487,6 +486,17 @@ void * RFM12_GetAddr(void)
 #ifdef ASLEEP
 void RFM12_ASleep(void)
 {
+    if((rfm12_state > RFM12_TRVRXIDLE) && (rfm12_state < RFM12_TRVRXDONE))          // Receive data
+    {
+        while(rfm12_state != RFM12_TRVRXDONE);
+    }
+    else if((rfm12_state >= RFM12_TRVTXPREAMB) && (rfm12_state < RFM12_TRVTXDONE))  // Send Data
+    {
+        while(rfm12_state != RFM12_TRVTXDONE);
+        mqFree(rfm12_pTxBuf);
+        rfm12_pTxBuf = NULL;
+    }
+
     hal_rfm12_spiExch(RFM12_SLEEP_MODE);
     rfm12_state = RFM12_TRVASLEEP;
 }

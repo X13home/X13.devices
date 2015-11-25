@@ -93,11 +93,21 @@ ISR(TIMER2_COMPA_vect)
 #ifdef ASLEEP
 ISR(WDT_vect)
 {
+    hal_sec_counter += 8;
+    hal_ms_counter += 8000;
 }
 
 void hal_ASleep(uint16_t duration)
 {
     duration >>= 3; // Minimal Sleep Time 8S
+
+#ifdef EXTAIN_USED
+    // Disable ADC
+    if(ADCSRA & (1<<ADEN))
+        while(ADCSRA & (1<<ADSC));
+    uint8_t oldAD = ADCSRA;
+    ADCSRA &= ~(1<<ADEN);
+#endif  //  EXTAIN_USED
 
     MCUSR &= ~(1<<WDRF);
     __asm__ __volatile__ ("wdr");
@@ -116,10 +126,15 @@ void hal_ASleep(uint16_t duration)
         sleep_mode();
         duration--;
     }
-    
+
     WDTCSR |= (1<<WDCE) | (1<<WDE);
     WDTCSR = 0;
 
     sleep_disable();
+
+#ifdef EXTAIN_USED
+    // Restore ADC State
+    ADCSRA = oldAD;
+#endif  //  EXTAIN_USED
 }
 #endif  //  ASLEEP

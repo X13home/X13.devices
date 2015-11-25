@@ -18,13 +18,14 @@ extern "C" {
 #endif
 
 // TWI Access Flags
-#define TWI_WRITE   0x01    // Write access
-#define TWI_READ    0x02    // Read access
-#define TWI_BUSY    0x08    // Bus busy
-#define TWI_RDY     0x10    // Access complete
-#define TWI_WD      0x20    // Timeout
-#define TWI_SLANACK 0x40    // Slave Addr NACK received
-#define TWI_ERROR   0x80    // Unknown error
+#define TWI_WRITE       0x01    // Write access
+#define TWI_READ        0x02    // Read access
+#define TWI_WD_ARMED    0x04    // Watchdog started
+#define TWI_BUSY        0x08    // Bus busy
+#define TWI_RDY         0x10    // Access complete
+#define TWI_WD          0x20    // Timeout
+#define TWI_SLANACK     0x40    // Slave Addr NACK received
+#define TWI_ERROR       0x80    // Unknown error
 
 
 typedef struct

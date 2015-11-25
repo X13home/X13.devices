@@ -12,7 +12,7 @@
     #define UART0_DDR                   DDRD
     #define UART0_RX_PIN                PD0
     #define UART0_TX_PIN                PD1
-#elif (defined __AVR_ATmega1284P__) || (defined __AVR_ATmega164P__)
+#elif (defined __AVR_ATmega1284P__) || (defined __AVR_ATmega164P__) || (defined __AVR_ATmega164PA__)
     #define UART0_PORT                  PORTD
     #define UART0_DDR                   DDRD
     #define UART0_RX_PIN                PD0

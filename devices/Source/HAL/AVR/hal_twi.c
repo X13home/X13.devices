@@ -11,7 +11,7 @@
 #define TWIM_SCL_STAT()             (PINC & (1<<PC5))
 #define I2C_DIO_SDA                 20
 #define I2C_DIO_SCL                 21
-#elif (defined __AVR_ATmega1284P__)
+#elif (defined __AVR_ATmega1284P__) || (defined __AVR_ATmega164P__) || (defined __AVR_ATmega164PA__)
 #define TWIM_SCL_STAT()             (PINC & (1<<PC0))
 #define I2C_DIO_SCL                 16
 #define I2C_DIO_SDA                 17
@@ -52,22 +52,24 @@ bool hal_twi_configure(uint8_t enable)
     return true;
 }
 
+#define TWIM_BUS_TIMEOUT            250 // ms
+
 void hal_twi_tick(void)
 {
     assert(pTwi_exchange != NULL);
 
-    static uint8_t twi_wd = 0;
+    static uint16_t twi_ms = 0;
 
     uint8_t access = pTwi_exchange->frame.access;
-    
-    if((access & 0xF8) == 0)
+
+    if((access & (TWI_ERROR | TWI_SLANACK | TWI_WD | TWI_RDY)) == 0)
     {
-        twi_wd = 0;
-    }
-    else
-    {
-        twi_wd--;
-        if(twi_wd == 0) // Timeout
+        if((access & TWI_WD_ARMED) == 0)
+        {
+            pTwi_exchange->frame.access |= TWI_WD_ARMED;
+            twi_ms = hal_get_ms();
+        }
+        else if((hal_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
         {
             pTwi_exchange->frame.access |= TWI_WD;
             if(access & TWI_BUSY)
@@ -83,8 +85,6 @@ void hal_twi_tick(void)
 
     if(TWIM_SCL_STAT() != 0)    // Bus Free
     {
-        twi_wd = 0;
-
         pTwi_exchange->frame.access |= TWI_BUSY;
 
         TWCR = (1<<TWEN) |                      // TWI Interface enabled.
