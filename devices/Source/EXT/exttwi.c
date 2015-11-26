@@ -42,8 +42,6 @@ e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
         return MQTTSN_RET_REJ_NOT_SUPP;
 
     TWI_QUEUE_t * pQueue = mqAlloc(sizeof(MQ_t));
-    if(pQueue == NULL)
-        return MQTTSN_RET_REJ_CONG;
 
     memcpy(&pQueue->frame, pBuf, Len);
     

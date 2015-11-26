@@ -92,9 +92,7 @@ void * UART_Get(void)
             if(data >= 2)
             {
                 pRx_buf = mqAlloc(sizeof(MQ_t));
-                if(pRx_buf != NULL)
-                    rx_len = data;
-
+                rx_len = data;
                 rx_pos = 0;
             }
         }

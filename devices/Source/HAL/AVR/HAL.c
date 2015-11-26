@@ -138,3 +138,13 @@ void hal_ASleep(uint16_t duration)
 #endif  //  EXTAIN_USED
 }
 #endif  //  ASLEEP
+
+void hal_reboot(void)
+{
+    cli();
+    WDTCSR |= (1<<WDCE) | (1<<WDE);
+    // set new watchdog timeout value
+    WDTCSR = (1<<WDE);
+    while(1);
+    
+}

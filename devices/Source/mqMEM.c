@@ -131,8 +131,11 @@ void * mqAlloc(size_t xWantedSize)
             }
         }
     }
-    
+
     LEAVE_CRITICAL_SECTION();
+
+    if(pReturn == NULL) //  Memory overflow
+        hal_reboot();
 
     return pReturn;
 }

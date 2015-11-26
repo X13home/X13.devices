@@ -659,8 +659,6 @@ void dhcp_poll(void)
     dhcp_retry_time = tick_sec + 15;
 
     pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
-    if(pFrame == NULL)
-        return;
 
     ip = (void*)(pFrame->data);
     udp = (void*)(ip->data);

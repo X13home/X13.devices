@@ -31,8 +31,6 @@ void dhcp_poll(void);
 void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame)
 {
     MQ_t * pRx_buf = mqAlloc(sizeof(MQ_t));
-    if(pRx_buf == NULL)
-        return;
 
     Activity(ENC28J60_PHY);
     
@@ -69,11 +67,6 @@ void ENC28J60_Send(void *pBuf)
     }
 
     eth_frame_t * pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
-    if(pFrame == NULL)
-    {
-        mqFree(pBuf);
-        return;
-    }
 
     Activity(ENC28J60_PHY);
 
@@ -105,12 +98,9 @@ void * ENC28J60_Get(void)
         if(len > sizeof(eth_frame_t))
         {
             eth_frame_t * pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
-            if(pFrame != NULL)
-            {
-                enc28j60_GetPacket((void *)pFrame,  sizeof(eth_frame_t));
-                eth_filter(len, pFrame);
-                mqFree(pFrame);
-            }
+            enc28j60_GetPacket((void *)pFrame,  sizeof(eth_frame_t));
+            eth_filter(len, pFrame);
+            mqFree(pFrame);
         }
         enc28j60_ClosePacket();
     }

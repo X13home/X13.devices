@@ -439,13 +439,10 @@ void * RFM12_Get(void)
             if(rfm12_pRxBuf == NULL)
                 rfm12_pRxBuf = mqAlloc(sizeof(MQ_t));
 
-            if(rfm12_pRxBuf != NULL)
-            {
-                wd_cnt = 0;
-                rfm12_state = RFM12_TRVRXIDLE;
-                hal_rfm12_spiExch(RFM12_RECEIVE_MODE);
-                hal_rfm12_spiExch(RFM12_RXFIFO_ENA);
-            }
+            wd_cnt = 0;
+            rfm12_state = RFM12_TRVRXIDLE;
+            hal_rfm12_spiExch(RFM12_RECEIVE_MODE);
+            hal_rfm12_spiExch(RFM12_RXFIFO_ENA);
             break;
         case RFM12_TRVRXDONE:  // Rx Data Ready
             {

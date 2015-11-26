@@ -357,8 +357,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
     if(hal_UARTv[port] == NULL)
     {
         hal_UARTv[port] = mqAlloc(sizeof(HAL_UART_t));
-        assert(hal_UARTv[port] != NULL);
-        
+
         hal_UARTv[port]->rx_head = 0;
         hal_UARTv[port]->rx_tail = 0;
         hal_UARTv[port]->tx_len = 0;

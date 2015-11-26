@@ -18,12 +18,10 @@ void DIAG_Poll(void)
 
     diag_timeout = hal_get_sec();
 
-    MQ_t * pMessage = mqAlloc(sizeof(MQ_t));
-    if(pMessage == NULL)
-        return;
-
     uint16_t min, max, act;
     mqGetHeapStat(&act, &max, &min);
+    
+    MQ_t * pMessage = mqAlloc(sizeof(MQ_t));
     
     pMessage->mq.publish.Data[0] = (min >> 8);
     pMessage->mq.publish.Data[1] = min & 0xFF;

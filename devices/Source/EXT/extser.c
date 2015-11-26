@@ -110,9 +110,6 @@ e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
         if((extSerV[port]->pTxBuf == NULL) && hal_uart_free(port))
         {
             MQ_t * pTxBuf = mqAlloc(sizeof(MQ_t));
-            if(pTxBuf == NULL)
-                return MQTTSN_RET_REJ_CONG;
-
             memcpy(pTxBuf->raw, pBuf, Len);
             hal_uart_send(port, Len, pTxBuf->raw);
 
@@ -183,16 +180,11 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
     else
     {
         extSerV[port] = mqAlloc(sizeof(EXTSER_VAR_t));
-        if(extSerV[port] == NULL)
-            return MQTTSN_RET_REJ_CONG;
-
         extSerV[port]->nBaud = nBaud;
         extSerV[port]->flags = 0;
-
         extSerV[port]->pRxBuf = NULL;
         extSerV[port]->RxHead = 0;
         extSerV[port]->RxTail = 0;
-
         extSerV[port]->pTxBuf = NULL;
     }
 
@@ -210,8 +202,6 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         if(extSerV[port]->pRxBuf == NULL)
         {
             extSerV[port]->pRxBuf = mqAlloc(sizeof(MQ_t));
-            if(extSerV[port]->pRxBuf == NULL)
-                return MQTTSN_RET_REJ_CONG;
         }
 
         extSerV[port]->flags |= EXTSER_FLAG_RXEN;

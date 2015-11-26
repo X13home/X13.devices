@@ -585,30 +585,27 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
 #ifdef PHY2_GetRSSI
             {
                 MQ_t * pRSSI = mqAlloc(sizeof(MQ_t));
-                if(pRSSI != NULL)
-                {
-                    uint8_t pos = (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY2_ADDR_t) + 1);
-                    // Make Forward message
-                    pRSSI->mq.Length = pos;
-                    pRSSI->mq.MsgType = MQTTSN_MSGTYP_FORWARD;
-                    pRSSI->mq.forward.Ctrl = 0;   // ?? TTL
-                    pRSSI->mq.forward.wNodeID[0] = 2;     // PHY2
-                    memcpy(&pRSSI->mq.forward.wNodeID[1], pPHY2outBuf->phy2addr, sizeof(PHY2_ADDR_t));
-                    // Make publish message
-                    pRSSI->raw[pos++] = (MQTTSN_SIZEOF_MSG_PUBLISH + 1);                // length of publish
-                    pRSSI->raw[pos++] = MQTTSN_MSGTYP_PUBLISH;                          // Message Type
-                    pRSSI->raw[pos++] = (MQTTSN_FL_QOSN1 | MQTTSN_FL_TOPICID_PREDEF);   // Flags
-                    pRSSI->raw[pos++] = (objRSSI>>8);                                   // Topic ID
-                    pRSSI->raw[pos++] = (objRSSI & 0xFF);
-                    pRSSI->raw[pos++] = 0xBA;                                           // Message ID
-                    pRSSI->raw[pos++] = 0xBA;
-                    uint8_t rssi = PHY2_GetRSSI();
-                    pRSSI->raw[pos++] = rssi;
-                    if((rssi & 0x80) == 0)
-                        pRSSI->raw[pos++] = 0xFF;                                       // RSSI < 0
-                    pRSSI->Length = pos;
-                    PHY1_Send(pRSSI);
-                }
+                uint8_t pos = (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY2_ADDR_t) + 1);
+                // Make Forward message
+                pRSSI->mq.Length = pos;
+                pRSSI->mq.MsgType = MQTTSN_MSGTYP_FORWARD;
+                pRSSI->mq.forward.Ctrl = 0;   // ?? TTL
+                pRSSI->mq.forward.wNodeID[0] = 2;     // PHY2
+                memcpy(&pRSSI->mq.forward.wNodeID[1], pPHY2outBuf->phy2addr, sizeof(PHY2_ADDR_t));
+                // Make publish message
+                pRSSI->raw[pos++] = (MQTTSN_SIZEOF_MSG_PUBLISH + 1);                // length of publish
+                pRSSI->raw[pos++] = MQTTSN_MSGTYP_PUBLISH;                          // Message Type
+                pRSSI->raw[pos++] = (MQTTSN_FL_QOSN1 | MQTTSN_FL_TOPICID_PREDEF);   // Flags
+                pRSSI->raw[pos++] = (objRSSI>>8);                                   // Topic ID
+                pRSSI->raw[pos++] = (objRSSI & 0xFF);
+                pRSSI->raw[pos++] = 0xBA;                                           // Message ID
+                pRSSI->raw[pos++] = 0xBA;
+                uint8_t rssi = PHY2_GetRSSI();
+                pRSSI->raw[pos++] = rssi;
+                if((rssi & 0x80) == 0)
+                    pRSSI->raw[pos++] = 0xFF;                                       // RSSI < 0
+                pRSSI->Length = pos;
+                PHY1_Send(pRSSI);
             }
 #endif
             case MQTTSN_MSGTYP_REGISTER:
@@ -708,9 +705,6 @@ static void mqttsn_send_gwinfo(uint8_t phy)
     if(phy == 1)
     {
         pGWInfo = mqAlloc(sizeof(MQ_t));
-        if(pGWInfo == NULL)
-            return;
-    
         memcpy(pGWInfo->phy1addr, &addr1_broad, sizeof(PHY1_ADDR_t));
         pGWInfo->Length = MQTTSN_SIZEOF_MSG_GWINFO;
         pGWInfo->mq.Length = MQTTSN_SIZEOF_MSG_GWINFO;
@@ -724,9 +718,6 @@ static void mqttsn_send_gwinfo(uint8_t phy)
     else if(phy == 2)
     {
         pGWInfo = mqAlloc(sizeof(MQ_t));
-        if(pGWInfo == NULL)
-            return;
-
         memcpy(pGWInfo->phy2addr, &addr2_broad, sizeof(PHY2_ADDR_t));
         pGWInfo->Length = MQTTSN_SIZEOF_MSG_GWINFO;
         pGWInfo->mq.Length = MQTTSN_SIZEOF_MSG_GWINFO;
@@ -805,11 +796,7 @@ void MQTTSN_Poll(void)
                 if(qos == MQTTSN_FL_QOS1)
                 {
                     pMessage = mqAlloc(sizeof(MQ_t));
-                    if(pMessage == NULL)
-                        return;
-
                     memcpy(pMessage, vMQTTSN.pMessage, sizeof(MQ_t));
-
                     vMQTTSN.pMessage->mq.publish.Flags |= MQTTSN_FL_DUP;
                 }
                 else    // ToDo, only for QoS0/QoS-1, QoS2 not supported yet.
@@ -821,11 +808,7 @@ void MQTTSN_Poll(void)
             else if(vMQTTSN.MsgType == MQTTSN_MSGTYP_REGISTER)  // Send Register message
             {
                 vMQTTSN.Tretry = MQTTSN_T_RETR_BASED;
-
                 pMessage = mqAlloc(sizeof(MQ_t));
-                if(pMessage == NULL)
-                    return;
-
                 memcpy(pMessage, vMQTTSN.pMessage, sizeof(MQ_t));
             }
             else    // No messages, send PingReq
@@ -842,9 +825,6 @@ void MQTTSN_Poll(void)
 #endif  //  ASLEEP
 
                 pMessage = mqAlloc(sizeof(MQ_t));
-                if(pMessage == NULL)
-                    return;
-
                 memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
                 pMessage->Length = MQTTSN_SIZEOF_MSG_PINGREQ;
                 pMessage->mq.Length = MQTTSN_SIZEOF_MSG_PINGREQ;
@@ -898,9 +878,6 @@ void MQTTSN_Poll(void)
             vMQTTSN.Tretry = MQTTSN_T_SEARCHGW;
 
             pMessage = mqAlloc(sizeof(MQ_t));
-            if(pMessage == NULL)
-                return;
-
             // Make DHCP request
             vMQTTSN.MsgId = halRNG();
 
@@ -955,9 +932,6 @@ void MQTTSN_Poll(void)
             vMQTTSN.Tretry = MQTTSN_T_SEARCHGW;
 
             pMessage = mqAlloc(sizeof(MQ_t));
-            if(pMessage == NULL)
-                return;
-
             memcpy(pMessage->phy1addr, &addr1_broad, sizeof(PHY1_ADDR_t));
             pMessage->Length = MQTTSN_SIZEOF_MSG_SEARCHGW;
             pMessage->mq.Length = MQTTSN_SIZEOF_MSG_SEARCHGW;
@@ -981,8 +955,6 @@ void MQTTSN_Poll(void)
             vMQTTSN.Tretry = MQTTSN_T_CONNECT;
 
             pMessage = mqAlloc(sizeof(MQ_t));
-            if(pMessage == NULL)
-                return;
 
             // Make connect message
             memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
@@ -1016,9 +988,6 @@ void MQTTSN_Poll(void)
                (vMQTTSN.MsgType == MQTTSN_MSGTYP_SUBSCRIBE))    // Subscribe message
             {
                 pMessage = mqAlloc(sizeof(MQ_t));
-                if(pMessage == NULL)
-                    return;
-
                 memcpy(pMessage, vMQTTSN.pMessage, sizeof(MQ_t));
             }
             // Build Publish message
@@ -1028,11 +997,7 @@ void MQTTSN_Poll(void)
                 if(qos == MQTTSN_FL_QOS1)
                 {
                     pMessage = mqAlloc(sizeof(MQ_t));
-                    if(pMessage == NULL)
-                        return;
-
                     memcpy(pMessage, vMQTTSN.pMessage, sizeof(MQ_t));
-
                     vMQTTSN.pMessage->mq.publish.Flags |= MQTTSN_FL_DUP;
                 }
                 else    // ToDo, only for QoS0/QoS-1, QoS2 not supported yet.
@@ -1060,9 +1025,6 @@ void MQTTSN_Poll(void)
             }
 
             pMessage = mqAlloc(sizeof(MQ_t));
-            if(pMessage == NULL)
-                return;
-
             memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
             pMessage->Length = MQTTSN_SIZEOF_MSG_DISCONNECTL;
             pMessage->mq.Length = MQTTSN_SIZEOF_MSG_DISCONNECTL;
@@ -1098,9 +1060,6 @@ void MQTTSN_Poll(void)
             vMQTTSN.Tretry = MQTTSN_T_SHORT;
 
             pMessage = mqAlloc(sizeof(MQ_t));
-            if(pMessage == NULL)
-                return;
-
             memcpy(pMessage->phy1addr, vMQTTSN.GatewayAddr, sizeof(PHY1_ADDR_t));
 
             if((vMQTTSN.MsgType == MQTTSN_MSGTYP_PINGREQ) && (vMQTTSN.tASleep != 0))
@@ -1208,9 +1167,6 @@ void MQTTSN_Send(e_MQTTSN_MSGTYPE_t      MsgType,
     assert(vMQTTSN.MsgType == MQTTSN_MSGTYP_PINGREQ);
     
     MQ_t * pMessage = mqAlloc(sizeof(MQ_t));
-    if(pMessage == NULL)
-        return;
-
     uint8_t Length;
     uint16_t MessageId = mqttsn_new_msgid();
 

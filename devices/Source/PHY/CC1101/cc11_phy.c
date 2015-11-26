@@ -214,14 +214,14 @@ static MQ_t * cc11_rx_task(void)
     if((i == 0) ||                                      // Data invalid
        (tmp & 0x80) ||                                  // or Overflow
        (tmp < 7) ||                                     // Packet is too small
-       (tmp > (MQTTSN_MSG_SIZE + 2)) ||                 // or Packet is too Big
-       ((pRxBuf = mqAlloc(sizeof(MQ_t))) == NULL))      // No Memory
+       (tmp > (MQTTSN_MSG_SIZE + 2)))                   // or Packet is too Big
     {
         cc11_cmdStrobe(CC11_SFRX);      // Clear RX Buffer
         cc11_cmdStrobe(CC11_SRX);       // Enter to RX State
         return NULL;
     }
-
+    
+    pRxBuf = mqAlloc(sizeof(MQ_t);
     frameLen -= 5;
     pRxBuf->Length = frameLen;
 
