@@ -221,7 +221,7 @@ static MQ_t * cc11_rx_task(void)
         return NULL;
     }
     
-    pRxBuf = mqAlloc(sizeof(MQ_t);
+    pRxBuf = mqAlloc(sizeof(MQ_t));
     frameLen -= 5;
     pRxBuf->Length = frameLen;
 
