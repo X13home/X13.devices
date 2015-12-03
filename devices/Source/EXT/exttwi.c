@@ -19,11 +19,13 @@ See LICENSE file for license details.
 #include "extdio.h"
 #include "exttwi.h"
 
+#define TWIM_BUS_TIMEOUT            250 // ms
+
 // Global variable used in HAL
 volatile TWI_QUEUE_t  * pTwi_exchange = NULL;
 
 // local queues
-static Queue_t  twi_tx_queue = {NULL, NULL, 0, 0};
+static Queue_t  twi_tx_queue = {NULL, NULL, 4, 0};      // Max Size = 4 records
 
 e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
@@ -74,6 +76,8 @@ e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 uint8_t twiPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
+    static uint16_t twi_ms = 0;
+
     if(pTwi_exchange != NULL)
     {
         uint8_t access = pTwi_exchange->frame.access;
@@ -95,7 +99,22 @@ uint8_t twiPollOD(subidx_t * pSubidx, uint8_t sleep)
         }
         else
         {
-            hal_twi_tick();
+            if((access & TWI_WD_ARMED) == 0)
+            {
+                pTwi_exchange->frame.access |= TWI_WD_ARMED;
+                twi_ms = hal_get_ms();
+            }
+            else if((hal_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
+            {
+                if(access & TWI_BUSY)
+                    hal_twi_stop();
+                
+                pTwi_exchange->frame.access |= TWI_WD;
+                return 1;
+            }
+
+            if((access & TWI_BUSY) == 0)
+                hal_twi_start();
         }
     }
     else if(twi_tx_queue.Size != 0)

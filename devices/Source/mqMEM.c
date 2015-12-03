@@ -68,74 +68,73 @@ void * mqAlloc(size_t xWantedSize)
     BlockLink_t *pBlock, *pPrevBlock, *pNewBlock, *pIterator;
     void * pReturn = NULL;
 
+    assert(xWantedSize > 0);
+
     ENTER_CRITICAL_SECTION();
 
     // The wanted size is increased so it can contain a BlockLink_t structure in addition to the requested amount of bytes.
-    if(xWantedSize > 0)
+    xWantedSize += heapSTRUCT_SIZE;
+
+    // Ensure that blocks are always aligned to the required number of bytes.
+    if((xWantedSize & portBYTE_ALIGNMENT_MASK) != 0)
     {
-        xWantedSize += heapSTRUCT_SIZE;
-
-        // Ensure that blocks are always aligned to the required number of bytes.
-        if((xWantedSize & portBYTE_ALIGNMENT_MASK) != 0)
-        {
-            // Byte alignment required.
-            xWantedSize += (portBYTE_ALIGNMENT - (xWantedSize & portBYTE_ALIGNMENT_MASK));
-        }
-        
-        if(xWantedSize < configADJUSTED_HEAP_SIZE)
-        {
-            // Blocks are stored in byte order - traverse the list from the start
-            //  (smallest) block until one of adequate size is found.
-            pPrevBlock = &mqMemStart;
-            pBlock = mqMemStart.pNext;
-            while( ( pBlock->BlockSize < xWantedSize ) && ( pBlock->pNext != NULL ) )
-            {
-                pPrevBlock = pBlock;
-                pBlock = pBlock->pNext;
-            }
-
-            // If we found the end marker then a block of adequate size was not found.
-            if(pBlock != &mqMemEnd)
-            {
-                // Return the memory space - jumping over the BlockLink_t structure at its start.
-                pReturn = (void *)(((uint8_t *)pPrevBlock->pNext) + heapSTRUCT_SIZE);
-
-                // This block is being returned for use so must be taken out of the list of free blocks.
-                pPrevBlock->pNext = pBlock->pNext;
-
-                // If the block is larger than required it can be split into two.
-                if((pBlock->BlockSize - xWantedSize) > ((size_t)(heapSTRUCT_SIZE * 2)))
-                {
-                    // This block is to be split into two.
-                    // Create a new block following the number of bytes requested. 
-                    pNewBlock = (void *)(((uint8_t *)pBlock) + xWantedSize);
-
-                    // Calculate the sizes of two blocks split from the single block.
-                    pNewBlock->BlockSize = pBlock->BlockSize - xWantedSize;
-                    pBlock->BlockSize = xWantedSize;
-
-                    // Insert the new block into the list of free blocks.
-                    size_t BlockSize = pNewBlock->BlockSize;
-                    for(pIterator = &mqMemStart;
-                        pIterator->pNext->BlockSize < BlockSize;
-                        pIterator = pIterator->pNext);
-
-                    pNewBlock->pNext = pIterator->pNext;
-                    pIterator->pNext = pNewBlock;
-                }
-#ifdef DIAG_USED
-                mqHeapAct += pBlock->BlockSize;
-                if(mqHeapMax < mqHeapAct)
-                    mqHeapMax = mqHeapAct;
-#endif  //  DIAG_USED
-            }
-        }
+        // Byte alignment required.
+        xWantedSize += (portBYTE_ALIGNMENT - (xWantedSize & portBYTE_ALIGNMENT_MASK));
     }
 
-    LEAVE_CRITICAL_SECTION();
-
-    if(pReturn == NULL) //  Memory overflow
+    if(xWantedSize >= configADJUSTED_HEAP_SIZE)     // memory Overflow
         hal_reboot();
+    
+
+    // Blocks are stored in byte order - traverse the list from the start
+    //  (smallest) block until one of adequate size is found.
+    pPrevBlock = &mqMemStart;
+    pBlock = mqMemStart.pNext;
+    while( ( pBlock->BlockSize < xWantedSize ) && ( pBlock->pNext != NULL ) )
+    {
+        pPrevBlock = pBlock;
+        pBlock = pBlock->pNext;
+    }
+
+    // If we found the end marker then a block of adequate size was not found.
+    if(pBlock != &mqMemEnd)
+    {
+        // Return the memory space - jumping over the BlockLink_t structure at its start.
+        pReturn = (void *)(((uint8_t *)pPrevBlock->pNext) + heapSTRUCT_SIZE);
+
+        // This block is being returned for use so must be taken out of the list of free blocks.
+        pPrevBlock->pNext = pBlock->pNext;
+
+        // If the block is larger than required it can be split into two.
+        if((pBlock->BlockSize - xWantedSize) > ((size_t)(heapSTRUCT_SIZE * 2)))
+        {
+            // This block is to be split into two.
+            // Create a new block following the number of bytes requested. 
+            pNewBlock = (void *)(((uint8_t *)pBlock) + xWantedSize);
+
+            // Calculate the sizes of two blocks split from the single block.
+            pNewBlock->BlockSize = pBlock->BlockSize - xWantedSize;
+            pBlock->BlockSize = xWantedSize;
+
+            // Insert the new block into the list of free blocks.
+            size_t BlockSize = pNewBlock->BlockSize;
+            for(pIterator = &mqMemStart;
+                pIterator->pNext->BlockSize < BlockSize;
+                pIterator = pIterator->pNext);
+
+            pNewBlock->pNext = pIterator->pNext;
+            pIterator->pNext = pNewBlock;
+        }
+#ifdef DIAG_USED
+        mqHeapAct += pBlock->BlockSize;
+        if(mqHeapMax < mqHeapAct)
+            mqHeapMax = mqHeapAct;
+#endif  //  DIAG_USED
+    }
+    else    //  Memory overflow
+        hal_reboot();
+
+    LEAVE_CRITICAL_SECTION();
 
     return pReturn;
 }
@@ -227,6 +226,7 @@ bool mqEnqueue(Queue_t * pQueue, void * pBuf)
         {
             if((pQueue->Size + 1) > pQueue->MaxSize)
             {
+                LEAVE_CRITICAL_SECTION();
                 return false;
             }
         }
@@ -239,7 +239,6 @@ bool mqEnqueue(Queue_t * pQueue, void * pBuf)
     }
 
     LEAVE_CRITICAL_SECTION();
-
     return true;
 }
 

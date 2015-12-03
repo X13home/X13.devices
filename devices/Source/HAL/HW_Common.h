@@ -74,7 +74,9 @@ uint8_t hal_uart_get(uint8_t port);
 // TWI/I2C Section
 void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
 bool hal_twi_configure(uint8_t enable);
-void hal_twi_tick(void);
+void hal_twi_stop(void);
+void hal_twi_start(void);
+
 // TWI/I2C Section
 //////////////////////////////////////////////////////////////
 

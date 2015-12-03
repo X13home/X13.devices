@@ -52,37 +52,14 @@ bool hal_twi_configure(uint8_t enable)
     return true;
 }
 
-#define TWIM_BUS_TIMEOUT            250 // ms
-
-void hal_twi_tick(void)
+void hal_twi_stop(void)
 {
-    assert(pTwi_exchange != NULL);
+    TWCR &= ~((1<<TWEN) | (1<<TWSTO));
+    TWCR |= (1<<TWINT) | (1<<TWEN);
+}
 
-    static uint16_t twi_ms = 0;
-
-    uint8_t access = pTwi_exchange->frame.access;
-
-    if((access & (TWI_ERROR | TWI_SLANACK | TWI_WD | TWI_RDY)) == 0)
-    {
-        if((access & TWI_WD_ARMED) == 0)
-        {
-            pTwi_exchange->frame.access |= TWI_WD_ARMED;
-            twi_ms = hal_get_ms();
-        }
-        else if((hal_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
-        {
-            pTwi_exchange->frame.access |= TWI_WD;
-            if(access & TWI_BUSY)
-            {
-                TWCR &= ~((1<<TWEN) | (1<<TWSTO));
-                TWCR |= (1<<TWINT) | (1<<TWEN);
-            }
-        }
-    }
-
-    if(access & TWI_BUSY)
-        return;
-
+void hal_twi_start(void)
+{
     if(TWIM_SCL_STAT() != 0)    // Bus Free
     {
         pTwi_exchange->frame.access |= TWI_BUSY;
