@@ -66,6 +66,8 @@ typedef struct
     // Register / Subscribe / Publish variables
     e_MQTTSN_MSGTYPE_t          MsgType;    // Send data type
     MQ_t                      * pMessage;
+    uint16_t                    oMsgId;     // Old Message ID for publish
+    
 }MQTTSN_VAR_t;
 
 static MQTTSN_VAR_t vMQTTSN;
@@ -338,12 +340,17 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                                         pPHY1outBuf->mq.publish.TopicId[1];
                     uint16_t MsgId =   (pPHY1outBuf->mq.publish.MsgId[0]<<8) |
                                         pPHY1outBuf->mq.publish.MsgId[1];
+
+                    if(((Flags & MQTTSN_FL_DUP) == 0) || (vMQTTSN.oMsgId != MsgId))
+                    {
                     // Make PubAck message
                     pPHY1outBuf->mq.puback.ReturnCode = WriteODpack(
                         TopicId,
                         Flags, 
                         (pPHY1outBuf->mq.Length - MQTTSN_SIZEOF_MSG_PUBLISH),
                         (uint8_t *)pPHY1outBuf->mq.publish.Data);
+                    }
+                    vMQTTSN.oMsgId = MsgId;
                         
                     // ToDo Not Supported QOS2
                     if((Flags & MQTTSN_FL_QOS_MASK) == MQTTSN_FL_QOS1)           // Need Ack
@@ -1127,7 +1134,8 @@ void MQTTSN_Init(void)
     vMQTTSN.Nretry = MQTTSN_N_RETRIES;
 
     vMQTTSN.MsgId = 0;
-    
+    vMQTTSN.oMsgId = 0xFFFF;
+
     if((vMQTTSN.MsgType != MQTTSN_MSGTYP_PINGREQ) && (vMQTTSN.pMessage != NULL))
         mqFree(vMQTTSN.pMessage);
     vMQTTSN.MsgType = MQTTSN_MSGTYP_PINGREQ;
