@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -10,7 +10,7 @@ BSD New License
 See LICENSE file for license details.
 */
 
-// MQTT-SN Library, Version 3.0.0
+// MQTT-SN Library, Version 3.0.1
 
 #include "config.h"
 
@@ -163,7 +163,9 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
             case MQTTSN_MSGTYP_SUBSCRIBE:
             case MQTTSN_MSGTYP_PINGREQ:
             case MQTTSN_MSGTYP_DISCONNECT:
+#ifdef MQTTSN_USE_DHCP
             case MQTTSN_MSGTYP_DHCPREQ:
+#endif  //  USE_DHCP
             case MQTTSN_MSGTYP_FORWARD:
                 {
                 // Forward message on PHY1 from Remote Node to Gateway
@@ -212,7 +214,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                 vMQTTSN.Nretry = MQTTSN_N_RETRIES;
             }
 #ifdef PHY2_Send
-            else if((vMQTTSN.Status == MQTTSN_STATUS_CONNECT) && 
+            else if((vMQTTSN.Status == MQTTSN_STATUS_CONNECT) &&
                      msg_from_gw &&
                     (vMQTTSN.Radius == 1))
             {
@@ -343,15 +345,14 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
 
                     if(((Flags & MQTTSN_FL_DUP) == 0) || (vMQTTSN.oMsgId != MsgId))
                     {
-                    // Make PubAck message
-                    pPHY1outBuf->mq.puback.ReturnCode = WriteODpack(
-                        TopicId,
-                        Flags, 
-                        (pPHY1outBuf->mq.Length - MQTTSN_SIZEOF_MSG_PUBLISH),
-                        (uint8_t *)pPHY1outBuf->mq.publish.Data);
+                        pPHY1outBuf->mq.puback.ReturnCode = WriteODpack(
+                                        TopicId,
+                                        Flags, 
+                                        (pPHY1outBuf->mq.Length - MQTTSN_SIZEOF_MSG_PUBLISH),
+                                        (uint8_t *)pPHY1outBuf->mq.publish.Data);
+                        vMQTTSN.oMsgId = MsgId;
                     }
-                    vMQTTSN.oMsgId = MsgId;
-                        
+
                     // ToDo Not Supported QOS2
                     if((Flags & MQTTSN_FL_QOS_MASK) == MQTTSN_FL_QOS1)           // Need Ack
                     {
@@ -620,9 +621,10 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
             case MQTTSN_MSGTYP_PUBLISH:
             case MQTTSN_MSGTYP_PUBACK:
             case MQTTSN_MSGTYP_SUBSCRIBE:
-
             case MQTTSN_MSGTYP_DISCONNECT:
+#ifdef MQTTSN_USE_DHCP
             case MQTTSN_MSGTYP_DHCPREQ:
+#endif  //  MQTTSN_USE_DHCP
             case MQTTSN_MSGTYP_FORWARD:
             {
                 uint8_t Size = (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY2_ADDR_t) + 1);
@@ -1201,7 +1203,6 @@ void MQTTSN_Send(e_MQTTSN_MSGTYPE_t      MsgType,
         Length = MakeTopicName(Flags, pMessage->mq.regist.TopicName);
         Length += MQTTSN_SIZEOF_MSG_REGISTER;
     }
-
     else if(MsgType == MQTTSN_MSGTYP_SUBSCRIBE)
     {
         // Make Subscribe message

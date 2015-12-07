@@ -59,6 +59,7 @@ extern "C" {
 
 #define ASLEEP                      1       // Enable ASleep mode
 #define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
+#define MQTTSN_USE_MESH             1
 
 #include "AVR/hal.h"
 
