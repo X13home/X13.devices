@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -34,8 +34,16 @@ typedef struct
     uint8_t     old_mem[PLC_SIZEOF_RW];     // old values for public variables
 }sPLC_t;
 
-indextable_t PLCexchgOD;
+typedef enum
+{
+    PLC_GET_SIG     = 0,    // Get CRC + Counter, req: not used, resp: CRC16 + counter 2bytes
+    PLC_GET_CRC     = 1,    // get Block CRC , req: block_u16, resp: CRC16
+    PLC_GET_BLK     = 2,    // get block, req: block_u16, resp: block_array
+    PLC_DEL_BLK     = 3,    // delete block, req: block_16 +  CRC16, resp: 0 - ok, 1-255 errors
+    PLC_WRT_BLK     = 4,    // write block, req: block_u16 + data 1-32 bytes + CRC16, resp: 0 - ok, 1-255 errors
+}ePLCcmd_t;
 
+/*
 static sPLC_t vPLC;
 
 // Load program from EEPROM to program page
@@ -185,5 +193,6 @@ void plcProc(void)
         }
     }
 }
+*/
 
 #endif  //  EXTPLC_USED
