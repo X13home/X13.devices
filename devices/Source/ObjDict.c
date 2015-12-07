@@ -88,10 +88,6 @@ static const indextable_t listPredefOD[] =
 // User objects list
 static indextable_t ListOD[OD_MAX_INDEX_LIST];
 
-#ifdef EXTPLC_USED
-extern indextable_t PLCexchgOD;                                         // PLC exchange object
-#endif  //EXTPLC_USED
-
 // End Objects List
 //////////////////////////
 
@@ -175,19 +171,9 @@ static indextable_t * scanIndexOD(uint16_t index, uint8_t flags)
     }
     else if(flags == MQTTSN_FL_TOPICID_PREDEF)
     {
-        if(index >= 0x8000)
-        {
-            for(i = 0; i < sizeof(listPredefOD)/sizeof(indextable_t); i++)
-                if(listPredefOD[i].Index == index)
-                    return (indextable_t *)&listPredefOD[i];
-        }
-#ifdef EXTPLC_USED
-        else    // PLC Area
-        {
-            PLCexchgOD.Index = index;
-            return &PLCexchgOD;
-        }
-#endif  //  EXTPLC_USED
+        for(i = 0; i < sizeof(listPredefOD)/sizeof(indextable_t); i++)
+            if(listPredefOD[i].Index == index)
+                return (indextable_t *)&listPredefOD[i];
     }
 
     return NULL;
