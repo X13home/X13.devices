@@ -21,7 +21,6 @@ void ainInit(void);
 bool ainCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx);
 void ainDeleteOD(subidx_t * pSubidx);
-void ainProc(void);
 
 int16_t ainGet(uint8_t apin);
 #ifdef __cplusplus
