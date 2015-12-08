@@ -36,23 +36,23 @@ typedef enum
     objIPAddr           = (uint16_t)0xFF21, // cfg/Xa_IPAddr    - Array - Len 4
     objIPMask           = (uint16_t)0xFF22, // cfg/Xa_IPMask    - Array - Len 4
     objIPRouter         = (uint16_t)0xFF23, // cfg/Xa_IPRouter  - Array - Len 4
-    objIPBroker   = (uint16_t)0xFF24, // cfg/Xa_IPBroker  - Array - Len 4
+    objIPBroker         = (uint16_t)0xFF24, // cfg/Xa_IPBroker  - Array - Len 4
     // Read Only Variables
-    objDeviceTyp  = (uint16_t)0xFFC0, // _declarer<String>
-    objPHY1addr   = (uint16_t)0xFFC1, // cfg/_a_phy1
-    objPHY2addr   = (uint16_t)0xFFC2, // cfg/_a_phy2
-    objPHY3addr   = (uint16_t)0xFFC3, // cfg/_a_phy3
-    objPHY4addr   = (uint16_t)0xFFC4, // cfg/_a_phy4
+    objDeviceTyp        = (uint16_t)0xFFC0, // _declarer<String>
+    objPHY1addr         = (uint16_t)0xFFC1, // cfg/_a_phy1
+    objPHY2addr         = (uint16_t)0xFFC2, // cfg/_a_phy2
+    objPHY3addr         = (uint16_t)0xFFC3, // cfg/_a_phy3
+    objPHY4addr         = (uint16_t)0xFFC4, // cfg/_a_phy4
   
-    objRSSI       = (uint16_t)0xFFC8, // cfg/XD_RSSI<UInt8>
+    objRSSI             = (uint16_t)0xFFC8, // cfg/XD_RSSI<UInt8>
     /*
     FFD0 .. FFDF - system variables
     */  
     // Debug Variables
-    objLogD       = (uint16_t)0xFFE0, // Data logging, log level - Debug
-    objLogI       = (uint16_t)0xFFE1, // Data logging, log level - Info
-    objLogW       = (uint16_t)0xFFE2, // Data logging, log level - Warning
-    objLogE       = (uint16_t)0xFFE3  // Data logging, log level - Error
+    objLogD             = (uint16_t)0xFFE0, // Data logging, log level - Debug
+    objLogI             = (uint16_t)0xFFE1, // Data logging, log level - Info
+    objLogW             = (uint16_t)0xFFE2, // Data logging, log level - Warning
+    objLogE             = (uint16_t)0xFFE3  // Data logging, log level - Error
 }eObjList_t;
 
 typedef enum
