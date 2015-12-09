@@ -16,6 +16,65 @@ See LICENSE file for license details.
 
 #include "extplc.h"
 
+typedef enum
+{
+    PLC_GET_SIG     = 0,    // Get CRC + Counter, req: not used, resp: CRC16 + counter 2bytes
+    PLC_GET_CRC     = 1,    // get Block CRC , req: block_u16, resp: CRC16
+    PLC_GET_BLK     = 2,    // get block, req: block_u16, resp: block_array
+    PLC_DEL_BLK     = 3,    // delete block, req: block_16 +  CRC16, resp: 0 - ok, 1-255 errors
+    PLC_WRT_BLK     = 4,    // write block, req: block_u16 + data 1-32 bytes + CRC16, resp: 0 - ok, 1-255 errors
+}ePLCcmd_t;
+
+static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+{
+    return MQTTSN_RET_ACCEPTED;
+}
+
+e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    return MQTTSN_RET_ACCEPTED;
+}
+
+uint8_t plcPollOD(subidx_t * pSubidx, uint8_t sleep)
+{
+    return 0;
+}
+
+void plcInit(void)
+{
+   // Register variable pa0
+    indextable_t * pIndex = getFreeIdxOD();
+    if(pIndex == NULL)
+        return;
+
+    pIndex->cbRead     = &plcReadOD;
+    pIndex->cbWrite    = &plcWriteOD;
+    pIndex->cbPoll     = &plcPollOD;
+    pIndex->sidx.Place = objPLCctrl;    // PLC Control
+    pIndex->sidx.Type  = objArray;      // Variable Type - Byte Array
+    pIndex->sidx.Base  = 0;             // not used
+/*
+    vPLC.sp = (PLC_SIZEOF_MEMORY - 4);
+    vPLC.spf = PLC_SIZEOF_MEMORY;
+    vPLC.pc = 0;
+
+    plcReadPrg();
+*/
+}
+
+
+void plcProc(void)
+{
+
+}
+
+
+
+
+
+
+
+/*
 #if ((PLC_SIZEOF_MEMORY & 0x03) != 0)
 #error  PLC_SIZEOF_MEMORY MUST be alligned to 4
 #endif
@@ -33,15 +92,9 @@ typedef struct
     uint8_t     mem[PLC_SIZEOF_MEMORY];     // Bottom variables, from top - stack
     uint8_t     old_mem[PLC_SIZEOF_RW];     // old values for public variables
 }sPLC_t;
+*/
 
-typedef enum
-{
-    PLC_GET_SIG     = 0,    // Get CRC + Counter, req: not used, resp: CRC16 + counter 2bytes
-    PLC_GET_CRC     = 1,    // get Block CRC , req: block_u16, resp: CRC16
-    PLC_GET_BLK     = 2,    // get block, req: block_u16, resp: block_array
-    PLC_DEL_BLK     = 3,    // delete block, req: block_16 +  CRC16, resp: 0 - ok, 1-255 errors
-    PLC_WRT_BLK     = 4,    // write block, req: block_u16 + data 1-32 bytes + CRC16, resp: 0 - ok, 1-255 errors
-}ePLCcmd_t;
+
 
 /*
 static sPLC_t vPLC;
@@ -135,20 +188,8 @@ uint8_t merkerPollOD(subidx_t * pSubidx, uint8_t sleep)
     return memcmp(&vPLC.old_mem[base], &vPLC.mem[base], len);
 }
 
-void plcInit(void)
-{
-    PLCexchgOD.Index = 0;
-    PLCexchgOD.cbRead = NULL;
-    PLCexchgOD.cbWrite = &plcWriteOD;
-    PLCexchgOD.cbPoll = NULL;
 
-    vPLC.sp = (PLC_SIZEOF_MEMORY - 4);
-    vPLC.spf = PLC_SIZEOF_MEMORY;
-    vPLC.pc = 0;
-
-    plcReadPrg();
-}
-
+// Merkers
 // Check Index
 bool plcCheckSubidx(subidx_t * pSubidx)
 {
@@ -180,6 +221,9 @@ e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
 
     return MQTTSN_RET_ACCEPTED;
 }
+
+
+
 
 void plcProc(void)
 {

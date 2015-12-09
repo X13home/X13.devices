@@ -114,6 +114,11 @@ extern "C" {
 #define EXTTWI_USED                 1       // I2C_Bus 1 - I2C1, 2 - I2C2
 // End TWI Section
 
+// PLC Section
+#define EXTPLC_USED                 1
+#define PLC_SIZEOF_EEPROM           0x100
+// End PLC Section
+
 #define UART_PHY                    1
 
 // Object's Dictionary Section
