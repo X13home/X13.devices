@@ -171,61 +171,7 @@ static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
 // Poll Procedure
 static uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
-    static int32_t ain_val;
-    static uint16_t ain_cnt = 0;
-    static uint8_t ain_pos = 0;
-    static uint8_t ain_wd = EXTAIN_MAXPORT_NR;
-    
-    if((ain_cnt == 0) || (ain_wd == 0))
-    {
-        if(ain_ref[ain_pos] == 0xFF)
-        {
-            ain_pos++;
-            if(ain_pos == EXTAIN_MAXPORT_NR)
-                ain_pos = 0;
-            return 0;
-        }
-
-        hal_ain_select(ain_pos, ain_ref[ain_pos]);
-        ain_cnt = 1;
-        ain_val = 0;
-        ain_wd = EXTAIN_MAXPORT_NR;
-    }
-    else if(ain_wd > 0)
-        ain_wd--;
-
-    uint8_t apin = pSubidx->Base & 0xFF;
-    if(apin != ain_pos)
-        return ain_check_mask(apin);
-
-    uint8_t retval = 0;
-    if(ain_cnt < (ain_average + 5))
-    {
-        int16_t ain_tmp = hal_ain_get();
-    
-        ain_cnt++;
-        if(ain_cnt > 4)
-            ain_val += ain_tmp;
-
-        ain_wd = EXTAIN_MAXPORT_NR;
-    }
-    else
-    {
-        ain_val /= (ain_average + 1);
-
-        if(ain_act_val[ain_pos] != ain_val)
-        {
-            ain_act_val[ain_pos] = ain_val;
-            ain_mask_rs(ain_pos, 1);    // Set change mask
-            retval = 1;
-        }
-        
-        ain_cnt = 0;
-        ain_pos++;
-        if(ain_pos == EXTAIN_MAXPORT_NR)
-            ain_pos = 0;
-    }
-    return retval;
+    return ain_check_mask((uint8_t)(pSubidx->Base & 0xFF));
 }
 
 // Register analogue input
@@ -262,6 +208,51 @@ void ainDeleteOD(subidx_t * pSubidx)
     // Release PIN
     hal_ain_configure((uint8_t)base, 0xFF);
     dioRelease(hal_ain_apin2dio(base));
+}
+
+void ainProc(void)
+{
+    static int32_t ain_val;
+    static uint16_t ain_cnt = 0;
+    static uint8_t ain_pos = 0;
+
+    if(ain_cnt == 0)
+    {
+        if(ain_ref[ain_pos] == 0xFF)
+        {
+            ain_pos++;
+            if(ain_pos == EXTAIN_MAXPORT_NR)
+                ain_pos = 0;
+            return;
+        }
+
+        hal_ain_select(ain_pos, ain_ref[ain_pos]);
+        ain_cnt = 1;
+        ain_val = 0;
+    }
+    else if(ain_cnt < (ain_average + 5))
+    {
+        int16_t ain_tmp = hal_ain_get();
+    
+        ain_cnt++;
+        if(ain_cnt > 4)
+            ain_val += ain_tmp;
+    }
+    else
+    {
+        ain_val /= (ain_average + 1);
+
+        if(ain_act_val[ain_pos] != ain_val)
+        {
+            ain_act_val[ain_pos] = ain_val;
+            ain_mask_rs(ain_pos, 1);    // Set change mask
+        }
+        
+        ain_cnt = 0;
+        ain_pos++;
+        if(ain_pos == EXTAIN_MAXPORT_NR)
+            ain_pos = 0;
+    }
 }
 
 #ifdef EXTPLC_USED

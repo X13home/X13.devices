@@ -181,6 +181,10 @@ void extProc(void)
 {
 #ifdef EXTDIO_USED
     dioProc();
+#ifdef EXTAIN_USED
+    ainProc();
+#endif  //  EXTAIN_USED
+
 #endif  //  EXTDIO_USED
 
 #ifdef EXTSER_USED

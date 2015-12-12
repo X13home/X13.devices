@@ -24,30 +24,22 @@ extern "C" {
 #include <stdint.h>
 #include <string.h>
 
+// System Settings
+#define POLL_TMR_FREQ                   100     // System Tick Frequenz
+
 // MQTT-SN Section
-#define MQTTSN_MSG_SIZE         48      // Size of payload(base for all buffers)
-#define MQTTSN_USE_DHCP         1       // Use Automatic address resolution
+#define MQTTSN_MSG_SIZE                 48      // Size of payload(base for all buffers)
+#define MQTTSN_USE_DHCP                 1       // Use Automatic address resolution, not standard messages
+#define MQTTSN_REBOOT_ON_DISCONNECT     1       // Reboot on connection lost
 
 // Object Dictionary
-#define OD_MAX_INDEX_LIST       16      // Size of identificators list
-#define OD_DEV_SWVERSH          '3'     // Software Version
-#define OD_DEV_SWVERSM          '0'
-#define OD_DEV_SWVERSL          '3'
+#define OD_MAX_INDEX_LIST               16      // Size of identificators list
+#define OD_DEV_SWVERSH                  '3'     // Software Version
+#define OD_DEV_SWVERSM                  '0'
+#define OD_DEV_SWVERSL                  '3'
 
-#define POLL_TMR_FREQ           100     // System Tick Period
-
-#define UART_BaudRate           38400
-#define RF_BASE_FREQ            868300000UL
-
-//Optional modules
-//#define EXTDIO_USED             1       // Use DIO
-//#define EXTPWM_USED             1       // Use PWM
-//#define EXTAIN_USED             1       // Use Analog inputs
-//#define EXTTWI_USED             1       // Use TWI/I2C Devices
-//#define EXTSER_USED             1       // Number of used serial ports
-//#define EXTPLC_USED             1       // Internal PLC
-
-//#define DIAG_USED               1       // Enable diagnostic messages
+#define UART_BaudRate                   38400
+#define RF_BASE_FREQ                    868300000UL
 
 // Include Hardware definitions
 // Atmel

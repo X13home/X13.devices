@@ -456,7 +456,6 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
             }
             else if(msg_from_gw)
             {
-                
                 vMQTTSN.Tretry = (const uint16_t)(POLL_TMR_FREQ/10);
                 vMQTTSN.Nretry = MQTTSN_N_RETRIES;
 #ifdef ASLEEP
@@ -845,6 +844,7 @@ void MQTTSN_Poll(void)
         }
         case MQTTSN_STATUS_DISCONNECTED:
         {
+#ifndef MQTTSN_REBOOT_ON_DISCONNECT
             PHY1_Init();
 #ifdef PHY2_ADDR_t
             PHY2_Init();
@@ -854,6 +854,9 @@ void MQTTSN_Poll(void)
 
             vMQTTSN.Tretry = POLL_TMR_FREQ/10;
             return;
+#else   //  MQTTSN_REBOOT_ON_DISCONNECT
+            hal_reboot();
+#endif  //  MQTTSN_REBOOT_ON_DISCONNECT
         }
 #ifdef MQTTSN_USE_DHCP
         case MQTTSN_STATUS_DHCP:
