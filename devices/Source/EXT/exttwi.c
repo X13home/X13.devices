@@ -29,7 +29,8 @@ static Queue_t  twi_tx_queue = {NULL, NULL, 4, 0};      // Max Size = 4 records
 
 e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    assert(pTwi_exchange != NULL);
+    if(pTwi_exchange == NULL)
+        return MQTTSN_RET_REJ_CONG;
 
     *pLen = pTwi_exchange->frame.read + sizeof(TWI_FRAME_t);
     memcpy(pBuf, (void *)&pTwi_exchange->frame, *pLen);

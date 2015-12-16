@@ -26,7 +26,7 @@ See LICENSE file for license details.
 
 #endif  //  UART_PHY
 
-static Queue_t      uart_tx_queue = {NULL, NULL, 0, 0};
+static Queue_t      uart_tx_queue = {NULL, NULL, 4, 0};
 static UART_ADDR_t  uart_addr;
 
 static void uart_tx_task(void)
@@ -44,9 +44,12 @@ static void uart_tx_task(void)
         if(uart_tx_queue.Size != 0)
         {
             pTx_buf = mqDequeue(&uart_tx_queue);
-            assert(pTx_buf != NULL);
-            Activity(UART_PHY);
-            hal_uart_send(UART_PHY_PORT, (pTx_buf->Length + 1), &pTx_buf->Length);
+            // Paranoid check
+            if(pTx_buf != NULL)
+            {
+                Activity(UART_PHY);
+                hal_uart_send(UART_PHY_PORT, (pTx_buf->Length + 1), &pTx_buf->Length);
+            }
         }
     }
 }

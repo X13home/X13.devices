@@ -18,25 +18,71 @@ See LICENSE file for license details.
 
 typedef enum
 {
-    PLC_GET_SIG     = 0,    // Get CRC + Counter, req: not used, resp: CRC16 + counter 2bytes
-    PLC_GET_CRC     = 1,    // get Block CRC , req: block_u16, resp: CRC16
-    PLC_GET_BLK     = 2,    // get block, req: block_u16, resp: block_array
-    PLC_DEL_BLK     = 3,    // delete block, req: block_16 +  CRC16, resp: 0 - ok, 1-255 errors
-    PLC_WRT_BLK     = 4,    // write block, req: block_u16 + data 1-32 bytes + CRC16, resp: 0 - ok, 1-255 errors
-}ePLCcmd_t;
+    PLC_CMD_GET_SIG         = 0,    // Get CRC + Counter, req: not used, resp: CRC16 + counter 2bytes
+    PLC_CMD_GET_CRC         = 2,    // get Block CRC , req: block_u16, resp: CRC16
+    PLC_CMD_GET_BLK         = 4,    // get block, req: block_u16, resp: block_array
+    PLC_CMD_DEL_BLK         = 6,    // delete block, req: block_16 +  CRC16, resp: 0 - ok, 1-255 errors
+    PLC_CMD_WRT_BLK         = 8,    // write block, req: block_u16 + data 1-32 bytes + CRC16, resp: 0 - ok, 1-255 errors
+    PLC_CMD_IDLE            = 0xFF  // Idle
+}ePLC_CMD_t;
+
+typedef enum
+{
+    PLC_ANSWER_OK           = 0,
+    PLC_ANSWER_ERROR_CMD    = 0xFE,
+    PLC_ANSWER_IDLE         = 0xFF
+}ePLC_ANSWER_t;
+
+
+static ePLC_CMD_t       plc_command = PLC_CMD_IDLE;
+static ePLC_ANSWER_t    plc_answer  = PLC_ANSWER_IDLE;
+
+static void plc_parse_cmd(uint8_t Len, uint8_t *pBuf)
+{
+    ePLC_CMD_t cmd = pBuf[0];
+    switch(cmd)
+    {
+        default:
+            plc_answer = PLC_ANSWER_ERROR_CMD;
+            break;
+    }
+}
 
 static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
+    if(pSubidx->Place == objPLCctrl)
+    {
+        switch(plc_answer)
+        {
+            default:
+                *pLen = 1;
+                *pBuf = plc_answer;
+                break;
+        }
+        plc_answer = PLC_ANSWER_IDLE;
+    }
+
     return MQTTSN_RET_ACCEPTED;
 }
 
-e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
+    if(pSubidx->Place == objPLCctrl)
+        plc_parse_cmd(Len, pBuf);
+    // ToDo else merker
+
     return MQTTSN_RET_ACCEPTED;
 }
 
-uint8_t plcPollOD(subidx_t * pSubidx, uint8_t sleep)
+static uint8_t plcPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
+    if(pSubidx->Place == objPLCctrl)
+    {
+       if(plc_answer != PLC_ANSWER_IDLE)
+            return 1;
+    }
+    // ToDo else merker
+
     return 0;
 }
 
@@ -46,13 +92,18 @@ void plcInit(void)
     indextable_t * pIndex = getFreeIdxOD();
     if(pIndex == NULL)
         return;
-
+    
     pIndex->cbRead     = &plcReadOD;
     pIndex->cbWrite    = &plcWriteOD;
     pIndex->cbPoll     = &plcPollOD;
     pIndex->sidx.Place = objPLCctrl;    // PLC Control
     pIndex->sidx.Type  = objArray;      // Variable Type - Byte Array
     pIndex->sidx.Base  = 0;             // not used
+    
+    // Init variables
+    plc_cmd = PLC_CMD_IDLE;
+    plc_answer = PLC_ANSWER_IDLE;
+
 /*
     vPLC.sp = (PLC_SIZEOF_MEMORY - 4);
     vPLC.spf = PLC_SIZEOF_MEMORY;
@@ -62,17 +113,10 @@ void plcInit(void)
 */
 }
 
-
 void plcProc(void)
 {
 
 }
-
-
-
-
-
-
 
 /*
 #if ((PLC_SIZEOF_MEMORY & 0x03) != 0)

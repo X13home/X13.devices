@@ -103,7 +103,9 @@ e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     uint8_t port = pSubidx->Base/10;
 
-    assert(extSerV[port] != NULL);
+    // Paranoid test
+    if(extSerV[port] == NULL)
+        return MQTTSN_RET_REJ_CONG;
 
     if(Len > 0)
     {
@@ -127,7 +129,9 @@ uint8_t serPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
     uint8_t port = pSubidx->Base/10;
     
-    assert(extSerV[port] != NULL);
+    // Paranoid test
+    if(extSerV[port] == NULL)
+        return 0;
 
     if(extSerV[port]->RxHead != extSerV[port]->RxTail)
     {

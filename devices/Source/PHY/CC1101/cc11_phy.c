@@ -96,7 +96,7 @@ static const uint8_t cc11config[][2] =
 };
 
 static uint8_t          cc11s_NodeID;
-static Queue_t          cc11_tx_queue = {NULL, NULL, 0, 0};
+static Queue_t          cc11_tx_queue = {NULL, NULL, 4, 0};
 static uint8_t          cc11_rssi;
 
 void     hal_cc11_init_hw(void);

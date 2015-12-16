@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- device configuration file for Atmel devices  -->
 <root head="/etc/declarers/dev">
-    <item name="A1Cn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.1">
+    <item name="A1Cn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="Digital Inputs">
@@ -276,10 +277,11 @@
             </item>
         </item>
     </item>
-    <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.1">
+    <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="Digital Inputs">
@@ -551,10 +553,11 @@
             </item>
         </item>
     </item>
-    <item name="A1ES12" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="3.0.1">
+    <item name="A1ES12" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="Digital Inputs">
@@ -770,10 +773,11 @@
             </item>
         </item>
     </item>
-    <item name="A1SC12" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="3.0.1">
+    <item name="A1SC12" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="Digital Inputs">
@@ -989,10 +993,11 @@
             </item>
         </item>
     </item>
-    <item name="A1Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.1">
+    <item name="A1Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="Digital Inputs">
@@ -1292,10 +1297,11 @@
             </item>
         </item>
     </item>
-    <item name="A3SC12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.1">
+    <item name="A3SC12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="System">
@@ -1511,10 +1517,11 @@
             </item>
         </item>
     </item>
-    <item name="A3Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.1">
+    <item name="A3Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="System">
@@ -1796,10 +1803,11 @@
             </item>
         </item>
     </item>
-    <item name="A1SR11" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="3.0.1">
+    <item name="A1SR11" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="Digital Inputs">
@@ -2015,10 +2023,11 @@
             </item>
         </item>
     </item>
-    <item name="A1Rn11" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.1">
+    <item name="A1Rn11" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="Digital Inputs">
@@ -2290,14 +2299,11 @@
             </item>
         </item>
     </item>
-
-
-
-
     <item name="A4Sn12" value="pack://application:,,/CC;component/Images/ty_jnode.png" saved="True" type="System.String" ver="3.0.2">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="A0">
@@ -3128,6 +3134,7 @@
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="A0">
@@ -3958,6 +3965,7 @@
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
+            <item name="string" value="5S" saved="True" type="System.String" />
         </item>
         <item name="remove" value="ZD" saved="True" type="System.String" />
         <item name="A0">

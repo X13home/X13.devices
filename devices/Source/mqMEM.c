@@ -68,8 +68,6 @@ void * mqAlloc(size_t xWantedSize)
     BlockLink_t *pBlock, *pPrevBlock, *pNewBlock, *pIterator;
     void * pReturn = NULL;
 
-    assert(xWantedSize > 0);
-
     ENTER_CRITICAL_SECTION();
 
     // The wanted size is increased so it can contain a BlockLink_t structure in addition to the requested amount of bytes.
@@ -84,7 +82,6 @@ void * mqAlloc(size_t xWantedSize)
 
     if(xWantedSize >= configADJUSTED_HEAP_SIZE)     // memory Overflow
         hal_reboot();
-    
 
     // Blocks are stored in byte order - traverse the list from the start
     //  (smallest) block until one of adequate size is found.

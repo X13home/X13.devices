@@ -38,8 +38,11 @@ uint8_t hal_ain_apin2dio(uint8_t apin)
 
     uint8_t base = pgm_read_byte(&hal_ainBase2Apin[apin]);
 
-    assert(base < sizeof(hal_ainBase2Dio));
-    return pgm_read_byte(&hal_ainBase2Dio[base]);
+    // Paranoid check
+    if(base < sizeof(hal_ainBase2Dio))
+        return pgm_read_byte(&hal_ainBase2Dio[base]);
+    else
+        return 0xFF;
 }
 
 void hal_ain_configure(uint8_t apin, uint8_t aref)

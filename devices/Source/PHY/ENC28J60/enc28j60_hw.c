@@ -144,7 +144,7 @@ void enc28j60Init(uint8_t* macaddr)
   // change clkout from 6.25MHz to 12.5MHz
   enc28j60Write(ECOCON, 2);
   _delay_ms(20);
-  
+
   assert(enc28j60Read(ECOCON) == 2);
 
   // do bank 0 stuff
