@@ -19,7 +19,7 @@ See LICENSE file for license details.
 #include "enc28j60_hw.h"
 #include "enc28j60_net.h"
 
-static Queue_t          enc_out_queue = {NULL, NULL, 0, 0};
+static Queue_t          enc_out_queue = {NULL, NULL, 4, 0};
 
 // external subroutines, defined in enc28j60_net.c
 void eth_filter(uint16_t len, eth_frame_t * pFrame);

@@ -191,7 +191,9 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
 #ifdef PHY2_Send
                     if(vMQTTSN.Radius == 1)
                     {
+#if (defined MQTTSN_USE_MESH)
                         vMQTTSN.tGWinfo1 = 0;
+#endif	//	(defined MQTTSN_USE_MESH)
                         vMQTTSN.tGWinfo2 = 0;
                         PHY2_Send(pPHY1outBuf);
                         return;
@@ -918,8 +920,12 @@ void MQTTSN_Poll(void)
                 vMQTTSN.Nretry--;
             else
             {
+#ifndef MQTTSN_REBOOT_ON_LOST
                 vMQTTSN.Tretry = 1;
                 vMQTTSN.Status = MQTTSN_STATUS_DISCONNECTED;
+#else
+                hal_reboot();
+#endif  //  MQTTSN_REBOOT_ON_LOST
                 return;
             }
 
@@ -970,7 +976,6 @@ void MQTTSN_Poll(void)
         }
         case MQTTSN_STATUS_DISCONNECTED:
         {
-#ifndef MQTTSN_REBOOT_ON_DISCONNECT
             PHY1_Init();
 #ifdef PHY2_ADDR_t
             PHY2_Init();
@@ -979,9 +984,6 @@ void MQTTSN_Poll(void)
             MQTTSN_Init();
 
             vMQTTSN.Tretry = POLL_TMR_FREQ/10;
-#else   //  MQTTSN_REBOOT_ON_DISCONNECT
-            hal_reboot();
-#endif  //  MQTTSN_REBOOT_ON_DISCONNECT
             return;
         }
 #ifdef MQTTSN_USE_DHCP

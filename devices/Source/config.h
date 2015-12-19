@@ -30,7 +30,7 @@ extern "C" {
 // MQTT-SN Section
 #define MQTTSN_MSG_SIZE                 48      // Size of payload(base for all buffers)
 #define MQTTSN_USE_DHCP                 1       // Use Automatic address resolution, not standard messages
-#define MQTTSN_REBOOT_ON_DISCONNECT     1       // Reboot on connection lost
+#define MQTTSN_REBOOT_ON_LOST           1       // Reboot on connection lost
 
 // Object Dictionary
 #define OD_MAX_INDEX_LIST               16      // Size of identificators list

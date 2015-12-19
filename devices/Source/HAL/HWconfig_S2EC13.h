@@ -28,7 +28,7 @@ See LICENSE file for license details.
 //   5  PA5     16
 //   6  PA6     17
 //   7  PA7     18
-//   8  PA8
+//   8  PA8         CC11_IRQ
 //   9  PA9     9   _USART1_TX
 //  10  PA10    10  _USART1_RX
 //  11  PA11    7
