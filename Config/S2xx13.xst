@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- device configuration file for ST devices  -->
 <root head="/etc/declarers/dev">
-    <item name="S2En13" value="pack://application:,,/CC;component/Images/ty_jgate.png" saved="True" type="System.String" ver="3.15.1220">
+    <item name="S2En13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.15.1220">
         <item name="Add">
             <item name="bool" value="1Z" saved="True" type="System.String" />
             <item name="long" value="4I" saved="True" type="System.String" />
@@ -233,5 +233,8 @@
                 <item name="_description" value="I2C Devices" saved="True" type="System.String" />
             </item>
         </item>
+    </item>
+    <item name="S2EC13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.15.1220">
+        <item name="_proto" value="S2En13" saved="True" type="System.String" />
     </item>
 </root>

@@ -25,7 +25,7 @@ void SystemTick(void);
 uint16_t hal_get_ms(void);
 uint32_t hal_get_sec(void);
 uint16_t halRNG(void);
-//void hal_ASleep(uint16_t duration);
+void hal_ASleep(uint16_t duration);
 void hal_reboot(void);
 // general HAL procedures
 //////////////////////////////////////////////////////////////

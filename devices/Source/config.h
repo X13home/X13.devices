@@ -34,8 +34,8 @@ extern "C" {
 
 // Object Dictionary
 #define OD_DEV_SWVERSH                  '3'     // Software Version
-#define OD_DEV_SWVERSM                  '0'
-#define OD_DEV_SWVERSL                  '3'
+#define OD_DEV_SWVERSM                  '1'
+#define OD_DEV_SWVERSL                  '0'
 
 #define OD_DEF_ADC_AVERAGE              80
 

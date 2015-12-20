@@ -57,11 +57,25 @@ See LICENSE file for license details.
 #endif  //  CC11_ANAREN
 
 #if (CC11_PHY == 1)
+
 #define CC11_RF_POWER           0x50
 
+#if (defined LED1_On) && (defined LED1_Off)
+#define CC11_LED_ON             LED1_On
+#define CC11_LED_OFF            LED1_Off
+#endif  //  (defined LED1_On) && (defined LED1_Off)
+
 #elif (CC11_PHY == 2)
+
 #define CC11_RF_POWER           0xC0
 
+#if (defined LED2_On) && (defined LED2_Off)
+#define CC11_LED_ON             LED2_On
+#define CC11_LED_OFF            LED2_Off
+#endif  //  (defined LED1_On) && (defined LED1_Off)
+
+#else
+#error CC11_PHY unknown inteface
 #endif  // CC11_PHY
 
 static const uint8_t cc11config[][2] =
@@ -143,9 +157,17 @@ static void cc11_tx_task(void)
     static uint8_t cc11_tx_retry = CC11_TX_RETRYS;
     static uint16_t cc11_ms = 0;
 
+#ifdef CC11_LED_OFF
+    CC11_LED_OFF();
+#endif  //  CC11_LED_OFF
+
     if(cc11_tx_queue.Size == 0)
         return;
 
+#ifdef CC11_LED_ON
+    CC11_LED_ON();
+#endif  //  CC11_LED_ON
+    
     // CDMA
     if(cc11_tx_delay > 0)
     {
@@ -174,8 +196,6 @@ static void cc11_tx_task(void)
     MQ_t * pTxBuf = mqDequeue(&cc11_tx_queue);
     if(pTxBuf == NULL)      // Queue Busy
         return;
-        
-    Activity(CC11_PHY);
 
     // Fill Buffer
     uint8_t i, len;
@@ -200,6 +220,10 @@ static void cc11_tx_task(void)
 static MQ_t * cc11_rx_task(void)
 {
     MQ_t * pRxBuf;
+    
+#ifdef CC11_LED_ON
+    CC11_LED_ON();
+#endif  //  CC11_LED_ON
 
     // read number of bytes in receive FIFO
     // Due a chip bug, the RXBYTES register must read the same value twice in a row to guarantee an accurate value.
@@ -247,8 +271,6 @@ static MQ_t * cc11_rx_task(void)
         mqFree(pRxBuf);
         pRxBuf = NULL;
     }
-    else
-        Activity(CC11_PHY);
 
     cc11_cmdStrobe(CC11_SFRX);
     cc11_cmdStrobe(CC11_SRX);       // Enter to RX State
