@@ -32,12 +32,21 @@ void hal_reboot(void);
 
 //////////////////////////////////////////////////////////////
 // DIO HAL
-void hal_dio_base2hw(uint16_t base, uint8_t *pPort, DIO_PORT_TYPE *pMask);
+uint8_t hal_dio_base2pin(uint16_t base);
 void hal_dio_configure(uint8_t PortNr, DIO_PORT_TYPE Mask, uint16_t Mode);
 DIO_PORT_TYPE hal_dio_read(uint8_t PortNr);
 void hal_dio_set(uint8_t PortNr, DIO_PORT_TYPE Mask);
 void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask);
 // DIO HAL
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// AIn HAL
+uint8_t hal_ain_apin2dio(uint8_t apin);
+void hal_ain_configure(uint8_t apin, uint8_t aref);
+void hal_ain_select(uint8_t apin, uint8_t aref);
+int16_t hal_ain_get(void);
+// AIn HAL
 //////////////////////////////////////////////////////////////
 
 
@@ -51,14 +60,7 @@ void hal_pwm_write(uint16_t base, uint16_t value);
 // PWM HAL
 //////////////////////////////////////////////////////////////
 
-//////////////////////////////////////////////////////////////
-// AIn HAL
-uint8_t hal_ain_apin2dio(uint8_t apin);
-void hal_ain_configure(uint8_t apin, uint8_t aref);
-void hal_ain_select(uint8_t apin, uint8_t aref);
-int16_t hal_ain_get(void);
-// AIn HAL
-//////////////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////////////
 // UART HAL Section

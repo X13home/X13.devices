@@ -29,6 +29,8 @@ void INIT_SYSTEM(void);
 
 //////////////////////////////////////////////////////////////
 // DIO Section
+#define DIO_PORT_POS                3
+#define DIO_PORT_MASK               0x07
 #define DIO_PORT_TYPE               uint8_t
 
 // DIO Types

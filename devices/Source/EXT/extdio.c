@@ -28,12 +28,30 @@ static DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
 
 // DIO local subroutines
 
+static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)
+{
+    uint8_t port = (pin >> DIO_PORT_POS);
+#ifdef EXTDIO_BASE_OFFSET
+    port -= EXTDIO_BASE_OFFSET;
+#endif  //  EXTDIO_BASE_OFFSET
+    *pPort = port;
+
+    // Convert Base to Mask
+    DIO_PORT_TYPE mask = 1;
+    pin &= DIO_PORT_MASK;
+    while(pin--)
+        mask <<= 1;
+
+    *pMask = mask;
+}
+
 // Write DIO Object's
 static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
-    hal_dio_base2hw(pSubidx->Base, &port, &mask);
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    dioPin2hw(pin, &port, &mask);
 
     uint8_t state = *pBuf;
     dio_change_flag[port] &= ~mask;
@@ -54,7 +72,8 @@ static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
-    hal_dio_base2hw(pSubidx->Base, &port, &mask);
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    dioPin2hw(pin, &port, &mask);
 
     DIO_PORT_TYPE state = dio_status[port];
     dio_change_flag[port] &= ~mask;
@@ -71,7 +90,8 @@ static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
-    hal_dio_base2hw(pSubidx->Base, &port, &mask);
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    dioPin2hw(pin, &port, &mask);
 
     return ((dio_change_flag[port] & mask) != 0);
 }
@@ -96,12 +116,8 @@ void dioInit()
 // Check Subindex digital input/output
 bool dioCheckSubidx(subidx_t * pSubidx)
 {
-    uint8_t port;
-    DIO_PORT_TYPE mask;
-    hal_dio_base2hw(pSubidx->Base, &port, &mask);
-
     return (((pSubidx->Type == objPinNPN) || (pSubidx->Type == objPinPNP)) &&
-            (port != 0xFF));
+            (hal_dio_base2pin(pSubidx->Base) != 0xFF));
 }
 
 // Register digital inp/out Object
@@ -109,7 +125,8 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
-    hal_dio_base2hw(pIdx->sidx.Base, &port, &mask);
+    uint8_t pin = hal_dio_base2pin(pIdx->sidx.Base);
+    dioPin2hw(pin, &port, &mask);
 
     if((dio_read_mask[port] & mask) || (dio_write_mask[port] & mask))
         return MQTTSN_RET_REJ_INV_ID; // Port busy
@@ -161,7 +178,8 @@ void dioDeleteOD(subidx_t * pSubidx)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
-    hal_dio_base2hw(pSubidx->Base, &port, &mask);
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    dioPin2hw(pin, &port, &mask);
   
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
@@ -220,6 +238,8 @@ void dioProc(void)
         }
     }
 }
+
+
 
 /*
 // Is Pin free ? Check with base

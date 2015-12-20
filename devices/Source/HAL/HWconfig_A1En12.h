@@ -60,8 +60,17 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_BASE_OFFSET          2
 #define EXTDIO_MAXPORT_NR           2                                     // Number of digital Ports
-#define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 26, 27, 28, 29, 30, 31}
+#define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31}
 // End DIO Section
+
+/*
+// Analogue Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           9           // ADC0-ADC7, Vbg
+#define EXTAIN_BASE_2_APIN          {6, 7, 0, 1, 2, 3, 4, 5, 14}
+#define EXTAIN_REF                  0x06        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+// End Analogue Inputs
+*/
 
 /*
 // PWM Section
@@ -71,12 +80,7 @@ extern "C" {
 #define EXTPWM_PORT2DIO             {29,30}         // Mapping PWM channel to DIO
 // End PWM Section
 
-// Analogue Inputs
-#define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           9           // ADC0-ADC7, Vbg
-#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 14}
-#define EXTAIN_REF                  0x06        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
-// End Analogue Inputs
+
 
 // TWI Section
 #define EXTTWI_USED                 1

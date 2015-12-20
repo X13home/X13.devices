@@ -255,12 +255,14 @@ void ainProc(void)
     }
 }
 
+/*
 #ifdef EXTPLC_USED
 int16_t ainGet(uint8_t apin)
 {
     return ain_act_val[apin];
 }
 #endif  // EXTPLC_USED
+*/
 
 // AIn Section
 /////////////////////////////////////////////////////
