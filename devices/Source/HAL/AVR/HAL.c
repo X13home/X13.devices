@@ -2,6 +2,7 @@
 
 #include <avr/interrupt.h>
 #include <avr/sleep.h>
+#include <avr/wdt.h>
 
 // Hardware constants for timer 2.
 #if (((F_CPU/8000) - 1) < 255)
@@ -29,9 +30,10 @@
 void INIT_SYSTEM(void)
 {
     cli();
-     __asm__ __volatile__ ("wdr");
-    WDTCSR |= (1<<WDCE);
-    WDTCSR = 0;
+
+    MCUSR &= ~(1<<WDRF);
+    wdt_reset();
+    wdt_disable();
 }
 
 void StartSheduler(void)
@@ -118,7 +120,7 @@ void hal_ASleep(uint16_t duration)
 #endif  //  EXTAIN_USED
 
     MCUSR &= ~(1<<WDRF);
-    __asm__ __volatile__ ("wdr");
+    wdt_reset();
 
     // start timed sequence
     WDTCSR |= (1<<WDCE) | (1<<WDE);
@@ -135,8 +137,7 @@ void hal_ASleep(uint16_t duration)
         duration--;
     }
 
-    WDTCSR |= (1<<WDCE) | (1<<WDE);
-    WDTCSR = 0;
+    wdt_disable();
 
     sleep_disable();
 
@@ -158,9 +159,7 @@ void hal_reboot(void)
 #endif
 
     cli();
-    WDTCSR |= (1<<WDCE) | (1<<WDE);
-    // set new watchdog timeout value
-    WDTCSR = (1<<WDE);
+    wdt_enable(WDTO_250MS);
     while(1);
     
 }
