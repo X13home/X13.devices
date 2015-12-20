@@ -208,7 +208,6 @@
                 <item name="_description" value="Digital inverted output, CN-3" saved="True" type="System.String" />
             </item>
         </item>
-        <!--
         <item name="Analog Inputs">
             <item name="Av0" value="AiX0" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, CN-20" saved="True" type="System.String" />
@@ -228,19 +227,8 @@
             <item name="Av5" value="FiX5" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, CN-15" saved="True" type="System.String" />
             </item>
-            <item name="Av10" value="KiX10" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, CN-6" saved="True" type="System.String" />
-            </item>
-            <item name="Av11" value="LiX11" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, CN-5" saved="True" type="System.String" />
-            </item>
-            <item name="Av12" value="MiX12" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, CN-4" saved="True" type="System.String" />
-            </item>
-            <item name="Av13" value="NzX13" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, CN-3" saved="True" type="System.String" />
-            </item>
         </item>
+        <!--
         <item name="TWI">
             <item name="Ta0" value="AbX14,X15" saved="True" type="System.String">
                 <item name="_description" value="I2C Devices" saved="True" type="System.String" />
