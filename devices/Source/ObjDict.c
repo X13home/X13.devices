@@ -437,7 +437,7 @@ void InitOD(void)
         WriteOD(objMACAddr, MQTTSN_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);       // Default MAC
 #endif  //  LAN_NODE
 #ifdef EXTAIN_USED
-        uiTmp = 80;
+        uiTmp = OD_DEF_ADC_AVERAGE;
         WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);   // ADC conversion delay
 #endif  //  EXTAIN_USED
 #ifdef ASLEEP

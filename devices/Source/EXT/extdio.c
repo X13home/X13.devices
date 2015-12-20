@@ -239,18 +239,12 @@ void dioProc(void)
     }
 }
 
-
-
-/*
-// Is Pin free ? Check with base
-uint8_t dioCheckBase(uint16_t base)
+// Is Pin free
+uint8_t dioCheckBase(uint8_t pin)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
-    hal_dio_base2hw(base, &port, &mask);
-
-    if(port == 0xFF)
-        return 2; // Port not exist
+    dioPin2hw(pin, &port, &mask);
 
     if((dio_read_mask[port] & mask) || (dio_write_mask[port] & mask))
         return 1; // Port busy
@@ -258,26 +252,27 @@ uint8_t dioCheckBase(uint16_t base)
     return 0; // Port free
 }
 
-void dioTake(uint16_t base)
+// Take Pin
+void dioTake(uint8_t pin)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
-    dioBase2hw(base, &port, &mask);
+    dioPin2hw(pin, &port, &mask);
 
     dio_write_mask[port] |= mask;
     dio_read_mask[port] |= mask;
 }
 
-void dioRelease(uint16_t base)
+// Release Pin
+void dioRelease(uint8_t pin)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
-    dioBase2hw(base, &port, &mask);
+    dioPin2hw(pin, &port, &mask);
 
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
 }
-*/
 
 /*
 #ifdef EXTPLC_USED

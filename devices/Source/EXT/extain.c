@@ -37,18 +37,18 @@ static uint8_t ainCheckBase(uint16_t base)
 {
     if(base >= EXTAIN_MAXPORT_NR)
         return 2;
-        
+
     if(ain_ref[(uint8_t)(base & 0xFF)] != 0xFF)
         return 1;
-    
-    base = hal_ain_apin2dio(base);
-    
-    if(base == 0xFE)        // Analog Inputs without digital functions
+
+    uint8_t pin = hal_ain_apin2dio(base);
+
+    if(pin == 0xFE)         // Analog Inputs without digital functions
         return 0;
-    else if(base == 0xFF)   // Index not exist
+    else if(pin == 0xFF)    // Index not exist
         return 2;
 
-    return dioCheckBase(base);
+    return dioCheckBase(pin);
 }
 
 static uint8_t ainSubidx2Ref(subidx_t * pSubidx)
@@ -113,7 +113,7 @@ void ainLoadAverage(void)
     ReadOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, &len, (uint8_t *)&ain_average);
     
     if(ain_average > 65000)
-        ain_average = 65000;
+        ain_average = OD_DEF_ADC_AVERAGE;
 }
 
 // Preinit AIn section
@@ -181,12 +181,14 @@ e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
     if(ainCheckBase(base) != 0)
         return MQTTSN_RET_REJ_INV_ID;
 
-    uint8_t apin = (uint8_t)(base & 0xFF);
-
+    uint8_t apin = (uint8_t)(base & 0x00FF);
     ain_ref[apin] = ainSubidx2Ref(&pIdx->sidx);
 
+    uint8_t dpin = hal_ain_apin2dio(apin);
+    if(dpin != 0xFE)
+        dioTake(dpin);
+
     // Configure PIN to Analog input
-    dioTake(hal_ain_apin2dio(apin));
     hal_ain_configure(apin, ain_ref[apin]);
 
     pIdx->cbRead  = &ainReadOD;
@@ -201,13 +203,15 @@ void ainDeleteOD(subidx_t * pSubidx)
     uint16_t base = pSubidx->Base;
     if(ainCheckBase(base) != 1)
         return;
-
-    base &= 0x00FF;
-    ain_ref[(uint8_t)base] = 0xFF;
+    
+    uint8_t apin = (uint8_t)(base & 0x00FF);
+    ain_ref[apin] = 0xFF;
 
     // Release PIN
-    hal_ain_configure((uint8_t)base, 0xFF);
-    dioRelease(hal_ain_apin2dio(base));
+    hal_ain_configure(apin, 0xFF);
+    uint8_t dpin = hal_ain_apin2dio(apin);
+    if(dpin != 0xFE)
+        dioRelease(dpin);
 }
 
 void ainProc(void)

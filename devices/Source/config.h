@@ -33,10 +33,11 @@ extern "C" {
 #define MQTTSN_REBOOT_ON_LOST           1       // Reboot on connection lost
 
 // Object Dictionary
-#define OD_MAX_INDEX_LIST               16      // Size of identificators list
 #define OD_DEV_SWVERSH                  '3'     // Software Version
 #define OD_DEV_SWVERSM                  '0'
 #define OD_DEV_SWVERSL                  '3'
+
+#define OD_DEF_ADC_AVERAGE              80
 
 #define UART_BaudRate                   38400
 #define RF_BASE_FREQ                    868300000UL

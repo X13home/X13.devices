@@ -164,7 +164,6 @@
                 <item name="_description" value="Digital inverted output, PD7" saved="True" type="System.String" />
             </item>
         </item>
-        <!--
         <item name="Analog Inputs">
             <item name="Ai0" value="AiX0" saved="True" type="System.String">
                 <item name="_description" value="Analog input internal reference, Ain6" saved="True" type="System.String" />
@@ -218,6 +217,7 @@
                 <item name="_description" value="Analog input Vcc" saved="True" type="System.String" />
             </item>
         </item>
+        <!--
         <item name="PWM">
             <item name="Pp0" value="AiX29" saved="True" type="System.String">
                 <item name="_description" value="PWM Output, PD5" saved="True" type="System.String" />
