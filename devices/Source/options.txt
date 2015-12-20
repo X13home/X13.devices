@@ -1,0 +1,58 @@
+/*
+Copyright (c) 2011-2014 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
+// configuration settings
+
+// System Settings
+#define POLL_TMR_FREQ                   100     // System Tick Period
+
+// MQTT-SN Section
+#define MQTTSN_MSG_SIZE                 48      // Size of payload(base for all buffers)
+#define MQTTSN_USE_DHCP                 1       // Use Automatic address resolution
+#define MQTTSN_REBOOT_ON_LOST           1       // Reboot on connection lost from CONNECT State
+
+// Object Dictionary
+#define OD_MAX_INDEX_LIST               16      // Size of identificators list
+#define OD_DEV_SWVERSH                  '3'     // Software Version
+#define OD_DEV_SWVERSM                  '0'
+#define OD_DEV_SWVERSL                  '3'
+
+// Optional modules
+#define EXTDIO_USED                     1       // Use DIO
+#define EXTPWM_USED                     1       // Use PWM
+#define EXTAIN_USED                     1       // Use Analog inputs
+#define EXTTWI_USED                     1       // Use TWI/I2C Devices
+#define EXTSER_USED                     1       // Number of used serial ports
+#define EXTPLC_USED                     1       // Internal PLC
+
+// Module Diag
+#define DIAG_USED                       1       // Enable diagnostic messages
+#define DIAG_DEF_TIMEOUT                300     // Send information every 300 second
+
+
+// Unsort
+
+// PHY Sections
+
+// LED's section
+#define LED1_On                 {}      // Function to LED1 - on
+#define LED2_On                 {}      // Function to LED2 - on
+#define LEDsInit                {}      // Function to init LED's outpit's
+
+#define PHY2_ADDR_t             uint8_t
+#define PHY2_Get
+
+// PHY - UART
+#define UART_BaudRate           38400
+
+// PHY - RF
+#define RF_BASE_FREQ            868300000UL

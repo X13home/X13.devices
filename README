@@ -5,41 +5,7 @@ X13.devices
 
 Firmware section for project X13.Home
 
-Automation System oriented to "Smart House" over MQTT(S) protocol
+Automation System oriented to "Smart House" over MQTT(SN) protocol
 
 Base Devices
-
-MQTTS
-  Without PHY
-    DMGWDM02  Dummy device with ATMega256, connected with serial port, not tested.
-    DMGWDM    Dummy device with ATMega328p, connected with serial port.
-
-  LAN Clients:
-      LNNDEN    Client with Phy - ENC28J60, uc ATMega328P
-      
-  Wireless Gateways:
-    ISM band - 433/868/915:
-      RFGWUP    UP20  - Native Hardware (ATMega328P + CC1101)
-      RFGWUN    UNode - Native Hardware (ATMega328P + MRF49XA)
-      RFGWJN    JeeNode http://jeelabs.com/products/jeenode
-                compatible with Arduino Uno/Nano + RFM12/MRF49XA
-      RFGWPS    panSTamp http://www.panstamp.com/ 
-                compatible with Arduino Uno/Nano + CC1101
-
-  Wireless Clients:
-    ISM band - 433/868/915:
-      RFNDUP    UP20 - Native Hardware (ATMega328P + CC1101)
-      RFNDUN    UNode - Native Hardware (ATMega328P + MRF49XA)
-      
-      RFNDJN    JeeNode http://jeelabs.com/products/jeenode
-                compatible with Arduino Uno/Nano + RFM12/MRF49XA
-      RFNDPS    pan STamp http://www.panstamp.com/ 
-                compatible with Arduino Uno/Nano + CC1101
-
-Smart TWI Devices
-
-Smart_TWI
-  ATM_Demo      Demo Device with ATmega168PA
-
-  DHT_Bridge    Bridge to DHT sensors with ATTiny45
-  Dimmer_2Ch    2 channels AC dimmer with ATTiny45
+    A1En12      uc ATMega328P, PHY1 - ENC28J60, PHY2 - None
