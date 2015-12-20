@@ -1,2 +1,6 @@
 /devices/.vs
 /devices/A1En12
+/devices/*.cogui
+/devices/*.comarker
+/devices/S2En13
+/devices/*.out

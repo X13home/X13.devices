@@ -9,3 +9,4 @@ Automation System oriented to "Smart House" over MQTT(SN) protocol
 
 Base Devices
     A1En12      uc ATMega328P, PHY1 - ENC28J60, PHY2 - None
+    S2En12      uc ST32F051C8, PHY1 - ENC28J60, PHY2 - None

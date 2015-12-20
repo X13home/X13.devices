@@ -164,6 +164,7 @@
                 <item name="_description" value="Digital inverted output, PD7" saved="True" type="System.String" />
             </item>
         </item>
+        <!--
         <item name="Analog Inputs">
             <item name="Ai0" value="AiX0" saved="True" type="System.String">
                 <item name="_description" value="Analog input internal reference, Ain6" saved="True" type="System.String" />
@@ -217,7 +218,6 @@
                 <item name="_description" value="Analog input Vcc" saved="True" type="System.String" />
             </item>
         </item>
-        <!--
         <item name="PWM">
             <item name="Pp0" value="AiX29" saved="True" type="System.String">
                 <item name="_description" value="PWM Output, PD5" saved="True" type="System.String" />
@@ -232,12 +232,12 @@
                 <item name="_description" value="Inverted PWM Output, PD6" saved="True" type="System.String" />
             </item>
         </item>
-        -->
         <item name="TWI">
             <item name="Ta0" value="ZbX6,X7" saved="True" type="System.String">
                 <item name="_description" value="I2C Devices" saved="True" type="System.String" />
             </item>
         </item>
+        -->
     </item>
     <item name="A1Cn12" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.15.1220">
         <item name="_proto" value="A1SC12" saved="True" type="System.String" />
@@ -273,6 +273,7 @@
                 <item name="_description" value="Digital inverted output, PD1" saved="True" type="System.String" />
             </item>
         </item>
+        <!--
         <item name="Serial">
             <item name="Sr0" value="AbX8,S20,B21,B22,B23,B24" saved="True" type="System.String">
                 <item name="_description" value="RxD 2400, RX" saved="True" type="System.String" />
@@ -305,6 +306,7 @@
                 <item name="_description" value="TxD 38400, TX" saved="True" type="System.String" />
             </item>
         </item>
+        -->
     </item>
     <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.15.1220">
         <item name="_proto" value="A1SC12" saved="True" type="System.String" />
