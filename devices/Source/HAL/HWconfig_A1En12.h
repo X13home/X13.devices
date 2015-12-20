@@ -70,6 +70,10 @@ extern "C" {
 #define EXTAIN_REF                  0x06                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
+// TWI Section
+#define EXTTWI_USED                 1
+// End TWI Section
+
 /*
 // PWM Section
 //#define EXTPWM_USED                 1
@@ -77,12 +81,6 @@ extern "C" {
 #define EXTPWM_PORT2CFG             {1, 0}          // bits 7-3 Timer, bits 2-0 Channel
 #define EXTPWM_PORT2DIO             {29,30}         // Mapping PWM channel to DIO
 // End PWM Section
-
-
-
-// TWI Section
-#define EXTTWI_USED                 1
-// End TWI Section
 
 // UART Section
 #define HAL_USE_USART0              0

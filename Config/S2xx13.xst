@@ -59,7 +59,7 @@
             </item>
         </item>
         <item name="Digital Pull-Up Inverted Inputs">
- <item name="In0" value="AzX0" saved="True" type="System.String">
+            <item name="In0" value="AzX0" saved="True" type="System.String">
                 <item name="_description" value="Digital pull-up inverted input, CN-20" saved="True" type="System.String" />
             </item>
             <item name="In1" value="BzX1" saved="True" type="System.String">
@@ -228,12 +228,10 @@
                 <item name="_description" value="Analog input AVcc reference, CN-15" saved="True" type="System.String" />
             </item>
         </item>
-        <!--
         <item name="TWI">
-            <item name="Ta0" value="AbX14,X15" saved="True" type="System.String">
+            <item name="Ta0" value="AbX6,X7" saved="True" type="System.String">
                 <item name="_description" value="I2C Devices" saved="True" type="System.String" />
             </item>
         </item>
-        -->
     </item>
 </root>

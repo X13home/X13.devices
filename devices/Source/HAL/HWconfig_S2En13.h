@@ -83,11 +83,10 @@ extern "C" {
 
 #define EXTSER_USED                 2
 // End UART Section
-
+*/
 // TWI Section
 #define EXTTWI_USED                 2       // I2C_Bus 1 - I2C1, 2 - I2C2
 // End TWI Section
-*/
 
 // LEDs
 #define LED1_On()                   GPIOB->BSRR = GPIO_BSRR_BS_2

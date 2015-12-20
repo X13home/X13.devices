@@ -22,7 +22,7 @@ See LICENSE file for license details.
 void StartSheduler(void);
 void SystemTick(void);
 
-//uint16_t hal_get_ms(void);
+uint16_t hal_get_ms(void);
 uint32_t hal_get_sec(void);
 uint16_t halRNG(void);
 //void hal_ASleep(uint16_t duration);
@@ -49,6 +49,14 @@ int16_t hal_ain_get(void);
 // AIn HAL
 //////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////
+// TWI/I2C Section
+void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
+bool hal_twi_configure(uint8_t enable);
+void hal_twi_stop(void);
+void hal_twi_start(void);
+// TWI/I2C Section
+//////////////////////////////////////////////////////////////
 
 /*
 //////////////////////////////////////////////////////////////
@@ -60,8 +68,6 @@ void hal_pwm_write(uint16_t base, uint16_t value);
 // PWM HAL
 //////////////////////////////////////////////////////////////
 
-
-
 //////////////////////////////////////////////////////////////
 // UART HAL Section
 void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
@@ -72,15 +78,6 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
 bool hal_uart_datardy(uint8_t port);
 uint8_t hal_uart_get(uint8_t port);
 // UART HAL Section
-//////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////
-// TWI/I2C Section
-void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
-bool hal_twi_configure(uint8_t enable);
-void hal_twi_stop(void);
-void hal_twi_start(void);
-// TWI/I2C Section
 //////////////////////////////////////////////////////////////
 */
 

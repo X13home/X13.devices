@@ -217,6 +217,11 @@
                 <item name="_description" value="Analog input Vcc" saved="True" type="System.String" />
             </item>
         </item>
+        <item name="TWI">
+            <item name="Ta0" value="ZbX6,X7" saved="True" type="System.String">
+                <item name="_description" value="I2C Devices" saved="True" type="System.String" />
+            </item>
+        </item>
         <!--
         <item name="PWM">
             <item name="Pp0" value="AiX29" saved="True" type="System.String">
@@ -230,11 +235,6 @@
             </item>
             <item name="Pn1" value="DiX30" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PD6" saved="True" type="System.String" />
-            </item>
-        </item>
-        <item name="TWI">
-            <item name="Ta0" value="ZbX6,X7" saved="True" type="System.String">
-                <item name="_description" value="I2C Devices" saved="True" type="System.String" />
             </item>
         </item>
         -->
