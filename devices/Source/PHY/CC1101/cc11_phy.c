@@ -41,14 +41,14 @@ See LICENSE file for license details.
 
 // 433 MHz
 #if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
-#define CC11_DEFVAL_FREQ2       0x10
-#define CC11_DEFVAL_FREQ1       0x09
-#define CC11_DEFVAL_FREQ0       0x7B
+    #define CC11_DEFVAL_FREQ2       0x10
+    #define CC11_DEFVAL_FREQ1       0x09
+    #define CC11_DEFVAL_FREQ0       0x7B
 // 868 MHz
 #elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
-#define CC11_DEFVAL_FREQ2       0x20
-#define CC11_DEFVAL_FREQ1       0x25
-#define CC11_DEFVAL_FREQ0       0xED
+    #define CC11_DEFVAL_FREQ2       0x20
+    #define CC11_DEFVAL_FREQ1       0x25
+    #define CC11_DEFVAL_FREQ0       0xED
 #endif  //  RF_BASE_FREQ
 
 #define CC11_MDMCFG3_VAL        0x75    // Data Rate = 38,4178 kBaud
@@ -57,25 +57,11 @@ See LICENSE file for license details.
 #endif  //  CC11_ANAREN
 
 #if (CC11_PHY == 1)
-
-#define CC11_RF_POWER           0x50
-
-#if (defined LED1_On) && (defined LED1_Off)
-#define CC11_LED_ON             LED1_On
-#define CC11_LED_OFF            LED1_Off
-#endif  //  (defined LED1_On) && (defined LED1_Off)
-
+    #define CC11_RF_POWER           0x50
 #elif (CC11_PHY == 2)
-
-#define CC11_RF_POWER           0xC0
-
-#if (defined LED2_On) && (defined LED2_Off)
-#define CC11_LED_ON             LED2_On
-#define CC11_LED_OFF            LED2_Off
-#endif  //  (defined LED1_On) && (defined LED1_Off)
-
+    #define CC11_RF_POWER           0xC0
 #else
-#error CC11_PHY unknown inteface
+    #error CC11_PHY unknown inteface
 #endif  // CC11_PHY
 
 static const uint8_t cc11config[][2] =
@@ -157,16 +143,9 @@ static void cc11_tx_task(void)
     static uint8_t cc11_tx_retry = CC11_TX_RETRYS;
     static uint16_t cc11_ms = 0;
 
-#ifdef CC11_LED_OFF
-    CC11_LED_OFF();
-#endif  //  CC11_LED_OFF
-
-    if(cc11_tx_queue.Size == 0)
-        return;
-
-#ifdef CC11_LED_ON
-    CC11_LED_ON();
-#endif  //  CC11_LED_ON
+#ifdef LED_On
+    LED_On();
+#endif  //  LED_On
     
     // CDMA
     if(cc11_tx_delay > 0)
@@ -221,9 +200,9 @@ static MQ_t * cc11_rx_task(void)
 {
     MQ_t * pRxBuf;
     
-#ifdef CC11_LED_ON
-    CC11_LED_ON();
-#endif  //  CC11_LED_ON
+#ifdef LED_On
+    LED_On();
+#endif  //  LED_On
 
     // read number of bytes in receive FIFO
     // Due a chip bug, the RXBYTES register must read the same value twice in a row to guarantee an accurate value.
@@ -348,7 +327,7 @@ void * CC11_Get(void)
         cc11_cmdStrobe(CC11_SFRX);          // Clear RX Buffer
         cc11_cmdStrobe(CC11_SRX);           // Enter to RX State
     }
-    else if(marcs == CC11_MARCSTATE_RX)
+    else if((marcs == CC11_MARCSTATE_RX) && (cc11_tx_queue.Size != 0))
     {
         cc11_tx_task();
     }

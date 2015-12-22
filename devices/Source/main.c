@@ -31,8 +31,8 @@ int main(void)
     // Initialize MQTTSN
     MQTTSN_Init();
     // Initialise optional components
-#ifdef  LEDsInit
-    LEDsInit();
+#ifdef  LED_Init
+    LED_Init();
 #endif  //  LEDsInit
 #ifdef DIAG_USED
     DIAG_Init();
@@ -53,6 +53,9 @@ int main(void)
 #ifdef DIAG_USED
             DIAG_Poll();
 #endif  //  USE_DIAG
+#ifdef LED_Off
+            LED_Off();
+#endif  //  LED_Off
         }
 
         MQ_t * pBuf;

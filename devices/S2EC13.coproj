@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 1.7.7" name="S2EC13">
-  <Target name="S2EC13" isCurrent="0">
+  <Target name="S2EC13" isCurrent="1">
     <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -34,7 +34,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../coide/configuration/programdata/s2ec13/link.ld" type="0"/>
+        <LocateLinkFile path="../../../coide/configuration/programdata/s2ec13/arm-gcc-link.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -69,7 +69,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="S2En13" isCurrent="1">
+  <Target name="S2En13" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -251,18 +251,18 @@
     <File name="stm32_lib/inc/stm32f0xx_flash.h" path="stm32_lib/inc/stm32f0xx_flash.h" type="1"/>
     <File name="Source/PHY/RFM12" path="" type="2"/>
     <File name="Source/EXT" path="" type="2"/>
-    <File name="cmsis_boot/startup/startup_stm32f0xx.s" path="cmsis_boot/startup/startup_stm32f0xx.s" type="1"/>
     <File name="cmsis/core_cmInstr.h" path="cmsis/core_cmInstr.h" type="1"/>
-    <File name="Source/PHY/CC1101" path="" type="2"/>
     <File name="cmsis_boot/stm32f0xx_conf.h" path="cmsis_boot/stm32f0xx_conf.h" type="1"/>
+    <File name="Source/PHY/CC1101" path="" type="2"/>
+    <File name="cmsis_boot/startup/startup_stm32f0xx.s" path="cmsis_boot/startup/startup_stm32f0xx.s" type="1"/>
     <File name="Source/HAL/STM32/hal_enc28j60.c" path="Source/HAL/STM32/hal_enc28j60.c" type="1"/>
     <File name="Source/EXT/extdio.c" path="Source/EXT/extdio.c" type="1"/>
     <File name="Source/mqTypes.h" path="Source/mqTypes.h" type="1"/>
-    <File name="Source/diag.h" path="Source/diag.h" type="1"/>
+    <File name="Source/PHY/CC1101/cc11_reg.h" path="Source/PHY/CC1101/cc11_reg.h" type="1"/>
     <File name="Source/EXT/extain.c" path="Source/EXT/extain.c" type="1"/>
     <File name="stm32_lib" path="" type="2"/>
-    <File name="Source/PHY/CC1101/cc11_reg.h" path="Source/PHY/CC1101/cc11_reg.h" type="1"/>
     <File name="Source/EXT/extpwm.h" path="Source/EXT/extpwm.h" type="1"/>
+    <File name="Source/diag.h" path="Source/diag.h" type="1"/>
     <File name="Source/PHY/CC1101/cc11_phy.h" path="Source/PHY/CC1101/cc11_phy.h" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_net.c" path="Source/PHY/ENC28J60/enc28j60_net.c" type="1"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>
@@ -282,9 +282,9 @@
     <File name="Source/mqttsn.h" path="Source/mqttsn.h" type="1"/>
     <File name="Source/HAL/HWconfig_S2EC13.h" path="Source/HAL/HWconfig_S2EC13.h" type="1"/>
     <File name="stm32_lib/inc/stm32f0xx_rcc.h" path="stm32_lib/inc/stm32f0xx_rcc.h" type="1"/>
-    <File name="Source/main.c" path="Source/main.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_def.h" path="Source/PHY/ENC28J60/enc28j60_def.h" type="1"/>
     <File name="Source/EXT/extser.c" path="Source/EXT/extser.c" type="1"/>
+    <File name="Source/main.c" path="Source/main.c" type="1"/>
     <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
     <File name="Source/HAL/STM32/hal_twi.c" path="Source/HAL/STM32/hal_twi.c" type="1"/>
     <File name="Source/HAL/HW_STM32F0.h" path="Source/HAL/HW_STM32F0.h" type="1"/>

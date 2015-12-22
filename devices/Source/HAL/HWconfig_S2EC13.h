@@ -96,9 +96,9 @@ extern "C" {
 // End TWI Section
 
 // LEDs
-#define LED2_On()                   GPIOB->BSRR = GPIO_BSRR_BS_2
-#define LED2_Off()                  GPIOB->BSRR = GPIO_BSRR_BR_2
-#define LEDsInit()                  hal_dio_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
+#define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_2
+#define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR_2
+#define LED_Init()                  hal_dio_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
 
 // ENC Section
 #define HAL_USE_SPI1                1   // SPI1

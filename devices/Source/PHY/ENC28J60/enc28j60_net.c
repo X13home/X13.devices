@@ -642,15 +642,10 @@ void dhcp_poll(void)
 
     uint32_t tick_sec = hal_get_sec();
 
-#ifdef ENC_LED_ON
-    if(dhcp_status != DHCP_ASSIGNED)
-    {
-        if((tick_sec & 0x00000001) != 0)
-            ENC_LED_ON();
-        else
-            ENC_LED_OFF();
-    }
-#endif  //  ENC_LED_ON
+#ifdef LED_On
+    if((dhcp_status != DHCP_ASSIGNED) && ((tick_sec & 0x00000001) != 0))
+        LED_On();
+#endif  //  LED_On
 
     if(dhcp_retry_time > tick_sec)
         return;

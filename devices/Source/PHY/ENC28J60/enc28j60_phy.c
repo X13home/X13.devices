@@ -32,9 +32,9 @@ void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame)
 {
     MQ_t * pRx_buf = mqAlloc(sizeof(MQ_t));
     
-#ifdef ENC_LED_ON
-    ENC_LED_ON();
-#endif  //  ENC_LED_OFF
+#ifdef LED_On
+    LED_On();
+#endif  //  LED_On
 
     ip_packet_t *ip = (void*)(pFrame->data);
 
@@ -45,9 +45,6 @@ void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame)
     if(!mqEnqueue(&enc_out_queue, pRx_buf))
     {
         mqFree(pRx_buf);
-#ifdef ENC_LED_OFF
-        ENC_LED_OFF();
-#endif  //  ENC_LED_OFF
     }
 }
 
@@ -73,9 +70,9 @@ void ENC28J60_Send(void *pBuf)
         return;
     }
 
-#ifdef ENC_LED_ON
-    ENC_LED_ON();
-#endif  //  ENC_LED_OFF
+#ifdef LED_On
+    LED_On();
+#endif  //  LED_On
 
     eth_frame_t * pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
 
@@ -92,10 +89,6 @@ void ENC28J60_Send(void *pBuf)
     udp_send(len, pFrame);
   
     mqFree(pFrame);
-    
-#ifdef ENC_LED_OFF
-        ENC_LED_OFF();
-#endif  //  ENC_LED_OFF
 }
 
 void * ENC28J60_Get(void)
@@ -117,15 +110,8 @@ void * ENC28J60_Get(void)
         }
         enc28j60_ClosePacket();
     }
-    
-    void *pRet = mqDequeue(&enc_out_queue);
 
-#ifdef ENC_LED_OFF
-    if(pRet != NULL)
-        ENC_LED_OFF();
-#endif  //  ENC_LED_OFF    
-
-    return pRet;
+    return mqDequeue(&enc_out_queue);
 }
 
 void * ENC28J60_GetAddr(void)

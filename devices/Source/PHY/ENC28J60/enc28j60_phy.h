@@ -32,11 +32,6 @@ extern "C" {
 #define PHY1_NodeId                 objIPAddr
 #define PHY1_GateId                 objIPBroker
 
-#if (defined LED1_On) && (defined LED1_Off)
-#define ENC_LED_ON                  LED1_On
-#define ENC_LED_OFF                 LED1_Off
-#endif  //  (defined LED1_On) && (defined LED1_Off)
-
 #elif (ENC28J60_PHY == 2)
 
 #define PHY2_ADDR_t                 uint32_t
@@ -48,11 +43,6 @@ extern "C" {
 #define PHY2_Get                    ENC28J60_Get
 #define PHY2_GetAddr                ENC28J60_GetAddr
 #define PHY2_NodeId                 objIPAddr
-
-#if (defined LED2_On) && (defined LED2_Off)
-#define ENC_LED_ON                  LED2_On
-#define ENC_LED_OFF                 LED2_Off
-#endif  //  (defined LED1_On) && (defined LED1_Off)
 
 #else
 #error ENC28J60_PHY unknown inteface

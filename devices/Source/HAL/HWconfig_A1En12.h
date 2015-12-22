@@ -90,9 +90,9 @@ extern "C" {
 // End UART Section
 */
 // LEDs
-#define LED1_On()                   PORTB &= ~(1<<PB0)
-#define LED1_Off()                  PORTB |= (1<<PB0)
-#define LEDsInit()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
+#define LED_On()                    PORTB &= ~(1<<PB0)
+#define LED_Off()                   PORTB |= (1<<PB0)
+#define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // LAN Section
 #define ENC_PORT                    PORTB
