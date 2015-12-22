@@ -593,7 +593,11 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
         {
             if(vMQTTSN.Status == MQTTSN_STATUS_DHCP)
             {
-                if(memcmp(pPHY1outBuf->mq.dhcpresp.MsgId, &vMQTTSN.MsgId, sizeof(vMQTTSN.MsgId)) == 0)  // Own message
+                uint16_t msgid = pPHY1outBuf->mq.dhcpresp.MsgId[0];
+                msgid <<= 8;
+                msgid |= pPHY1outBuf->mq.dhcpresp.MsgId[1];
+
+                if(msgid == vMQTTSN.MsgId) // Own message
                 {
                     uint8_t Mask = 0;
                     uint8_t * pData = pPHY1outBuf->mq.dhcpresp.addr;
@@ -1030,8 +1034,8 @@ void MQTTSN_Poll(void)
             memcpy(pMessage->phy1addr, &addr1_broad, sizeof(PHY1_ADDR_t));
             pMessage->mq.MsgType = MQTTSN_MSGTYP_DHCPREQ;
             pMessage->mq.dhcpreq.Radius = vMQTTSN.Radius;
-            memcpy(pMessage->mq.dhcpreq.MsgId, &vMQTTSN.MsgId, sizeof(vMQTTSN.MsgId));
-            
+            pMessage->mq.dhcpreq.MsgId[0] = vMQTTSN.MsgId >> 8;
+            pMessage->mq.dhcpreq.MsgId[1] = vMQTTSN.MsgId & 0xFF;
             Length += MQTTSN_SIZEOF_MSG_DHCPREQ;
             pMessage->Length = Length;
             pMessage->mq.Length = Length;

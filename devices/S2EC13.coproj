@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 1.7.7" name="S2EC13">
-  <Target name="S2EC13" isCurrent="1">
+  <Target name="S2EC13" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -14,9 +14,9 @@
         <DefinedSymbols>
           <Define name="USE_STDPERIPH_DRIVER"/>
           <Define name="__ASSEMBLY__"/>
-          <Define name="CFG_S2EC13"/>
           <Define name="STM32F051C8"/>
           <Define name="STM32F0XX_MD"/>
+          <Define name="CFG_S2EC13"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -59,7 +59,7 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="0"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
@@ -69,7 +69,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="S2En13" isCurrent="0">
+  <Target name="S2En13" isCurrent="1">
     <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -138,7 +138,7 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="S2SN13" isCurrent="0">
+  <Target name="S2Cn13" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -152,9 +152,9 @@
         <DefinedSymbols>
           <Define name="USE_STDPERIPH_DRIVER"/>
           <Define name="__ASSEMBLY__"/>
-          <Define name="CFG_S2Sn13"/>
           <Define name="STM32F051C8"/>
           <Define name="STM32F0XX_MD"/>
+          <Define name="CFG_S2Cn13"/>
         </DefinedSymbols>
       </Compile>
       <Link useDefault="0">
@@ -172,7 +172,7 @@
           <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
           <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
         </MemoryAreas>
-        <LocateLinkFile path="../../../../../../coocox/coide/configuration/programdata/stm32f051/arm-gcc-link.ld" type="0"/>
+        <LocateLinkFile path="../../../coide/configuration/programdata/s2ec13/arm-gcc-link.ld" type="0"/>
       </Link>
       <Output>
         <Option name="OutputFileType" value="0"/>
@@ -197,7 +197,7 @@
       <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="0"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
       <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
@@ -219,8 +219,8 @@
     <File name="Source/HAL/STM32/hal_rfm12.c" path="Source/HAL/STM32/hal_rfm12.c" type="1"/>
     <File name="Source/HAL/HW_Common.h" path="Source/HAL/HW_Common.h" type="1"/>
     <File name="Source/PHY/ENC28J60" path="" type="2"/>
-    <File name="cmsis_boot/system_stm32f0xx_temp.c" path="cmsis_boot/system_stm32f0xx_temp.c" type="1"/>
     <File name="stm32_lib/src/stm32f0xx_flash.c" path="stm32_lib/src/stm32f0xx_flash.c" type="1"/>
+    <File name="cmsis_boot/system_stm32f0xx_temp.c" path="cmsis_boot/system_stm32f0xx_temp.c" type="1"/>
     <File name="Source/mqttsn.c" path="Source/mqttsn.c" type="1"/>
     <File name="cmsis_boot" path="" type="2"/>
     <File name="Source/mqMEM.c" path="Source/mqMEM.c" type="1"/>
@@ -231,9 +231,9 @@
     <File name="cmsis/core_cmFunc.h" path="cmsis/core_cmFunc.h" type="1"/>
     <File name="Source/HAL/HWconfig_S2En13.h" path="Source/HAL/HWconfig_S2En13.h" type="1"/>
     <File name="Source/EXT/extdio.h" path="Source/EXT/extdio.h" type="1"/>
-    <File name="Source/EXT/extpwm.c" path="Source/EXT/extpwm.c" type="1"/>
-    <File name="Source/PHY" path="" type="2"/>
     <File name="Source/EXT/extain.h" path="Source/EXT/extain.h" type="1"/>
+    <File name="Source/PHY" path="" type="2"/>
+    <File name="Source/EXT/extpwm.c" path="Source/EXT/extpwm.c" type="1"/>
     <File name="Source/HAL/STM32/hal_exti.c" path="Source/HAL/STM32/hal_exti.c" type="1"/>
     <File name="cmsis/core_cm0.h" path="cmsis/core_cm0.h" type="1"/>
     <File name="cmsis_boot/stm32f0xx.h" path="cmsis_boot/stm32f0xx.h" type="1"/>
@@ -264,8 +264,9 @@
     <File name="Source/EXT/extpwm.h" path="Source/EXT/extpwm.h" type="1"/>
     <File name="Source/diag.h" path="Source/diag.h" type="1"/>
     <File name="Source/PHY/CC1101/cc11_phy.h" path="Source/PHY/CC1101/cc11_phy.h" type="1"/>
-    <File name="Source/PHY/ENC28J60/enc28j60_net.c" path="Source/PHY/ENC28J60/enc28j60_net.c" type="1"/>
     <File name="Source/EXT/extser.h" path="Source/EXT/extser.h" type="1"/>
+    <File name="Source/PHY/ENC28J60/enc28j60_net.c" path="Source/PHY/ENC28J60/enc28j60_net.c" type="1"/>
+    <File name="Source/HAL/HWconfig_S2Cn13.h" path="Source/HAL/HWconfig_S2Cn13.h" type="1"/>
     <File name="Source/PHY/UART/uart_phy.c" path="Source/PHY/UART/uart_phy.c" type="1"/>
     <File name="Source/HAL/STM32/hal_pwm.c" path="Source/HAL/STM32/hal_pwm.c" type="1"/>
     <File name="Source/PHY/RFM12/rfm12_reg.h" path="Source/PHY/RFM12/rfm12_reg.h" type="1"/>
@@ -273,7 +274,6 @@
     <File name="stm32_lib/inc" path="" type="2"/>
     <File name="Source/HAL/STM32/hal_eeprom_flash.c" path="Source/HAL/STM32/hal_eeprom_flash.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_phy.h" path="Source/PHY/ENC28J60/enc28j60_phy.h" type="1"/>
-    <File name="Source/HAL/HWconfig_S2Sn13.h" path="Source/HAL/HWconfig_S2Sn13.h" type="1"/>
     <File name="Source/mqMEM.h" path="Source/mqMEM.h" type="1"/>
     <File name="Source/HAL/STM32" path="" type="2"/>
     <File name="cmsis" path="" type="2"/>
@@ -285,10 +285,10 @@
     <File name="Source/PHY/ENC28J60/enc28j60_def.h" path="Source/PHY/ENC28J60/enc28j60_def.h" type="1"/>
     <File name="Source/EXT/extser.c" path="Source/EXT/extser.c" type="1"/>
     <File name="Source/main.c" path="Source/main.c" type="1"/>
-    <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
     <File name="Source/HAL/STM32/hal_twi.c" path="Source/HAL/STM32/hal_twi.c" type="1"/>
-    <File name="Source/HAL/HW_STM32F0.h" path="Source/HAL/HW_STM32F0.h" type="1"/>
+    <File name="Source/HAL/STM32/hal_dio.c" path="Source/HAL/STM32/hal_dio.c" type="1"/>
     <File name="cmsis_boot/system_stm32f0xx.h" path="cmsis_boot/system_stm32f0xx.h" type="1"/>
+    <File name="Source/HAL/HW_STM32F0.h" path="Source/HAL/HW_STM32F0.h" type="1"/>
     <File name="Source/ObjDict.c" path="Source/ObjDict.c" type="1"/>
     <File name="Source/PHY/ENC28J60/enc28j60_hw.h" path="Source/PHY/ENC28J60/enc28j60_hw.h" type="1"/>
     <File name="Source/PHY/RFM12/rfm12_phy.h" path="Source/PHY/RFM12/rfm12_phy.h" type="1"/>
