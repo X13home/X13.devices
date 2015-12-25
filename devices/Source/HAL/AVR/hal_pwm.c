@@ -9,6 +9,12 @@ static const PROGMEM uint8_t hal_pwm_port2cfg[] = EXTPWM_PORT2CFG;
 
 uint8_t hal_pwm_base2dio(uint16_t base)
 {
+#ifdef EXTPWM_BASE_OFFSET
+    if(base < EXTPWM_BASE_OFFSET)
+        return 0xFF;
+    base -= EXTPWM_BASE_OFFSET;
+#endif
+
     if(base >= (const uint16_t)(sizeof(hal_pwm_port2dio)))
         return 0xFF;
 
@@ -17,6 +23,10 @@ uint8_t hal_pwm_base2dio(uint16_t base)
 
 void hal_pwm_configure(uint16_t base)
 {
+#ifdef EXTPWM_BASE_OFFSET
+    base -= EXTPWM_BASE_OFFSET;
+#endif
+
     // Configure port
     uint8_t port, mask;
     port = pgm_read_byte(&hal_pwm_port2dio[base]);
@@ -97,7 +107,7 @@ void hal_pwm_configure(uint16_t base)
 
     *(pTIM + 0x07) = 0xFF;          // ICRnH
     *(pTIM + 0x06) = 0xFF;          // ICRnL
-    
+
     *(pTIM + 0) = tccra | (1<<WGM11);       // PWM Phase Correct, top in ICR1
     *(pTIM + 1) = (1<<WGM13) | (1<<CS00);   // Clock = Fosc
                                             // Fpwm = Clock/131072
@@ -105,6 +115,10 @@ void hal_pwm_configure(uint16_t base)
 
 void hal_pwm_delete(uint16_t base)
 {
+#ifdef EXTPWM_BASE_OFFSET
+    base -= EXTPWM_BASE_OFFSET;
+#endif
+    
     // configure timer
     uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
     uint8_t channel = Config & 0x07;
@@ -196,6 +210,10 @@ void hal_pwm_delete(uint16_t base)
 
 void hal_pwm_write(uint16_t base, uint16_t value)
 {
+#ifdef EXTPWM_BASE_OFFSET
+    base -= EXTPWM_BASE_OFFSET;
+#endif
+    
     uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
     uint8_t channel = Config & 0x07;
 

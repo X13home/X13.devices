@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -63,6 +63,14 @@ extern "C" {
 #define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31}
 // End DIO Section
 
+// PWM Section
+#define EXTPWM_USED                 1
+#define EXTPWM_BASE_OFFSET          13
+#define EXTPWM_PORT2CFG             {1, 0}      // Mapping PWM channel to configuration
+                                                // bits 7-3 Timer, bits 2-0 Channel
+#define EXTPWM_PORT2DIO             {29, 30}    // Mapping PWM channel to DIO
+// End PWM Section
+
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           9                                   // ADC0-ADC7, Vbg
@@ -74,22 +82,14 @@ extern "C" {
 #define EXTTWI_USED                 1
 // End TWI Section
 
-/*
-// PWM Section
-//#define EXTPWM_USED                 1
-#define EXTPWM_MAXPORT_NR           2
-#define EXTPWM_PORT2CFG             {1, 0}          // bits 7-3 Timer, bits 2-0 Channel
-#define EXTPWM_PORT2DIO             {29,30}         // Mapping PWM channel to DIO
-// End PWM Section
-
 // UART Section
 #define HAL_USE_USART0              0
 #define HAL_UART_NUM_PORTS          1
 
 #define EXTSER_USED                 1
 // End UART Section
-*/
-// LEDs
+
+// LED
 #define LED_On()                    PORTB &= ~(1<<PB0)
 #define LED_Off()                   PORTB |= (1<<PB0)
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}

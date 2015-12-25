@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -258,15 +258,6 @@ void ainProc(void)
             ain_pos = 0;
     }
 }
-
-/*
-#ifdef EXTPLC_USED
-int16_t ainGet(uint8_t apin)
-{
-    return ain_act_val[apin];
-}
-#endif  // EXTPLC_USED
-*/
 
 // AIn Section
 /////////////////////////////////////////////////////

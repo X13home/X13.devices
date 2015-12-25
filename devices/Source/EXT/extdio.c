@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -273,47 +273,4 @@ void dioRelease(uint8_t pin)
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
 }
-
-/*
-#ifdef EXTPLC_USED
-bool dioGet(uint16_t base)
-{
-#ifdef EXTDIO_MAPPING
-    base = dio_sBase2Base[base];
-#endif  //  EXTDIO_MAPPING
-
-    uint8_t port;
-    DIO_PORT_TYPE mask;
-    dioBase2hw(base, &port, &mask);
-
-    return ((dio_status[port] & mask) != 0);
-}
-
-void dioSet(uint16_t base)
-{
-#ifdef EXTDIO_MAPPING
-    base = dio_sBase2Base[base];
-#endif  //  EXTDIO_MAPPING
-    
-    uint8_t port;
-    DIO_PORT_TYPE mask;
-    dioBase2hw(base, &port, &mask);
-    
-    dio_status[port] |= mask;
-}
-
-void dioReset(uint16_t base)
-{
-#ifdef EXTDIO_MAPPING
-    base = dio_sBase2Base[base];
-#endif  //  EXTDIO_MAPPING
-
-    uint8_t port;
-    DIO_PORT_TYPE mask;
-    dioBase2hw(base, &port, &mask);
-    
-    dio_status[port] &= ~mask;
-}
-#endif  // EXTPLC_USED
-*/
 #endif  // EXTDIO_USED

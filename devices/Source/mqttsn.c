@@ -715,7 +715,7 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
             case MQTTSN_MSGTYP_GWINFO:
                 vMQTTSN.tGWinfo2 = 0;
                 break;
-            // Encapulate message to Forward Packet and send to Gateway
+            // Encapsulate message to Forward Packet and send to Gateway
             case MQTTSN_MSGTYP_CONNECT:
             case MQTTSN_MSGTYP_PINGREQ:
 #ifdef PHY2_GetRSSI
@@ -1244,7 +1244,7 @@ void MQTTSN_Poll(void)
 ////////////////////////////////////////////////////////////////////////
 // API
 
-// Initialise MQTTSN tasks
+// Initialize MQTTSN tasks
 void MQTTSN_Init(void)
 {
     uint8_t uTmp = sizeof(PHY1_ADDR_t);

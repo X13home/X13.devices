@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -58,16 +58,6 @@ void hal_twi_start(void);
 // TWI/I2C Section
 //////////////////////////////////////////////////////////////
 
-/*
-//////////////////////////////////////////////////////////////
-// PWM HAL
-uint8_t hal_pwm_base2dio(uint16_t base);
-void hal_pwm_configure(uint16_t base);
-void hal_pwm_delete(uint16_t base);
-void hal_pwm_write(uint16_t base, uint16_t value);
-// PWM HAL
-//////////////////////////////////////////////////////////////
-
 //////////////////////////////////////////////////////////////
 // UART HAL Section
 void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
@@ -79,7 +69,15 @@ bool hal_uart_datardy(uint8_t port);
 uint8_t hal_uart_get(uint8_t port);
 // UART HAL Section
 //////////////////////////////////////////////////////////////
-*/
+
+//////////////////////////////////////////////////////////////
+// PWM HAL
+uint8_t hal_pwm_base2dio(uint16_t base);
+void hal_pwm_configure(uint16_t base);
+void hal_pwm_delete(uint16_t base);
+void hal_pwm_write(uint16_t base, uint16_t value);
+// PWM HAL
+//////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
 }

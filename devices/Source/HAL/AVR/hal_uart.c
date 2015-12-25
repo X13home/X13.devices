@@ -266,7 +266,7 @@ void hal_uart_deinit(uint8_t port)
 #endif  //  (defined UCSR3A) && (defined UART3_PORT)
 */
         default:
-            assert(0);
+            return;
     }
 
     if(hal_UARTv[port] != NULL)

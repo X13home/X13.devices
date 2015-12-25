@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org

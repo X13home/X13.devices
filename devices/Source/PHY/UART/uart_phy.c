@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -47,8 +47,11 @@ static void uart_tx_task(void)
             // Paranoid check
             if(pTx_buf != NULL)
             {
-                Activity(UART_PHY);
                 hal_uart_send(UART_PHY_PORT, (pTx_buf->Length + 1), &pTx_buf->Length);
+#ifdef LED_On
+                LED_On();
+#endif  //  LED_On
+
             }
         }
     }
@@ -109,7 +112,9 @@ void * UART_Get(void)
                 memcpy(pRx_buf->phy1addr, (const void *)&uart_addr, sizeof(UART_ADDR_t));
                 pRx_buf->Length = rx_len;
                 rx_len = 0;
-                Activity(UART_PHY);
+#ifdef LED_On
+                LED_On();
+#endif  //  LED_On
                 return pRx_buf;
             }
         }
