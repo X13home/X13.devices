@@ -176,8 +176,9 @@ void rfm12_irq(void)
                 ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 if((ch == 0) || (ch == rfm12_tx_hdr.Src))
                 {
-                    Activity(RFM12_PHY);
-
+#ifdef LED_On
+                    LED_On();
+#endif  //  LED_On
                     rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
                     rfm12_state = RFM12_TRVRXHDR_SRC;
                     return;
@@ -225,7 +226,9 @@ void rfm12_irq(void)
                 hal_rfm12_spiExch(RFM12_CMD_TX | 0xAA);
                 rfm12v_Pos = 0;
                 rfm12_state = RFM12_TRVTXHDR;
-                Activity(RFM12_PHY);
+#ifdef LED_On
+                LED_On();
+#endif  //  LED_On
                 return;
             // Send header
             case RFM12_TRVTXHDR:
