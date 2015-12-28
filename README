@@ -1,31 +1,26 @@
+The X13.Home project, http://X13Home.org, http://x13home.github.io
+
 X13.devices
 ===========
 
 Firmware section for project X13.Home
+Version 3.1.0
 
-Automation System oriented to "Smart House" over MQTT(S) protocol
+Automation System oriented to "Smart House" over MQTT(SN) protocol
 
-MQTTS
-  Without PHY
-    DMGWDM    Dummy device with ATMega328p, connected with serial port.
+Devices
+  Board: Arduino Nano with uc ATMega328P Fosc = 16M
+    A1Sn10      PHY1 - Serial Port
 
-  LAN Clients:
-      LNNDEN    Client with Phy - ENC28J60, uc ATMega328P
-      
-  Wireless Gateways:
-    ISM band - 433/868/915:
-      RFGWUP    UP20  - Native Hardware (ATMega328P + CC1101)
-      RFGWUN    UNode - Native Hardware (ATMega328P + MRF49XA)
-      RFGWJN    JeeNode http://jeelabs.com/products/jeenode
-                compatible with Arduino Uno/Nano + RFM12/MRF49XA
-      RFGWPS    panSTamp http://www.panstamp.com/ 
-                compatible with Arduino Uno/Nano + CC1101
+  Board: uNode v2.0, uc ATMega328P, pinout not compatible with Firmware 2.6/3.0
+    A1Cn12      PHY1 - CC1101, old name RFNDUP
+    A1En12      PHY1 - ENC28J60, old name LNNDEN
+    A1SC12      PHY1 - UART, PHY2 - CC1101, old name RFGWUP
+    A1Sn12      PHY1 - UART, old name DMGWDM
+    A1SR11      PHY1 - UART, PHY2 - RFM12(MRF49XA), old name RFGWUN
+    A1Rn11      PHY1 - RFM12(MRF49XA), old name RFNDUN
 
-  Wireless Clients:
-    ISM band - 433/868/915:
-      RFNDUP    UP20 - Native Hardware (ATMega328P + CC1101)
-      RFNDUN    UNode - Native Hardware (ATMega328P + MRF49XA)
-      RFNDJN    JeeNode http://jeelabs.com/products/jeenode
-                compatible with Arduino Uno/Nano + RFM12/MRF49XA
-      RFNDPS    pan STamp http://www.panstamp.com/ 
-                compatible with Arduino Uno/Nano + CC1101
+  Board S2EC13, uc ST32F051C8 - ARM Cortex M0
+    S2Cn12      PHY1 - CC1101
+    S2EC12      PHY1 - ENC28J60, PHY2 - CC1101
+    S2En12      PHY1 - ENC28J60
