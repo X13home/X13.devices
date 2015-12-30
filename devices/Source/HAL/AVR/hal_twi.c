@@ -104,6 +104,7 @@ ISR(TWI_vect)
                 break;
             }
             // else, ACK received but should be NACK
+            // No break, it's OK
         case TW_MT_DATA_NACK:                       // data transmitted, NACK received
             pTwi_exchange->frame.write = twi_ptr;
             pTwi_exchange->frame.access &= ~TWI_WRITE;
@@ -119,6 +120,7 @@ ISR(TWI_vect)
         // Master Receive
         case TW_MR_DATA_ACK:                        // Data byte has been received and ACK transmitted
             pTwi_exchange->frame.data[twi_ptr++] = TWDR;
+            // No break, it's OK
         case TW_MR_SLA_ACK:                         // SLA+R has been transmitted and ACK received
             if((twi_ptr + 1) < pTwi_exchange->frame.read)
             {

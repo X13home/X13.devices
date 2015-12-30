@@ -141,7 +141,6 @@ static void cc11_tx_task(void)
 {
     static uint8_t cc11_tx_delay = 0;
     static uint8_t cc11_tx_retry = CC11_TX_RETRYS;
-    static uint16_t cc11_ms = 0;
 
 #ifdef LED_On
     LED_On();
@@ -150,6 +149,7 @@ static void cc11_tx_task(void)
     // CDMA
     if(cc11_tx_delay > 0)
     {
+        static uint16_t cc11_ms = 0;
         if(cc11_ms == hal_get_ms())
             return;
         cc11_ms = hal_get_ms();

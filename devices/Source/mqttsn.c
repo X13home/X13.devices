@@ -625,11 +625,13 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                             break;
 
                         WriteOD(PHY1_NodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(PHY1_ADDR_t), (uint8_t *)pData);
-                        pData += sizeof(PHY1_ADDR_t);
                     }
 #ifdef PHY2_ADDR_t
                     if(Mask & 2)
                     {
+                        if(Mask & 1)
+                            pData += sizeof(PHY1_ADDR_t);
+                        
                         WriteOD(PHY2_NodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(PHY2_ADDR_t), (uint8_t *)pData);
                     }
 #endif  //  PHY2_ADDR_t
@@ -800,7 +802,7 @@ static uint8_t mqttsn_build_node_name(uint8_t * pBuf)
         return Length;
 
     // Node Name not defined, use default name
-    uint8_t pos, ch;
+    uint8_t pos;
     Length = OD_DEV_TYP_LEN;
     ReadOD(objDeviceTyp, MQTTSN_FL_TOPICID_PREDEF, &Length, pBuf);
     pBuf += Length;
@@ -813,7 +815,7 @@ static uint8_t mqttsn_build_node_name(uint8_t * pBuf)
     {
         uint8_t zif = *(pAddr++);
     
-        ch = zif>>4;
+        uint8_t ch = zif>>4;
         if(ch > 0x09)
             ch += 0x37;
         else

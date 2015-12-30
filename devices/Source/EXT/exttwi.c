@@ -77,8 +77,6 @@ e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 
 uint8_t twiPollOD(subidx_t * pSubidx, uint8_t sleep)
 {
-    static uint16_t twi_ms = 0;
-
     if(pTwi_exchange != NULL)
     {
         uint8_t access = pTwi_exchange->frame.access;
@@ -100,6 +98,8 @@ uint8_t twiPollOD(subidx_t * pSubidx, uint8_t sleep)
         }
         else
         {
+            static uint16_t twi_ms = 0;
+
             if((access & TWI_WD_ARMED) == 0)
             {
                 pTwi_exchange->frame.access |= TWI_WD_ARMED;
