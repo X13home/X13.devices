@@ -61,8 +61,6 @@ extern "C" {
 #define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
 #define MQTTSN_USE_MESH             1
 
-#include "hal.h"
-
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_BASE_OFFSET          2

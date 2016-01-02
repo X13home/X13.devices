@@ -26,14 +26,14 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>AVR</name>
-			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/AVR</locationURI>
-		</link>
-		<link>
 			<name>Common</name>
 			<type>2</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Common</locationURI>
+		</link>
+		<link>
+			<name>HAL</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/ATMega</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

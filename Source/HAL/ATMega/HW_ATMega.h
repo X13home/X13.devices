@@ -13,20 +13,22 @@ See LICENSE file for license details.
 #ifndef HW_ATMEGA_H
 #define HW_ATMEGA_H
 
+#include "hal.h"
+
 #if     (defined CFG_A1Cn12)        // CC1101
-#include "HWconfig_A1Cn12.h"
+#include "A1xxxx/A1Cn12.h"
 #elif   (defined CFG_A1SC12)        // UART + CC1101
-#include "HWconfig_A1SC12.h"
+#include "A1xxxx/A1SC12.h"
 #elif   (defined CFG_A1En12)        // ENC28J60
-#include "HWconfig_A1En12.h"
+#include "A1xxxx/A1En12.h"
 #elif   (defined CFG_A1Sn12)        // UART
-#include "HWconfig_A1Sn12.h"
+#include "A1xxxx/A1Sn12.h"
 #elif   (defined CFG_A1Sn10)        // Arduino Nano + UART
-#include "HWconfig_A1Sn10.h"
+#include "A1xxxx/A1Sn10.h"
 #elif   (defined CFG_A1SR11)        // RFM12 vers. 1.1
-#include "HWconfig_A1SR11.h"
+#include "A1xxxx/A1SR11.h"
 #elif   (defined CFG_A1Rn11)        // RFM12 vers. 1.1, node
-#include "HWconfig_A1Rn11.h"
+#include "A1xxxx/A1Rn11.h"
 #else
 #error Unknown configuration
 #endif  //  Configuration

@@ -56,8 +56,6 @@ extern "C" {
 //#define ASLEEP                      1       // Enable ASleep mode
 //#define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
 
-#include "hal.h"
-
 ////////////////////////////////////////////////////////
 // Extensions configuration
 

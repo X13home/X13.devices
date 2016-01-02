@@ -47,8 +47,8 @@ extern "C" {
 // ATM328P
 #if (defined __AVR_MEGA__)
 #include "HW_ATMega.h"
-#elif (defined STM32F0XX_MD)
-#include "HAL/HW_STM32F0.h"
+#elif (defined STM32F0)
+#include "HW_STM32F0.h"
 #else
 #error unknown uC Family
 #endif

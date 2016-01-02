@@ -10,12 +10,13 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_A1CN12_H
-#define HWCONFIG_A1CN12_H
+#ifndef HWCONFIG_A1SC12_H
+#define HWCONFIG_A1SC12_H
 
 // uNode Version 2.0
 // uc ATMega328p
-// Phy1: CC1101
+// PHY1: UART
+// PHY2: CC1101
 
 // 0 - 7    PORTA - not exist
 // PORTB
@@ -53,17 +54,13 @@ extern "C" {
 
 #define F_CPU                       8000000UL
 
-#define ASLEEP                      1       // Enable ASleep mode
-#define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
-
-#include "hal.h"
 #include <util/delay.h>
 
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_BASE_OFFSET          2
 #define EXTDIO_MAXPORT_NR           2                                   // Number of digital Ports
-#define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31}
+#define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 26, 27, 28, 29, 30, 31}
 // End DIO Section
 
 // PWM Section
@@ -89,7 +86,7 @@ extern "C" {
 #define HAL_USE_USART0              0
 #define HAL_UART_NUM_PORTS          1
 
-#define EXTSER_USED                 1
+#define UART_PHY_PORT               0
 // End UART Section
 
 // LED
@@ -97,7 +94,7 @@ extern "C" {
 #define LED_Off()                   PORTB |= (1<<PB0)
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
-// RF Section
+// CC11 Section
 #define CC11_PORT                   PORTB
 #define CC11_DDR                    DDRB
 #define CC11_PIN                    PINB
@@ -109,23 +106,25 @@ extern "C" {
 #define CC11_WAIT_LOW_MISO()        while(CC11_PIN & (1<<CC11_PIN_MISO))
 #define CC11_SELECT()               CC11_PORT &= ~(1<<CC11_PIN_SS)
 #define CC11_RELEASE()              CC11_PORT |= (1<<CC11_PIN_SS)
-//  End RF Section
+//  End CC11 Section
 
-#define CC11_PHY                    1
+#define UART_PHY                    1
+#define CC11_PHY                    2
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           17      // Size of identificators list
+#define OD_MAX_INDEX_LIST           15      // Size of identificators list
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'
-#define OD_DEV_PHY1                 'C'
-#define OD_DEV_PHY2                 'n'
+#define OD_DEV_PHY1                 'S'
+#define OD_DEV_PHY2                 'C'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
 
+#include "PHY/UART/uart_phy.h"
 #include "PHY/CC1101/cc11_phy.h"
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // HWCONFIG_A1CN12_H
+#endif // HWCONFIG_A1SC12_H

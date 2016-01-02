@@ -56,8 +56,6 @@ extern "C" {
 //#define ASLEEP                      1       // Enable ASleep mode
 //#define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
 
-#include "hal.h"
-
 // PC0-PC5, Gap:Ain6-7, Gap:PD0-PD1, PD2-PD7, PB0-PB4
 // DIO Section
 #define EXTDIO_USED                 1

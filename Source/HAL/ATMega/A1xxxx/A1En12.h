@@ -53,7 +53,6 @@ extern "C" {
 
 #define F_CPU                       12500000UL
 
-#include "hal.h"
 #include <util/delay.h>
 
 // DIO Section

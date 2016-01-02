@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2015 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -10,21 +10,21 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_A1SR11_H
-#define HWCONFIG_A1SR11_H
+#ifndef HWCONFIG_A1CN12_H
+#define HWCONFIG_A1CN12_H
 
 // uNode Version 2.0
 // uc ATMega328p
-// Phy1: RFM12, IRQ at PB0
+// Phy1: CC1101
 
 // 0 - 7    PORTA - not exist
 // PORTB
-// --   PB0     --          RFM12_IRQ
-// --   PB1     --          LED
-// --   PB2     --          RFM12_CSN
-// --   PB3     ISP-4       RFM12_MOSI
-// --   PB4     ISP-1       RFM12_MISO
-// --   PB5     ISP-3       RFM12_SCK
+// --   PB0     --          LED
+// --   PB1     --          CC11_GDO
+// --   PB2     --          CC11_CSN
+// --   PB3     ISP-4       CC11_MOSI
+// --   PB4     ISP-1       CC11_MISO
+// --   PB5     ISP-3       CC11_SCK
 // --   PB6     --          OSC
 // --   PB7     --          OSC
 // PORT C
@@ -40,7 +40,7 @@ See LICENSE file for license details.
 // PORT D
 // 24   PD0     SV1-10      RXD
 // 25   PD1     SV1-9       TXD
-// 26   PD2     SV1-8       IRQ 0
+// 26   PD2     SV1-8       IRQ 0 //** RF-GDO
 // 27   PD3     SV1-7       IRQ 1
 // 28   PD4     SV1-6
 // 29   PD5     SV1-5       PWM0
@@ -51,15 +51,18 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#define F_CPU                       14745600UL
+#define F_CPU                       8000000UL
 
-#include "hal.h"
+#define ASLEEP                      1       // Enable ASleep mode
+#define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
+
+#include <util/delay.h>
 
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_BASE_OFFSET          2
 #define EXTDIO_MAXPORT_NR           2                                   // Number of digital Ports
-#define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 26, 27, 28, 29, 30, 31}
+#define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31}
 // End DIO Section
 
 // PWM Section
@@ -85,44 +88,43 @@ extern "C" {
 #define HAL_USE_USART0              0
 #define HAL_UART_NUM_PORTS          1
 
-#define UART_PHY_PORT               0
+#define EXTSER_USED                 1
 // End UART Section
 
 // LED
-#define LED_On()                    PORTB &= ~(1<<PB1)
-#define LED_Off()                   PORTB |= (1<<PB1)
-#define LED_Init()                  {DDRB |= (1<<PB1); PORTB |= (1<<PB1);}
+#define LED_On()                    PORTB &= ~(1<<PB0)
+#define LED_Off()                   PORTB |= (1<<PB0)
+#define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // RF Section
-#define RFM12_PORT                  PORTB
-#define RFM12_DDR                   DDRB
-#define RFM12_PIN_SS                PB2
-#define RFM12_PIN_MOSI              PB3
-#define RFM12_PIN_MISO              PB4
-#define RFM12_PIN_SCK               PB5
+#define CC11_PORT                   PORTB
+#define CC11_DDR                    DDRB
+#define CC11_PIN                    PINB
+#define CC11_PIN_SS                 PB2
+#define CC11_PIN_MOSI               PB3
+#define CC11_PIN_MISO               PB4
+#define CC11_PIN_SCK                PB5
 
-#define RFM12_IRQ_PORT              PORTB
-#define RFM12_IRQ_PORT_PIN          PINB
-#define RFM12_IRQ_PIN               PB0
+#define CC11_WAIT_LOW_MISO()        while(CC11_PIN & (1<<CC11_PIN_MISO))
+#define CC11_SELECT()               CC11_PORT &= ~(1<<CC11_PIN_SS)
+#define CC11_RELEASE()              CC11_PORT |= (1<<CC11_PIN_SS)
 //  End RF Section
 
-#define UART_PHY                    1
-#define RFM12_PHY                   2
+#define CC11_PHY                    1
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           15      // Size of identificators list
+#define OD_MAX_INDEX_LIST           17      // Size of identificators list
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'
-#define OD_DEV_PHY1                 'S'
-#define OD_DEV_PHY2                 'R'
+#define OD_DEV_PHY1                 'C'
+#define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
-#define OD_DEV_HW_TYP_L             '1'
+#define OD_DEV_HW_TYP_L             '2'
 
-#include "PHY/UART/uart_phy.h"
-#include "PHY/RFM12/rfm12_phy.h"
+#include "PHY/CC1101/cc11_phy.h"
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // HWCONFIG_A1SC12_H
+#endif // HWCONFIG_A1CN12_H
