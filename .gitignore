@@ -12,8 +12,5 @@
 /Source/A1SR11
 /Source/A1Sn10
 /Source/A1Sn12
-/Source/HAL/STM32F0
-/Source/HAL/ARM
 /Source/.vs/A1xxxx/v14/*.atsuo
-/Source/S2EC13
 /Source/A1xxxx.componentinfo.xml

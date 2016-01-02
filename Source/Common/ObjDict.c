@@ -218,7 +218,7 @@ static uint8_t cvtSubidx2Len(subidx_t * pSubIdx)
 // Read predefined object from EEPROM
 static uint8_t eepromReadOD(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    uint8_t Len;
+    uint8_t Len = 0;
     uint16_t Base;
 
     Base = pSubidx->Base;

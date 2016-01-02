@@ -545,6 +545,7 @@ dhcp_filter_lbl1:
                 len--;
                 if(len >= 2)
                     goto dhcp_filter_lbl1;
+                // no break, It's Ok
             case DHCP_CODE_END:             // 255
                 opt->len = 0;
                 len = 0;
