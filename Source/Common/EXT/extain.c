@@ -19,15 +19,6 @@ See LICENSE file for license details.
 #include "extdio.h"
 #include "extain.h"
 
-//////////////////////////////////////////////////////////////
-// AIn HAL
-uint8_t hal_ain_apin2dio(uint8_t apin);
-void hal_ain_configure(uint8_t apin, uint8_t aref);
-void hal_ain_select(uint8_t apin, uint8_t aref);
-int16_t hal_ain_get(void);
-// AIn HAL
-//////////////////////////////////////////////////////////////
-
 /////////////////////////////////////////////////////
 // AIn Section ,   depended from extdio.c
 

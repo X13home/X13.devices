@@ -44,8 +44,15 @@ typedef enum
 // DIO Section
 //////////////////////////////////////////////////////////////
 
-void INIT_SYSTEM(void);
-void StartSheduler(void);
+void     INIT_SYSTEM(void);
+void     StartSheduler(void);
+
+uint16_t hal_get_ms(void);
+uint32_t hal_get_sec(void);
+uint16_t hal_RNG(void);
+void     hal_reboot(void);
+
+void     hal_ASleep(uint16_t duration);
 
 #ifdef __cplusplus
 }

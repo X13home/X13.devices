@@ -99,19 +99,6 @@ static uint8_t          cc11s_NodeID;
 static Queue_t          cc11_tx_queue = {NULL, NULL, 4, 0};
 static uint8_t          cc11_rssi;
 
-/*
-// HAL Section
-// Common
-uint16_t hal_get_ms(void);
-uint16_t halRNG(void);
-// CC11
-void     hal_cc11_init_hw(void);
-uint8_t  hal_cc11_spiExch(uint8_t data);
-// End HAL Section
-*/
-
-
-
 // Send command strobe to the CC1101 IC via SPI
 static void cc11_cmdStrobe(uint8_t cmd) 
 {
@@ -172,7 +159,7 @@ static void cc11_tx_task(void)
         if(cc11_tx_retry > 0)
         {
             cc11_tx_retry--;
-            cc11_tx_delay = (halRNG() & 0x7) + 3;
+            cc11_tx_delay = (hal_RNG() & 0x7) + 3;
             return;
         }
         //cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state

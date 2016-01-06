@@ -74,13 +74,20 @@ See LICENSE file for license details.
 #error  RF_BASE_FREQ does not belond to ISM band
 #endif  // RF_BASE_FREQ
 
-// API Section
-void RFM12_Init(void);
-void RFM12_Send(void *pBuf);
-void * RFM12_Get(void);
-void * RFM12_GetAddr(void);
 
-void RFM12_ASleep(void);
-void RFM12_AWake(void);
+// HAL section
+void        hal_rfm12_init_hw(void);
+uint16_t    hal_rfm12_spiExch(uint16_t data);
+bool        hal_rfm12_irq_stat(void);
+void        hal_rfm12_enable_irq(void);
+
+// API Section
+void        RFM12_Init(void);
+void        RFM12_Send(void *pBuf);
+void      * RFM12_Get(void);
+void      * RFM12_GetAddr(void);
+
+void        RFM12_ASleep(void);
+void        RFM12_AWake(void);
 
 #endif  //  _RFM12_PHY_H

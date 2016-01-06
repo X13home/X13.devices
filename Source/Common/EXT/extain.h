@@ -17,13 +17,19 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-void ainInit(void);
-bool ainCheckSubidx(subidx_t * pSubidx);
-e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx);
-void ainDeleteOD(subidx_t * pSubidx);
-void ainProc(void);
+// HAL Section
+uint8_t hal_ain_apin2dio(uint8_t apin);
+void    hal_ain_configure(uint8_t apin, uint8_t aref);
+void    hal_ain_select(uint8_t apin, uint8_t aref);
+int16_t hal_ain_get(void);
 
-int16_t ainGet(uint8_t apin);
+// AIn API
+void    ainInit(void);
+bool    ainCheckSubidx(subidx_t * pSubidx);
+e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx);
+void    ainDeleteOD(subidx_t * pSubidx);
+void    ainProc(void);
+
 #ifdef __cplusplus
 }
 #endif

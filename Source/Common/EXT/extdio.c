@@ -26,16 +26,6 @@ static DIO_PORT_TYPE dio_state_flag[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_change_flag[EXTDIO_MAXPORT_NR];
 static DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
 
-//////////////////////////////////////////////////////////////
-// DIO HAL
-uint8_t hal_dio_base2pin(uint16_t base);
-void hal_dio_configure(uint8_t PortNr, DIO_PORT_TYPE Mask, uint16_t Mode);
-DIO_PORT_TYPE hal_dio_read(uint8_t PortNr);
-void hal_dio_set(uint8_t PortNr, DIO_PORT_TYPE Mask);
-void hal_dio_reset(uint8_t PortNr, DIO_PORT_TYPE Mask);
-// DIO HAL
-//////////////////////////////////////////////////////////////
-
 // DIO local subroutines
 
 static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)

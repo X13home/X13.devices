@@ -17,11 +17,21 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-void serInit(void);
-bool serCheckSubidx(subidx_t * pSubidx);
+// UART HAL Section
+void    hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
+void    hal_uart_deinit(uint8_t port);
+void    hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable);
+bool    hal_uart_free(uint8_t port);
+void    hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
+bool    hal_uart_datardy(uint8_t port);
+uint8_t hal_uart_get(uint8_t port);
+
+// UART API
+void    serInit(void);
+bool    serCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx);
-void serDeleteOD(subidx_t * pSubidx);
-void serProc(void);
+void    serDeleteOD(subidx_t * pSubidx);
+void    serProc(void);
 
 #ifdef __cplusplus
 }

@@ -29,20 +29,6 @@ See LICENSE file for license details.
 static Queue_t      uart_tx_queue = {NULL, NULL, 4, 0};
 static UART_ADDR_t  uart_addr;
 
-/*
-//////////////////////////////////////////////////////////////
-// HAL Common
-uint16_t hal_get_ms(void);
-// UART HAL Section
-void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable);
-bool hal_uart_free(uint8_t port);
-void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
-bool hal_uart_datardy(uint8_t port);
-uint8_t hal_uart_get(uint8_t port);
-// HAL Section
-//////////////////////////////////////////////////////////////
-*/
-
 static void uart_tx_task(void)
 {
     static MQ_t   * pTx_buf = NULL;

@@ -70,18 +70,6 @@ static Queue_t          rfm12_tx_queue = {NULL, NULL, 4, 0};
 static MQ_t           * rfm12_pRxBuf = NULL;
 static MQ_t           * rfm12_pTxBuf = NULL;
 
-/*
-// HAL section
-// Common
-uint16_t    hal_get_ms(void);
-uint16_t    halRNG(void);
-// RFM12
-void        hal_rfm12_init_hw(void);
-uint16_t    hal_rfm12_spiExch(uint16_t data);
-bool        hal_rfm12_irq_stat(void);
-void        hal_rfm12_enable_irq(void);
-*/
-
 // Local subroutines
 static void rfm12_CalcCRC(uint8_t data, uint16_t *pCRC)     // CRC Calculation compatible with cc1101
 {
@@ -123,7 +111,7 @@ static void rfm12_tx_task(void)
         if(rfm12_tx_retry > 0)
         {
             rfm12_tx_retry--;
-            rfm12_tx_delay = (halRNG() & 0x7) + 3;
+            rfm12_tx_delay = (hal_RNG() & 0x7) + 3;
             return;
         }
     }

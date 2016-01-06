@@ -68,14 +68,18 @@ See LICENSE file for license details.
 
 #endif  //  RF_ADDR_t
 
-// API Section
-void CC11_Init(void);
-void CC11_Send(void *pBuf);
-void * CC11_Get(void);
-uint8_t CC11_GetRSSI(void);
-void * CC11_GetAddr(void);
+// HAL Section
+void    hal_cc11_init_hw(void);
+uint8_t hal_cc11_spiExch(uint8_t data);
 
-void CC11_ASleep(void);
-void CC11_AWake(void);
+// API Section
+void    CC11_Init(void);
+void    CC11_Send(void *pBuf);
+void  * CC11_Get(void);
+uint8_t CC11_GetRSSI(void);
+void *  CC11_GetAddr(void);
+
+void    CC11_ASleep(void);
+void    CC11_AWake(void);
 
 #endif  //  _CC11_PHY_H

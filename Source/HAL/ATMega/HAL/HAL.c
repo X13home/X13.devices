@@ -52,7 +52,7 @@ void StartSheduler(void)
 }
 
 // Generate pseudo random uint16
-uint16_t halRNG(void)
+uint16_t hal_RNG(void)
 {
     static uint16_t rand16 = 0xA15E;
 
