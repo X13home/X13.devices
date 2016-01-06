@@ -19,7 +19,7 @@ See LICENSE file for license details.
 #if   (defined CFG_S2EC13)
 #include "S2EC13.h"    // ENC28J60 + CC1101
 #elif   (defined CFG_S2En13)
-#include "S2En13.h"    // ENC28J60
+#include "S2xxxx/S2En13.h"    // ENC28J60
 #elif   (defined CFG_S2Cn13)
 #include "S2Cn13.h"    // CC1101
 #else

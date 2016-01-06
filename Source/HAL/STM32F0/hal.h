@@ -64,10 +64,12 @@ extern "C" {
 #define DIO_MODE_AF_PP_HS           0x70    // Alternative function, Push/pull, high speed
 #define DIO_MODE_AIN                0x18
 
+void INIT_SYSTEM(void);
+void StartSheduler(void);
+
 void eeprom_init_hw(void);
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
-
 
 void _delay_ms(uint16_t ms);
 void _delay_us(uint16_t us);

@@ -15,13 +15,6 @@ See LICENSE file for license details.
 
 static volatile uint8_t SystemTickCnt;
 
-//////////////////////////////////////////////////////////////
-// general HAL procedures
-void INIT_SYSTEM();
-void StartSheduler(void);
-// general HAL procedures
-//////////////////////////////////////////////////////////////
-
 int main(void)
 {
     // Initialise System Hardware

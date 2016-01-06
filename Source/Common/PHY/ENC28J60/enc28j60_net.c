@@ -41,7 +41,7 @@ static uint32_t         dhcp_server;
 #endif
 
 // HAL Common Section
-uint16_t hal_get_ms(void);
+//uint16_t hal_get_ms(void);
 uint32_t hal_get_sec(void);
 uint16_t halRNG(void);
 //
