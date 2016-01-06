@@ -15,13 +15,10 @@ See LICENSE file for license details.
 #if (defined ENC28J60_PHY)
 
 #include "enc28j60_def.h"
+#include "enc28j60_hw.h"
 
 static uint8_t Enc28j60Bank;
 static int16_t gNextPacketPtr;
-
-// HAL
-void hal_enc28j60_init_hw(void);
-uint8_t hal_enc28j60exchg(uint8_t data);
 
 // Generic SPI write command
 static void enc28j60WriteOp(uint8_t op, uint8_t address, uint8_t data)

@@ -309,7 +309,7 @@ static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 
     if(Base == 0)           // Read Device type
     {
-        uint16_t Len = sizeof(psDeviceTyp);
+        uint8_t Len = sizeof(psDeviceTyp);
         if(Len > *pLen)
             Len = *pLen;
 

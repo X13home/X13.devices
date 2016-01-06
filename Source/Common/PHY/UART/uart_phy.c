@@ -29,6 +29,7 @@ See LICENSE file for license details.
 static Queue_t      uart_tx_queue = {NULL, NULL, 4, 0};
 static UART_ADDR_t  uart_addr;
 
+/*
 //////////////////////////////////////////////////////////////
 // HAL Common
 uint16_t hal_get_ms(void);
@@ -40,6 +41,7 @@ bool hal_uart_datardy(uint8_t port);
 uint8_t hal_uart_get(uint8_t port);
 // HAL Section
 //////////////////////////////////////////////////////////////
+*/
 
 static void uart_tx_task(void)
 {

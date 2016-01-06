@@ -178,4 +178,12 @@ typedef enum
     DHCP_WAITING_ACK
 } dhcp_status_t;
 
+
+void dhcp_poll(void);
+void enc28j60_init_net(void);
+void eth_filter(uint16_t len, eth_frame_t * pFrame);
+void udp_send(uint16_t len, eth_frame_t *pFrame);
+
+void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame);     // defined in enc28j60_phy.c
+
 #endif

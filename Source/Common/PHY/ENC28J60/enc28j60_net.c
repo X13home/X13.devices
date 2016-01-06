@@ -40,12 +40,6 @@ static uint32_t         dhcp_transaction_id;
 static uint32_t         dhcp_server;
 #endif
 
-// HAL Common Section
-//uint16_t hal_get_ms(void);
-uint32_t hal_get_sec(void);
-uint16_t halRNG(void);
-//
-
 // Initialize network variables
 void enc28j60_init_net(void)
 {
@@ -375,7 +369,6 @@ void udp_send(uint16_t len, eth_frame_t *pFrame)
     ip_send(len, pFrame);
 }
 
-void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame);
 static void dhcp_filter(uint16_t len, eth_frame_t *pFrame);
 
 // process UDP packet
@@ -675,7 +668,7 @@ void dhcp_poll(void)
 
     for(ucTmp = 0; ucTmp < sizeof(dhcp_message_t); ucTmp++)   udp->data[ucTmp] = 0;
         
-    dhcp_transaction_id = ((uint32_t)halRNG()<<16) | halRNG();
+    dhcp_transaction_id = ((uint32_t)hal_RNG()<<16) | hal_RNG();
 
     uint8_t * pOpt = (void*)(dhcp->options);
     pOpt += 4;

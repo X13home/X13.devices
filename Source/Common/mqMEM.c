@@ -36,13 +36,6 @@ static size_t mqHeapAct, mqHeapMin, mqHeapMax;
 #endif  // DIAG_USED
 
 
-//////////////////////////////////////////////////////////////
-// general HAL procedures
-void        hal_reboot(void);
-// general HAL procedures
-//////////////////////////////////////////////////////////////
-
-
 void mqInit(void)
 {
     BlockLink_t * pFirstFreeBlock;

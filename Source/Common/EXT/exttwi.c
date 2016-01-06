@@ -27,6 +27,7 @@ volatile TWI_QUEUE_t  * pTwi_exchange = NULL;
 // local queues
 static Queue_t  twi_tx_queue = {NULL, NULL, 4, 0};      // Max Size = 4 records
 
+/*
 //////////////////////////////////////////////////////////////
 // HAL General
 uint16_t hal_get_ms(void);
@@ -36,7 +37,7 @@ void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
 bool hal_twi_configure(uint8_t enable);
 void hal_twi_stop(void);
 void hal_twi_start(void);
-
+*/
 //////////////////////////////////////////////////////////////
 
 e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)

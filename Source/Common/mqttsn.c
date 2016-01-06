@@ -45,10 +45,6 @@ See LICENSE file for license details.
 // Local Variables
 typedef struct
 {
-    uint8_t                     GatewayAddr[sizeof(PHY1_ADDR_t)];   // Gateway Address
-    uint8_t                     GwId;       // Unique Gateway ID
-    uint8_t                     Radius;     // Broadcast Radius
-
     e_MQTTSN_STATUS_t           Status;     // Actual status
     uint16_t                    MsgId;      // Message ID
 
@@ -70,6 +66,9 @@ typedef struct
     MQ_t                      * pMessage;
     uint16_t                    oMsgId;     // Old Message ID for publish
     
+    uint8_t                     GatewayAddr[sizeof(PHY1_ADDR_t)];   // Gateway Address
+    uint8_t                     GwId;       // Unique Gateway ID
+    uint8_t                     Radius;     // Broadcast Radius
 }MQTTSN_VAR_t;
 
 static MQTTSN_VAR_t vMQTTSN;
@@ -82,19 +81,11 @@ static const PHY2_ADDR_t addr2_undef = ADDR_UNDEF_PHY2;
 static const PHY2_ADDR_t addr2_broad = ADDR_BROADCAST_PHY2;
 #endif  //  PHY2_ADDR_t
 
-//////////////////////////////////////////////////////////////
-// general HAL procedures
-uint16_t    halRNG(void);
-void        hal_ASleep(uint16_t duration);
-void        hal_reboot(void);
-// general HAL procedures
-//////////////////////////////////////////////////////////////
-
 // Generate random from Min to Max
 static uint16_t mqttsn_get_random_delay(uint16_t delayMax, uint16_t delayMin)
 {
     uint32_t ulTmp = delayMax - delayMin;
-    ulTmp *= halRNG();
+    ulTmp *= hal_RNG();
   
     return (uint16_t)(ulTmp>>16) + delayMin;
 }
@@ -1031,7 +1022,7 @@ void MQTTSN_Poll(void)
 
             pMessage = mqAlloc(sizeof(MQ_t));
             // Make DHCP request
-            vMQTTSN.MsgId = halRNG();
+            vMQTTSN.MsgId = hal_RNG();
 
             uint8_t Length = 0;
             if(memcmp(PHY1_GetAddr(), &addr1_undef, sizeof(PHY1_ADDR_t)) == 0)

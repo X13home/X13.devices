@@ -11,8 +11,10 @@ extern "C" {
 #error unknown uC Family
 #endif  //  uC Familie
 
-#define ENTER_CRITICAL_SECTION()
-#define LEAVE_CRITICAL_SECTION()
+void halEnterCritical(void);
+void halLeaveCritical(void);
+#define ENTER_CRITICAL_SECTION      halEnterCritical
+#define LEAVE_CRITICAL_SECTION      halLeaveCritical
 
 // Hardware specific options
 #define portBYTE_ALIGNMENT          8
@@ -64,6 +66,10 @@ extern "C" {
 #define DIO_MODE_AF_PP_HS           0x70    // Alternative function, Push/pull, high speed
 #define DIO_MODE_AIN                0x18
 
+// IRQ subroutine
+void SysTick_Handler(void);
+
+// HAL API
 void INIT_SYSTEM(void);
 void StartSheduler(void);
 
@@ -73,6 +79,11 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 
 void _delay_ms(uint16_t ms);
 void _delay_us(uint16_t us);
+
+uint16_t hal_get_ms(void);
+uint32_t hal_get_sec(void);
+#define  hal_reboot     NVIC_SystemReset
+uint16_t hal_RNG(void);
 
 #ifdef __cplusplus
 }

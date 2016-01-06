@@ -51,6 +51,10 @@ extern "C" {
 
 #define inet_addr(d,c,b,a)          (((uint32_t)a<<24) | ((uint32_t)b << 16) | ((uint32_t)c<<8)  | ((uint32_t)d))
 
+// HAL Section
+void hal_enc28j60_init_hw(void);
+uint8_t hal_enc28j60exchg(uint8_t data);
+
 // API Section
 void ENC28J60_Init(void);
 void ENC28J60_Send(void *pBuf);

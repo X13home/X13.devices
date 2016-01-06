@@ -21,12 +21,6 @@ See LICENSE file for license details.
 
 static Queue_t          enc_out_queue = {NULL, NULL, 4, 0};
 
-// external subroutines, defined in enc28j60_net.c
-void eth_filter(uint16_t len, eth_frame_t * pFrame);
-void udp_send(uint16_t len, eth_frame_t *pFrame);
-void enc28j60_init_net(void);
-void dhcp_poll(void);
-
 // Process MQTT-SN Packet
 void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame)
 {
