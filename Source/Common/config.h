@@ -53,8 +53,6 @@ extern "C" {
 #error unknown uC Family
 #endif
 
-//#include "HAL/HW_Common.h"
-
 #include "mqMEM.h"
 #include "mqTypes.h"
 #include "mqttsn.h"
@@ -62,7 +60,10 @@ extern "C" {
 
 #if (defined PHY2_ADDR_t) && (defined ASLEEP)
 #error Incompatible options ASLEEP for Gateway
-#endif  //  
+#endif  //
+
+// Main Tick's
+void SystemTick(void);
 
 #ifdef __cplusplus
 }

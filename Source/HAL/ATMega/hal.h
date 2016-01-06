@@ -8,8 +8,6 @@ extern "C" {
 #include <avr/io.h>
 #include <avr/eeprom.h>
 
-void INIT_SYSTEM(void);
-
 #define ENTER_CRITICAL_SECTION()    asm volatile ( "in      __tmp_reg__, __SREG__" :: );    \
                                     asm volatile ( "cli" :: );                              \
                                     asm volatile ( "push    __tmp_reg__" :: )
@@ -45,6 +43,9 @@ typedef enum
 }DIOmode_e;
 // DIO Section
 //////////////////////////////////////////////////////////////
+
+void INIT_SYSTEM(void);
+void StartSheduler(void);
 
 #ifdef __cplusplus
 }
