@@ -88,10 +88,10 @@ extern "C" {
 // End TWI Section
 
 // LEDs
-//#define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_2
-//#define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR_2
-//#define LED_Init()                  hal_dio_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
-/*
+#define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_2
+#define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR_2
+#define LED_Init()                  hal_dio_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
+
 // ENC Section
 #define HAL_USE_SPI1                1   // SPI1
 #define ENC_USE_SPI                 11  // Config 2, PB3-PB5
@@ -100,10 +100,6 @@ extern "C" {
 
 #define ENC_SELECT()                ENC_NSS_PORT->BRR = ENC_NSS_PIN
 #define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRR = ENC_NSS_PIN;}
-*/
-
-#define ENC_SELECT()
-#define ENC_RELEASE()
 
 #define ENC28J60_PHY                1
 // End ENC Section

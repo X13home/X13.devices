@@ -215,12 +215,3 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 {}
-
-
-void hal_enc28j60_init_hw(void)
-{}
-
-uint8_t hal_enc28j60exchg(uint8_t data)
-{
-    return 0;
-}

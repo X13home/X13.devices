@@ -66,9 +66,37 @@ void halLeaveCritical(void);
 #define DIO_MODE_AF_PP_HS           0x70    // Alternative function, Push/pull, high speed
 #define DIO_MODE_AIN                0x18
 
+void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask);
+void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask);
+
+void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
+
+// DIO Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// SPI Section
+#define HAL_SPI_MODE_0              0
+#define HAL_SPI_MODE_1              1
+#define HAL_SPI_MODE_2              2
+#define HAL_SPI_MODE_3              3
+#define HAL_SPI_MSB                 0
+#define HAL_SPI_LSB                 4
+#define HAL_SPI_8B                  0
+#define HAL_SPI_16B                 8
+
+void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed);
+uint8_t hal_spi_exch8(uint8_t port, uint8_t data);
+uint16_t hal_spi_exch16(uint8_t port, uint16_t data);
+// SPI Section
+//////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////
 // IRQ subroutine
 void SysTick_Handler(void);
 
+//////////////////////////////////////////////////////////////
 // HAL API
 void INIT_SYSTEM(void);
 void StartSheduler(void);
