@@ -58,13 +58,13 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-/*
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
 #define EXTDIO_MAPPING              {17, 16, 7, 6, 5, 4, 27, 26, 10, 9, 12, 11, 3, 2, 1, 0}             // MUST BE ALIGNED TO 4
 // End DIO Section
 
+/*
 // PA4-PA7: 4 - 7
 // PB0-PB1: 8 - 9
 // Analogue Inputs
@@ -90,7 +90,7 @@ extern "C" {
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_2
 #define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR_2
-#define LED_Init()                  hal_dio_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
+#define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
 
 // ENC Section
 #define HAL_USE_SPI1                1   // SPI1

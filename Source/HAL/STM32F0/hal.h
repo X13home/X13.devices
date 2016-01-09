@@ -66,10 +66,15 @@ void halLeaveCritical(void);
 #define DIO_MODE_AF_PP_HS           0x70    // Alternative function, Push/pull, high speed
 #define DIO_MODE_AIN                0x18
 
-void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask);
-void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask);
+void        hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask);
+void        hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask);
+void        hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
 
-void hal_dio_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
+uint8_t     hal_dio_base2pin(uint16_t base);
+void        hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint16_t Mode);
+uint16_t    hal_dio_read(uint8_t PortNr);
+void        hal_dio_set(uint8_t PortNr, uint16_t Mask);
+void        hal_dio_reset(uint8_t PortNr, uint16_t Mask);
 
 // DIO Section
 //////////////////////////////////////////////////////////////

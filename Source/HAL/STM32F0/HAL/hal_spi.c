@@ -64,14 +64,14 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 #if (defined HAL_USE_SPI1)
         case 1:
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-            hal_dio_gpio_cfg(SPI1_PORT, (SPI1_SCK_PIN | SPI1_MISO_PIN | SPI1_MOSI_PIN), DIO_MODE_AF_PP_HS);
+            hal_gpio_cfg(SPI1_PORT, (SPI1_SCK_PIN | SPI1_MISO_PIN | SPI1_MOSI_PIN), DIO_MODE_AF_PP_HS);
             SPIx = SPI1;
             break;
 #endif  //  HAL_USE_SPI1
 #if (defined HAL_USE_SPI1)
         case 11:
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
-            hal_dio_gpio_cfg(SPI11_PORT, (SPI11_SCK_PIN | SPI11_MISO_PIN | SPI11_MOSI_PIN), DIO_MODE_AF_PP_HS);
+            hal_gpio_cfg(SPI11_PORT, (SPI11_SCK_PIN | SPI11_MISO_PIN | SPI11_MOSI_PIN), DIO_MODE_AF_PP_HS);
             SPIx = SPI1;
             break;
 #endif  //  HAL_USE_SPI1
