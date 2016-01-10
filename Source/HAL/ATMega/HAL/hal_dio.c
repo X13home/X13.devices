@@ -79,7 +79,7 @@ uint8_t hal_dio_base2pin(uint16_t base)
     return pgm_read_byte(&hal_dio_sBase2Base[base]);
 }
 
-void hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint16_t Mode)
+void hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint8_t Mode)
 {
 #ifdef EXTDIO_BASE_OFFSET
     PortNr += EXTDIO_BASE_OFFSET;
@@ -99,7 +99,6 @@ void hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint16_t Mode)
             *pDDR  &= ~Mask;
             break;
         case DIO_MODE_OUT_PP:
-//        case DIO_MODE_PWM:
             *pDDR  |= Mask;
             break;
         default:

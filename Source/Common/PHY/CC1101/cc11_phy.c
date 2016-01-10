@@ -147,9 +147,9 @@ static void cc11_tx_task(void)
     if(cc11_tx_delay > 0)
     {
         static uint16_t cc11_ms = 0;
-        if(cc11_ms == hal_get_ms())
+        if(cc11_ms == HAL_get_ms())
             return;
-        cc11_ms = hal_get_ms();
+        cc11_ms = HAL_get_ms();
         cc11_tx_delay--;
         return;
     }
@@ -159,7 +159,7 @@ static void cc11_tx_task(void)
         if(cc11_tx_retry > 0)
         {
             cc11_tx_retry--;
-            cc11_tx_delay = (hal_RNG() & 0x7) + 3;
+            cc11_tx_delay = (HAL_RNG() & 0x7) + 3;
             return;
         }
         //cc11_cmdStrobe(CC11_SIDLE);     // Enter to the IDLE state

@@ -7,12 +7,6 @@
 static const PROGMEM uint8_t hal_pwm_port2dio[] = EXTPWM_PORT2DIO;
 static const PROGMEM uint8_t hal_pwm_port2cfg[] = EXTPWM_PORT2CFG;
 
-//////////////////////////////////////////////////////////////
-// DIO HAL
-void hal_dio_configure(uint8_t PortNr, DIO_PORT_TYPE Mask, uint16_t Mode);
-// DIO HAL
-//////////////////////////////////////////////////////////////
-
 uint8_t hal_pwm_base2dio(uint16_t base)
 {
 #ifdef EXTPWM_BASE_OFFSET

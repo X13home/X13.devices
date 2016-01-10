@@ -61,19 +61,18 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
-#define EXTDIO_MAPPING              {17, 16, 7, 6, 5, 4, 27, 26, 10, 9, 12, 11, 3, 2, 1, 0}             // MUST BE ALIGNED TO 4
+#define EXTDIO_MAPPING              {17, 16, 7, 6, 5, 4, 27, 26, 10, 9, 12, 11, 3, 2, 1, 0}
 // End DIO Section
 
-/*
 // PA4-PA7: 4 - 7
 // PB0-PB1: 8 - 9
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           6
-#define EXTAIN_BASE_2_APIN          {9, 8, 7, 6, 5, 4, 0xFF, 0xFF}                                      // MUST BE ALIGNED TO 4
+#define EXTAIN_BASE_2_APIN          {9, 8, 7, 6, 5, 4}
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
-*/
+
 /*
 // UART Section
 #define HAL_UART_NUM_PORTS          2
@@ -83,6 +82,7 @@ extern "C" {
 #define EXTSER_USED                 2
 // End UART Section
 */
+
 // TWI Section
 //#define EXTTWI_USED                 2       // I2C_Bus 1 - I2C1, 2 - I2C2
 // End TWI Section

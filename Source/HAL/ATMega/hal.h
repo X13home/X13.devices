@@ -21,7 +21,7 @@ extern "C" {
 
 // AVR Architecture specifics.
 #define portBYTE_ALIGNMENT          1
-#define portPOINTER_SIZE_TYPE       uintptr_t
+#define portPOINTER_SIZE_TYPE       uint16_t
 #define configTOTAL_HEAP_SIZE       1024
 
 //////////////////////////////////////////////////////////////
@@ -41,18 +41,24 @@ typedef enum
     
     DIO_MODE_AIN        = 0x18
 }DIOmode_e;
+
+uint8_t     hal_dio_base2pin(uint16_t base);
+void        hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint8_t Mode);
+uint8_t     hal_dio_read(uint8_t PortNr);
+void        hal_dio_set(uint8_t PortNr, uint8_t Mask);
+void        hal_dio_reset(uint8_t PortNr, uint8_t Mask);
+
 // DIO Section
 //////////////////////////////////////////////////////////////
 
-void     INIT_SYSTEM(void);
-void     StartSheduler(void);
-
-uint16_t hal_get_ms(void);
-uint32_t hal_get_sec(void);
-uint16_t hal_RNG(void);
-void     hal_reboot(void);
-
-void     hal_ASleep(uint16_t duration);
+//////////////////////////////////////////////////////////////
+// AIN Section
+uint8_t     hal_ain_apin2dio(uint8_t apin);
+void        hal_ain_configure(uint8_t apin, uint8_t unused);
+void        hal_ain_select(uint8_t apin, uint8_t unused);
+int16_t     hal_ain_get(void);
+// AIN Section
+//////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
 }

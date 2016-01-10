@@ -1,15 +1,5 @@
 #include "config.h"
 
-void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask)
-{
-    GPIOx->BSRR = Mask;
-}
-
-void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask)
-{
-    GPIOx->BRR = Mask;
-}
-
 void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
 {
     uint16_t pinpos;

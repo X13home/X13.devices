@@ -103,9 +103,9 @@ uint8_t twiPollOD(subidx_t * pSubidx, uint8_t sleep)
             if((access & TWI_WD_ARMED) == 0)
             {
                 pTwi_exchange->frame.access |= TWI_WD_ARMED;
-                twi_ms = hal_get_ms();
+                twi_ms = HAL_get_ms();
             }
-            else if((hal_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
+            else if((HAL_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
             {
                 if(access & TWI_BUSY)
                     hal_twi_stop();

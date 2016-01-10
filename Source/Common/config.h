@@ -62,8 +62,17 @@ extern "C" {
 #error Incompatible options ASLEEP for Gateway
 #endif  //
 
+// Common HAL Section
+void        HAL_Init(void);
+void        HAL_StartSystemTick(void);
+uint16_t    HAL_RNG(void);
+uint16_t    HAL_get_ms(void);
+uint32_t    HAL_get_sec(void);
+void        HAL_ASleep(uint16_t duration);
+void        HAL_Reboot(void);
+
 // Main Tick's
-void SystemTick(void);
+void        SystemTick(void);
 
 #ifdef __cplusplus
 }

@@ -45,8 +45,14 @@ static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)
     *pMask = mask;
 }
 
+// ignore some GCC warnings
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 // Write DIO Object's
-static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t *pBuf)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
@@ -67,6 +73,21 @@ static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
     return MQTTSN_RET_ACCEPTED;
 }
 
+// Poll Procedure
+static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t unused)
+{
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    dioPin2hw(pin, &port, &mask);
+
+    return ((dio_change_flag[port] & mask) != 0);
+}
+
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
+
 // Read digital Inputs
 static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
@@ -83,17 +104,6 @@ static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
     *pLen = 1;
     *pBuf = ((state & mask) != 0) ? 1 : 0;
     return MQTTSN_RET_ACCEPTED;
-}
-
-// Poll Procedure
-static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t sleep)
-{
-    uint8_t port;
-    DIO_PORT_TYPE mask;
-    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
-    dioPin2hw(pin, &port, &mask);
-
-    return ((dio_change_flag[port] & mask) != 0);
 }
 
 ///////////////////////////////////////////////////////////////////////

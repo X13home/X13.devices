@@ -22,10 +22,6 @@ typedef struct S_BLOCK_LINK
 #define configADJUSTED_HEAP_SIZE    (configTOTAL_HEAP_SIZE - portBYTE_ALIGNMENT)
 #define heapSTRUCT_SIZE ((uint16_t)((sizeof(BlockLink_t) + (portBYTE_ALIGNMENT - 1)) & ~portBYTE_ALIGNMENT_MASK))
 
-#ifndef portPOINTER_SIZE_TYPE
-#define portPOINTER_SIZE_TYPE   uint32_t
-#endif  //  portPOINTER_SIZE_TYPE
-
 // Allocate the memory for the heap.
 static uint8_t mqMemHeap[configTOTAL_HEAP_SIZE];
 // Create a couple of list links to mark the start and end of the list.
@@ -82,7 +78,7 @@ void * mqAlloc(size_t xWantedSize)
     }
 
     if(xWantedSize >= configADJUSTED_HEAP_SIZE)     // memory Overflow
-        hal_reboot();
+        HAL_Reboot();
 
     // Blocks are stored in byte order - traverse the list from the start
     //  (smallest) block until one of adequate size is found.
@@ -130,7 +126,7 @@ void * mqAlloc(size_t xWantedSize)
 #endif  //  DIAG_USED
     }
     else    //  Memory overflow
-        hal_reboot();
+        HAL_Reboot();
 
     LEAVE_CRITICAL_SECTION();
 

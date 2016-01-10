@@ -18,7 +18,7 @@ static volatile uint8_t SystemTickCnt;
 int main(void)
 {
     // Initialise System Hardware
-    INIT_SYSTEM();
+    HAL_Init();
     // Initialise Memory manager
     mqInit();
     // Initialise Object's Dictionary
@@ -40,9 +40,9 @@ int main(void)
 
     SystemTickCnt = 0;
 
-    StartSheduler();
+    HAL_StartSystemTick();
   
-    while(1)
+    for(;;)
     {
         if(SystemTickCnt)
         {

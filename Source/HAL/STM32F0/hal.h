@@ -18,6 +18,7 @@ void halLeaveCritical(void);
 
 // Hardware specific options
 #define portBYTE_ALIGNMENT          8
+#define portPOINTER_SIZE_TYPE       uint32_t
 #define configTOTAL_HEAP_SIZE       2048
 
 //////////////////////////////////////////////////////////////
@@ -66,8 +67,15 @@ void halLeaveCritical(void);
 #define DIO_MODE_AF_PP_HS           0x70    // Alternative function, Push/pull, high speed
 #define DIO_MODE_AIN                0x18
 
-void        hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask);
-void        hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask);
+__attribute__( ( always_inline ) ) __STATIC_INLINE void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask)
+{
+    GPIOx->BSRR = Mask;
+}
+
+__attribute__( ( always_inline ) ) __STATIC_INLINE void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask)
+{
+    GPIOx->BRR = Mask;
+}
 void        hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
 
 uint8_t     hal_dio_base2pin(uint16_t base);
@@ -90,12 +98,20 @@ void        hal_dio_reset(uint8_t PortNr, uint16_t Mask);
 #define HAL_SPI_8B                  0
 #define HAL_SPI_16B                 8
 
-void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed);
-uint8_t hal_spi_exch8(uint8_t port, uint8_t data);
-uint16_t hal_spi_exch16(uint8_t port, uint16_t data);
+void        hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed);
+uint8_t     hal_spi_exch8(uint8_t port, uint8_t data);
+uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
 // SPI Section
 //////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////
+// AIN Section
+uint8_t     hal_ain_apin2dio(uint8_t apin);
+void        hal_ain_configure(uint8_t apin, uint8_t unused);
+void        hal_ain_select(uint8_t apin, uint8_t unused);
+int16_t     hal_ain_get(void);
+// AIN Section
+//////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
 // IRQ subroutine
@@ -103,9 +119,6 @@ void SysTick_Handler(void);
 
 //////////////////////////////////////////////////////////////
 // HAL API
-void INIT_SYSTEM(void);
-void StartSheduler(void);
-
 void eeprom_init_hw(void);
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
@@ -113,10 +126,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void _delay_ms(uint16_t ms);
 void _delay_us(uint16_t us);
 
-uint16_t hal_get_ms(void);
-uint32_t hal_get_sec(void);
-#define  hal_reboot     NVIC_SystemReset
-uint16_t hal_RNG(void);
+#define  HAL_Reboot     NVIC_SystemReset
 
 #ifdef __cplusplus
 }

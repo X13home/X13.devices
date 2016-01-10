@@ -22,7 +22,7 @@ static const GPIO_TypeDef * dio_pGPIOx[] =
     NULL
 };
 
-static const hal_dio_sBase2Base[] = EXTDIO_MAPPING;
+static const __attribute__ ((aligned (4))) uint8_t hal_dio_sBase2Base[] = EXTDIO_MAPPING;
 
 static GPIO_TypeDef * dioPortNr2GPIOx(uint8_t PortNr)
 {

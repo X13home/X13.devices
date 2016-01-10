@@ -67,7 +67,7 @@ void enc28j60_init_net(void)
     {
         ip_addr = 0;
         dhcp_status = DHCP_INIT;
-        dhcp_retry_time = hal_get_sec() + 1;
+        dhcp_retry_time = HAL_get_sec() + 1;
     }
 #endif
 }
@@ -623,7 +623,7 @@ dhcp_filter_lbl1:
 
         dhcp_status = DHCP_ASSIGNED;
         dhcp_server = renew_server;
-        dhcp_retry_time = hal_get_sec() + renew_time;
+        dhcp_retry_time = HAL_get_sec() + renew_time;
 
         // network up
         memcpy(&ip_addr, dhcp->offered_addr, 4);
@@ -640,7 +640,7 @@ void dhcp_poll(void)
     if(dhcp_status == DHCP_DISABLED)
         return;
 
-    uint32_t tick_sec = hal_get_sec();
+    uint32_t tick_sec = HAL_get_sec();
 
 #ifdef LED_On
     if((dhcp_status != DHCP_ASSIGNED) && ((tick_sec & 0x00000001) != 0))
@@ -668,7 +668,7 @@ void dhcp_poll(void)
 
     for(ucTmp = 0; ucTmp < sizeof(dhcp_message_t); ucTmp++)   udp->data[ucTmp] = 0;
         
-    dhcp_transaction_id = ((uint32_t)hal_RNG()<<16) | hal_RNG();
+    dhcp_transaction_id = ((uint32_t)HAL_RNG()<<16) | HAL_RNG();
 
     uint8_t * pOpt = (void*)(dhcp->options);
     pOpt += 4;

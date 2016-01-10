@@ -27,10 +27,7 @@
 #error Check F_CPU
 #endif
 
-// System Tick subroutine, defined in main.c
-void SystemTick(void);
-
-void INIT_SYSTEM(void)
+void HAL_Init(void)
 {
     cli();
 
@@ -39,7 +36,7 @@ void INIT_SYSTEM(void)
     wdt_disable();
 }
 
-void StartSheduler(void)
+void HAL_StartSystemTick(void)
 {
     TCCR2A = (1<<WGM21);
     TCNT2 = 0;
@@ -52,7 +49,7 @@ void StartSheduler(void)
 }
 
 // Generate pseudo random uint16
-uint16_t hal_RNG(void)
+uint16_t HAL_RNG(void)
 {
     static uint16_t rand16 = 0xA15E;
 
@@ -71,12 +68,12 @@ uint16_t hal_RNG(void)
 static volatile uint16_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;        // Max Uptime 136 Jr.
 
-uint16_t hal_get_ms(void)
+uint16_t HAL_get_ms(void)
 {
     return hal_ms_counter;
 }
 
-uint32_t hal_get_sec(void)
+uint32_t HAL_get_sec(void)
 {
     return hal_sec_counter;
 }
@@ -110,7 +107,7 @@ ISR(WDT_vect)
     hal_ms_counter += 8000;
 }
 
-void hal_ASleep(uint16_t duration)
+void HAL_ASleep(uint16_t duration)
 {
     duration >>= 3; // Minimal Sleep Time 8S
 
@@ -151,7 +148,7 @@ void hal_ASleep(uint16_t duration)
 }
 #endif  //  ASLEEP
 
-void hal_reboot(void)
+void HAL_Reboot(void)
 {
 #ifdef LED1_On
     LED1_On();
@@ -164,5 +161,4 @@ void hal_reboot(void)
     cli();
     wdt_enable(WDTO_250MS);
     while(1);
-    
 }

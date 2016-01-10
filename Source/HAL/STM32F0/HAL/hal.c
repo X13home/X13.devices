@@ -71,7 +71,7 @@ void halLeaveCritical(void)
         __enable_irq();
 }
 
-void INIT_SYSTEM(void)
+void HAL_Init(void)
 {
     // Set Core Clock
     SetSysClock();
@@ -81,7 +81,7 @@ void INIT_SYSTEM(void)
     CriticalNesting = 0;
 }
 
-void StartSheduler(void)
+void HAL_StartSystemTick(void)
 {
     if(SysTick_Config((SystemCoreClock / 1000) - 1UL))
         while(1);
@@ -90,16 +90,33 @@ void StartSheduler(void)
     __enable_irq();
 }
 
+// Generate pseudo random uint16
+uint16_t HAL_RNG(void)
+{
+    static uint16_t rand16 = 0xA15E;
 
-uint16_t hal_get_ms(void)
+    // Galois LFSRs
+    if(rand16 & 1)
+    {
+        rand16 >>= 1;
+        rand16 ^= 0xB400;
+    }
+    else
+        rand16 >>= 1;
+  
+    return rand16;
+}
+
+uint16_t HAL_get_ms(void)
 {
     return hal_ms_counter;
 }
 
-uint32_t hal_get_sec(void)
+uint32_t HAL_get_sec(void)
 {
     return hal_sec_counter;
 }
+
 
 void _delay_ms(uint16_t ms)
 {
@@ -140,25 +157,8 @@ void _delay_us(uint16_t us)
         ticks--;
 }
 
-// Generate pseudo random uint16
-uint16_t hal_RNG(void)
-{
-    static uint16_t rand16 = 0xA15E;
-
-    // Galois LFSRs
-    if(rand16 & 1)
-    {
-        rand16 >>= 1;
-        rand16 ^= 0xB400;
-    }
-    else
-        rand16 >>= 1;
-  
-    return rand16;
-}
-
 #ifdef ASLEEP
-void hal_ASleep(uint16_t duration)
+void HAL_ASleep(uint16_t duration)
 {
     // ToDo ASleep dummy function
 

@@ -13,31 +13,6 @@ See LICENSE file for license details.
 #include "config.h"
 #include "ext.h"
 
-#ifdef EXTDIO_USED
-#include "EXT/extdio.h"
-
-#ifdef EXTPWM_USED
-#include "EXT/extpwm.h"
-#endif  //  EXTPWM_USED
-
-#ifdef EXTAIN_USED
-#include "EXT/extain.h"
-#endif  //  EXTAIN_USED
-
-#endif  //  EXTDIO_USED
-
-#ifdef EXTTWI_USED
-#include "EXT/exttwi.h"
-#endif  //  EXTTWI_USED
-
-#ifdef EXTSER_USED
-#include "EXT/extser.h"
-#endif  //  EXTSER_USED
-
-#ifdef EXTPLC_USED
-#include "EXT/extplc.h"
-#endif  //  EXTPLC_USED
-
 // Initialise extensions
 void extInit(void)
 {

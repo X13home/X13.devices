@@ -152,7 +152,13 @@ static e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
     return MQTTSN_RET_ACCEPTED;
 }
 
-static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+// ignore some GCC warnings
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
+static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t *pBuf)
 {
     // Prevent hard fault on ARM
     uint16_t val = pBuf[1];
@@ -169,10 +175,14 @@ static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
 }
 
 // Poll Procedure
-static uint8_t ainPollOD(subidx_t * pSubidx, uint8_t sleep)
+static uint8_t ainPollOD(subidx_t * pSubidx, uint8_t unused)
 {
     return ain_check_mask((uint8_t)(pSubidx->Base & 0xFF));
 }
+
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 // Register analogue input
 e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)

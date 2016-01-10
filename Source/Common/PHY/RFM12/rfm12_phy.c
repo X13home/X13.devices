@@ -98,9 +98,9 @@ static void rfm12_tx_task(void)
     // CDMA
     if(rfm12_tx_delay > 0)
     {
-        if(rfm12_ms == hal_get_ms())
+        if(rfm12_ms == HAL_get_ms())
             return;
-        rfm12_ms = hal_get_ms();
+        rfm12_ms = HAL_get_ms();
         rfm12_tx_delay--;
         return;
     }
@@ -111,7 +111,7 @@ static void rfm12_tx_task(void)
         if(rfm12_tx_retry > 0)
         {
             rfm12_tx_retry--;
-            rfm12_tx_delay = (hal_RNG() & 0x7) + 3;
+            rfm12_tx_delay = (HAL_RNG() & 0x7) + 3;
             return;
         }
     }
