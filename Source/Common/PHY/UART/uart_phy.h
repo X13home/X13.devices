@@ -50,13 +50,6 @@ See LICENSE file for license details.
 
 #endif  //  RF_ADDR_t
 
-// HAL Section
-void    hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable);
-bool    hal_uart_free(uint8_t port);
-void    hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
-bool    hal_uart_datardy(uint8_t port);
-uint8_t hal_uart_get(uint8_t port);
-
 // API Section
 void    UART_Init(void);
 void    UART_Send(void *pBuf);

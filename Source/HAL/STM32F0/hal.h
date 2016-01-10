@@ -114,8 +114,39 @@ int16_t     hal_ain_get(void);
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
-// IRQ subroutine
-void SysTick_Handler(void);
+// TWI Section
+
+#if (EXTTWI_USED == 1)
+void I2C1_IRQHandler(void);
+#else   // 
+void I2C2_IRQHandler(void);
+#endif
+
+void        hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
+bool        hal_twi_configure(uint8_t enable);
+void        hal_twi_stop(void);
+void        hal_twi_start(void);
+// TWI Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// UART Section
+void        USART1_IRQHandler(void);
+void        USART2_IRQHandler(void);
+
+void        hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
+void        hal_uart_deinit(uint8_t port);
+void        hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable);
+bool        hal_uart_free(uint8_t port);
+void        hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
+bool        hal_uart_datardy(uint8_t port);
+uint8_t     hal_uart_get(uint8_t port);
+// UART Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// SysTick IRQ subroutine
+void        SysTick_Handler(void);
 
 //////////////////////////////////////////////////////////////
 // HAL API

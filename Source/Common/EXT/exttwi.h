@@ -43,12 +43,6 @@ typedef struct sTWI_QUEUE
     TWI_FRAME_t frame;
 }TWI_QUEUE_t;
 
-// HAL Section
-void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
-bool hal_twi_configure(uint8_t enable);
-void hal_twi_stop(void);
-void hal_twi_start(void);
-
 // TWI API
 void twiInit(void);
 

@@ -25,14 +25,14 @@ See LICENSE file for license details.
 
 typedef struct
 {
-    uint8_t     nBaud;
-    uint8_t     flags;
-
     uint8_t   * pRxBuf;
+    MQ_t      * pTxBuf;
+
     uint8_t     RxHead;
     uint8_t     RxTail;
 
-    MQ_t      * pTxBuf;
+    uint8_t     nBaud;
+    uint8_t     flags;
 }EXTSER_VAR_t;
 
 static EXTSER_VAR_t * extSerV[EXTSER_USED] = {NULL,};
@@ -124,8 +124,14 @@ e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 
+// ignore some GCC warnings
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 // Poll Procedure
-uint8_t serPollOD(subidx_t * pSubidx, uint8_t sleep)
+uint8_t serPollOD(subidx_t * pSubidx, uint8_t unused)
 {
     uint8_t port = pSubidx->Base/10;
     
@@ -143,6 +149,10 @@ uint8_t serPollOD(subidx_t * pSubidx, uint8_t sleep)
     
     return 0;
 }
+
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 // Register Object
 e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)

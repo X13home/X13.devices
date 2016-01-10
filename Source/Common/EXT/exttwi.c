@@ -27,7 +27,13 @@ volatile TWI_QUEUE_t  * pTwi_exchange = NULL;
 // local queues
 static Queue_t  twi_tx_queue = {NULL, NULL, 4, 0};      // Max Size = 4 records
 
-e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+// ignore some GCC warnings
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
+static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pUnused, uint8_t *pLen, uint8_t *pBuf)
 {
     if(pTwi_exchange == NULL)
         return MQTTSN_RET_REJ_CONG;
@@ -39,7 +45,7 @@ e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 
-e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pUnused, uint8_t Len, uint8_t *pBuf)
 {
     if(Len < sizeof(TWI_FRAME_t))
         return MQTTSN_RET_REJ_NOT_SUPP;
@@ -75,7 +81,7 @@ e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 
-uint8_t twiPollOD(subidx_t * pSubidx, uint8_t sleep)
+static uint8_t twiPollOD(subidx_t * pUnused, uint8_t unused)
 {
     if(pTwi_exchange != NULL)
     {
@@ -125,6 +131,10 @@ uint8_t twiPollOD(subidx_t * pSubidx, uint8_t sleep)
 
     return 0;
 }
+
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 void twiInit()
 {

@@ -47,7 +47,6 @@ void        hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint8_t Mode);
 uint8_t     hal_dio_read(uint8_t PortNr);
 void        hal_dio_set(uint8_t PortNr, uint8_t Mask);
 void        hal_dio_reset(uint8_t PortNr, uint8_t Mask);
-
 // DIO Section
 //////////////////////////////////////////////////////////////
 
@@ -58,6 +57,27 @@ void        hal_ain_configure(uint8_t apin, uint8_t unused);
 void        hal_ain_select(uint8_t apin, uint8_t unused);
 int16_t     hal_ain_get(void);
 // AIN Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// TWI Section
+void        hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
+bool        hal_twi_configure(uint8_t enable);
+void        hal_twi_stop(void);
+void        hal_twi_start(void);
+// TWI Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// UART Section
+void        hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
+void        hal_uart_deinit(uint8_t port);
+void        hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable);
+bool        hal_uart_free(uint8_t port);
+void        hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
+bool        hal_uart_datardy(uint8_t port);
+uint8_t     hal_uart_get(uint8_t port);
+// UART Section
 //////////////////////////////////////////////////////////////
 
 #ifdef __cplusplus
