@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<Project version="2G - 1.7.8" name="S2xxxx">
+  <Target name="S2En13" isCurrent="1">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="4"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value=""/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Includepaths>
+          <Includepath path="."/>
+          <Includepath path="hal/arm/cmsis"/>
+          <Includepath path="common"/>
+          <Includepath path="hal"/>
+          <Includepath path="hal/cmsis/include"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="STM32F0"/>
+          <Define name="STM32F051x8"/>
+          <Define name="CFG_S2En13"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="0"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Not use C Library"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00010000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00002000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="hal/stm32f0/ldscript/stm32f051c8_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="S2En13"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="./stm32f05xx_64.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
+  <Components path="./"/>
+  <Files>
+    <File name="Common/diag.c" path="Common/diag.c" type="1"/>
+    <File name="Common/PHY/ENC28J60" path="" type="2"/>
+    <File name="Common/mqTypes.h" path="Common/mqTypes.h" type="1"/>
+    <File name="Common/mqttsn.c" path="Common/mqttsn.c" type="1"/>
+    <File name="Common/PHY" path="" type="2"/>
+    <File name="Common/PHY/ENC28J60/enc28j60_net.c" path="Common/PHY/ENC28J60/enc28j60_net.c" type="1"/>
+    <File name="Common/ObjDict.c" path="Common/ObjDict.c" type="1"/>
+    <File name="Common/PHY/ENC28J60/enc28j60_def.h" path="Common/PHY/ENC28J60/enc28j60_def.h" type="1"/>
+    <File name="Common/PHY/ENC28J60/enc28j60_hw.c" path="Common/PHY/ENC28J60/enc28j60_hw.c" type="1"/>
+    <File name="Common/PHY/ENC28J60/enc28j60_phy.h" path="Common/PHY/ENC28J60/enc28j60_phy.h" type="1"/>
+    <File name="HAL/HAL/hal_dio.c" path="HAL/STM32F0/HAL/hal_dio.c" type="1"/>
+    <File name="Common/EXT/extain.h" path="Common/EXT/extain.h" type="1"/>
+    <File name="HAL/CMSIS/include/stm32f0xx.h" path="HAL/STM32F0/CMSIS/include/stm32f0xx.h" type="1"/>
+    <File name="HAL/S2xxxx/S2EC13.h" path="HAL/STM32F0/S2xxxx/S2EC13.h" type="1"/>
+    <File name="HAL/S2xxxx/S2Cn13.h" path="HAL/STM32F0/S2xxxx/S2Cn13.h" type="1"/>
+    <File name="Common/mqMEM.c" path="Common/mqMEM.c" type="1"/>
+    <File name="CMSIS" path="" type="2"/>
+    <File name="HAL/CMSIS/source/system_stm32f0xx.c" path="HAL/STM32F0/CMSIS/source/system_stm32f0xx.c" type="1"/>
+    <File name="HAL/HAL/hal_uart.c" path="HAL/STM32F0/HAL/hal_uart.c" type="1"/>
+    <File name="Common/EXT/extser.c" path="Common/EXT/extser.c" type="1"/>
+    <File name="Common/ext.h" path="Common/ext.h" type="1"/>
+    <File name="Common/EXT/extpwm.h" path="Common/EXT/extpwm.h" type="1"/>
+    <File name="CMSIS/cmsis_gcc.h" path="HAL/ARM/CMSIS/cmsis_gcc.h" type="1"/>
+    <File name="Common/EXT/exttwi.h" path="Common/EXT/exttwi.h" type="1"/>
+    <File name="Common/EXT/extdio.c" path="Common/EXT/extdio.c" type="1"/>
+    <File name="Common/config.h" path="Common/config.h" type="1"/>
+    <File name="Common/ObjDict.h" path="Common/ObjDict.h" type="1"/>
+    <File name="Common/EXT/extser.h" path="Common/EXT/extser.h" type="1"/>
+    <File name="CMSIS/core_cm0.h" path="HAL/ARM/CMSIS/core_cm0.h" type="1"/>
+    <File name="HAL/CMSIS/include" path="" type="2"/>
+    <File name="Common/main.c" path="Common/main.c" type="1"/>
+    <File name="HAL/HAL/hal_enc28j60.c" path="HAL/STM32F0/HAL/hal_enc28j60.c" type="1"/>
+    <File name="Common/diag.h" path="Common/diag.h" type="1"/>
+    <File name="HAL/CMSIS/include/stm32f051x8.h" path="HAL/STM32F0/CMSIS/include/stm32f051x8.h" type="1"/>
+    <File name="CMSIS/core_cmInstr.h" path="HAL/ARM/CMSIS/core_cmInstr.h" type="1"/>
+    <File name="Common/PHY/ENC28J60/enc28j60_phy.c" path="Common/PHY/ENC28J60/enc28j60_phy.c" type="1"/>
+    <File name="HAL/hal.h" path="HAL/STM32F0/hal.h" type="1"/>
+    <File name="HAL/HW_STM32F0.h" path="HAL/STM32F0/HW_STM32F0.h" type="1"/>
+    <File name="HAL" path="" type="2"/>
+    <File name="HAL/S2xxxx/S2En13.h" path="HAL/STM32F0/S2xxxx/S2En13.h" type="1"/>
+    <File name="CMSIS/core_cmFunc.h" path="HAL/ARM/CMSIS/core_cmFunc.h" type="1"/>
+    <File name="Common" path="" type="2"/>
+    <File name="HAL/HAL/hal_twi.c" path="HAL/STM32F0/HAL/hal_twi.c" type="1"/>
+    <File name="HAL/CMSIS/source/gcc/startup_stm32f051x8.S" path="HAL/STM32F0/CMSIS/source/gcc/startup_stm32f051x8.S" type="1"/>
+    <File name="Common/EXT/extain.c" path="Common/EXT/extain.c" type="1"/>
+    <File name="HAL/HAL/hal_gpio.c" path="HAL/STM32F0/HAL/hal_gpio.c" type="1"/>
+    <File name="Common/EXT/extpwm.c" path="Common/EXT/extpwm.c" type="1"/>
+    <File name="HAL/HAL/hal_spi.c" path="HAL/STM32F0/HAL/hal_spi.c" type="1"/>
+    <File name="Common/EXT" path="" type="2"/>
+    <File name="HAL/HAL/hal_eeprom_flash.c" path="HAL/STM32F0/HAL/hal_eeprom_flash.c" type="1"/>
+    <File name="HAL/HAL/hal_ain.c" path="HAL/STM32F0/HAL/hal_ain.c" type="1"/>
+    <File name="HAL/CMSIS/include/system_stm32f0xx.h" path="HAL/STM32F0/CMSIS/include/system_stm32f0xx.h" type="1"/>
+    <File name="Common/EXT/exttwi.c" path="Common/EXT/exttwi.c" type="1"/>
+    <File name="Common/mqttsn.h" path="Common/mqttsn.h" type="1"/>
+    <File name="Common/PHY/ENC28J60/enc28j60_net.h" path="Common/PHY/ENC28J60/enc28j60_net.h" type="1"/>
+    <File name="HAL/CMSIS/source" path="" type="2"/>
+    <File name="HAL/S2xxxx" path="" type="2"/>
+    <File name="Common/ext.c" path="Common/ext.c" type="1"/>
+    <File name="Common/PHY/ENC28J60/enc28j60_hw.h" path="Common/PHY/ENC28J60/enc28j60_hw.h" type="1"/>
+    <File name="Common/mqMEM.h" path="Common/mqMEM.h" type="1"/>
+    <File name="HAL/CMSIS/source/gcc" path="" type="2"/>
+    <File name="HAL/HAL/hal.c" path="HAL/STM32F0/HAL/hal.c" type="1"/>
+    <File name="HAL/CMSIS" path="" type="2"/>
+    <File name="HAL/HAL" path="" type="2"/>
+    <File name="Common/EXT/extdio.h" path="Common/EXT/extdio.h" type="1"/>
+  </Files>
+</Project>
