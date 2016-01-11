@@ -78,7 +78,7 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 #if (defined HAL_USE_SPI2)
         case 2:
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
-            hal_dio_gpio_cfg(SPI2_PORT, (SPI2_SCK_PIN | SPI2_MISO_PIN | SPI2_MOSI_PIN), DIO_MODE_AF_PP_HS);
+            hal_gpio_cfg(SPI2_PORT, (SPI2_SCK_PIN | SPI2_MISO_PIN | SPI2_MOSI_PIN), DIO_MODE_AF_PP_HS);
             SPIx = SPI2;
             break;
 #endif  //  HAL_USE_SPI2

@@ -17,11 +17,11 @@ See LICENSE file for license details.
 
 // STM32F051R8T6
 #if   (defined CFG_S2EC13)
-#include "S2EC13.h"    // ENC28J60 + CC1101
+#include "S2xxxx/S2EC13.h"    // ENC28J60 + CC1101
 #elif   (defined CFG_S2En13)
 #include "S2xxxx/S2En13.h"    // ENC28J60
 #elif   (defined CFG_S2Cn13)
-#include "S2Cn13.h"    // CC1101
+#include "S2xxxx/S2Cn13.h"    // CC1101
 #else
 #error Unknown configuration
 #endif  //  Configuration

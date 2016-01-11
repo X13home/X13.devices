@@ -59,18 +59,10 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#ifdef OD_MAX_INDEX_LIST
-#undef OD_MAX_INDEX_LIST
-#endif  // OD_MAX_INDEX_LIST
-
-#define OD_MAX_INDEX_LIST           40
-
-#include "STM32/hal.h"
-
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
-#define EXTDIO_MAPPING              {17, 16, 7, 6, 5, 4, 27, 26, 10, 9, 12, 11, 3, 2, 1, 0}             // MUST BE ALIGNED TO 4
+#define EXTDIO_MAPPING              {17, 16, 7, 6, 5, 4, 27, 26, 10, 9, 12, 11, 3, 2, 1, 0}
 // End DIO Section
 
 // PA4-PA7: 4 - 7
@@ -78,11 +70,10 @@ extern "C" {
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           6
-#define EXTAIN_BASE_2_APIN          {9, 8, 7, 6, 5, 4, 0xFF, 0xFF}                                      // MUST BE ALIGNED TO 4
+#define EXTAIN_BASE_2_APIN          {9, 8, 7, 6, 5, 4}
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
-/*
 // UART Section
 #define HAL_UART_NUM_PORTS          2
 #define HAL_USE_USART1              0           // Mapping to logical port
@@ -90,7 +81,7 @@ extern "C" {
 
 #define EXTSER_USED                 2
 // End UART Section
-*/
+
 // TWI Section
 #define EXTTWI_USED                 2       // I2C_Bus 1 - I2C1, 2 - I2C2
 // End TWI Section
@@ -98,7 +89,7 @@ extern "C" {
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_2
 #define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR_2
-#define LED_Init()                  hal_dio_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
+#define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
 
 // ENC Section
 #define HAL_USE_SPI1                1   // SPI1
@@ -132,7 +123,7 @@ extern "C" {
 // End CC11 Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           40
+#define OD_MAX_INDEX_LIST           20
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '2'
 #define OD_DEV_PHY1                 'E'
@@ -146,8 +137,8 @@ extern "C" {
 //#define OD_DEF_IP_ROUTER            inet_addr(192,168,10,1)
 //#define OD_DEF_IP_BROKER            inet_addr(192,168,20,8)
 
-#include "../PHY/ENC28J60/enc28j60_phy.h"
-#include "../PHY/CC1101/cc11_phy.h"
+#include "PHY/ENC28J60/enc28j60_phy.h"
+#include "PHY/CC1101/cc11_phy.h"
 
 #ifdef __cplusplus
 }
