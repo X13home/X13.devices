@@ -80,6 +80,8 @@ uint8_t     hal_uart_get(uint8_t port);
 // UART Section
 //////////////////////////////////////////////////////////////
 
+#include "HW_ATMega.h"
+
 #ifdef __cplusplus
 }
 #endif

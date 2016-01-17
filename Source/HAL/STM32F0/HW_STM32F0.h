@@ -13,8 +13,6 @@ See LICENSE file for license details.
 #ifndef HW_STM32F0_H
 #define HW_STM32F0_H
 
-#include "hal.h"
-
 // STM32F051R8T6
 #if   (defined CFG_S2EC13)
 #include "S2xxxx/S2EC13.h"    // ENC28J60 + CC1101

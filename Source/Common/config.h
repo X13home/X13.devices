@@ -42,17 +42,7 @@ extern "C" {
 #define UART_BaudRate                   38400
 #define RF_BASE_FREQ                    868300000UL
 
-// Include Hardware definitions
-// Atmel
-// ATM328P
-#if (defined __AVR_MEGA__)
-#include "HW_ATMega.h"
-#elif (defined STM32F0)
-#include "HW_STM32F0.h"
-#else
-#error unknown uC Family
-#endif
-
+#include "hal.h"
 #include "mqMEM.h"
 #include "mqTypes.h"
 #include "mqttsn.h"
