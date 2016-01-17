@@ -1,12 +1,18 @@
-// EEPROM emulation for STM32F0/STM32F1
+// EEPROM emulation for STM32F0
 
 #include "config.h"
+
+#if (defined STM32F051x8)
 
 #define FEE_BASE_ADDRESS            (uint32_t)0x0800F000    // Base for 'EEPROM'
 #define FEE_SECTOR_SIZE             (uint32_t)0x00000400    // Size of FLASH Sectors
 
 #define FEE_EEPROM_SIZE             (uint32_t)0x00000800    // Size of 'EEPROM'
 #define FEE_MIRROR_NUMBER           (uint8_t)2
+
+#else
+#error Unknown uC
+#endif
 
 #define FEE_SECTORS                 (uint16_t)(FEE_EEPROM_SIZE / FEE_SECTOR_SIZE)
 
