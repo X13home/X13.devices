@@ -158,8 +158,8 @@ enum
 #endif  //  RF_ADDR_t
 
 #ifdef EXTPLC_USED
-    eePLCprogram,
-    eePLCprogram_body = eePLCprogram + PLC_SIZEOF_EEPROM - 1,
+//    eePLCprogram,
+//    eePLCprogram_body = eePLCprogram + PLC_SIZEOF_EEPROM - 1,
 #endif  //  EXTPLC_USED
 
     eeNextFreeAddress

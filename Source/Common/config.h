@@ -39,6 +39,8 @@ extern "C" {
 
 #define OD_DEF_ADC_AVERAGE              80
 
+#define EXTPLC_USED                     1
+
 #define UART_BaudRate                   38400
 #define RF_BASE_FREQ                    868300000UL
 
