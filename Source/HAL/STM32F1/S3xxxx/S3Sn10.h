@@ -53,7 +53,7 @@ See LICENSE file for license details.
 //  29  PB13    30      SCLK2
 //  30  PB14    29      MISO2
 //  31  PB15    28      MOSI2
-// GPIOC - Not Used
+// GPIOC
 //  45  PC13    14
 //  46  PC14    13      OSC32 In
 //  47  PC15    12      OSC32 Out
@@ -62,13 +62,49 @@ See LICENSE file for license details.
 //  49  PD1             OSC Out 8M
 
 
+
+//  27  PB11    0 
+//  26  PB10    1 
+//  18  PB2     2 
+//  16  PB0     3 
+//   7  PA7     4 
+//   6  PA6     5 
+//   5  PA5     6 
+//   4  PA4     7 
+//   3  PA3     8 
+//   2  PA2     9 
+//   1  PA1     10
+//   0  PA0     11
+//  47  PC15    12
+//  46  PC14    13
+//  45  PC13    14
+//  23  PB7     15
+//  22  PB6     16
+//  21  PB5     17
+//  20  PB4     18
+//  19  PB3     19
+//  15  PA15    20
+//  14  PA14    21  *
+//  13  PA13    22  *
+//  12  PA12    23
+//  11  PA11    24
+//  10  PA10    25  *
+//   9  PA9     26  *
+//   8  PA8     27
+//  31  PB15    28
+//  30  PB14    29
+//  29  PB13    30
+//  28  PB12    31
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#ifdef OD_MAX_INDEX_LIST
-#undef OD_MAX_INDEX_LIST
-#endif  // OD_MAX_INDEX_LIST
+// DIO Section
+#define EXTDIO_USED                 1
+#define EXTDIO_MAXPORT_NR           3
+#define EXTDIO_MAPPING              {27, 26, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0, 47, 46, 45, 23, 22, 21, 20, 19, 15, 0xFF, 0xFF, 12, 11, 0xFF, 0xFF, 8, 31, 30, 29, 28}
+// End DIO Section
 
 // UART PHY Section
 #define HAL_UART_NUM_PORTS          1
@@ -80,7 +116,7 @@ extern "C" {
 // End UART PHY Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           20
+#define OD_MAX_INDEX_LIST           40
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '3'
 #define OD_DEV_PHY1                 'S'
