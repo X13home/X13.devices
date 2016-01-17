@@ -71,11 +71,12 @@ extern "C" {
 #endif  // OD_MAX_INDEX_LIST
 
 // UART PHY Section
+#define HAL_UART_NUM_PORTS          1
 #define HAL_USE_USART1              0
 
 #define UART_PHY_PORT               0   // Logical port
 #define UART_PHY                    1
-#include "../PHY/UART/uart_phy.h"
+#include "PHY/UART/uart_phy.h"
 // End UART PHY Section
 
 // Object's Dictionary Section

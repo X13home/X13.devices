@@ -7,31 +7,43 @@ static volatile uint32_t hal_sec_counter = 0;    // Max Uptime 136 Jr.
 static void SetSysClock(void)
 {
     uint32_t StartUpCounter = 0;
-
-    // Enable Prefetch Buffer and set Flash Latency
-    FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY;
-
+  
+    // SYSCLK, HCLK, PCLK2 and PCLK1 configuration
     // Enable HSE
-    RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+    RCC->CR |= RCC_CR_HSEON;
 
     // Wait till HSE is ready and if Time out is reached exit
     while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < 0x00005000))
         StartUpCounter++;
+  
+    // Enable Prefetch Buffer
+    FLASH->ACR |= FLASH_ACR_PRFTBE;
 
-    RCC->CFGR &= ~(RCC_CFGR_PLLMUL |                // Reset PLL Multiplication factor
-                   RCC_CFGR_HPRE |                  // HCLK not divided
-                   RCC_CFGR_PPRE);                  // SYSCLK not divided
+    // Flash 2 wait state
+    FLASH->ACR &= ~FLASH_ACR_LATENCY;
+    FLASH->ACR |= FLASH_ACR_LATENCY_2;
 
-    if(StartUpCounter < 0x00005000) 
+    // PLL->CFGR reset in SystemInit()
+    // SYSCLK = 72, on PLL
+    // AHB Prescaler = 1, HCLK = SYSCLK
+    // APB2 Prescaler = 1, PCLK2 = HCLK
+    // APB1 Prescaler = 2, PCLK1 = HCLK/2
+    RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
+    // ADC Prescaler = 6;
+    RCC->CFGR |= RCC_CFGR_ADCPRE_DIV6;
+
+    if(StartUpCounter < 0x00005000)
     {
-        RCC->CFGR |= (RCC_CFGR_PLLMUL6 |            // PLL multiplication factor = 6
-                      RCC_CFGR_PLLSRC_HSE_PREDIV);  // HSE/PREDIV clock selected as PLL entry clock source
+        // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
+        RCC->CFGR |= (RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL9);
     }
     else
     {
-        RCC->CR &= ~RCC_CR_HSEON;                   // Disble HSE
-        RCC->CFGR &= ~RCC_CFGR_PLLSRC_HSE_PREDIV;   // HSI clock divided by 2 selected as PLL entry clock source
-        RCC->CFGR |= RCC_CFGR_PLLMUL12;             // PLL multiplication factor = 12
+        // PLL configuration: PLLCLK = HSI * 16 = 64 MHz, Not acceptabel for USB
+        // HSI clock divided by 2 selected as PLL entry clock source
+        // PLL multiplication factor = 12
+        RCC->CR &= ~RCC_CR_HSEON;       // Disble HSE
+        RCC->CFGR |= RCC_CFGR_PLLMULL16;
     }
 
     // Enable PLL
@@ -40,6 +52,7 @@ static void SetSysClock(void)
     // Wait till PLL is ready
     while((RCC->CR & RCC_CR_PLLRDY) == 0);
 
+    
     // Select PLL as system clock source
     RCC->CFGR &= ~RCC_CFGR_SW;
     RCC->CFGR |= RCC_CFGR_SW_PLL;
@@ -76,7 +89,10 @@ void HAL_Init(void)
     // Set Core Clock
     SetSysClock();
     // Enable GPIO clock
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN;
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN;
+     // disable JTAG
+    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
+    AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
 
     CriticalNesting = 0;
 }

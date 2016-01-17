@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-#include "stm32f10x.h"
+#include "stm32f1xx.h"
 
 void halEnterCritical(void);
 void halLeaveCritical(void);
@@ -154,6 +154,8 @@ void _delay_ms(uint16_t ms);
 void _delay_us(uint16_t us);
 
 #define  HAL_Reboot     NVIC_SystemReset
+
+#include "HW_STM32F1.h"
 
 #ifdef __cplusplus
 }

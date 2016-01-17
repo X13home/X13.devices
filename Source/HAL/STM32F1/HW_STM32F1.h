@@ -13,8 +13,6 @@ See LICENSE file for license details.
 #ifndef HW_STM32F1_H
 #define HW_STM32F1_H
 
-#include "hal.h"
-
 // STM32F103CBT6, Maple Mini
 #if   (defined CFG_S3Sn10)
 #include "S3xxxx/S3Sn10.h"    // UART

@@ -155,6 +155,8 @@ void _delay_us(uint16_t us);
 
 #define  HAL_Reboot     NVIC_SystemReset
 
+#include "HW_STM32F0.h"
+
 #ifdef __cplusplus
 }
 #endif

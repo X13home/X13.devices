@@ -13,8 +13,6 @@ See LICENSE file for license details.
 #ifndef HW_ATMEGA_H
 #define HW_ATMEGA_H
 
-#include "hal.h"
-
 #if     (defined CFG_A1Cn12)        // CC1101
 #include "A1xxxx/A1Cn12.h"
 #elif   (defined CFG_A1SC12)        // UART + CC1101
