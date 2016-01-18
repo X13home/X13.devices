@@ -13,13 +13,18 @@ See LICENSE file for license details.
 #ifndef HW_STM32F0_H
 #define HW_STM32F0_H
 
-// STM32F051R8T6
+// STM32F051C8T6
 #if   (defined CFG_S2EC13)
 #include "S2xxxx/S2EC13.h"    // ENC28J60 + CC1101
 #elif   (defined CFG_S2En13)
 #include "S2xxxx/S2En13.h"    // ENC28J60
 #elif   (defined CFG_S2Cn13)
 #include "S2xxxx/S2Cn13.h"    // CC1101
+
+// STM32F051R8T6
+#elif   (defined CFG_S2Sn10)
+#include "S2xxxx/S2Sn10.h"    // UART
+
 #else
 #error Unknown configuration
 #endif  //  Configuration

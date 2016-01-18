@@ -36,6 +36,9 @@ typedef enum
 {
     PLC_ANSWER_OK           = 0,
     
+    PLC_ANSWER_ERROR_WRS    = 0xFA,     // Wrong State
+    PLC_ANSWER_ERROR_CRC    = 0xFB,     // CRC Error
+    PLC_ANSWER_ERROR_OFR    = 0xFC,     // Out of range
     PLC_ANSWER_ERROR_FMT    = 0xFD,     // Format Error
     PLC_ANSWER_ERROR_CMD    = 0xFE,     // Unknown command
     PLC_ANSWER_IDLE         = 0xFF
@@ -49,82 +52,45 @@ typedef enum
     PLC_STAT_RUN            = 0x7F,
 }ePLC_STAT_t;
 
-static ePLC_STAT_t      plc_stat        = PLC_STAT_RUN;
-static ePLC_CMD_t       plc_cmd_in      = PLC_CMD_IDLE;
-static ePLC_CMD_t       plc_cmd_out     = PLC_CMD_IDLE;
-static ePLC_ANSWER_t    plc_answer      = PLC_ANSWER_IDLE;
-static uint16_t         plc_answer_ext  = 0x0000;
-static uint16_t         plc_addr;
-static uint16_t         plc_len;
-
-static void plc_parse_cmd(uint8_t Len, uint8_t *pBuf)
+typedef struct 
 {
-    ePLC_CMD_t cmd = pBuf[0];
+    uint8_t     len;
+    uint8_t     data[];
+} sPLCexch_t;
 
-    switch(cmd)
+static ePLC_STAT_t      plc_stat    = PLC_STAT_RUN;
+static bool             plc_answer  = false;
+static sPLCexch_t     * plc_exchg   = NULL;
+
+static uint16_t plc_calc_crc(uint16_t crc_in, uint16_t len, uint8_t *pBuf)
+{
+    while(len != 0)
     {
-        case PLC_CMD_START_REQ:
-            // ToDo procedure Start PLC
-            if(plc_stat != PLC_STAT_STOP)
-            {
-                plc_cmd_out = PLC_CMD_START_RESP;
-                plc_answer = plc_stat;
-            }
+        uint8_t data = *(pBuf++);
+        uint8_t i;
+        for (i = 0; i < 8; i++)
+        {
+            if(((crc_in & 0x8000) >> 8) ^ (data & 0x80))
+                crc_in = (crc_in<<1) ^ 0x8005;
             else
-                plc_cmd_in = PLC_CMD_START_REQ;
-            break;
-
-        case PLC_CMD_STOP_REQ:
-            plc_cmd_in = PLC_CMD_STOP_REQ;
-            break;
-        case PLC_CMD_CRC_REQ:
-            if(Len != 5)
-            {
-                plc_cmd_out = PLC_CMD_CRC_RESP;
-                plc_answer  = PLC_ANSWER_ERROR_FMT;
-                break;
-            }
-
-            plc_cmd_in = PLC_CMD_CRC_REQ;
-            plc_addr = *(pBuf++);
-            plc_addr <<= 8;
-            plc_addr |= *(pBuf++);
-            plc_len  = *(pBuf++);
-            plc_len  <<= 8;
-            plc_len  |= *pBuf;
-            break;
-
-        default:
-            plc_cmd_out = cmd;
-            plc_answer  = PLC_ANSWER_ERROR_CMD;
-            break;
+                crc_in = (crc_in<<1);
+            data <<= 1;
+        }
+        len--;
     }
-}
-
-static uint16_t plc_calc_crc(void)
-{
-    // ToDo dummy function;
-    return 0x1234;
+    
+    return crc_in;
 }
 
 static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     if(pSubidx->Place == objPLCctrl)
     {
-        *(pBuf++) = plc_cmd_out;
-        *(pBuf++) = plc_answer;
-        
-        if((plc_cmd_out == PLC_CMD_CRC_RESP) || (plc_answer_ext != 0))
-        {
-            *(pBuf++) = plc_answer_ext & 0x00FF;
-            *(pBuf++) = plc_answer_ext >> 8;
-            *pLen = 4;
-        }
-        else
-            *pLen = 2;
-        
-        plc_answer      = PLC_ANSWER_IDLE;
-        plc_answer_ext  = 0x0000;
+        *pLen = plc_exchg->len;
+        memcpy(pBuf, plc_exchg->data, plc_exchg->len);
+        mqFree(plc_exchg);
+        plc_exchg = NULL;
+        plc_answer = false;
     }
     // ToDo else merker
 
@@ -135,27 +101,42 @@ static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
 {
     if(pSubidx->Place == objPLCctrl)
     {
-        if(plc_cmd_in == PLC_CMD_IDLE)
-            plc_parse_cmd(Len, pBuf);
-        else
+        if(plc_exchg != NULL)
             return MQTTSN_RET_REJ_CONG;
+
+        plc_exchg = mqAlloc(sizeof(MQ_t));
+        if(plc_exchg == NULL)
+            return MQTTSN_RET_REJ_CONG;
+
+        plc_exchg->len = Len;
+        memcpy(plc_exchg->data, pBuf, Len);
     }
     // ToDo else merker
 
     return MQTTSN_RET_ACCEPTED;
 }
 
+// ignore some GCC warnings
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
 static uint8_t plcPollOD(subidx_t * pSubidx, uint8_t unused)
 {
     if(pSubidx->Place == objPLCctrl)
     {
-       if(plc_answer != PLC_ANSWER_IDLE)
+       if(plc_answer)
             return 1;
     }
     // ToDo else merker
 
     return 0;
 }
+
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 void plcInit(void)
 {
@@ -173,9 +154,9 @@ void plcInit(void)
     
     // Init variables
     plc_stat        = PLC_STAT_RUN;
-    plc_cmd_in      = PLC_CMD_IDLE;
-    plc_answer      = PLC_ANSWER_IDLE;
-    plc_answer_ext  = 0x0000;
+    plc_answer      = false;
+    plc_exchg       = NULL;
+
 /*
     vPLC.sp = (PLC_SIZEOF_MEMORY - 4);
     vPLC.spf = PLC_SIZEOF_MEMORY;
@@ -187,34 +168,129 @@ void plcInit(void)
 
 void plcProc(void)
 {
-    if(plc_cmd_in != PLC_CMD_IDLE)
+    if((plc_answer == false) && (plc_exchg != NULL))
     {
-        switch(plc_cmd_in)
-        {
-            case PLC_CMD_START_REQ:     // ToDo dummy
-                // ToDo start errors
-                plc_cmd_out = PLC_CMD_START_RESP;
-                plc_answer  = PLC_ANSWER_OK;
-                plc_stat    = PLC_STAT_RUN;
-                break;
+        plc_answer = true;
+        ePLC_CMD_t cmd = plc_exchg->data[0];
 
+        switch(cmd)
+        {
+            case PLC_CMD_START_REQ:
+            {
+                if(plc_stat != PLC_STAT_STOP)
+                    plc_exchg->data[1] = PLC_ANSWER_ERROR_WRS;      // Wrong State
+                else
+                {
+                    plc_exchg->data[1] = PLC_ANSWER_OK;
+                    plc_stat    = PLC_STAT_RUN;
+                }
+                plc_exchg->len = 2;
+                plc_exchg->data[0] = PLC_CMD_START_RESP;
+                break;
+            }
             case PLC_CMD_STOP_REQ:
-                plc_cmd_out = PLC_CMD_STOP_RESP;
-                plc_answer  = PLC_ANSWER_OK;
+            {
+                plc_exchg->len = 2;
+                plc_exchg->data[0] = PLC_CMD_STOP_RESP;
+                plc_exchg->data[1] = PLC_ANSWER_OK;
                 plc_stat    = PLC_STAT_STOP;
                 break;
-
+            }
             case PLC_CMD_CRC_REQ:
-                plc_cmd_out = PLC_CMD_CRC_RESP;
-                plc_answer  = PLC_ANSWER_OK;
-                plc_answer_ext = plc_calc_crc();
-                break;
+            {
+                plc_exchg->data[0] = PLC_CMD_CRC_RESP;
+                if(plc_exchg->len != 5)
+                {
+                    plc_exchg->len = 2;
+                    plc_exchg->data[1] = PLC_ANSWER_ERROR_FMT;
+                    break;
+                }
 
+                uint16_t addr, len;
+                uint8_t *pBuf = &plc_exchg->data[1];
+
+                addr  = *(pBuf++);
+                addr |= (uint16_t)(*(pBuf++))<<8;
+                len   = *(pBuf++);
+                len  |= (uint16_t)(*pBuf)<<8;
+
+                if((addr + len) > EXTPLC_SIZEOF_PRG)
+                {
+                    plc_exchg->len = 2;
+                    plc_exchg->data[1] = PLC_ANSWER_ERROR_OFR;
+                    break;
+                }
+                
+                pBuf = plc_exchg->data;
+                uint16_t rdLen;
+                uint16_t rCRC = 0xFFFF;
+                
+                while(len > 0)
+                {
+                    if(len <= (sizeof(MQ_t) - 1))
+                        rdLen = len;
+                    else
+                        rdLen = (sizeof(MQ_t) - 1);
+
+                    eeprom_read(pBuf, eePLCprogram + addr, rdLen);
+                    rCRC = plc_calc_crc(rCRC, rdLen, pBuf);
+
+                    addr += rdLen;
+                    len -= rdLen;
+                    pBuf += rdLen;
+                }
+
+                plc_exchg->len = 4;
+                plc_exchg->data[0] = PLC_CMD_CRC_RESP;
+                plc_exchg->data[1] = PLC_ANSWER_OK;
+                plc_exchg->data[2] = rCRC & 0xFF;
+                plc_exchg->data[3] = rCRC >> 8;
+                break;
+            }
+            case PLC_CMD_WRITE_REQ:
+            {
+                // Write Block Request: 7, addrL, addrH, data[], crcL, crcH
+                uint16_t len = plc_exchg->len;
+                
+                plc_exchg->data[0] = PLC_CMD_WRITE_RESP;
+                plc_exchg->len = 2;
+
+                if(plc_stat != PLC_STAT_STOP)
+                {
+                    plc_exchg->data[1] = PLC_ANSWER_ERROR_WRS;      // Wrong State
+                    break;
+                }
+
+                if(len < 6)
+                {
+                    plc_exchg->data[1] = PLC_ANSWER_ERROR_FMT;      // Format error
+                    break;
+                }
+
+                uint16_t addr = ((uint16_t)(plc_exchg->data[1]) | ((uint16_t)(plc_exchg->data[2])<<8));
+                if((addr + len - 5) > EXTPLC_SIZEOF_PRG)
+                {
+                    plc_exchg->data[1] = PLC_ANSWER_ERROR_OFR;      // Out of range
+                    break;
+                }
+
+                uint16_t rCRC = plc_calc_crc(0xFFFF, len - 5, &plc_exchg->data[3]);
+                if(((rCRC & 0x00FF) != plc_exchg->data[len - 2]) || ((rCRC >> 8) != plc_exchg->data[len - 1]))
+                {
+                    plc_exchg->data[1] = PLC_ANSWER_ERROR_CRC;
+                    break;
+                }
+                
+                eeprom_write(&plc_exchg->data[3], eePLCprogram + addr, len - 5);
+                break;
+            }
+            
             default:
+                plc_exchg->len = 2;
+                plc_exchg->data[0] = cmd;
+                plc_exchg->data[1] = PLC_ANSWER_ERROR_CMD;
                 break;
         }
-
-        plc_cmd_in = PLC_CMD_IDLE;
     }
 }
 

@@ -52,7 +52,7 @@
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.agreggatereturn.91755206" name="Warn if struct is returned (-Wagreggate-return)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.agreggatereturn" value="true" valueType="boolean"/>
 							<option id="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.floatequal.128919572" name="Warn if floats are compared as equal (-Wfloat-equal)" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.warnings.floatequal" value="true" valueType="boolean"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform.818058398" isAbstract="false" osList="all" superClass="ilg.gnuarmeclipse.managedbuild.cross.targetPlatform"/>
-							<builder buildPath="${workspace_loc:/S3xxxx}/Debug" id="ilg.gnuarmeclipse.managedbuild.cross.builder.397454849" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder"/>
+							<builder buildPath="${workspace_loc:/S3xxxx}/Debug" id="ilg.gnuarmeclipse.managedbuild.cross.builder.397454849" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="Gnu Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="ilg.gnuarmeclipse.managedbuild.cross.builder"/>
 							<tool id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.123832112" name="Cross ARM GNU Assembler" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler">
 								<option id="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor.1269216949" name="Use preprocessor" superClass="ilg.gnuarmeclipse.managedbuild.cross.option.assembler.usepreprocessor" value="true" valueType="boolean"/>
 								<inputType id="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input.1850414585" superClass="ilg.gnuarmeclipse.managedbuild.cross.tool.assembler.input"/>
@@ -202,10 +202,10 @@
 		<configuration configurationName="S3Sn10d">
 			<resource resourceType="PROJECT" workspacePath="/S3xxxx"/>
 		</configuration>
-		<configuration configurationName="Debug">
+		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/S3xxxx"/>
 		</configuration>
-		<configuration configurationName="Release">
+		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/S3xxxx"/>
 		</configuration>
 	</storageModule>
