@@ -116,7 +116,7 @@ extern "C" {
 // End UART PHY Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           40
+#define OD_MAX_INDEX_LIST           64
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '3'
 #define OD_DEV_PHY1                 'S'
