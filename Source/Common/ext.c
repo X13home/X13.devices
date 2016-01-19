@@ -61,12 +61,12 @@ bool extCheckSubidx(subidx_t * pSubidx)
         case objSer:
             return serCheckSubidx(pSubidx);
 #endif  //  EXTSER_USED
-/*
+
 #ifdef EXTPLC_USED
         case objMerker:
             return plcCheckSubidx(pSubidx);
 #endif  //  EXTPLC_USED
-*/
+
         default:
             break;
   }
@@ -104,12 +104,12 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
         case objSer:        // User Serial I/O
             return serRegisterOD(pIdx);
 #endif  //  EXTSER_USED
-/*
+
 #ifdef EXTPLC_USED
         case objMerker:
             return plcRegisterOD(pIdx);
 #endif  //  EXTPLC_USED
-*/
+
         default:
             break;
     }

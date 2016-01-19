@@ -82,6 +82,7 @@ static bool             plc_answer  = false;
 static sPLCexch_t     * plc_exchg   = NULL;
 // PLC Intern
 static uint32_t         plc_ram[EXTPLC_SIZEOF_RAM];
+static uint32_t         plc_old[EXTPLC_SIZEOF_EXCHG];
 
 static uint16_t plc_calc_crc(uint16_t crc_in, uint16_t len, uint8_t *pBuf)
 {
@@ -500,55 +501,42 @@ void plcProc(void)
     }
 }
 
-static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
-{
-    if(pSubidx->Place == objPLCctrl)
-    {
-        *pLen = plc_exchg->len;
-        memcpy(pBuf, plc_exchg->data, plc_exchg->len);
-        mqFree(plc_exchg);
-        plc_exchg = NULL;
-        plc_answer = false;
-    }
-    // ToDo else merker
-
-    return MQTTSN_RET_ACCEPTED;
-}
-
-static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
-{
-    if(pSubidx->Place == objPLCctrl)
-    {
-        if(plc_exchg != NULL)
-            return MQTTSN_RET_REJ_CONG;
-
-        plc_exchg = mqAlloc(sizeof(MQ_t));
-        if(plc_exchg == NULL)
-            return MQTTSN_RET_REJ_CONG;
-
-        plc_exchg->len = Len;
-        memcpy(plc_exchg->data, pBuf, Len);
-    }
-    // ToDo else merker
-
-    return MQTTSN_RET_ACCEPTED;
-}
-
 // ignore some GCC warnings
 #if defined ( __GNUC__ )
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+{
+    *pLen = plc_exchg->len;
+    memcpy(pBuf, plc_exchg->data, plc_exchg->len);
+    mqFree(plc_exchg);
+    plc_exchg = NULL;
+    plc_answer = false;
+
+    return MQTTSN_RET_ACCEPTED;
+}
+
+static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    if(plc_exchg != NULL)
+        return MQTTSN_RET_REJ_CONG;
+
+    plc_exchg = mqAlloc(sizeof(MQ_t));
+    if(plc_exchg == NULL)
+        return MQTTSN_RET_REJ_CONG;
+
+    plc_exchg->len = Len;
+    memcpy(plc_exchg->data, pBuf, Len);
+
+    return MQTTSN_RET_ACCEPTED;
+}
+
 static uint8_t plcPollOD(subidx_t * pSubidx, uint8_t unused)
 {
-    if(pSubidx->Place == objPLCctrl)
-    {
-       if(plc_answer)
-            return 1;
-    }
-    // ToDo else merker
-
+    if(plc_answer)
+        return 1;
     return 0;
 }
 
@@ -576,119 +564,225 @@ void plcInit(void)
     plc_exchg       = NULL;
 }
 
-/*
-typedef struct
-{
-    uint32_t    sp;                         
-    uint32_t    spf;                        
-    uint16_t    pc;                         
-    uint8_t     prg[32];                    // Actual program page
-    uint8_t     mem[PLC_SIZEOF_MEMORY];     // Bottom variables, from top - stack
-    uint8_t     old_mem[PLC_SIZEOF_RW];     // old values for public variables
-}sPLC_t;
-
-static sPLC_t vPLC;
-
-static uint8_t plcType2Lenght(uint8_t type)
-{
-    switch(type)
-    {
-        case objBool:
-        case objInt8:
-        case objUInt8:
-            return 1;
-        case objInt16:
-        case objUInt16:
-            return 2;
-        case objInt32:
-        case objUInt32:
-            return 4;
-        case objInt64:
-            return 8;
-        case objArray:
-            return 0;
-        default:
-            break;
-    }
-    return 0xFF;
-}
-
-static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
-{
-    uint16_t base = pSubidx->Base;
-    uint8_t len = plcType2Lenght(pSubidx->Type);
-    if(len == 0)
-    {
-        len = Len;
-        vPLC.mem[base] = len;
-        vPLC.old_mem[base] = len;
-        base++;
-    }
-
-    memcpy(&vPLC.mem[base], pBuf, len);
-    memcpy(&vPLC.old_mem[base], &vPLC.mem[base], len);
-
-    return MQTTSN_RET_ACCEPTED;
-}
-
-e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
-{
-    uint16_t base = pSubidx->Base;
-    uint8_t len = plcType2Lenght(pSubidx->Type);
-    if(len == 0)
-        len = vPLC.mem[base];
-
-    memcpy(pBuf, &vPLC.mem[base], len);
-    memcpy(&vPLC.old_mem[base], &vPLC.mem[base], len);
-    *pLen = len;
-
-    return MQTTSN_RET_ACCEPTED;
-}
-
-uint8_t merkerPollOD(subidx_t * pSubidx, uint8_t sleep)
-{
-    uint16_t base = pSubidx->Base;
-    uint8_t len = plcType2Lenght(pSubidx->Type);
-
-    if(len == 0)
-        len = vPLC.old_mem[base];
-
-    return memcmp(&vPLC.old_mem[base], &vPLC.mem[base], len);
-}
-
 
 // Merkers
 // Check Index
 bool plcCheckSubidx(subidx_t * pSubidx)
 {
-    uint8_t len = plcType2Lenght(pSubidx->Type);
     uint16_t base = pSubidx->Base;
-
-    if((len == 0xFF) || ((base + len) >= PLC_SIZEOF_MEMORY))
-        return 2;
-
-    return 0;
+    switch(pSubidx->Type)
+    {
+        case objBool:
+            base >>= 5;
+            break;
+        case objInt8:
+        case objUInt8:
+            base >>= 2;
+            break;
+        case objInt16:
+        case objUInt16:
+            base >>= 1;
+            break;
+        case objInt32:
+        case objUInt32:
+            break;
+        default:
+            return false;
+    }
+    
+    if(base >= EXTPLC_SIZEOF_EXCHG)
+        return false;
+    return true;
 }
+
+static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+{
+    uint16_t    base = pSubidx->Base;
+    uint32_t    mask;
+    uint32_t    data;
+    uint8_t     offset;
+
+    
+    switch(pSubidx->Type)
+    {
+        case objBool:
+            *pLen = 1;
+            mask = 1UL << (base & 0x001F);
+            base >>= 5;
+            if((plc_ram[base] & mask) != 0)
+            {
+                *pBuf = 1;
+                plc_old[base] |= mask;
+            }
+            else
+            {
+                *pBuf = 0;
+                plc_old[base] &= ~mask;
+            }
+            break;
+
+        case objInt8:
+        case objUInt8:
+            offset = ((base & 0x003) * 8);
+            mask = 0x000000FFUL << offset;
+            base >>= 2;
+            data = (plc_ram[base] & mask);
+            plc_old[base] &= ~mask;
+            plc_old[base] |= data;
+            *pBuf = data >> offset;
+            *pLen = 1;
+            break;
+            
+        case objInt16:
+        case objUInt16:
+            offset = ((base & 0x001) * 16);
+            mask = 0x0000FFFFUL << offset;
+            base >>= 1;
+            data = (plc_ram[base] & mask);
+            plc_old[base] &= ~mask;
+            plc_old[base] |= data;
+            data >>= offset;
+            *(pBuf++) = data & 0xFF;
+            data >>= 8;
+            *pBuf = data;
+            *pLen = 2;
+            break;
+            
+        case objInt32:
+        case objUInt32:
+            data = plc_ram[base];
+            plc_old[base] = data;
+
+            *(pBuf++) = data & 0xFF;
+            data >>= 8;
+            *(pBuf++) = data & 0xFF;
+            data >>= 8;
+            *(pBuf++) = data & 0xFF;
+            data >>= 8;
+            *pBuf = data & 0xFF;
+            *pLen = 4;
+            break;
+
+        // supressed warning -Wswitch;
+        default:
+            return MQTTSN_RET_REJ_INV_ID;
+    }
+    
+    return MQTTSN_RET_ACCEPTED;
+}
+
+// ignore some GCC warnings
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+
+static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t *pBuf)
+{
+    uint16_t    base = pSubidx->Base;
+    uint32_t    mask;
+    uint32_t    data;
+    
+    switch(pSubidx->Type)
+    {
+        case objBool:
+            mask = 1UL << (base & 0x001F);
+            base >>= 5;
+            if(*pBuf == 0)
+            {
+                plc_ram[base] &= ~mask;
+                plc_old[base] &= ~mask;
+            }
+            else
+            {
+                plc_ram[base] |= mask;
+                plc_old[base] |= mask;
+            }
+            break;
+        case objInt8:
+        case objUInt8:
+            mask = 0x000000FFUL << ((base & 0x0003) * 8);
+            data = *pBuf;
+            data <<= (base & 0x0003) * 8;
+            base >>= 2;
+            plc_ram[base] &= ~mask;
+            plc_old[base] &= ~mask;
+            plc_ram[base] |= data;
+            plc_old[base] |= data;
+            break;
+        case objInt16:
+        case objUInt16:
+            mask = 0x0000FFFFUL << ((base & 0x0001) * 16);
+            data = *(pBuf++);
+            data |= (uint16_t)(*pBuf)<<8;
+            data <<= (base & 0x0001) * 16;
+            base >>= 1;
+            plc_ram[base] &= ~mask;
+            plc_old[base] &= ~mask;
+            plc_ram[base] |= data;
+            plc_old[base] |= data;
+            break;
+        case objInt32:
+        case objUInt32:
+            data = *(pBuf++);
+            data |= (uint32_t)(*(pBuf++))<<8;
+            data |= (uint32_t)(*(pBuf++))<<16;
+            data |= (uint32_t)(*pBuf)<<24;
+            plc_ram[base] = data;
+            plc_old[base] = data;
+            break;
+        // supressed warning -Wswitch;
+        default:
+            break;
+    }
+
+    return MQTTSN_RET_ACCEPTED;
+}
+
+static uint8_t merkerPollOD(subidx_t * pSubidx, uint8_t unused)
+{
+    uint16_t    base = pSubidx->Base;
+    uint32_t    mask;
+    
+    switch(pSubidx->Type)
+    {
+        case objBool:
+            mask = 1UL << (base & 0x001F);
+            base >>= 5;
+            break;
+        case objInt8:
+        case objUInt8:
+            mask = 0x000000FFUL << ((base & 0x0003) * 8);
+            base >>= 2;
+            break;
+        case objInt16:
+        case objUInt16:
+            mask = 0x0000FFFFUL << ((base & 0x0001) * 16);
+            base >>= 1;
+            break;
+        case objInt32:
+        case objUInt32:
+            return plc_ram[base] != plc_old[base];
+            
+        // supressed warning -Wswitch;
+        default:
+            return 0;
+    }
+    
+    return (plc_ram[base] & mask) != (plc_old[base] & mask);
+}
+
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 // Register merker
 e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
 {
-    uint16_t base = pIdx->sidx.Base;
-
-    if(base < PLC_SIZEOF_RW)
-    {
-        pIdx->cbRead  = &merkerReadOD;
-        pIdx->cbPoll  = &merkerPollOD;
-    }
-    else
-    {
-        pIdx->cbRead  = NULL;
-        pIdx->cbPoll  = NULL;
-    }
-    pIdx->cbWrite = &merkerWriteOD;
-
+    pIdx->cbRead    = &merkerReadOD;
+    pIdx->cbWrite   = &merkerWriteOD;
+    pIdx->cbPoll    = &merkerPollOD;    
     return MQTTSN_RET_ACCEPTED;
 }
-*/
 
 #endif  //  EXTPLC_USED
