@@ -16,8 +16,6 @@ See LICENSE file for license details.
 
 #include "extplc.h"
 
-#define EXTPLC_SIZEOF_PRG_CACHE     16      // Must be 2^n
-
 // Response format: [cmd] [stat] [optional]
 typedef enum
 {
@@ -82,7 +80,7 @@ static bool             plc_answer  = false;
 static sPLCexch_t     * plc_exchg   = NULL;
 // PLC Intern
 static uint32_t         plc_ram[EXTPLC_SIZEOF_RAM];
-static uint32_t         plc_old[EXTPLC_SIZEOF_EXCHG];
+static uint32_t         plc_old[EXTPLC_SIZEOF_RW];
 
 static uint16_t plc_calc_crc(uint16_t crc_in, uint16_t len, uint8_t *pBuf)
 {
@@ -478,7 +476,6 @@ static void plc_vm(void)
     }
 }
 
-
 void plcProc(void)
 {
     if((plc_answer == false) && (plc_exchg != NULL))
@@ -564,7 +561,6 @@ void plcInit(void)
     plc_exchg       = NULL;
 }
 
-
 // Merkers
 // Check Index
 bool plcCheckSubidx(subidx_t * pSubidx)
@@ -584,13 +580,12 @@ bool plcCheckSubidx(subidx_t * pSubidx)
             base >>= 1;
             break;
         case objInt32:
-        case objUInt32:
             break;
         default:
             return false;
     }
-    
-    if(base >= EXTPLC_SIZEOF_EXCHG)
+
+    if(base >= EXTPLC_SIZEOF_WO)
         return false;
     return true;
 }
@@ -602,7 +597,6 @@ static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_
     uint32_t    data;
     uint8_t     offset;
 
-    
     switch(pSubidx->Type)
     {
         case objBool:
@@ -612,12 +606,14 @@ static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_
             if((plc_ram[base] & mask) != 0)
             {
                 *pBuf = 1;
-                plc_old[base] |= mask;
+                if(base < EXTPLC_SIZEOF_RW)
+                    plc_old[base] |= mask;
             }
             else
             {
                 *pBuf = 0;
-                plc_old[base] &= ~mask;
+                if(base < EXTPLC_SIZEOF_RW)
+                    plc_old[base] &= ~mask;
             }
             break;
 
@@ -627,8 +623,11 @@ static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_
             mask = 0x000000FFUL << offset;
             base >>= 2;
             data = (plc_ram[base] & mask);
-            plc_old[base] &= ~mask;
-            plc_old[base] |= data;
+            if(base < EXTPLC_SIZEOF_RW)
+            {
+                plc_old[base] &= ~mask;
+                plc_old[base] |= data;
+            }
             *pBuf = data >> offset;
             *pLen = 1;
             break;
@@ -639,19 +638,22 @@ static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_
             mask = 0x0000FFFFUL << offset;
             base >>= 1;
             data = (plc_ram[base] & mask);
-            plc_old[base] &= ~mask;
-            plc_old[base] |= data;
+            if(base < EXTPLC_SIZEOF_RW)
+            {
+                plc_old[base] &= ~mask;
+                plc_old[base] |= data;
+            }
             data >>= offset;
             *(pBuf++) = data & 0xFF;
             data >>= 8;
             *pBuf = data;
             *pLen = 2;
             break;
-            
+
         case objInt32:
-        case objUInt32:
             data = plc_ram[base];
-            plc_old[base] = data;
+            if(base < EXTPLC_SIZEOF_RW)
+                plc_old[base] = data;
 
             *(pBuf++) = data & 0xFF;
             data >>= 8;
@@ -691,12 +693,14 @@ static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint
             if(*pBuf == 0)
             {
                 plc_ram[base] &= ~mask;
-                plc_old[base] &= ~mask;
+                if(base < EXTPLC_SIZEOF_RW)
+                    plc_old[base] &= ~mask;
             }
             else
             {
                 plc_ram[base] |= mask;
-                plc_old[base] |= mask;
+                if(base < EXTPLC_SIZEOF_RW)
+                    plc_old[base] |= mask;
             }
             break;
         case objInt8:
@@ -706,9 +710,12 @@ static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint
             data <<= (base & 0x0003) * 8;
             base >>= 2;
             plc_ram[base] &= ~mask;
-            plc_old[base] &= ~mask;
             plc_ram[base] |= data;
-            plc_old[base] |= data;
+            if(base < EXTPLC_SIZEOF_RW)
+            {
+                plc_old[base] &= ~mask;
+                plc_old[base] |= data;
+            }
             break;
         case objInt16:
         case objUInt16:
@@ -718,18 +725,21 @@ static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint
             data <<= (base & 0x0001) * 16;
             base >>= 1;
             plc_ram[base] &= ~mask;
-            plc_old[base] &= ~mask;
             plc_ram[base] |= data;
-            plc_old[base] |= data;
+            if(base < EXTPLC_SIZEOF_RW)
+            {
+                plc_old[base] &= ~mask;
+                plc_old[base] |= data;
+            }
             break;
         case objInt32:
-        case objUInt32:
             data = *(pBuf++);
             data |= (uint32_t)(*(pBuf++))<<8;
             data |= (uint32_t)(*(pBuf++))<<16;
             data |= (uint32_t)(*pBuf)<<24;
             plc_ram[base] = data;
-            plc_old[base] = data;
+            if(base < EXTPLC_SIZEOF_RW)
+                plc_old[base] = data;
             break;
         // supressed warning -Wswitch;
         default:
@@ -761,8 +771,7 @@ static uint8_t merkerPollOD(subidx_t * pSubidx, uint8_t unused)
             base >>= 1;
             break;
         case objInt32:
-        case objUInt32:
-            return plc_ram[base] != plc_old[base];
+            return (plc_ram[base] != plc_old[base]);
             
         // supressed warning -Wswitch;
         default:
@@ -779,9 +788,35 @@ static uint8_t merkerPollOD(subidx_t * pSubidx, uint8_t unused)
 // Register merker
 e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
 {
-    pIdx->cbRead    = &merkerReadOD;
+    uint16_t base = pIdx->sidx.Base;
+    switch(pIdx->sidx.Type)
+    {
+        case objBool:
+            base >>= 5;
+            break;
+        case objInt8:
+        case objUInt8:
+            base >>= 2;
+            break;
+        case objInt16:
+        case objUInt16:
+            base >>= 1;
+            break;
+        case objInt32:
+            break;
+
+        // supressed warning -Wswitch;
+        default:
+            return MQTTSN_RET_REJ_NOT_SUPP;
+    }
+
+    if(base < EXTPLC_SIZEOF_RW)
+    {
+        pIdx->cbRead    = &merkerReadOD;
+        pIdx->cbPoll    = &merkerPollOD;
+    }
+
     pIdx->cbWrite   = &merkerWriteOD;
-    pIdx->cbPoll    = &merkerPollOD;    
     return MQTTSN_RET_ACCEPTED;
 }
 

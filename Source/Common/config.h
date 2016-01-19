@@ -41,8 +41,10 @@ extern "C" {
 
 #define EXTPLC_USED                     1
 #define EXTPLC_SIZEOF_PRG               128
+#define EXTPLC_SIZEOF_PRG_CACHE         16      // Must be 2^n
 #define EXTPLC_SIZEOF_RAM               32      // size in uint32_t
-#define EXTPLC_SIZEOF_EXCHG             8       // size in uint32_t
+#define EXTPLC_SIZEOF_RW                8       // size in uint32_t
+#define EXTPLC_SIZEOF_WO                16      // size in uint32_t
 
 #define UART_BaudRate                   38400
 #define RF_BASE_FREQ                    868300000UL
