@@ -1,0 +1,27 @@
+test1.asm
+
+LDI_ZERO        Ok
+LDI_TRUE        Ok
+LDI_S1 -1       Ok
+LDI_U1 255      Ok
+LDI_S2 -127     Ok
+LDI_U2 256      Ok
+LDI_S4 -128     Ok
+LDI_S4 65536    Ok
+
+test2.asm
+
+TEST_EQ POS     Ok
+TEST_EQ NEG     Ok - PLC Stop
+
+test3.asm
+
+DUP             Ok
+DROP            Ok
+NIP             Ok
+SWAP            Ok
+OVER            Ok
+ROT             Ok
+
+
+
