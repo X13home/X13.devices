@@ -25,6 +25,7 @@ typedef enum
     PLC_ANSWER_ERROR_UNK_COP    = 0x80,     // Unknown operation
     PLC_ANSWER_ERROR_AV_PRG     = 0x81,     // Access violation programm
     PLC_ANSWER_ERROR_AV_RAM     = 0x82,     // Access violation RAM
+    PLC_ANSWER_ERROR_TEST       = 0x83,     // Test error
     
     PLC_ANSWER_ERROR_WRS        = 0xFA,     // Wrong State
     PLC_ANSWER_ERROR_CRC        = 0xFB,     // CRC Error
@@ -41,6 +42,7 @@ e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx);
 void plcProc(void);
 
 // Procedure defined in extplc_vm.c
+uint8_t plcvm_get_state(uint8_t *pBuf);
 ePLC_ANSWER_t plcvm(void);
 void plcvm_reset_cache(void);
 
