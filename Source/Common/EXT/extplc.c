@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2015 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -16,6 +16,7 @@ See LICENSE file for license details.
 
 #include "extplc.h"
 
+// PLC Control, command and response
 // Response format: [cmd] [stat] [optional]
 typedef enum
 {
@@ -32,41 +33,6 @@ typedef enum
     PLC_CMD_ERASE_RESP      = 0x0A, // Erase Block Response: 0x0a, 0  - Ok / 1-255 error + [optional info]
 }ePLC_CMD_t;
 
-typedef enum
-{
-    PLC_ANSWER_OK           = 0,
-    
-    PLC_ANSWER_ERROR_WRS    = 0xFA,     // Wrong State
-    PLC_ANSWER_ERROR_CRC    = 0xFB,     // CRC Error
-    PLC_ANSWER_ERROR_OFR    = 0xFC,     // Out of range
-    PLC_ANSWER_ERROR_FMT    = 0xFD,     // Format Error
-    PLC_ANSWER_ERROR_CMD    = 0xFE,     // Unknown command
-    PLC_ANSWER_IDLE         = 0xFF
-}ePLC_ANSWER_t;
-
-typedef enum
-{
-    PLC_STAT_STOP           = 0,
-    PLC_STAT_RUN            = 0x7F,
-    
-    PLC_STAT_ERR_UNK_COP    = 0x80,     // Unknown operation
-    PLC_STAT_ERR_AV_PRG     = 0x81,     // Access violation programm
-    PLC_STAT_ERR_AV_RAM     = 0x82,     // Access violation RAM
-}ePLC_STAT_t;
-
-
-typedef enum
-{
-    COP_NOP     = 0,
-    COP_NOT     = 0x28,
-    COP_INC     = 0x2E,
-    COP_DEC     = 0x2F,
-    COP_NEG     = 0x30,
-    // 0x80 - 0x9F  Load data
-    // 0xA0 - 0xBF  Store Data
-    COP_RET     = 0xFF
-}ePLC_COP_t;
-
 typedef struct 
 {
     uint8_t     len;
@@ -74,13 +40,14 @@ typedef struct
 } sPLCexch_t;
 
 // Local Variables
+
 // Control
-static ePLC_STAT_t      plc_stat    = PLC_STAT_RUN;
+static bool             plc_run     = true;
 static bool             plc_answer  = false;
 static sPLCexch_t     * plc_exchg   = NULL;
-// PLC Intern
-static uint32_t         plc_ram[EXTPLC_SIZEOF_RAM];
-static uint32_t         plc_old[EXTPLC_SIZEOF_RW];
+
+extern uint32_t         plc_ram[];                      // PLC data + merkers + stack
+static uint32_t         plc_old[EXTPLC_SIZEOF_RW];      // PLC RW Data
 
 static uint16_t plc_calc_crc(uint16_t crc_in, uint16_t len, uint8_t *pBuf)
 {
@@ -102,27 +69,6 @@ static uint16_t plc_calc_crc(uint16_t crc_in, uint16_t len, uint8_t *pBuf)
     return crc_in;
 }
 
-static uint8_t plc_get_cop(uint32_t pc)
-{
-    static uint32_t page = 0xFFFFFFFF;
-    static uint8_t  plc_prg_cache[EXTPLC_SIZEOF_PRG_CACHE];
-    
-    if(pc >= EXTPLC_SIZEOF_PRG)
-    {
-        page = 0xFFFFFFFF;
-        plc_stat = PLC_STAT_ERR_AV_PRG;
-        return COP_RET;
-    }
-    
-    if((pc & ~(EXTPLC_SIZEOF_PRG_CACHE - 1UL)) != page)
-    {
-        page = (pc & ~(EXTPLC_SIZEOF_PRG_CACHE - 1UL));
-        eeprom_read(plc_prg_cache, eePLCprogram + page, EXTPLC_SIZEOF_PRG_CACHE);
-    }
-    
-    return plc_prg_cache[pc & (EXTPLC_SIZEOF_PRG_CACHE - 1UL)];
-}
-
 static void plc_control(void)
 {
     plc_answer = true;
@@ -131,12 +77,12 @@ static void plc_control(void)
     {
         case PLC_CMD_START_REQ:
         {
-            if(plc_stat != PLC_STAT_STOP)
+            if(plc_run)
                 plc_exchg->data[1] = PLC_ANSWER_ERROR_WRS;      // Wrong State
             else
             {
                 plc_exchg->data[1] = PLC_ANSWER_OK;
-                plc_stat    = PLC_STAT_RUN;
+                plc_run = true;
             }
             plc_exchg->len = 2;
             plc_exchg->data[0] = PLC_CMD_START_RESP;
@@ -144,14 +90,11 @@ static void plc_control(void)
         }
         case PLC_CMD_STOP_REQ:
         {
-            // Reset cache
-            plc_get_cop(EXTPLC_SIZEOF_PRG);
-
+            plcvm_reset_cache();      // Reset cache
+            plc_run = false;
             plc_exchg->len = 2;
             plc_exchg->data[0] = PLC_CMD_STOP_RESP;
             plc_exchg->data[1] = PLC_ANSWER_OK;
-
-            plc_stat    = PLC_STAT_STOP;
             break;
         }
         case PLC_CMD_CRC_REQ:
@@ -213,7 +156,7 @@ static void plc_control(void)
             plc_exchg->data[0] = PLC_CMD_WRITE_RESP;
             plc_exchg->len = 2;
 
-            if(plc_stat != PLC_STAT_STOP)
+            if(plc_run)
             {
                 plc_exchg->data[1] = PLC_ANSWER_ERROR_WRS;      // Wrong State
                 break;
@@ -251,250 +194,34 @@ static void plc_control(void)
     }
 }
 
-static int32_t plc_peek(uint32_t sp)
-{
-    if(sp < EXTPLC_SIZEOF_RAM)
-        return plc_ram[sp];
-
-    plc_stat = PLC_STAT_ERR_AV_RAM;
-    return 0;
-}
-
-static void plc_poke(uint32_t sp, uint32_t val)
-{
-    if(sp < EXTPLC_SIZEOF_RAM)
-        plc_ram[sp] = val;
-    else
-        plc_stat = PLC_STAT_ERR_AV_RAM;
-}
-
-static void plc_vm(void)
-{
-    uint32_t sp = (EXTPLC_SIZEOF_RAM - 1);          // Stack pointer
-    uint32_t spf = EXTPLC_SIZEOF_RAM;               // Stack frame pointer
-    uint32_t pc = 0;                                // program counter
-
-    while(plc_stat == PLC_STAT_RUN)
-    {
-        uint8_t cop = plc_get_cop(pc++);
-
-        // Load data to stack
-        if(cop >= 0x80 && cop <= 0x9F)
-        {
-            uint8_t type = cop & 7;
-            uint8_t place = cop & 0x18;
-            uint32_t acc;
-            
-            if((type == 0) || (type == 7))          // Load constants
-            {
-                if(place == 0)                      // bool
-                {
-                    acc = (type != 0);
-                }
-                else if(place == 0x08)              // int8/uint8
-                {
-                    acc = plc_get_cop(pc++);
-                    if((type == 0) && (acc & 0x80))
-                        acc |= 0xFFFFFF00;
-                }
-                else if(place == 0x10)              // int16/uint16
-                {
-                    acc = plc_get_cop(pc++);
-                    acc |= (int32_t)(plc_get_cop(pc++))<<8;
-                    if((type == 0) && (acc & 0x8000))
-                        acc |= 0xFFFF0000;
-                }
-                else if(type == 0)                  // int32
-                {
-                    acc = plc_get_cop(pc++);
-                    acc |= (int32_t)(plc_get_cop(pc++))<<8;
-                    acc |= (int32_t)(plc_get_cop(pc++))<<16;
-                    acc |= (int32_t)(plc_get_cop(pc++))<<24;
-                }
-                else                                // 0xFFFFFFFF
-                {
-                    acc = 0xFFFFFFFF;
-                }
-
-                plc_poke(--sp, acc);
-            }
-            else
-            {
-                uint32_t addr;
-                if(place == 0)
-                    addr = plc_peek(sp);
-                else if(place == 0x08)
-                    addr = plc_peek(sp) + plc_get_cop(pc++);
-                else if(place == 0x10)
-                {
-                    int32_t adr1 = plc_get_cop(pc++);
-                    adr1 |= (int32_t)(plc_get_cop(pc++))<<8;
-                    addr = plc_peek(sp) + adr1;
-                }
-                else
-                {
-                    addr = plc_get_cop(pc++);
-                    addr |= (int32_t)(plc_get_cop(pc++))<<8;
-                    sp--;
-                }
-
-                if(type == 1)    // Bool
-                {
-                    acc = plc_peek(addr >> 5);
-                    acc = ((acc & (1UL<<(addr & 0x1F))) != 0);
-                }
-                else if((type == 2) || (type == 3))     // [u]int8
-                {
-                    acc = plc_peek(addr >> 2);
-                    acc = acc >> ((addr & 0x03) * 8);
-                    
-                    if((type == 2) && (acc & 0x80))
-                        acc |= 0xFFFFFF00;
-                    else
-                        acc &= 0x000000FF;
-                }
-                else if((type == 4) || (type == 5))
-                {
-                    acc = plc_peek(addr >> 1);
-                    acc = acc >> ((addr & 0x01) * 8);
-                    
-                    if((type == 4) && (acc & 0x8000))
-                        acc |= 0xFFFF0000;
-                    else
-                        acc &= 0x0000FFFF;
-                }
-                else
-                    acc = plc_peek(addr);
-
-                plc_poke(sp, acc);
-            }
-        }
-        else if(cop >= 0xA0 && cop <= 0xBF)
-        {
-            uint8_t type = cop & 7;
-            uint8_t place = cop & 0x18;
-            
-            uint32_t addr;
-            if(place == 0)
-                addr = plc_peek(sp++);
-            else if(place == 0x08)
-                addr = plc_peek(sp++) + plc_get_cop(pc++);
-            else if(place == 0x10)
-            {
-                int32_t adr1 = plc_get_cop(pc++);
-                adr1 |= (int32_t)(plc_get_cop(pc++))<<8;
-                addr = plc_peek(sp++) + adr1;
-            }
-            else
-            {
-                addr = plc_get_cop(pc++);
-                addr |= (int32_t)(plc_get_cop(pc++))<<8;
-            }
-
-            uint32_t acc  = plc_peek(sp++);
-            uint32_t bcc;
-            uint32_t mask;
-            
-
-            if(type == 1)                               // bool
-            {
-                mask = 1UL<<(addr & 0x1F);
-                addr >>= 5;
-                bcc = plc_peek(addr);
-                if(acc != 0)
-                    bcc |= mask;
-                else
-                    bcc &= ~mask;
-                plc_poke(addr, bcc);
-            }
-            else if((type == 2) || (type == 3))
-            {
-                acc &= 0x000000FF;
-                acc <<= (addr & 3)*8;
-                mask = 0x000000FF << ((addr & 3)*8);
-                
-                addr >>= 2;
-                bcc = plc_peek(addr);
-                bcc &= ~mask;
-                bcc |= acc;
-                plc_poke(addr, bcc);
-            }
-            else if((type == 4) || (type == 5))
-            {
-                acc &= 0x0000FFFF;
-                acc <<= (addr & 1)*16;
-                mask = 0x0000FFFF << ((addr & 1)*16);
-                
-                addr >>= 1;
-                bcc = plc_peek(addr);
-                bcc &= ~mask;
-                bcc |= acc;
-                plc_poke(addr, bcc);
-            }
-            else if(type == 6)
-            {
-                plc_poke(addr, acc);
-            }
-            else    // Type 0,7
-            {
-                plc_stat = PLC_STAT_ERR_UNK_COP;        // Error unknown COP
-                return;
-            }
-        }
-        else
-        switch(cop)
-        {
-            case COP_NOP:
-                break;
-
-            // 0x22 - 0x3F, arithmetic and logic operations
-            case COP_NOT:
-                plc_poke(sp, ~plc_peek(sp));
-                break;
-            case COP_INC:
-                plc_poke(sp, plc_peek(sp) + 1);
-                break;
-            case COP_DEC:
-                plc_poke(sp, plc_peek(sp) - 1);
-                break;
-            case COP_NEG:
-                plc_poke(sp, -plc_peek(sp));
-                break;
-
-            case COP_RET:
-                if(spf == EXTPLC_SIZEOF_RAM)
-                    return;
-                sp  = spf - 1;
-                spf = plc_peek(sp++);
-                pc  = plc_peek(sp++);
-                break;
-
-            default:
-                plc_stat = PLC_STAT_ERR_UNK_COP;        // Error unknown COP
-                return;
-        }
-    }
-}
-
 void plcProc(void)
 {
     if((plc_answer == false) && (plc_exchg != NULL))
         plc_control();
+    
+    static ePLC_ANSWER_t plc_sts = PLC_ANSWER_OK;
 
-    if(plc_stat == PLC_STAT_RUN)
-        plc_vm();
-    else if(plc_stat != PLC_STAT_STOP)
+    if(plc_run)
+        plc_sts = plcvm();
+    
+    if(plc_sts != PLC_ANSWER_OK)
     {
+        plc_run = false;
+
         if(plc_exchg == NULL)
-            plc_exchg = mqAlloc(sizeof(MQ_t));
-        if(plc_exchg != NULL)
         {
-            plc_exchg->len = 2;
-            plc_exchg->data[0] = PLC_CMD_STOP_RESP;
-            plc_exchg->data[1] = plc_stat;
+            plc_exchg = mqAlloc(sizeof(MQ_t));
+            if(plc_exchg != NULL)
+            {
+                plc_exchg->len = 2;
+                plc_exchg->data[0] = PLC_CMD_STOP_RESP;
+                plc_exchg->data[1] = plc_sts;
+                
+                plcvm_reset_cache();      // Reset cache
+                plc_sts = PLC_ANSWER_OK;
+                plc_answer = true;
+            }
         }
-        plc_stat = PLC_STAT_STOP;
-        plc_answer = true;
     }
 }
 
@@ -554,11 +281,11 @@ void plcInit(void)
     pIndex->sidx.Place = objPLCctrl;    // PLC Control
     pIndex->sidx.Type  = objArray;      // Variable Type - Byte Array
     pIndex->sidx.Base  = 0;             // not used
-    
+
     // Init variables
-    plc_stat        = PLC_STAT_RUN;
-    plc_answer      = false;
-    plc_exchg       = NULL;
+    plc_run     = true;
+    plc_answer  = false;
+    plc_exchg   = NULL;
 }
 
 // Merkers
