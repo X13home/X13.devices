@@ -15,6 +15,7 @@ See LICENSE file for license details.
 #ifdef EXTPLC_USED
 
 #include "extplc.h"
+#include "extplc_vm.h"
 
 // PLC Control, command and response
 // Response format: [cmd] [stat] [optional]
@@ -138,7 +139,6 @@ static void plc_control(void)
 
                 addr += rdLen;
                 len -= rdLen;
-                pBuf += rdLen;
             }
 
             plc_exchg->len = 4;
@@ -181,7 +181,8 @@ static void plc_control(void)
                 plc_exchg->data[1] = PLC_ANSWER_ERROR_CRC;
                 break;
             }
-                
+            
+            plc_exchg->data[1] = PLC_ANSWER_OK;
             eeprom_write(&plc_exchg->data[3], eePLCprogram + addr, len - 5);
             break;
         }
@@ -206,6 +207,7 @@ void plcProc(void)
     
     if(plc_sts != PLC_ANSWER_OK)
     {
+        // PLC_VM Blue Screen :(
         plc_run = false;
 
         if(plc_exchg == NULL)
@@ -213,10 +215,10 @@ void plcProc(void)
             plc_exchg = mqAlloc(sizeof(MQ_t));
             if(plc_exchg != NULL)
             {
-                plc_exchg->len = 2;
                 plc_exchg->data[0] = PLC_CMD_STOP_RESP;
                 plc_exchg->data[1] = plc_sts;
-                
+                plc_exchg->len = plcvm_get_state(&plc_exchg->data[2]) + 2;
+
                 plcvm_reset_cache();      // Reset cache
                 plc_sts = PLC_ANSWER_OK;
                 plc_answer = true;

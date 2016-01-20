@@ -318,11 +318,13 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 // Write data to EEPROM
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 {
+    halEnterCritical();
+    
     while(Len > 0)
     {
         uint32_t fee_addr = fee_get_fee_addr(Addr);
         if(fee_addr == 0)
-            return;
+            break;
 
         uint32_t length = (~(fee_addr - 1) & (FEE_SECTOR_SIZE - 1))/2;
 
@@ -337,6 +339,8 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
         }
     
         if(!fee_transfer_page(fee_addr, length))
-            return;
+            break;
     }
+
+    halLeaveCritical();
 }
