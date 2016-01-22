@@ -1,27 +1,37 @@
 test1.asm
-
 LDI_ZERO        Ok
 LDI_TRUE        Ok
-LDI_S1 -1       Ok
+LDI_MINUS1      Ok
 LDI_U1 255      Ok
-LDI_S2 -127     Ok
+LDI_S1 -127     Ok
 LDI_U2 256      Ok
-LDI_S4 -128     Ok
+LDI_S2 -128     Ok
 LDI_S4 65536    Ok
 
 test2.asm
-
 TEST_EQ POS     Ok
-TEST_EQ NEG     Ok - PLC Stop
+TEST_EQ NEG     Ok
 
-test3.asm
-
+test3a.asm
 DUP             Ok
 DROP            Ok
 NIP             Ok
+
+test3b.asm
 SWAP            Ok
 OVER            Ok
 ROT             Ok
 
+test4a.asm
+NOT             Ok
+AND             Ok
+OR              Ok
+XOR             Ok
 
-
+test4b.asm
+SHL             Ok
+SHR             Ok
+SRS             Ok
+SHIFT L         Ok
+SHIFT R         Ok
+SHIFT RS        Ok
