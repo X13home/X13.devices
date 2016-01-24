@@ -1,17 +1,34 @@
-// EEPROM emulation for STM32F0
+// EEPROM emulation for STM32F0/STM32F1
 
 #include "config.h"
 
+#define FLASH_FKEY1         ((uint32_t)0x45670123)
+#define FLASH_FKEY2         ((uint32_t)0xCDEF89AB)
+
 #if (defined STM32F051x8)
 
-#define FEE_BASE_ADDRESS            (uint32_t)0x0800F000    // Base for 'EEPROM'
-#define FEE_SECTOR_SIZE             (uint32_t)0x00000400    // Size of FLASH Sectors
+#define FEE_BASE_ADDRESS    (uint32_t)0x0800F000    // Base for 'EEPROM'
+#define FEE_SECTOR_SIZE     (uint32_t)0x00000400    // Size of FLASH Sectors
 
-#define FEE_EEPROM_SIZE             (uint32_t)0x00000800    // Size of 'EEPROM'
-#define FEE_MIRROR_NUMBER           (uint8_t)2
+#define FEE_EEPROM_SIZE     (uint32_t)0x00000800    // Size of 'EEPROM'
+#define FEE_MIRROR_NUMBER   (uint8_t)2
+
+#define EraseTimeout        ((uint32_t)0x000B0000)
+#define ProgramTimeout      ((uint32_t)0x000B0000)
+
+#elif (defined STM32F103xB)
+
+#define FEE_BASE_ADDRESS    (uint32_t)0x0801F000    // Base for 'EEPROM'
+#define FEE_SECTOR_SIZE     (uint32_t)0x00000400    // Size of FLASH Sectors
+
+#define FEE_EEPROM_SIZE     (uint32_t)0x00000800    // Size of 'EEPROM'
+#define FEE_MIRROR_NUMBER   (uint8_t)2
+
+#define EraseTimeout        ((uint32_t)0x000B0000)
+#define ProgramTimeout      ((uint32_t)0x00002000)
 
 #else
-#error Unknown uC
+#error hal_eeprom_flash.c Unknown uC
 #endif
 
 #define FEE_SECTORS                 (uint16_t)(FEE_EEPROM_SIZE / FEE_SECTOR_SIZE)
@@ -27,14 +44,17 @@ typedef enum
 
 static uint8_t fee_pages_map[FEE_SECTORS];
 
-// HAL for eeprom HAL :)
-#define FLASH_FKEY1         ((uint32_t)0x45670123)
-#define FLASH_FKEY2         ((uint32_t)0xCDEF89AB)
-#define FLASH_TIMEOUT       ((uint32_t)0x000B0000)
+
 
 static void flash_clear_flags(void)
 {
+#if (defined STM32F0)
     FLASH->SR = (FLASH_SR_PGERR | FLASH_SR_WRPERR | FLASH_SR_EOP);
+#elif (defined STM32F1)
+    FLASH->SR = (FLASH_SR_PGERR | FLASH_SR_WRPRTERR | FLASH_SR_EOP);
+#else
+#error flash_clear_flags Unknown uC
+#endif
 }
 
 static void flash_unlock(void)
@@ -47,10 +67,8 @@ static void flash_unlock(void)
     }
 }
 
-static bool flash_wait(void)
+static bool flash_wait(uint32_t Timeout)
 {
-    uint32_t Timeout = FLASH_TIMEOUT;
-
     // Wait for a FLASH operation to complete or a TIMEOUT to occur
     while(FLASH->SR & FLASH_SR_BSY)
     {
@@ -60,12 +78,12 @@ static bool flash_wait(void)
             return false;
     }
 
-    return ((FLASH->SR & (FLASH_SR_WRPERR | FLASH_SR_PGERR)) == 0);
+    return ((FLASH->SR & (FLASH_SR_WRPRTERR | FLASH_SR_PGERR)) == 0);
 }
 
 static bool flash_erase_page(uint32_t Page_Address)
 {
-    bool status = flash_wait();
+    bool status = flash_wait(EraseTimeout);
     if(status)
     {
         // If the previous operation is completed, proceed to erase the page
@@ -74,7 +92,7 @@ static bool flash_erase_page(uint32_t Page_Address)
         FLASH->CR |= FLASH_CR_STRT;
     
         // Wait for last operation to be completed
-        status = flash_wait();
+        status = flash_wait(EraseTimeout);
     
         // Disable the PER Bit
         FLASH->CR &= ~FLASH_CR_PER;
@@ -83,9 +101,10 @@ static bool flash_erase_page(uint32_t Page_Address)
     return status;
 }
 
+// Programm Half Word
 static bool flash_programm(uint32_t Address, uint16_t Data)
 {
-    bool status = flash_wait();
+    bool status = flash_wait(ProgramTimeout);
     if(status)
     {
         // If the previous operation is completed, proceed to program the new data
@@ -94,7 +113,7 @@ static bool flash_programm(uint32_t Address, uint16_t Data)
         *(__IO uint16_t*)Address = Data;
 
         // Wait for last operation to be completed
-        status = flash_wait();
+        status = flash_wait(ProgramTimeout);
     
         // Disable the PG Bit */
         FLASH->CR &= ~FLASH_CR_PG;
@@ -317,11 +336,13 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 // Write data to EEPROM
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 {
+    halEnterCritical();
+    
     while(Len > 0)
     {
         uint32_t fee_addr = fee_get_fee_addr(Addr);
         if(fee_addr == 0)
-            return;
+            break;
 
         uint32_t length = (~(fee_addr - 1) & (FEE_SECTOR_SIZE - 1))/2;
 
@@ -336,6 +357,8 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
         }
     
         if(!fee_transfer_page(fee_addr, length))
-            return;
+            break;
     }
+
+    halLeaveCritical();
 }

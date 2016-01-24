@@ -1,6 +1,6 @@
 #include "config.h"
 
-#ifdef EXTAIN_USED
+#if (defined EXTAIN_USED) && (defined STM32F0)
 
 static const __attribute__ ((aligned (4))) uint8_t hal_ainBase2Apin[] = EXTAIN_BASE_2_APIN;
 

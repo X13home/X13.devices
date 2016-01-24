@@ -5,7 +5,13 @@
 extern "C" {
 #endif
 
+#if (defined STM32F0)
+#include "stm32f0xx.h"
+#elif (defined STM32F1)
 #include "stm32f1xx.h"
+#else
+#error hal.h Unknown uC Family
+#endif  // uC Family
 
 void halEnterCritical(void);
 void halLeaveCritical(void);
@@ -141,6 +147,17 @@ uint8_t     hal_uart_get(uint8_t port);
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
+// PLC Section
+#define EXTPLC_USED                     1
+#define EXTPLC_SIZEOF_PRG               128
+#define EXTPLC_SIZEOF_PRG_CACHE         16      // Must be 2^n
+#define EXTPLC_SIZEOF_RAM               32      // size in uint32_t
+#define EXTPLC_SIZEOF_RW                8       // size in uint32_t
+#define EXTPLC_SIZEOF_WO                16      // size in uint32_t
+// PLC Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
 // SysTick IRQ subroutine
 void        SysTick_Handler(void);
 
@@ -155,7 +172,13 @@ void _delay_us(uint16_t us);
 
 #define  HAL_Reboot     NVIC_SystemReset
 
+#if (defined STM32F0)
+#include "HW_STM32F0.h"
+#elif (defined STM32F1)
 #include "HW_STM32F1.h"
+#else
+#error Unknown Family
+#endif  // uC Family
 
 #ifdef __cplusplus
 }

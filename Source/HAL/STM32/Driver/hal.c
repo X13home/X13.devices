@@ -8,6 +8,33 @@ static void SetSysClock(void)
 {
     uint32_t StartUpCounter = 0;
   
+#if (defined STM32F0)
+    // Enable Prefetch Buffer and set Flash Latency
+    FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY;
+
+    // Enable HSE
+    RCC->CR |= ((uint32_t)RCC_CR_HSEON);
+
+    // Wait till HSE is ready and if Time out is reached exit
+    while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < 0x00005000))
+        StartUpCounter++;
+
+    RCC->CFGR &= ~(RCC_CFGR_PLLMUL |                // Reset PLL Multiplication factor
+                   RCC_CFGR_HPRE |                  // HCLK not divided
+                   RCC_CFGR_PPRE);                  // SYSCLK not divided
+
+    if(StartUpCounter < 0x00005000) 
+    {
+        RCC->CFGR |= (RCC_CFGR_PLLMUL6 |            // PLL multiplication factor = 6
+                      RCC_CFGR_PLLSRC_HSE_PREDIV);  // HSE/PREDIV clock selected as PLL entry clock source
+    }
+    else
+    {
+        RCC->CR &= ~RCC_CR_HSEON;                   // Disble HSE
+        RCC->CFGR &= ~RCC_CFGR_PLLSRC_HSE_PREDIV;   // HSI clock divided by 2 selected as PLL entry clock source
+        RCC->CFGR |= RCC_CFGR_PLLMUL12;             // PLL multiplication factor = 12
+    }
+#elif (defined STM32F1)
     // SYSCLK, HCLK, PCLK2 and PCLK1 configuration
     // Enable HSE
     RCC->CR |= RCC_CR_HSEON;
@@ -45,6 +72,9 @@ static void SetSysClock(void)
         RCC->CR &= ~RCC_CR_HSEON;       // Disble HSE
         RCC->CFGR |= RCC_CFGR_PLLMULL16;
     }
+#else
+#error SetSysClock Unknown uC Family
+#endif
 
     // Enable PLL
     RCC->CR |= RCC_CR_PLLON;
@@ -52,7 +82,6 @@ static void SetSysClock(void)
     // Wait till PLL is ready
     while((RCC->CR & RCC_CR_PLLRDY) == 0);
 
-    
     // Select PLL as system clock source
     RCC->CFGR &= ~RCC_CFGR_SW;
     RCC->CFGR |= RCC_CFGR_SW_PLL;
@@ -89,10 +118,16 @@ void HAL_Init(void)
     // Set Core Clock
     SetSysClock();
     // Enable GPIO clock
+#if (defined STM32F0)
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN;
+#elif (defined STM32F1)
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN;
      // disable JTAG
     RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
     AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
+#else
+#error HAL_Init Unknown uC Family
+#endif
 
     CriticalNesting = 0;
 }

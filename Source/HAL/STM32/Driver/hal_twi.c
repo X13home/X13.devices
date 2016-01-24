@@ -1,14 +1,12 @@
-#include "../../config.h"
+#include "config.h"
 
-#ifdef EXTTWI_USED
+#if (defined EXTTWI_USED) && (defined STM32F0)
 
-#include "../../EXT/exttwi.h"
+#include "EXT/exttwi.h"
 
 // Global variable defined in exttwi.c
 extern volatile TWI_QUEUE_t * pTwi_exchange;
 static volatile uint8_t twi_pnt = 0;
-
-#if (defined STM32F0XX_LD) || (defined STM32F0XX_MD)
 
 #define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)       // Alternative function, AF = 1, Open Drain
 
@@ -45,11 +43,11 @@ bool hal_twi_configure(uint8_t enable)
     if(enable)
     {
         // Check GPIO
-        hal_dio_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_PD);           // Configure GPIO as inputs with pull down
+        hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_PD);               // Configure GPIO as inputs with pull down
         if((GPIOB->IDR & (I2C_PIN_SCL | I2C_PIN_SDA)) != (I2C_PIN_SCL | I2C_PIN_SDA))
             return false;
 
-        hal_dio_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_TWI);             // Configure GPIO
+        hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_TWI);                 // Configure GPIO
 #if (EXTTWI_USED == 1)
         RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;     // Enable I2C clock
         RCC->CFGR3 |= RCC_CFGR3_I2C1SW;         // Use SysClk for I2C CLK
@@ -89,7 +87,7 @@ bool hal_twi_configure(uint8_t enable)
         // Disable clock
         RCC->APB1ENR &= ~RCC_APB1ENR_I2C2EN;    
 #endif
-        hal_dio_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);  // Release GPIO
+        hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);            // Release GPIO
     }
 
     return true;
@@ -235,9 +233,5 @@ void I2C2_IRQHandler(void)
         I2C_BUS->CR1 &= ~I2C_CR1_PE;                                   // Disable I2C
     }
 }
-
-#else
-#error I2C Unknown microcontroller
-#endif  //  (defined STM32F0XX_LD) || (defined STM32F0XX_MD)
 
 #endif  //  EXTTWI_USED

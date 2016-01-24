@@ -39,11 +39,6 @@ extern "C" {
 
 #define OD_DEF_ADC_AVERAGE              80
 
-#define EXTPLC_USED                     1
-#define EXTPLC_SIZEOF_PRG               128
-#define EXTPLC_SIZEOF_RW                8       // size in uint32_t
-#define EXTPLC_SIZEOF_WO                16      // size in uint32_t
-
 #define UART_BaudRate                   38400
 #define RF_BASE_FREQ                    868300000UL
 

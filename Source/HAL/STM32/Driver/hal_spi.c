@@ -1,6 +1,6 @@
 #include "config.h"
 
-#if (defined HAL_USE_SPI1) || (defined HAL_USE_SPI2)
+#if ((defined HAL_USE_SPI1) || (defined HAL_USE_SPI2)) && (defined STM32F0)
 /*
         Config 1                Config 2
 SPIx    MOSI    MISO    SCK     MOSI    MISO    SCK     APB

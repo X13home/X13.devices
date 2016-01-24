@@ -17,9 +17,6 @@ See LICENSE file for license details.
 #include "extplc.h"
 #include "extplc_vm.h"
 
-#define EXTPLC_SIZEOF_PRG_CACHE         16      // Must be 2^n
-#define EXTPLC_SIZEOF_RAM               32      // size in uint32_t
-
 typedef void (*cbCOP_t)(void);
 
 uint32_t                plc_ram[EXTPLC_SIZEOF_RAM];         // PLC data + merkers + stack
@@ -253,9 +250,9 @@ static void cb_srs(void)
 static void cb_shift(void)
 {
     uint8_t cmd = plcvm_lpm_u8();
-    int32_t tmp = plcvm_get_u32(plcvm_sp);
+    int32_t tmp = (int32_t)plcvm_get_u32(plcvm_sp);
 
-    if(cmd & 0x80)      // Shift left
+    if(cmd & 0x80)      // Shift Right
     {
         if(cmd & 0x40)
         {
@@ -275,39 +272,39 @@ static void cb_shift(void)
 // 0x10 - 0x17 - Arithmetic Operators
 static void cb_add(void)
 {
-    int32_t r1 = plcvm_get_u32(plcvm_sp++);
-    int32_t r2 = plcvm_get_u32(plcvm_sp);
+    int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);
+    int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);
     plcvm_set_u32(plcvm_sp, r1 + r2);
 }
 static void cb_sub(void)
 {
-    int32_t r1 = plcvm_get_u32(plcvm_sp++);
-    int32_t r2 = plcvm_get_u32(plcvm_sp);
+    int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);
+    int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);
     plcvm_set_u32(plcvm_sp, r1 - r2);
 }
 static void cb_mul(void)
 {
-    int32_t r1 = plcvm_get_u32(plcvm_sp++);
-    int32_t r2 = plcvm_get_u32(plcvm_sp);
+    int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);
+    int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);
     plcvm_set_u32(plcvm_sp, r1 - r2);
 }
 static void cb_div(void)
 {
-    int32_t r2 = plcvm_get_u32(plcvm_sp + 1);
+    int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp + 1);
     if(r2 == 0)
     {
         plcvm_stat = PLC_ANSWER_ERROR_DIV0;
     }    
     else
     {
-        int32_t r1 = plcvm_get_u32(plcvm_sp++);
+        int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);
         plcvm_set_u32(plcvm_sp, r1/r2);
     }
 }
 static void cb_mod(void)
 {
-    int32_t r1 = plcvm_get_u32(plcvm_sp++);
-    int32_t r2 = plcvm_get_u32(plcvm_sp);
+    int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);
+    int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);
     plcvm_set_u32(plcvm_sp, r1 % r2);
 }
 static void cb_inc(void){plcvm_set_u32(plcvm_sp, plcvm_get_u32(plcvm_sp) + 1);}
@@ -511,17 +508,17 @@ static void cb_ldi_s1(void)
 static void cb_ldi_u1(void){plcvm_set_u32(--plcvm_sp, plcvm_lpm_u8());}
 static void cb_ldi_s2(void)
 {
-    uint32_t acc = plcvm_lpm_u8();
-    acc |= (uint16_t)(plcvm_lpm_u8())<<8;
+    int32_t acc = plcvm_lpm_u8();
+    acc |= (int16_t)(plcvm_lpm_u8())<<8;
     if(acc & 0x8000)
     {
-        acc |= 0xFFFF0000;
+        acc |= (int32_t)0xFFFF0000;
     }
     plcvm_set_u32(--plcvm_sp, acc);
 }
 static void cb_ldi_u2(void)
 {
-    uint32_t acc = (uint16_t)(plcvm_lpm_u8());
+    int32_t acc = (uint16_t)(plcvm_lpm_u8());
     acc	|=  (uint16_t)(plcvm_lpm_u8())<<8;
     plcvm_set_u32(--plcvm_sp, acc);
 }
@@ -645,15 +642,15 @@ static void cb_stm_4_c16(void)
 static void cb_test_eq(void){if(plcvm_get_u32(plcvm_sp++) != plcvm_lpm_u32()) {plcvm_stat = PLC_ANSWER_ERROR_TEST;}}
 static void cb_ret(void)
 {
-    if(plcvm_sfp < EXTPLC_SIZEOF_RAM)
+    if(plcvm_sfp == EXTPLC_SIZEOF_RAM)
+    {
+        plcvm_stat = PLC_ANSWER_OK;
+    }
+    else if((plcvm_sfp < (EXTPLC_SIZEOF_RAM - 2)) && (plcvm_sfp > 0))
     {
         plcvm_sp  = plcvm_sfp - 1;
         plcvm_sfp = plcvm_get_u32(plcvm_sp++);
         plcvm_pc  = plcvm_get_u32(plcvm_sp++);
-    }
-    else if(plcvm_sfp == EXTPLC_SIZEOF_RAM)
-    {
-        plcvm_stat = PLC_ANSWER_OK;
     }
     else
     {

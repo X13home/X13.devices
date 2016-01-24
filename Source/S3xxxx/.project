@@ -6,11 +6,6 @@
 	</projects>
 	<buildSpec>
 		<buildCommand>
-			<name>org.eclipse.mylyn.wikitext.ui.wikiTextValidationBuilder</name>
-			<arguments>
-			</arguments>
-		</buildCommand>
-		<buildCommand>
 			<name>org.eclipse.cdt.managedbuilder.core.genmakebuilder</name>
 			<triggers>clean,full,incremental,</triggers>
 			<arguments>
@@ -27,14 +22,8 @@
 		<nature>org.eclipse.cdt.core.cnature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.managedBuildNature</nature>
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
-		<nature>org.eclipse.mylyn.wikitext.ui.wikiTextNature</nature>
 	</natures>
 	<linkedResources>
-		<link>
-			<name>CMSIS</name>
-			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/ARM/CMSIS</locationURI>
-		</link>
 		<link>
 			<name>Common</name>
 			<type>2</type>
@@ -43,7 +32,17 @@
 		<link>
 			<name>HAL</name>
 			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/STM32F1</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/STM32</locationURI>
+		</link>
+		<link>
+			<name>HAL/CMSIS</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/ARM/CMSIS</locationURI>
+		</link>
+		<link>
+			<name>HAL/Device</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/ARM/Device/ST/STM32F1xx</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
