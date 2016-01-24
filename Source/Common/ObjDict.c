@@ -780,7 +780,7 @@ void OD_Poll(void)
             else if(index != 0xFFFF)                    // Poll data & publish on ready
             {
                 if((ListOD[idxUpdate].cbPoll != NULL) &&
-                   (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx, 0))
+                   (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx))
                 {
                     MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
                                (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),

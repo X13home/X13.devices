@@ -50,7 +50,6 @@ static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
-
 // Write DIO Object's
 static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t *pBuf)
 {
@@ -72,9 +71,12 @@ static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t
 
     return MQTTSN_RET_ACCEPTED;
 }
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 // Poll Procedure
-static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t unused)
+static uint8_t dioPollOD(subidx_t * pSubidx)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
@@ -83,10 +85,6 @@ static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t unused)
 
     return ((dio_change_flag[port] & mask) != 0);
 }
-
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 // Read digital Inputs
 static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)

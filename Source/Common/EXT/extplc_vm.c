@@ -228,25 +228,9 @@ static void cb_not(void){plcvm_set_u32(plcvm_sp, ~plcvm_get_u32(plcvm_sp));}
 static void cb_and(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp &= plcvm_get_u32(plcvm_sp); plcvm_set_u32(plcvm_sp, tmp);}
 static void cb_or(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp |= plcvm_get_u32(plcvm_sp); plcvm_set_u32(plcvm_sp, tmp);}
 static void cb_xor(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp ^= plcvm_get_u32(plcvm_sp); plcvm_set_u32(plcvm_sp, tmp);}
-static void cb_shl(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp <<= (plcvm_get_u32(plcvm_sp) & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
-static void cb_shr(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp >>= (plcvm_get_u32(plcvm_sp) & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
-static void cb_srs(void)
-{
-    uint32_t tmp = plcvm_get_u32(plcvm_sp++); 
-    uint8_t shift = plcvm_get_u32(plcvm_sp) & 0x1F;
-    if(tmp & 0x8000000)
-    {
-        while(shift > 0)
-        {
-            tmp >>= 1;
-            tmp |= 0x80000000;
-            shift--;
-        }
-    }
-    else
-        tmp <<= shift;
-    plcvm_set_u32(plcvm_sp, tmp);
-}
+static void cb_lsl(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp <<= (plcvm_get_u32(plcvm_sp) & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
+static void cb_lsr(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp >>= (plcvm_get_u32(plcvm_sp) & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
+static void cb_asr(void){int32_t tmp = plcvm_get_u32(plcvm_sp++); tmp >>= (plcvm_get_u32(plcvm_sp) & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
 static void cb_shift(void)
 {
     uint8_t cmd = plcvm_lpm_u8();
@@ -663,7 +647,7 @@ static const cbCOP_t plcmv_cb[] =
     // 0x00 - 0x1F
     cb_nop,     NULL,       cb_dup,     cb_drop,    cb_nip,     cb_swap,    cb_over,    cb_rot,
     // Arithmetic function
-    cb_not,     cb_and,     cb_or,      cb_xor,     cb_shl,     cb_shr,     cb_srs,     cb_shift,
+    cb_not,     cb_and,     cb_or,      cb_xor,     cb_lsl,     cb_lsr,     cb_asr,     cb_shift,
     cb_add,     cb_sub,     cb_mul,     cb_div,     cb_mod,     cb_inc,     cb_dec,     cb_neg,
     NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,
     // 0x20 - 0x3F 

@@ -81,7 +81,7 @@ static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pUnused, uint8_t Len, uint8_t *p
     return MQTTSN_RET_ACCEPTED;
 }
 
-static uint8_t twiPollOD(subidx_t * pUnused, uint8_t unused)
+static uint8_t twiPollOD(subidx_t * pUnused)
 {
     if(pTwi_exchange != NULL)
     {

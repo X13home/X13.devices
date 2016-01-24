@@ -259,7 +259,7 @@ static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
     return MQTTSN_RET_ACCEPTED;
 }
 
-static uint8_t plcPollOD(subidx_t * pSubidx, uint8_t unused)
+static uint8_t plcPollOD(subidx_t * pSubidx)
 {
     if(plc_answer)
         return 1;
@@ -478,7 +478,11 @@ static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint
     return MQTTSN_RET_ACCEPTED;
 }
 
-static uint8_t merkerPollOD(subidx_t * pSubidx, uint8_t unused)
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
+
+static uint8_t merkerPollOD(subidx_t * pSubidx)
 {
     uint16_t    base = pSubidx->Base;
     uint32_t    mask;
@@ -509,10 +513,6 @@ static uint8_t merkerPollOD(subidx_t * pSubidx, uint8_t unused)
     
     return (plc_ram[base] & mask) != (plc_old[base] & mask);
 }
-
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 // Register merker
 e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)

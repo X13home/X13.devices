@@ -37,9 +37,9 @@ ROT                 tmp = *(SP+2); *(SP+2) = *(SP+1); *(SP+1) = *(SP); *(SP) = t
 
 NOT                 *(SP) = ~ *(SP)                             // bit inversion
 AND                 *(SP) = *(SP++) & *(SP)                     // OR, XOR
-SHL                 *(SP) = *(SP++) << (*(SP) & 0x1F)           // with zero padding
-SHR                 *(SP) = *(SP++) >> (*(SP) & 0x1F)           // with zero padding
-SRS                 *(SP) = (int32)*(SP++) >> (*(SP) & 0x1F)    // with sign padding
+LSL                 *(SP) = *(SP++) << (*(SP) & 0x1F)           // Logic Shift to Left
+LSR                 *(SP) = *(SP++) >> (*(SP) & 0x1F)           // Logic Shift to Right
+ASR                 *(SP) = (int32)*(SP++) >> (*(SP) & 0x1F)    // Arifmetic shift to Right
 SHIFT               *(SP) = *(SP) [<</>>U/>>S] (cmd = LPM8(PC++))& 0x1F)  //cmd & 0x80: shift 1 - right / 0 - left; cmd & 0x40 - shift right 1 - signed / 0 - unsigned;
 
 ADD                 *(SP) = *(SP++) + *(SP)                     // SUB, MUL, DIV, MOD
