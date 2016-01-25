@@ -1,0 +1,26 @@
+	LD	87
+	LD	88
+	CGT
+	TEST_EQ	1	
+    
+    LD	89
+	DUP	
+	CGT
+	TEST_EQ	0
+
+	LD	90
+	LD	91
+	CGE
+	TEST_EQ	1
+	
+	LD	92
+	DUP
+	CGE
+	TEST_EQ	1
+
+	LD	94
+	LD	93
+	CGE
+	TEST_EQ	0
+
+	RET

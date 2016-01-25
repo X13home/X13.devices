@@ -246,6 +246,12 @@ static void cb_dec(void){plcvm_set_u32(plcvm_sp, plcvm_get_u32(plcvm_sp) - 1);}
 static void cb_neg(void){plcvm_set_u32(plcvm_sp, -plcvm_get_u32(plcvm_sp));}
 // 0x18 - 0x1F - Reserved
 // 0x20 - 0x27 - Compare
+static void cb_ceq(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 == c2)? 1 : 0);}
+static void cb_cne(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 != c2)? 1 : 0);}
+static void cb_cgt(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 >  c2)? 1 : 0);}
+static void cb_cge(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 >= c2)? 1 : 0);}
+static void cb_clt(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 <  c2)? 1 : 0);}
+static void cb_cle(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 <= c2)? 1 : 0);}
 // 0x30 - 0x37 - Reserved 
 // 0x38 - 0x3F - Load Constant
 static void cb_ldi_zero(void){plcvm_set_u32(--plcvm_sp, 0);}
@@ -313,8 +319,7 @@ static void cb_stm_1_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = p
 static void cb_stm_2_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u16(addr, acc & 0x0000FFFF);}
 static void cb_stm_4_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u32(addr, acc);}
 // 0xC0 - 0xEF
-static void cb_in(void)
-{
+static void cb_in(void){
     subidx_t IO;
     IO.Place = plcvm_lpm_u8();
     IO.Type  = plcvm_lpm_u8();
@@ -322,8 +327,7 @@ static void cb_in(void)
     uint32_t val = ext_in(&IO);
     plcvm_set_u32(--plcvm_sp, val);
 }
-static void cb_out(void)
-{
+static void cb_out(void){
     subidx_t IO;
     IO.Place = plcvm_lpm_u8();
     IO.Type  = plcvm_lpm_u8();
@@ -380,7 +384,7 @@ static const cbCOP_t plcmv_cb[] = {
     cb_add,         cb_sub,         cb_mul,         cb_div,         cb_mod,         cb_inc,         cb_dec,         cb_neg,
     NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
     // 0x20 - 0x3F 
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+    cb_ceq,         cb_cne,         cb_cgt,         cb_cge,         cb_clt,         cb_cle,         NULL,           NULL,
     NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
     NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
     cb_ldi_zero,    cb_ldi_s1,      cb_ldi_s2,      cb_ldi_s4,      cb_ldi_u1,      cb_ldi_u2,      cb_ldi_true,    cb_ldi_minus1,

@@ -1,0 +1,26 @@
+	LD	95
+	DUP
+	CLT
+	TEST_EQ	0
+
+	LD	97
+	LD	96
+	CLT
+	TEST_EQ	1
+	
+	LD	98
+	LD	99
+	CLE
+	TEST_EQ	0
+
+	LD	100
+	DUP
+	CLE
+	TEST_EQ	1
+	
+	LD	102
+	LD	101
+	CLE
+	TEST_EQ	1
+
+	RET
