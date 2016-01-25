@@ -252,6 +252,11 @@ static void cb_cgt(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = p
 static void cb_cge(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 >= c2)? 1 : 0);}
 static void cb_clt(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 <  c2)? 1 : 0);}
 static void cb_cle(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 <= c2)? 1 : 0);}
+// 0x28 - 0x2B
+static void cb_not_l(void){uint32_t c1 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, (c1 == 0)? 1 : 0);}
+static void cb_and_l(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, ((c1 != 0) & (c2 != 0))? 1 : 0);}
+static void cb_or_l(void) {uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, ((c1 != 0) | (c2 != 0))? 1 : 0);}
+static void cb_xor_l(void){uint32_t c1 = plcvm_get_u32(plcvm_sp++);uint32_t c2 = plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, ((c1 != 0) ^ (c2 != 0))? 1 : 0);}
 // 0x30 - 0x37 - Reserved 
 // 0x38 - 0x3F - Load Constant
 static void cb_ldi_zero(void){plcvm_set_u32(--plcvm_sp, 0);}
@@ -385,7 +390,7 @@ static const cbCOP_t plcmv_cb[] = {
     NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
     // 0x20 - 0x3F 
     cb_ceq,         cb_cne,         cb_cgt,         cb_cge,         cb_clt,         cb_cle,         NULL,           NULL,
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+    cb_not_l,       cb_and_l,       cb_or_l,        cb_xor_l,       NULL,           NULL,           NULL,           NULL,
     NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
     cb_ldi_zero,    cb_ldi_s1,      cb_ldi_s2,      cb_ldi_s4,      cb_ldi_u1,      cb_ldi_u2,      cb_ldi_true,    cb_ldi_minus1,
     // 0x40 - 0x5F 

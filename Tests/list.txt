@@ -63,3 +63,23 @@ RET             Ok
 
 test7c.asm
 SCALL           Ok
+
+test8a.asm
+CEQ             Ok
+CNE             Ok
+
+test8b.asm
+CGT             Ok
+CGE             Ok
+
+test8c.asm
+CLT             Ok
+CLE             Ok
+
+test9a.asm
+NOT_L           Ok
+AND_L           Ok
+
+test9b.asm
+OR_L            Ok
+XOR_L           Ok

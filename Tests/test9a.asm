@@ -1,0 +1,29 @@
+	LD	17
+	NOT_L
+	TEST_EQ	0
+
+	LD	0
+	NOT_L
+	TEST_EQ	1
+
+	LD	0
+	LD	18
+	AND_L
+	TEST_EQ	0
+    
+	LD	19
+	LD	0
+	AND_L
+	TEST_EQ	0
+    
+    LD  0
+    DUP
+	AND_L
+	TEST_EQ	0
+
+	LD	8
+	LD	4
+	AND_L
+	TEST_EQ	1
+
+	RET
