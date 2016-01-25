@@ -159,8 +159,8 @@ static void plcvm_set_bool(uint32_t addr, bool sr){
         else
             plc_ram[addr] &= ~mask;
     }
-    
-    plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
+    else
+        plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
 }
 
 static void plcvm_set_u8(uint32_t addr, uint8_t val){
@@ -174,8 +174,8 @@ static void plcvm_set_u8(uint32_t addr, uint8_t val){
         acc |= bcc;
         plc_ram[addr >> 2] = acc;
     }
-
-    plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
+    else
+        plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
 }
 
 static void plcvm_set_u16(uint32_t addr, uint16_t val){
