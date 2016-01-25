@@ -50,3 +50,16 @@ SJMP            Ok
 JZ              Ok
 JNZ             Ok
 JMP             Ok
+
+test7a.asm
+LD_L            Ok
+ST_L            Ok
+
+test7b.asm
+CALL            Ok
+LD_P            Ok
+ST_P            Ok
+RET             Ok
+
+test7c.asm
+SCALL           Ok

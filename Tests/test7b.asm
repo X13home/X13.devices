@@ -1,0 +1,10 @@
+	LD	61
+	CALL	A1
+	TEST_EQ	62
+	RET
+
+:A1	LD	P0
+	TEST_EQ	61
+	LD	62
+	ST	P0
+	RET

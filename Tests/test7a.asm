@@ -1,0 +1,15 @@
+	LD	41
+	LD	42
+	LD	L0
+	TEST_EQ	41
+	LD	L1
+	TEST_EQ	42
+
+	LD	43
+	ST	L0
+	LD	44
+	ST	L1
+	TEST_EQ	44
+	TEST_EQ	43
+	
+	RET

@@ -47,6 +47,7 @@ extern "C" {
 #include "mqTypes.h"
 #include "mqttsn.h"
 #include "ObjDict.h"
+#include "ext.h"
 
 #if (defined PHY2_ADDR_t) && (defined ASLEEP)
 #error Incompatible options ASLEEP for Gateway

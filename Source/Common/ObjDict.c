@@ -11,7 +11,6 @@ See LICENSE file for license details.
 */
 
 #include "config.h"
-#include "ext.h"
 
 //////////////////////////
 // Objects List

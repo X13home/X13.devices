@@ -11,7 +11,6 @@ See LICENSE file for license details.
 */
 
 #include "config.h"
-#include "ext.h"
 
 // Initialise extensions
 void extInit(void)
@@ -170,3 +169,17 @@ void extProc(void)
     plcProc();
 #endif  // EXTPLC_USED
 }
+
+#ifdef EXTPLC_USED
+uint32_t ext_in(subidx_t * pSubidx)
+{
+    #warning ext_in
+    return 0;
+}
+
+void ext_out(subidx_t * pSubidx, uint32_t val)
+{
+    #warning ext_out
+}
+#endif  // EXTPLC_USED
+
