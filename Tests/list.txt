@@ -83,3 +83,16 @@ AND_L           Ok
 test9b.asm
 OR_L            Ok
 XOR_L           Ok
+
+test10a.asm
+LDM_B1_C16      Ok
+LDM_S1_C16      Ok
+LDM_S2_C16      Ok
+LDM_S4_C16      Ok
+STM_B1_C16      Ok
+STM_S1_C16      Ok
+STM_S2_C16      Ok
+STM_S4_C16      Ok
+
+test20a.asm
+OUT             Ok, Blink on Op20

@@ -173,12 +173,35 @@ void extProc(void)
 #ifdef EXTPLC_USED
 uint32_t ext_in(subidx_t * pSubidx)
 {
-    #warning ext_in
+    switch(pSubidx->Place)
+    {
+#ifdef EXTDIO_USED
+        case objDin:
+        case objDout:
+            return dioRead(pSubidx);
+#endif
+        default:
+            break;
+    }
+
     return 0;
 }
 
 void ext_out(subidx_t * pSubidx, uint32_t val)
 {
+    switch(pSubidx->Place)
+    {
+#ifdef EXTDIO_USED
+        case objDin:
+        case objDout:
+            dioWrite(pSubidx, val != 0);
+            break;
+#endif
+        default:
+            break;
+    }
+    
+    
     #warning ext_out
 }
 #endif  // EXTPLC_USED

@@ -1,0 +1,19 @@
+	LD	W0
+	INC
+	DUP
+	LD	100
+	CEQ
+	JZ	A1
+	LD	1
+	OUT	Op20
+:A1	LD	200
+    OVER
+	CLT
+	JNZ	A0
+	DROP
+	LD	0
+	DUP
+	OUT	Op20
+:A0	ST	W0
+	RET
+	

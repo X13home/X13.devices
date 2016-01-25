@@ -280,4 +280,36 @@ void dioRelease(uint8_t pin)
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
 }
-#endif  // EXTDIO_USED
+
+#ifdef EXTPLC_USED
+bool dioRead(subidx_t * pSubidx)
+{
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    dioPin2hw(pin, &port, &mask);
+    
+    bool sr = (dio_status[port] & mask) != 0;
+    if(pSubidx->Type == objPinNPN)
+        sr = !sr;
+    return sr;
+}
+
+void dioWrite(subidx_t * pSubidx, bool sr)
+{
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    dioPin2hw(pin, &port, &mask);
+
+    if(pSubidx->Type == objPinNPN)
+        sr = !sr;
+
+    if(sr)
+        dio_status[port] |= mask;
+    else
+        dio_status[port] &= ~mask;
+}
+#endif  //  EXTPLC_USED
+
+#endif  //  EXTDIO_USED

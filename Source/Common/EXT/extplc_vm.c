@@ -326,17 +326,17 @@ static void cb_stm_4_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = p
 // 0xC0 - 0xEF
 static void cb_in(void){
     subidx_t IO;
-    IO.Place = plcvm_lpm_u8();
-    IO.Type  = plcvm_lpm_u8();
     IO.Base  = plcvm_lpm_u16();
+    IO.Type  = plcvm_lpm_u8();
+    IO.Place = plcvm_lpm_u8();
     uint32_t val = ext_in(&IO);
     plcvm_set_u32(--plcvm_sp, val);
 }
 static void cb_out(void){
     subidx_t IO;
-    IO.Place = plcvm_lpm_u8();
-    IO.Type  = plcvm_lpm_u8();
     IO.Base  = plcvm_lpm_u16();
+    IO.Type  = plcvm_lpm_u8();
+    IO.Place = plcvm_lpm_u8();
     uint32_t val = plcvm_get_u32(plcvm_sp++);
     ext_out(&IO, val);
 }
