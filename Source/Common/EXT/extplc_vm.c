@@ -51,6 +51,14 @@ static uint8_t plcvm_lpm_u8(void)
     return retval;
 }
 
+// return LPM16[plcvm_pc+=4]
+static uint16_t plcvm_lpm_u16(void)
+{
+    uint16_t retval = plcvm_lpm_u8();
+    retval |= (uint16_t)(plcvm_lpm_u8())<<8;
+    return retval;
+}
+
 // return LPM32[plcvm_pc+=4]
 static uint32_t plcvm_lpm_u32(void)
 {
@@ -228,50 +236,14 @@ static void cb_not(void){plcvm_set_u32(plcvm_sp, ~plcvm_get_u32(plcvm_sp));}
 static void cb_and(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp &= plcvm_get_u32(plcvm_sp); plcvm_set_u32(plcvm_sp, tmp);}
 static void cb_or(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp |= plcvm_get_u32(plcvm_sp); plcvm_set_u32(plcvm_sp, tmp);}
 static void cb_xor(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp ^= plcvm_get_u32(plcvm_sp); plcvm_set_u32(plcvm_sp, tmp);}
-static void cb_lsl(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp <<= (plcvm_get_u32(plcvm_sp) & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
-static void cb_lsr(void){uint32_t tmp = plcvm_get_u32(plcvm_sp++); tmp >>= (plcvm_get_u32(plcvm_sp) & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
-static void cb_asr(void){int32_t tmp = plcvm_get_u32(plcvm_sp++); tmp >>= (plcvm_get_u32(plcvm_sp) & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
-static void cb_shift(void)
-{
-    uint8_t cmd = plcvm_lpm_u8();
-    int32_t tmp = (int32_t)plcvm_get_u32(plcvm_sp);
-
-    if(cmd & 0x80)      // Shift Right
-    {
-        if(cmd & 0x40)
-        {
-            int32_t s4 = tmp;
-            s4 >>= (cmd & 0x1F);
-            tmp = s4;
-        }
-        else
-            tmp >>= (cmd & 0x1F);
-    }
-    else
-        tmp <<= (cmd & 0x1F);
-
-    plcvm_set_u32(plcvm_sp, tmp);
-}
+static void cb_lsl(void){uint32_t tmp = plcvm_get_u32(plcvm_sp); tmp <<= (plcvm_lpm_u8() & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
+static void cb_lsr(void){uint32_t tmp = plcvm_get_u32(plcvm_sp); tmp >>= (plcvm_lpm_u8() & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
+static void cb_asr(void){int32_t tmp = plcvm_get_u32(plcvm_sp); tmp >>= (plcvm_lpm_u8() & 0x1F); plcvm_set_u32(plcvm_sp, tmp);}
 
 // 0x10 - 0x17 - Arithmetic Operators
-static void cb_add(void)
-{
-    int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);
-    int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);
-    plcvm_set_u32(plcvm_sp, r1 + r2);
-}
-static void cb_sub(void)
-{
-    int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);
-    int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);
-    plcvm_set_u32(plcvm_sp, r1 - r2);
-}
-static void cb_mul(void)
-{
-    int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);
-    int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);
-    plcvm_set_u32(plcvm_sp, r1 - r2);
-}
+static void cb_add(void){int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, r1 + r2);}
+static void cb_sub(void){int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, r1 - r2);}
+static void cb_mul(void){int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, r1 * r2);}
 static void cb_div(void)
 {
     int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp + 1);
@@ -285,12 +257,7 @@ static void cb_div(void)
         plcvm_set_u32(plcvm_sp, r1/r2);
     }
 }
-static void cb_mod(void)
-{
-    int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);
-    int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);
-    plcvm_set_u32(plcvm_sp, r1 % r2);
-}
+static void cb_mod(void){int32_t r1 = (int32_t)plcvm_get_u32(plcvm_sp++);int32_t r2 = (int32_t)plcvm_get_u32(plcvm_sp);plcvm_set_u32(plcvm_sp, r1 % r2);}
 static void cb_inc(void){plcvm_set_u32(plcvm_sp, plcvm_get_u32(plcvm_sp) + 1);}
 static void cb_dec(void){plcvm_set_u32(plcvm_sp, plcvm_get_u32(plcvm_sp) - 1);}
 static void cb_neg(void){plcvm_set_u32(plcvm_sp, -plcvm_get_u32(plcvm_sp));}
@@ -304,326 +271,77 @@ static void cb_neg(void){plcvm_set_u32(plcvm_sp, -plcvm_get_u32(plcvm_sp));}
 // 0x80 - 0x9F - Load from memory
 
 // *(SP) = (type)*(*(SP));
-static void cb_ldm_b1_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp);
-    uint32_t acc = plcvm_get_bool(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_s1_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp);
-    uint32_t acc = plcvm_get_s8(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_u1_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp);
-    uint32_t acc = plcvm_get_u8(addr);
-    plcvm_set_u32(plcvm_sp, acc);    
-}
-static void cb_ldm_s2_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp);
-    uint32_t acc = plcvm_get_s16(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_u2_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp);
-    uint32_t acc = plcvm_get_u16(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_s4_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp);
-    uint32_t acc = plcvm_get_u32(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
+static void cb_ldm_b1_s(void){plcvm_set_u32(plcvm_sp, plcvm_get_bool(plcvm_get_u32(plcvm_sp)));}
+static void cb_ldm_s1_s(void){plcvm_set_u32(plcvm_sp, plcvm_get_s8(  plcvm_get_u32(plcvm_sp)));}
+static void cb_ldm_u1_s(void){plcvm_set_u32(plcvm_sp, plcvm_get_u8(  plcvm_get_u32(plcvm_sp)));}
+static void cb_ldm_s2_s(void){plcvm_set_u32(plcvm_sp, plcvm_get_s16( plcvm_get_u32(plcvm_sp)));}
+static void cb_ldm_u2_s(void){plcvm_set_u32(plcvm_sp, plcvm_get_u16( plcvm_get_u32(plcvm_sp)));}
+static void cb_ldm_s4_s(void){plcvm_set_u32(plcvm_sp, plcvm_get_u32( plcvm_get_u32(plcvm_sp)));}
 //*(SP) = (type)*(*(SP)+*(uint8*)(PC++));
-static void cb_ldm_b1_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8();
-    uint32_t acc = plcvm_get_bool(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_s1_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8();
-    uint32_t acc = plcvm_get_s8(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_u1_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8();
-    uint32_t acc = plcvm_get_u8(addr);
-    plcvm_set_u32(plcvm_sp, acc);    
-}
-static void cb_ldm_s2_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8();
-    uint32_t acc = plcvm_get_s16(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_u2_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8();
-    uint32_t acc = plcvm_get_u16(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_s4_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8();
-    uint32_t acc = plcvm_get_u32(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
+static void cb_ldm_b1_cs8(void){plcvm_set_u32(plcvm_sp, plcvm_get_bool(plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8()));}
+static void cb_ldm_s1_cs8(void){plcvm_set_u32(plcvm_sp, plcvm_get_s8(  plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8()));}
+static void cb_ldm_u1_cs8(void){plcvm_set_u32(plcvm_sp, plcvm_get_u8(  plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8()));}
+static void cb_ldm_s2_cs8(void){plcvm_set_u32(plcvm_sp, plcvm_get_s16( plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8()));}
+static void cb_ldm_u2_cs8(void){plcvm_set_u32(plcvm_sp, plcvm_get_u16( plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8()));}
+static void cb_ldm_s4_cs8(void){plcvm_set_u32(plcvm_sp, plcvm_get_u32( plcvm_get_u32(plcvm_sp) + plcvm_lpm_u8()));}
 // *(SP) = (type)*(*(SP)+*(uint16*)(PC+=2));
-static void cb_ldm_b1_cs16(void)
-{
-    uint16_t offs_pc = plcvm_lpm_u8();
-    offs_pc |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + offs_pc;
-    uint32_t acc = plcvm_get_bool(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_s1_cs16(void)
-{
-    uint16_t offs_pc = plcvm_lpm_u8();
-    offs_pc |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + offs_pc;
-    uint32_t acc = plcvm_get_s8(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_u1_cs16(void)
-{
-    uint16_t offs_pc = plcvm_lpm_u8();
-    offs_pc |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + offs_pc;
-    uint32_t acc = plcvm_get_u8(addr);
-    plcvm_set_u32(plcvm_sp, acc);    
-}
-static void cb_ldm_s2_cs16(void)
-{
-    uint16_t offs_pc = plcvm_lpm_u8();
-    offs_pc |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + offs_pc;
-    uint32_t acc = plcvm_get_s16(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_u2_cs16(void)
-{
-    uint16_t offs_pc = plcvm_lpm_u8();
-    offs_pc |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + offs_pc;
-    uint32_t acc = plcvm_get_u16(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_s4_cs16(void)
-{
-    uint16_t offs_pc = plcvm_lpm_u8();
-    offs_pc |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp) + offs_pc;
-    uint32_t acc = plcvm_get_u32(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
+static void cb_ldm_b1_cs16(void){plcvm_set_u32(plcvm_sp, plcvm_get_bool(plcvm_get_u32(plcvm_sp) + plcvm_lpm_u16()));}
+static void cb_ldm_s1_cs16(void){plcvm_set_u32(plcvm_sp, plcvm_get_s8(  plcvm_get_u32(plcvm_sp) + plcvm_lpm_u16()));}
+static void cb_ldm_u1_cs16(void){plcvm_set_u32(plcvm_sp, plcvm_get_u8(  plcvm_get_u32(plcvm_sp) + plcvm_lpm_u16()));}
+static void cb_ldm_s2_cs16(void){plcvm_set_u32(plcvm_sp, plcvm_get_s16( plcvm_get_u32(plcvm_sp) + plcvm_lpm_u16()));}
+static void cb_ldm_u2_cs16(void){plcvm_set_u32(plcvm_sp, plcvm_get_u16( plcvm_get_u32(plcvm_sp) + plcvm_lpm_u16()));}
+static void cb_ldm_s4_cs16(void){plcvm_set_u32(plcvm_sp, plcvm_get_u32( plcvm_get_u32(plcvm_sp) + plcvm_lpm_u16()));}
 // *(--SP) = (type)*(*(uint16*)(PC+=2)); // bool LPM(addr)
-static void cb_ldm_b1_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-    addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    plcvm_sp--;
-    uint32_t acc = plcvm_get_bool(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_s1_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-    addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    plcvm_sp--;
-    uint32_t acc = plcvm_get_s8(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_u1_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-    addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    plcvm_sp--;
-    uint32_t acc = plcvm_get_u8(addr);
-    plcvm_set_u32(plcvm_sp, acc);    
-}
-static void cb_ldm_s2_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-    addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    plcvm_sp--;
-    uint32_t acc = plcvm_get_s16(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_u2_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-    addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    plcvm_sp--;
-    uint32_t acc = plcvm_get_u16(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-static void cb_ldm_s4_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-    addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    plcvm_sp--;
-    uint32_t acc = plcvm_get_u32(addr);
-    plcvm_set_u32(plcvm_sp, acc);
-}
-
+static void cb_ldm_b1_c16(void){plcvm_set_u32(--plcvm_sp, plcvm_get_bool(plcvm_lpm_u16()));}
+static void cb_ldm_s1_c16(void){plcvm_set_u32(--plcvm_sp, plcvm_get_s8(  plcvm_lpm_u16()));}
+static void cb_ldm_u1_c16(void){plcvm_set_u32(--plcvm_sp, plcvm_get_u8(  plcvm_lpm_u16()));}
+static void cb_ldm_s2_c16(void){plcvm_set_u32(--plcvm_sp, plcvm_get_s16( plcvm_lpm_u16()));}
+static void cb_ldm_u2_c16(void){plcvm_set_u32(--plcvm_sp, plcvm_get_u16( plcvm_lpm_u16()));}
+static void cb_ldm_s4_c16(void){plcvm_set_u32(--plcvm_sp, plcvm_get_u32( plcvm_lpm_u16()));}
 // Load constant
 static void cb_ldi_zero(void){plcvm_set_u32(--plcvm_sp, 0);}
 static void cb_ldi_true(void){plcvm_set_u32(--plcvm_sp, 1);}
 static void cb_ldi_minus1(void){plcvm_set_u32(--plcvm_sp, -1);}
-static void cb_ldi_s1(void)
-{
-    uint32_t acc = plcvm_lpm_u8();
-    if(acc & 0x80)
-    {
-        acc |= 0xFFFFFF00;
-    }
-    plcvm_set_u32(--plcvm_sp, acc);
-}
+static void cb_ldi_s1(void){int32_t acc = plcvm_lpm_u8();if(acc & 0x80){acc |= 0xFFFFFF00;}plcvm_set_u32(--plcvm_sp, acc);}
 static void cb_ldi_u1(void){plcvm_set_u32(--plcvm_sp, plcvm_lpm_u8());}
-static void cb_ldi_s2(void)
-{
-    int32_t acc = plcvm_lpm_u8();
-    acc |= (int16_t)(plcvm_lpm_u8())<<8;
-    if(acc & 0x8000)
-    {
-        acc |= (int32_t)0xFFFF0000;
-    }
-    plcvm_set_u32(--plcvm_sp, acc);
-}
-static void cb_ldi_u2(void)
-{
-    int32_t acc = (uint16_t)(plcvm_lpm_u8());
-    acc	|=  (uint16_t)(plcvm_lpm_u8())<<8;
-    plcvm_set_u32(--plcvm_sp, acc);
-}
+static void cb_ldi_s2(void){int32_t acc = plcvm_lpm_u16();if(acc & 0x8000){acc |= (int32_t)0xFFFF0000;}plcvm_set_u32(--plcvm_sp, acc);}
+static void cb_ldi_u2(void){int32_t acc = plcvm_lpm_u16();plcvm_set_u32(--plcvm_sp, acc);}
 static void cb_ldi_s4(void){plcvm_set_u32(--plcvm_sp, plcvm_lpm_u32());}
 
 // 0xA0 - 0xBF - Store in memory
 // (type)*(SP++) = *(SP++);
-static void cb_stm_b_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp++);
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_bool(addr, (acc != 0) ? 1 : 0);
-}
-static void cb_stm_1_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp++);
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u8(addr, acc & 0x000000FF);
-}
-static void cb_stm_2_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp++);
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u16(addr, acc & 0x0000FFFF);
-}
-static void cb_stm_4_s(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp++);
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u32(addr, acc);
-}
+static void cb_stm_b_s(void){uint32_t addr = plcvm_get_u32(plcvm_sp++);uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_bool(addr, (acc != 0) ? 1 : 0);}
+static void cb_stm_1_s(void){uint32_t addr = plcvm_get_u32(plcvm_sp++);uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u8(addr, acc & 0x000000FF);}
+static void cb_stm_2_s(void){uint32_t addr = plcvm_get_u32(plcvm_sp++);uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u16(addr, acc & 0x0000FFFF);}
+static void cb_stm_4_s(void){uint32_t addr = plcvm_get_u32(plcvm_sp++);uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u32(addr, acc);}
 // (type)*(*(SP++) + *(uint8*)(PC++)) = *(SP++);
-static void cb_stm_b_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u8();
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_bool(addr, (acc != 0) ? 1 : 0);
-}
-static void cb_stm_1_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp++);
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u8(addr, acc & 0x000000FF);
-}
-static void cb_stm_2_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u8();
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u16(addr, acc & 0x0000FFFF);
-}
-static void cb_stm_4_cs8(void)
-{
-    uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u8();
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u32(addr, acc);
-}
+static void cb_stm_b_cs8(void){uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u8();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_bool(addr, (acc != 0) ? 1 : 0);}
+static void cb_stm_1_cs8(void){uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u8();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u8(addr, acc & 0x000000FF);}
+static void cb_stm_2_cs8(void){uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u8();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u16(addr, acc & 0x0000FFFF);}
+static void cb_stm_4_cs8(void){uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u8();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u32(addr, acc);}
 //(type)*(*(SP++) + *(uint16*)(PC+=2)) = *(SP++);
-static void cb_stm_b_cs16(void)
-{
-    uint16_t offs = (uint16_t)plcvm_lpm_u8();
-    	     offs |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp++) + offs;
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_bool(addr, (acc != 0) ? 1 : 0);
-}
-static void cb_stm_1_cs16(void)
-{
-    uint16_t offs = (uint16_t)plcvm_lpm_u8();
-    	     offs |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp++) + offs;
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u8(addr, acc & 0x000000FF);
-}
-static void cb_stm_2_cs16(void)
-{
-    uint16_t offs = (uint16_t)plcvm_lpm_u8();
-    	     offs |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp++) + offs;
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u16(addr, acc & 0x0000FFFF);
-}
-static void cb_stm_4_cs16(void)
-{
-    uint16_t offs = (uint16_t)plcvm_lpm_u8();
-    	     offs |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t addr = plcvm_get_u32(plcvm_sp++) + offs;
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u32(addr, acc);
-}
+static void cb_stm_b_cs16(void){uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_bool(addr, (acc != 0) ? 1 : 0);}
+static void cb_stm_1_cs16(void){uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u8(addr, acc & 0x000000FF);}
+static void cb_stm_2_cs16(void){uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u16(addr, acc & 0x0000FFFF);}
+static void cb_stm_4_cs16(void){uint32_t addr = plcvm_get_u32(plcvm_sp++) + plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u32(addr, acc);}
 //(type)*((uint16*)(PC+=2)) = *(SP++);
-static void cb_stm_b_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-             addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_bool(addr, (acc != 0) ? 1 : 0);
-}
-static void cb_stm_1_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-             addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u8(addr, acc & 0x000000FF);
-}
-static void cb_stm_2_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-             addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u16(addr, acc & 0x0000FFFF);
-}
-static void cb_stm_4_c16(void)
-{
-    uint16_t addr = plcvm_lpm_u8();
-             addr |= (uint16_t)(plcvm_lpm_u8())<<8;
-    uint32_t acc  = plcvm_get_u32(plcvm_sp++);
-    plcvm_set_u32(addr, acc);
-}
+static void cb_stm_b_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_bool(addr, (acc != 0) ? 1 : 0);}
+static void cb_stm_1_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u8(addr, acc & 0x000000FF);}
+static void cb_stm_2_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u16(addr, acc & 0x0000FFFF);}
+static void cb_stm_4_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = plcvm_get_u32(plcvm_sp++);plcvm_set_u32(addr, acc);}
 
 // 0xE0 - 0xFF
-static void cb_test_eq(void){if(plcvm_get_u32(plcvm_sp++) != plcvm_lpm_u32()) {plcvm_stat = PLC_ANSWER_ERROR_TEST;}}
+static void cb_sjmp(void){plcvm_pc = plcvm_get_u32(plcvm_sp++);}
+static void cb_jz(void){uint16_t addr = plcvm_lpm_u16();if(plcvm_get_u32(plcvm_sp++) == 0){plcvm_pc = addr;}}
+static void cb_jnz(void){uint16_t addr = plcvm_lpm_u16();if(plcvm_get_u32(plcvm_sp++) != 0){plcvm_pc = addr;}}
+static void cb_jmp(void){plcvm_pc = plcvm_lpm_u16();}
+
+static void cb_test_eq(void)
+{
+	int32_t val1 = plcvm_get_u32(plcvm_sp++);
+	int32_t val2 = plcvm_lpm_u32();
+	if(val1 != val2) {plcvm_stat = PLC_ANSWER_ERROR_TEST;}
+}
 static void cb_ret(void)
 {
     if(plcvm_sfp == EXTPLC_SIZEOF_RAM)
@@ -647,7 +365,7 @@ static const cbCOP_t plcmv_cb[] =
     // 0x00 - 0x1F
     cb_nop,     NULL,       cb_dup,     cb_drop,    cb_nip,     cb_swap,    cb_over,    cb_rot,
     // Arithmetic function
-    cb_not,     cb_and,     cb_or,      cb_xor,     cb_lsl,     cb_lsr,     cb_asr,     cb_shift,
+    cb_not,     cb_and,     cb_or,      cb_xor,     cb_lsl,     cb_lsr,     cb_asr,     NULL,
     cb_add,     cb_sub,     cb_mul,     cb_div,     cb_mod,     cb_inc,     cb_dec,     cb_neg,
     NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,
     // 0x20 - 0x3F 
@@ -683,7 +401,7 @@ static const cbCOP_t plcmv_cb[] =
     // 0xE0 - 0xFF
     NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,
     NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,
-    NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       NULL,
+    cb_sjmp,    cb_jz,      cb_jnz,     cb_jmp,     NULL,       NULL,       NULL,       NULL,
     NULL,       NULL,       NULL,       NULL,       NULL,       NULL,       cb_test_eq, cb_ret
 };
 

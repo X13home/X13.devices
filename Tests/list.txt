@@ -29,9 +29,24 @@ OR              Ok
 XOR             Ok
 
 test4b.asm
-SHL             Ok
-SHR             Ok
-SRS             Ok
-SHIFT L         Ok
-SHIFT R         Ok
-SHIFT RS        Ok
+LSL             Ok
+LSR             Ok
+ASR             Ok
+
+test5a.asm
+ADD             Ok
+SUB             Ok
+MUL             Ok
+DIV             Ok
+
+test5b.asm
+MOD             Ok
+INC             Ok
+DEC             Ok
+NEG             Ok
+
+test6a.asm
+SJMP            Ok
+JZ              Ok
+JNZ             Ok
+JMP             Ok

@@ -1,0 +1,24 @@
+	LD	33
+	LD	A0
+	SJMP
+	LD	32
+:A0	TEST_EQ	33
+
+	LD	1
+	DUP
+	JZ	A1
+	LD	34
+:A1	TEST_EQ	34
+
+	LD	35
+	DUP
+	JNZ	A2
+	LD	0
+:A2	TEST_EQ	35
+
+	LD	36	
+	JMP	A3
+	LD	0
+:A3	TEST_EQ	36
+
+	RET
