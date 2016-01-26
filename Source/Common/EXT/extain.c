@@ -267,6 +267,16 @@ void ainProc(void)
     }
 }
 
+#ifdef EXTPLC_USED
+int16_t ainRead(subidx_t * pSubidx)
+{
+    uint16_t apin = pSubidx->Base;
+    if(apin < EXTAIN_MAXPORT_NR)
+        return ain_act_val[apin];
+    return 0;
+}
+#endif  //  EXTPLC_USED
+
 // AIn Section
 /////////////////////////////////////////////////////
 #endif  //  EXTAIN_USED

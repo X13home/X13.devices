@@ -200,9 +200,6 @@ void ext_out(subidx_t * pSubidx, uint32_t val)
         default:
             break;
     }
-    
-    
-    #warning ext_out
 }
 #endif  // EXTPLC_USED
 
