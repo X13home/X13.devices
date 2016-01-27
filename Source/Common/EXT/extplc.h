@@ -30,6 +30,7 @@ typedef enum
     PLC_ANSWER_ERROR_WD         = 0x84,     // Watchdog
     PLC_ANSWER_ERROR_OFR_SFP    = 0x85,     // Out of Range SFP
     PLC_ANSWER_ERROR_DIV0       = 0x86,     // division to 0
+    PLC_ANSWER_ERROR_OFR_SP     = 0x87,     // Out of Range SP
 
     
     PLC_ANSWER_ERROR_WRS        = 0xFA,     // Wrong State

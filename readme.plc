@@ -6,16 +6,16 @@ uint32 PC  - Program counter (uint8)
 
 on start:
 SFP = MEM_SIZE
-SP  = SFP - 1
+SP  = MEM_SIZE
 PC  = 0
 
 Stack:
 
-PF  *(SFP + 0x10)
+PF  *(SFP + 0x11)
 ..
 P2
 P1
-P0  *(SFP + 0x01)
+P0  *(SFP + 0x02)
 PC'
 SFP'
 L0      // Local 0
@@ -65,7 +65,7 @@ STM_type_CS16       (type)*(*(SP++) + *(uint16*)(PC+=2)) = *(SP++);     // B,S1(
 STM_type_C16        (type)*((uint16*)(PC+=2)) = *(SP++);                // B,S1(U1),S2(U2),S4
 
 TEST_EQ             *(SP) == (int32)*(PC+=4) ? Ok : plc_state = ERROR_TEST
-RET                 SP = SFP - 1; SFP = *(SP++); PC = *(SP++)
+RET                 SP = SFP; SFP = *(SP++); PC = *(SP++)
 
 // not exist yet
 PUSH_Pn     *(--SP) = *(SFP+1+n);
@@ -88,5 +88,5 @@ JMP             PC = *(uint16_t *)(PC)
 JZ              PC = *(SP++) == 0 ? *(uint16_t *)(PC) : PC+2
 JNZ             PC = *(SP++) != 0 ? *(uint16_t *)(PC) : PC+2
 
-CALL_I          tmp = *(SP); *(SP) = PC + 2; *(--SP) = SFP; SFP = SP+1; PC = tmp;
-CALL            *(--SP) = PC + 2; *(--SP) = SFP; SFP = SP+1; PC = *(uint16_t *)(PC);
+CALL_I          tmp = *(SP); *(SP) = PC + 2; *(--SP) = SFP; SFP = SP; PC = tmp;
+CALL            *(--SP) = PC + 2; *(--SP) = SFP; SFP = SP; PC = *(uint16_t *)(PC);

@@ -179,7 +179,11 @@ uint32_t ext_in(subidx_t * pSubidx)
         case objDin:
         case objDout:
             return dioRead(pSubidx);
-#endif
+#endif  //  EXTDIO_USED
+#ifdef EXTAIN_USED
+        case objAin:
+            return ainRead(pSubidx);
+#endif  //  EXTAIN_USED
         default:
             break;
     }
@@ -192,14 +196,12 @@ void ext_out(subidx_t * pSubidx, uint32_t val)
     switch(pSubidx->Place)
     {
 #ifdef EXTDIO_USED
-        case objDin:
         case objDout:
             dioWrite(pSubidx, val != 0);
             break;
-#endif
+#endif  //  EXTDIO_USED
         default:
             break;
     }
 }
 #endif  // EXTPLC_USED
-
