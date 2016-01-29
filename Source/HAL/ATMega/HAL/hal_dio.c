@@ -78,13 +78,11 @@ uint8_t hal_dio_base2pin(uint16_t base)
     return pgm_read_byte(&hal_dio_sBase2Base[base]);
 }
 
+// Input: Hardware Pin
 void hal_dio_configure(uint8_t Pin, uint8_t Mode)
 {
     uint8_t PortNr = Pin;
     PortNr >>= 3;
-#ifdef EXTDIO_BASE_OFFSET
-    PortNr += EXTDIO_BASE_OFFSET;
-#endif  //  EXTDIO_BASE_OFFSET
     uint16_t base = pgm_read_word(&hal_dio_portnum2port[PortNr]);
     
     uint8_t Mask = 1;
