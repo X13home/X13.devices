@@ -39,9 +39,6 @@ static e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
     uint16_t value = pBuf[1];
     value <<= 8;
     value |= pBuf[0];
-    if(pSubidx->Type == objPinNPN)
-        value = ~value;
-    
     hal_pwm_write(pSubidx->Base, value);
 
     return MQTTSN_RET_ACCEPTED;
@@ -56,10 +53,7 @@ e_MQTTSN_RETURNS_t pwmRegisterOD(indextable_t *pIdx)
         return MQTTSN_RET_REJ_INV_ID;
     
     dioTake(dio);
-    hal_pwm_configure(base);
-    
-    if(pIdx->sidx.Type == objPinNPN)
-        hal_pwm_write(base, 0xFFFF);
+    hal_pwm_configure(base, (pIdx->sidx.Type == objPinNPN));
 
     pIdx->cbWrite = &pwmWriteOD;
     

@@ -72,20 +72,28 @@ static const PROGMEM uint8_t  hal_dio_sBase2Base[] = EXTDIO_MAPPING;
 
 uint8_t hal_dio_base2pin(uint16_t base)
 {
-
     if(base >= sizeof(hal_dio_sBase2Base))
         return 0xFF;
     
     return pgm_read_byte(&hal_dio_sBase2Base[base]);
 }
 
-void hal_dio_configure(uint8_t PortNr, uint8_t Mask, uint8_t Mode)
+void hal_dio_configure(uint8_t Pin, uint8_t Mode)
 {
+    uint8_t PortNr = Pin;
+    PortNr >>= 3;
 #ifdef EXTDIO_BASE_OFFSET
     PortNr += EXTDIO_BASE_OFFSET;
 #endif  //  EXTDIO_BASE_OFFSET
-
     uint16_t base = pgm_read_word(&hal_dio_portnum2port[PortNr]);
+    
+    uint8_t Mask = 1;
+    uint8_t pos = Pin & 7;
+    while(pos > 0)
+    {
+        pos--;
+        Mask <<= 1;
+    }
 
     uint8_t *pPORT;
     pPORT = (uint8_t *)base;

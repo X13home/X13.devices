@@ -1,8 +1,9 @@
 #include "config.h"
 
-#if ((defined HAL_USE_USART1) || \
-     (defined HAL_USE_ALT_USART1) || \
-     (defined HAL_USE_USART2))
+#if ((defined HAL_USE_USART1)       || \
+     (defined HAL_USE_ALT_USART1)   || \
+     (defined HAL_USE_USART2)       || \
+     (defined HAL_USE_USART3))
 
 #define HAL_SIZEOF_UART_RX_FIFO     32      // Should be 2^n
 
@@ -23,6 +24,7 @@
 
 #define HAL_USART1_AF           DIO_MODE_AF_PP
 #define HAL_USART2_AF           DIO_MODE_AF_PP
+#define HAL_USART3_AF           DIO_MODE_AF_PP
 
 #else
 #error hal_uart.c  Unknown uC Family
@@ -32,6 +34,7 @@
 U[S]ARTx    RX      TX      RX      TX      APB
 USART1      PA10    PA9     PB7     PB6     2
 USART2      PA3     PA2                     1
+USART3      PB11    PB10    PC11    PC10    1
 
 // STM32F0
 APB1 clk = SystemCoreClock
@@ -128,6 +131,13 @@ void USART2_IRQHandler(void)
 }
 #endif  //  USART2
 
+#if (defined HAL_USE_USART3)
+void USART3_IRQHandler(void)
+{
+    hal_uart_irq_handler(HAL_USE_USART3, USART3);
+}
+#endif  //  USART3
+
 void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx)
 {
     switch(port)
@@ -149,6 +159,12 @@ void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx)
             *pTx = 2;       // GPIOA PIN2
             break;
 #endif  //  USART2
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            *pRx = 27;      // GPIOB PIN11
+            *pTx = 26;      // GPIOB PIN10
+            break;
+#endif  //  USART3
         default:
             *pRx = 0xFF;    // Not Exist
             *pTx = 0xFF;
@@ -193,6 +209,22 @@ void hal_uart_deinit(uint8_t port)
             }
             break;
 #endif  //  USART2
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            {
+            USART3->CR1 &= ~USART_CR1_UE;               // Disable USART
+            NVIC_DisableIRQ(USART3_IRQn);               // Disable USART IRQ
+
+            RCC->APB1RSTR |= RCC_APB1RSTR_USART3RST;    // Reset USART
+            RCC->APB1RSTR &= ~RCC_APB1RSTR_USART3RST;
+
+            RCC->APB1ENR   &= ~RCC_APB1ENR_USART3EN;    // Disable UART2 Clock
+            
+            hal_gpio_cfg(GPIOB, GPIO_Pin_10 | GPIO_Pin_11, DIO_MODE_IN_FLOAT);
+            }
+            break;
+#endif  //  USART3
+
         default:
             while(1);
     }
@@ -247,7 +279,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #endif  //  STM32F1
             USARTx = USART2;
             UARTx_IRQn = USART2_IRQn;
-            RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                             // Enable UART2 Clock
+            RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                         // Enable UART2 Clock
 #if (defined STM32F0)
             if(enable & 1) // Enable Rx
                 hal_gpio_cfg(GPIOA, GPIO_Pin_3, HAL_USART2_AF);             // PA3(Rx)
@@ -257,6 +289,26 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             }
             break;
 #endif  //  USART2
+
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            {
+#if (defined STM32F1)
+            uart_clock  /= 2;
+#endif  //  STM32F1
+            USARTx = USART3;
+            UARTx_IRQn = USART3_IRQn;
+            RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                         // Enable UART3 Clock
+            
+#if (defined STM32F0)
+            if(enable & 1) // Enable Rx
+                hal_gpio_cfg(GPIOB, GPIO_Pin_11, HAL_USART3_AF);            // PB11(Rx)
+#endif  // STM32F0
+            if(enable & 2) // Enable Tx
+                hal_gpio_cfg(GPIOB, GPIO_Pin_10, HAL_USART3_AF);            // PB10(Tx)
+            }
+            break;
+#endif  //  USART3
 
         default:
             while(1);
@@ -340,6 +392,12 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
             USART2->CR1 |= USART_CR1_TXEIE;
             break;
 #endif  //  USART2
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            USART3->TDR = *pBuf;
+            USART3->CR1 |= USART_CR1_TXEIE;
+            break;
+#endif  //  USART3
     }
 }
 

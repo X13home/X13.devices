@@ -48,7 +48,7 @@ APB2 clk = SystemCoreClock
 #define SPI13_MOSI_PIN              GPIO_Pin_12
 
 #elif defined HAL_USE_SPI3
-#warning SPI3 not exist
+#error SPI3 not exist
 #undef HAL_USE_SPI3
 #endif  //  SPI3
 

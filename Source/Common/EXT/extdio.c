@@ -144,7 +144,7 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
     if(pIdx->sidx.Place == objDout)
     {
         pIdx->cbWrite = &dioWriteOD;
-        hal_dio_configure(port, mask, DIO_MODE_OUT_PP);
+        hal_dio_configure(pin, DIO_MODE_OUT_PP);
         dio_write_mask[port] |= mask;
 
         if(pIdx->sidx.Type == objPinPNP)
@@ -167,13 +167,13 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
 
         if(pIdx->sidx.Type == objPinPNP)
         {
-            hal_dio_configure(port, mask, DIO_MODE_IN_PD);
+            hal_dio_configure(pin, DIO_MODE_IN_PD);
             dio_state_flag[port] &= ~mask;
             dio_status[port] &= ~mask;
         } // else NPN
         else
         {
-            hal_dio_configure(port, mask, DIO_MODE_IN_PU);
+            hal_dio_configure(pin, DIO_MODE_IN_PU);
             dio_state_flag[port] |= mask;
             dio_status[port] |= mask;
         }
@@ -192,7 +192,7 @@ void dioDeleteOD(subidx_t * pSubidx)
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
 
-    hal_dio_configure(port, mask, DIO_MODE_IN_FLOAT);
+    hal_dio_configure(pin, DIO_MODE_IN_FLOAT);
 }
 
 void dioProc(void)

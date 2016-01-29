@@ -81,7 +81,7 @@ __attribute__( ( always_inline ) ) __STATIC_INLINE void hal_gpio_reset(GPIO_Type
 void        hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
 
 uint8_t     hal_dio_base2pin(uint16_t base);
-void        hal_dio_configure(uint8_t PortNr, uint16_t Mask, uint16_t Mode);
+void        hal_dio_configure(uint8_t pin, uint16_t Mode);
 uint16_t    hal_dio_read(uint8_t PortNr);
 void        hal_dio_set(uint8_t PortNr, uint16_t Mask);
 void        hal_dio_reset(uint8_t PortNr, uint16_t Mask);
@@ -135,6 +135,7 @@ void        hal_twi_start(void);
 // UART Section
 void        USART1_IRQHandler(void);
 void        USART2_IRQHandler(void);
+void        USART3_IRQHandler(void);
 
 void        hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
 void        hal_uart_deinit(uint8_t port);

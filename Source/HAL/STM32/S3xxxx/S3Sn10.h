@@ -29,8 +29,8 @@ See LICENSE file for license details.
 //   6  PA6     5       AIN6    MISO1           TIM3_CH1
 //   7  PA7     4       AIN7    MOSI1           TIM3_CH2
 //   8  PA8     27                              TIM1_CH1
-//   9  PA9     26    * USART1_TX               TIM1_CH2
-//  10  PA10    25    * USART1_RX               TIM1_CH3
+//   9  PA9     26      USART1_TX               TIM1_CH2
+//  10  PA10    25      USART1_RX               TIM1_CH3
 //  11  PA11    24      USBDM                   TIM1_CH4
 //  12  PA12    23      USBDP
 //  13  PA13    22    * JTMS/SWDIO
@@ -47,8 +47,8 @@ See LICENSE file for license details.
 //  23  PB7     15      SDA1                    TIM4_CH2
 //  24  PB8           * BUT_SW                  TIM4_CH3
 //  25  PB9           * DISC                    TIM4_CH4
-//  26  PB10    1       SCL2    USART3_TX
-//  27  PB11    0       SDA2    USART3_RX
+//  26  PB10    1     * SCL2    USART3_TX
+//  27  PB11    0     * SDA2    USART3_RX
 //  28  PB12    31      NSS2
 //  29  PB13    30      SCLK2
 //  30  PB14    29      MISO2
@@ -68,7 +68,7 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
-#define EXTDIO_MAPPING              {27, 26, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0, 47, 46, 45, 23, 22, 21, 20, 19, 15, 0xFF, 0xFF, 12, 11, 0xFF, 0xFF, 8, 31, 30, 29, 28}
+#define EXTDIO_MAPPING              {0xFF, 0xFF, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0, 47, 46, 45, 23, 22, 21, 20, 19, 15, 0xFF, 0xFF, 12, 11, 10, 9, 8, 31, 30, 29, 28}
 // End DIO Section
 
 // Analogue Inputs
@@ -78,9 +78,16 @@ extern "C" {
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
+// PWM Section
+//#define EXTPWM_USED                 1
+#define EXTPWM_BASE_OFFSET          8
+#define EXTPWM_PORT2DIO             {3, 2, 1, 0}                // Mapping PWM channel to DIO
+// End PWM Section
+
+
 // UART PHY Section
 #define HAL_UART_NUM_PORTS          1
-#define HAL_USE_USART1              0
+#define HAL_USE_USART3              0
 
 #define UART_PHY_PORT               0   // Logical port
 #define UART_PHY                    1
