@@ -61,7 +61,7 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
-#define EXTDIO_MAPPING              {17, 16, 7, 6, 5, 4, 27, 26, 10, 9, 12, 11, 3, 2, 1, 0}
+#define HAL_DIO_MAPPING             {17, 16, 7, 6, 5, 4, 27, 26, 10, 9, 12, 11, 3, 2, 1, 0}
 // End DIO Section
 
 // PA4-PA7: 4 - 7

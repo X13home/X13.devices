@@ -4,6 +4,8 @@
 
 void hal_enc28j60_init_hw(void)
 {
+    PRR &= ~(1<<PRSPI);
+
     ENC_PORT |= (1<<ENC_PIN_SS);
     ENC_DDR  &= ~(1<<ENC_PIN_MISO);
     ENC_DDR  |= (1<<ENC_PIN_SS) | (1<<ENC_PIN_MOSI) | (1<<ENC_PIN_SCK);

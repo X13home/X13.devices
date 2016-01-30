@@ -2,10 +2,6 @@
 
 #ifdef CC11_PHY
 
-#ifndef PRR
-#define PRR     PRR0
-#endif  //  PRR
-
 // low level SPI exchange
 uint8_t hal_cc11_spiExch(uint8_t data)
 {

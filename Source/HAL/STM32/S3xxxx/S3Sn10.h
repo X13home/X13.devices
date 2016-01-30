@@ -68,7 +68,7 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
-#define EXTDIO_MAPPING              {0xFF, 0xFF, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0, 47, 46, 45, 23, 22, 21, 20, 19, 15, 0xFF, 0xFF, 12, 11, 10, 9, 8, 31, 30, 29, 28}
+#define HAL_DIO_MAPPING             {0xFF, 0xFF, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0, 47, 46, 45, 23, 22, 21, 20, 19, 15, 0xFF, 0xFF, 12, 11, 10, 9, 8, 31, 30, 29, 28}
 // End DIO Section
 
 // Analogue Inputs

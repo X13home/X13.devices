@@ -8,6 +8,10 @@ extern "C" {
 #include <avr/io.h>
 #include <avr/eeprom.h>
 
+#ifndef PRR
+#define PRR PRR0
+#endif  //  PRR
+
 #define ENTER_CRITICAL_SECTION()    asm volatile ( "in      __tmp_reg__, __SREG__" :: );    \
                                     asm volatile ( "cli" :: );                              \
                                     asm volatile ( "push    __tmp_reg__" :: )

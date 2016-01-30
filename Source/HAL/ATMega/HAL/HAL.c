@@ -113,11 +113,15 @@ void HAL_ASleep(uint16_t duration)
 
 #ifdef EXTAIN_USED
     // Disable ADC
-    if(ADCSRA & (1<<ADEN))
-        while(ADCSRA & (1<<ADSC));
     uint8_t oldAD = ADCSRA;
-    ADCSRA &= ~(1<<ADEN);
+    if(ADCSRA & (1<<ADEN))
+    {
+        while(ADCSRA & (1<<ADSC));
+        ADCSRA &= ~(1<<ADEN);
+    }
 #endif  //  EXTAIN_USED
+
+    // ToDo disable TWI
 
     MCUSR &= ~(1<<WDRF);
     wdt_reset();
@@ -138,12 +142,12 @@ void HAL_ASleep(uint16_t duration)
     }
 
     wdt_disable();
-
     sleep_disable();
 
 #ifdef EXTAIN_USED
     // Restore ADC State
-    ADCSRA = oldAD;
+    if(oldAD & (1<<ADEN))
+        ADCSRA = oldAD;
 #endif  //  EXTAIN_USED
 }
 #endif  //  ASLEEP

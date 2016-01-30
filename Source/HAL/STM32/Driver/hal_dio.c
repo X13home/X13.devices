@@ -179,7 +179,7 @@ void hal_dio_configure(uint8_t Pin, uint16_t Mode)
 
 #ifdef EXTDIO_USED
 
-static const __attribute__ ((aligned (4))) uint8_t hal_dio_sBase2Base[] = EXTDIO_MAPPING;
+static const __attribute__ ((aligned (4))) uint8_t hal_dio_sBase2Base[] = HAL_DIO_MAPPING;
 
 uint8_t hal_dio_base2pin(uint16_t base)
 {

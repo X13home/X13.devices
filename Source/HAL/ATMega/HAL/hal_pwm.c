@@ -117,7 +117,7 @@ void hal_pwm_delete(uint16_t base)
 #ifdef EXTPWM_BASE_OFFSET
     base -= EXTPWM_BASE_OFFSET;
 #endif
-    
+
     // configure timer
     uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
     uint8_t channel = Config & 0x07;
@@ -128,11 +128,11 @@ void hal_pwm_delete(uint16_t base)
     {
         case 0:     // Timer 0
             if(channel == 0)
-                TCCR0A &= ~(1<<COM0A1);
+                TCCR0A &= ~(3<<COM0A0);
             else
-                TCCR0A &= ~(1<<COM0B1);
+                TCCR0A &= ~(3<<COM0B0);
 
-            if((TCCR0A & ((1<<COM0A1) | (1<<COM0B1))) == 0)     // stop timer
+            if((TCCR0A & ((3<<COM0A0) | (3<<COM0B0))) == 0)     // stop timer
             {
                 TCCR0A = 0;
                 TCCR0B = 0;
@@ -165,23 +165,23 @@ void hal_pwm_delete(uint16_t base)
     {
         uint8_t tccra;
 #ifndef OCR1C   // ATM328 + ATM1284
-        tccra = *pTIM & ((1<<COM0A1) | (1<<COM0B1));
+        tccra = *pTIM & ((3<<COM0A0) | (3<<COM0B0));
 #else           // ATM2560
-        tccra = *pTIM & ((1<<COM1A1) | (1<<COM1B1) | (1<<COM1C1));
+        tccra = *pTIM & ((3<<COM1A0) | (3<<COM1B0) | (3<<COM1C0));
 
         if(channel == 2)
         {
-            tccra &= ~(1<<COM1C1);
+            tccra &= ~(3<<COM1C0);
         }
         else
 #endif  //  OCR1C
         if(channel == 0)        // Channel 0
         {
-            tccra &= ~(1<<COM1A1);
+            tccra &= ~(3<<COM1A0);
         }
         else                    // Channel 1
         {
-            tccra &= ~(1<<COM1B1);
+            tccra &= ~(3<<COM1B0);
         }
 
         if(tccra == 0)
@@ -191,7 +191,7 @@ void hal_pwm_delete(uint16_t base)
         }
         else
         {
-            *(pTIM + 0) = tccra | (2<<WGM10);       // FastPWM, top in ICR1
+            *(pTIM + 0) = tccra | (1<<WGM11);       // PWM Phase Correct, top in ICR1
         }
     }
     

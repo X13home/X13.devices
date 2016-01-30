@@ -31,4 +31,10 @@ See LICENSE file for license details.
 #error Unknown configuration
 #endif  //  Configuration
 
+#if (defined __AVR_ATmega328P__)
+#define HAL_DIO_PORTNUM2PORT        {0xFFFF, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
+#define HAL_AIN_BASE2DIO            {16,   17,   18,   19,   20,   21,   0xFE, 0xFE,    /* PC0 - PC5, Ain6, Ain7 */ \
+                                     0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE}    // TempSens, Vbg, GND}
+#endif  //  __AVR_ATmega328P__
+
 #endif  //  HW_ATMEGA_H

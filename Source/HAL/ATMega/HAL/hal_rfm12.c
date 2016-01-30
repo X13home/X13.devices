@@ -4,10 +4,6 @@
 
 #include <avr/interrupt.h>
 
-#ifndef PRR
-#define PRR     PRR0
-#endif  //  PRR
-
 #define RFM12_SELECT()     RFM12_PORT &= ~(1<<RFM12_PIN_SS);
 #define RFM12_RELEASE()    RFM12_PORT |= (1<<RFM12_PIN_SS);
 

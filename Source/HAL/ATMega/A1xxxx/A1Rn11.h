@@ -63,9 +63,9 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define EXTDIO_BASE_OFFSET          2
-#define EXTDIO_MAXPORT_NR           2                                   // Number of digital Ports
-#define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31}
+#define EXTDIO_PORT_OFFSET          2
+#define EXTDIO_MAXPORT_NR           2                                   // Number of used physical digital Ports
+#define HAL_DIO_MAPPING             {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31}
 // End DIO Section
 
 // PWM Section

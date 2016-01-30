@@ -18,6 +18,10 @@ See LICENSE file for license details.
 
 #include "extdio.h"
 
+#ifndef EXTDIO_PORT_OFFSET
+#define EXTDIO_PORT_OFFSET 0
+#endif  //  EXTDIO_PORT_OFFSET
+
 // DIO Variables
 
 static DIO_PORT_TYPE dio_write_mask[EXTDIO_MAXPORT_NR];
@@ -31,11 +35,12 @@ static DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
 static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)
 {
     uint8_t port = (pin >> DIO_PORT_POS);
-#ifdef EXTDIO_BASE_OFFSET
-    port -= EXTDIO_BASE_OFFSET;
-#endif  //  EXTDIO_BASE_OFFSET
+#if (EXTDIO_PORT_OFFSET > 0)
+    port -= EXTDIO_PORT_OFFSET;
+#endif  //  EXTDIO_PORT_OFFSET
     *pPort = port;
-
+    *pMask = (DIO_PORT_TYPE)1 << (pin & DIO_PORT_MASK);
+/*
     // Convert Base to Mask
     DIO_PORT_TYPE mask = 1;
     pin &= DIO_PORT_MASK;
@@ -43,6 +48,7 @@ static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)
         mask <<= 1;
 
     *pMask = mask;
+*/
 }
 
 // ignore some GCC warnings
@@ -197,7 +203,7 @@ void dioDeleteOD(subidx_t * pSubidx)
 
 void dioProc(void)
 {
-    uint8_t port;
+    uint8_t port, port_hal = EXTDIO_PORT_OFFSET;
     DIO_PORT_TYPE state, mask;
 
     for(port = 0; port < EXTDIO_MAXPORT_NR; port++)
@@ -205,7 +211,7 @@ void dioProc(void)
         mask = dio_read_mask[port] & ~dio_write_mask[port];
         if(mask != 0)
         {
-            state = hal_dio_read(port) & mask;
+            state = hal_dio_read(port_hal) & mask;
 
             DIO_PORT_TYPE maskp = 1;
             while(maskp)
@@ -237,12 +243,14 @@ void dioProc(void)
         {
             state = dio_status[port] & mask;
             if(state)
-                hal_dio_set(port, state);
+                hal_dio_set(port_hal, state);
         
             state = ~dio_status[port] & mask;
             if(state)
-                hal_dio_reset(port, state);
+                hal_dio_reset(port_hal, state);
         }
+
+        port_hal++;
     }
 }
 
