@@ -314,7 +314,7 @@
             <item name="long" value="4I" saved="True" type="System.String" />
             <item name="string" value="5S" saved="True" type="System.String" />
         </item>
-        <item name="remove" value="ZD" saved="True" type="System.String" />
+        <item name="remove" value="6D" saved="True" type="System.String" />
         <item name="A0">
             <item name="Op0" value="AzX0" saved="True" type="System.String">
                 <item name="_description" value="Digital output, A0 - PF0" saved="True" type="System.String" />
@@ -475,7 +475,6 @@
                 <item name="_description" value="Analog input AVcc reference, A7 - PF7" saved="True" type="System.String" />
             </item>
         </item>
-
         <item name="A8">
             <item name="Op8" value="IzX8" saved="True" type="System.String">
                 <item name="_description" value="Digital output, A8 - PK0" saved="True" type="System.String" />
@@ -634,6 +633,11 @@
             </item>
             <item name="Av15" value="OiX15" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, A15 - PK7" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="Vcc">
+            <item name="Av16" value="OiX98" saved="True" type="System.String">
+                <item name="_description" value="Analog input Vcc" saved="True" type="System.String" />
             </item>
         </item>
         <!-- D0/D1 - PE0/PE1 - UART0 -->

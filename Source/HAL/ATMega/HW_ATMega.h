@@ -45,6 +45,11 @@ See LICENSE file for license details.
 #define HAL_DIO_PORTNUM2PORT        {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD,    \
                                      (uint16_t)&PORTE, (uint16_t)&PORTF, (uint16_t)&PORTG, (uint16_t)&PORTH,    \
                                      (uint16_t)&PORTJ, (uint16_t)&PORTK, (uint16_t)&PORTL}
+#define HAL_AIN_BASE2DIO            {40, 41, 42, 43, 44, 45, 46, 47,                    /* PF0 - PF7 */ \
+                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,                    \
+                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,                    \
+                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF,    /* Vbg */       \
+                                     72, 73, 74, 75, 76, 77, 78, 79}                    /* PK0 - PK7 */
 #else
 #error HW_ATMega.h unknown uC
 #endif  //  uC

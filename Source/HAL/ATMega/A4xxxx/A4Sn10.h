@@ -100,7 +100,7 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define EXTDIO_MAXPORT_NR           11                                   // Number of used physical digital Ports
+#define EXTDIO_MAXPORT_NR           11                                  // Number of used physical digital Ports
 #define HAL_DIO_MAPPING             {40, 41, 42, 43, 44, 45, 46, 47, 72, 73, 74, 75, 76, 77, 78, 79,    \
                                      255, 255, 36, 37, 53, 35, 59, 60, 61, 62, 12, 13, 14, 15, 65, 64,  \
                                      57, 56, 27, 26, 25, 24, 0, 1, 2, 3, 4, 5, 6, 7, 23, 22,            \
@@ -108,20 +108,19 @@ extern "C" {
                                      81, 80, 11, 10, 9, 8}
 // End DIO Section
 
+// Analogue Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           17                                  // ADC0 - ADC15, Vbg
+#define EXTAIN_BASE_2_APIN          {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x1E}
+#define EXTAIN_REF                  0x0F                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+// End Analogue Inputs
+
 /*
 //#define EXTPWM_USED                 1
 #define EXTPWM_MAXPORT_NR           13
 #define EXTPWM_PORT2CFG             {0x19, 0x1A, 0x01, 0x18, 0x20, 0x21, 0x22, 0x08, 0x09, 0x0A, 0x28, 0x29, 0x2A}  // bits 7-3 Timer, bits 2-0 Channel
 #define EXTPWM_PORT2DIO             {36, 37, 53, 35, 59, 60, 61, 13, 14, 15, 83, 84, 85}    // Mapping PWM channel to DIO
 // End PWM Section
-
-// Analogue Inputs
-#define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           16           // ADC0-ADC15
-#define EXTAIN_BASE_2_APIN          {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,\
-                                     0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27}
-#define EXTAIN_REF                  0x0F        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
-// End Analogue Inputs
 
 // TWI Section
 #define EXTTWI_USED                 1
