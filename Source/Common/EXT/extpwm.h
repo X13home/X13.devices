@@ -28,6 +28,9 @@ bool    pwmCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t pwmRegisterOD(indextable_t *pIdx);
 void    pwmDeleteOD(subidx_t * pSubidx);
 
+// PLC API
+void pwmWrite(subidx_t *pSubidx, uint16_t val);
+
 #ifdef __cplusplus
 }
 #endif

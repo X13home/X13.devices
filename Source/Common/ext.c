@@ -200,6 +200,13 @@ void ext_out(subidx_t * pSubidx, uint32_t val)
             dioWrite(pSubidx, val != 0);
             break;
 #endif  //  EXTDIO_USED
+#ifdef EXTPWM_USED
+        case objPWM:        // PWM
+            if(val > 0xFFFF)
+                val = 0xFFFF;
+            pwmWrite(pSubidx, val);
+            break;
+#endif  //  EXTPWM_USED
         default:
             break;
     }

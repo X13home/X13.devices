@@ -51,7 +51,7 @@ void hal_pwm_configure(uint16_t base, bool inv)
     base -= EXTPWM_BASE_OFFSET;
 #endif
     uint16_t cfg = hal_pwm_port2cfg[base];
-    uint8_t pin = hal_pwm_port2dio[base];
+    uint8_t  pin = hal_pwm_port2dio[base];
     hal_dio_configure(pin, DIO_MODE_AF_PP | (cfg & 0x0F00));
     
     TIM_TypeDef * TIMx;
@@ -161,12 +161,106 @@ void hal_pwm_delete(uint16_t base)
 #ifdef EXTPWM_BASE_OFFSET
     base -= EXTPWM_BASE_OFFSET;
 #endif
+    uint16_t cfg = hal_pwm_port2cfg[base];
 
-    // ToDo Delete Port
-    
-    // Configure port
-    uint8_t pin = hal_pwm_port2dio[base];
+    uint8_t  pin = hal_pwm_port2dio[base];
     hal_dio_configure(pin, DIO_MODE_IN_FLOAT);
+
+    TIM_TypeDef * TIMx;
+
+    switch((cfg >> 3) & 0x001F)
+    {
+        case 1:
+            TIMx = TIM1;
+            break;
+
+        case 2:
+            TIMx = TIM2;
+            break;
+
+        case 3:
+            TIMx = TIM3;
+            break;
+
+        case 14:
+            TIMx = TIM14;
+            break;
+            
+        case 15:
+            TIMx = TIM15;
+            break;
+            
+        case 16:
+            TIMx = TIM16;
+            break;
+
+        case 17:
+            TIMx = TIM17;
+            break;
+
+        default:
+            return;
+    }
+
+    switch(cfg & 0x07)
+    {
+        case 0:     // Channel 1
+            TIMx->CCER &= ~(TIM_CCER_CC1E | TIM_CCER_CC1P);     // Disable Output OC1
+            break;
+            
+        case 1:     // Channel 2
+            TIMx->CCER &= ~(TIM_CCER_CC2E | TIM_CCER_CC2P);     // Disable Output OC2
+            break;
+            
+        case 2:     // Channel 3
+            TIMx->CCER &= ~(TIM_CCER_CC3E | TIM_CCER_CC3P);     // Disable Output OC3
+            break;
+            
+        case 3:     // Channel 4
+            TIMx->CCER &= ~(TIM_CCER_CC4E | TIM_CCER_CC4P);     // Disable Output OC4
+            break;
+
+        default:
+            return;
+    }
+    
+    if((TIMx->CCER & (TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E)) == 0)
+    {
+        TIMx->BDTR &= ~TIM_BDTR_MOE;        // Disable master output
+        TIMx->CR1  &= ~TIM_CR1_CEN;         // Stop Timer
+        
+        
+        switch((cfg >> 3) & 0x001F)
+        {
+            case 1:     // Timer 1
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM1EN;
+                break;
+
+            case 2:     // Timer 2
+                RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN;
+                break;
+            
+            case 3:     // Timer 3
+                RCC->APB1ENR &= ~RCC_APB1ENR_TIM3EN;
+                break;
+            
+            case 14:
+                RCC->APB1ENR &= ~RCC_APB1ENR_TIM14EN;
+                break;
+            
+            case 15:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM15EN;
+                break;
+
+            case 16:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM16EN;
+                break;
+
+            case 17:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM17EN;
+                break;
+        }
+    }
 }
 
 void hal_pwm_write(uint16_t base, uint16_t value)
