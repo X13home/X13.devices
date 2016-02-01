@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 #ifdef EXTSER_USED
 
-#include "extdio.h"
-#include "extser.h"
-
 #define EXTSER_FLAG_TXEN    1
 #define EXTSER_FLAG_RXEN    2
 #define EXTSER_FLAG_RXRDY   0x10

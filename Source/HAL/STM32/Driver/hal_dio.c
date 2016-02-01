@@ -126,26 +126,10 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
 
 static const GPIO_TypeDef * dio_pGPIOx[] = 
 {
-#ifdef GPIOA
     GPIOA,
-#else
-    NULL,
-#endif  //  GPIOA
-#ifdef GPIOB
     GPIOB,
-#else
-    NULL,
-#endif  //  GPIOB
-#ifdef GPIOC
     GPIOC,
-#else
-    NULL,
-#endif  //  GPIOC
-#ifdef GPIOD
     GPIOD,
-#else
-    NULL,
-#endif  //  GPIOD
 #ifdef GPIOE
     GPIOE,
 #else
@@ -169,11 +153,11 @@ static GPIO_TypeDef * hal_dio_PortNr2GPIOx(uint8_t PortNr)
 
 void hal_dio_configure(uint8_t Pin, uint16_t Mode)
 {
-    GPIO_TypeDef * pGPIO = hal_dio_PortNr2GPIOx(Pin >> 5);
+    GPIO_TypeDef * pGPIO = hal_dio_PortNr2GPIOx(Pin >> 4);
     if(pGPIO == NULL)
         return;
 
-    uint16_t Mask = 1UL<<(Pin & 0x1F);
+    uint16_t Mask = 1UL<<(Pin & 0x0F);
     hal_gpio_cfg(pGPIO, Mask, Mode);
 }
 

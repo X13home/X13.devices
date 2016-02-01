@@ -14,7 +14,6 @@ See LICENSE file for license details.
 
 #ifdef EXTPLC_USED
 
-#include "extplc.h"
 #include "extplc_vm.h"
 
 typedef void (*cbCOP_t)(void);

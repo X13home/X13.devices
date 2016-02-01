@@ -16,8 +16,6 @@ See LICENSE file for license details.
 
 #ifdef EXTDIO_USED
 
-#include "extdio.h"
-
 #ifndef EXTDIO_PORT_OFFSET
 #define EXTDIO_PORT_OFFSET 0
 #endif  //  EXTDIO_PORT_OFFSET

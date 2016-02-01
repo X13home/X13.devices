@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 #ifdef EXTTWI_USED
 
-#include "extdio.h"
-#include "exttwi.h"
-
 #define TWIM_BUS_TIMEOUT            250 // ms
 
 // Global variable used in HAL

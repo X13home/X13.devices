@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 #ifdef EXTAIN_USED
 
-#include "extdio.h"
-#include "extain.h"
-
 /////////////////////////////////////////////////////
 // AIn Section ,   depended from extdio.c
 

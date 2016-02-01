@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 #if ((defined EXTDIO_USED) && (defined EXTPWM_USED))
     
-#include "extdio.h"
-#include "extpwm.h"
-
 /////////////////////////////////////////////////////
 // PWM Section ,   depended from extdio.c
 
