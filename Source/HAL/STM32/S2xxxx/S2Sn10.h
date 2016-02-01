@@ -24,7 +24,7 @@ See LICENSE file for license details.
 //   1  PA1     P1.16           In1                     TIM2_CH2
 //   2  PA2     P1.17           In2     USART2_TX       TIM2_CH3
 //   3  PA3     P1.18           In3     USART2_RX       TIM2_CH4
-//   4  PA4     P1.21           In4
+//   4  PA4     P1.21           In4                     TIM14_CH1
 //   5  PA5     P1.22           In5                     
 //   6  PA6     P1.23           In6
 //   7  PA7     P1.24           In7
@@ -83,6 +83,42 @@ extern "C" {
                                      16, 17, 18, 19, 20, 21, 255, 255, 24, 25, 26, 27, 28,  29,  30,  31, \
                                      32, 33, 34, 35, 36, 37,   38, 39, 40, 41, 42, 43, 44,  45,  46,  47}
 // End DIO Section
+
+// Analogue Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           16
+#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+// End Analogue Inputs
+
+// PWM Section
+#define EXTPWM_USED                 1
+#define EXTPWM_PORT2DIO             { 0,  1,   2,   3,  4, 255,   6,   7,   8,   9,  10,  11, 255, 255, 255, 255, /* PA0 - PA15 */ \
+                                     16, 17, 255, 255, 20,  21, 255, 255, 255, 255, 255, 255, 255, 255,  30, 31}  /* PB0 - PB15 */
+#define EXTPWM_PORT2CFG             {((2<<8) | (2<<3) | 0),     /* PA0:  AF2, TIM2_CH1      */ \
+                                     ((2<<8) | (2<<3) | 1),     /* PA1:  AF2, TIM2_CH2      */ \
+                                     ((2<<8) | (2<<3) | 2),     /* PA2:  AF2, TIM2_CH3      */ \
+                                     ((2<<8) | (2<<3) | 3),     /* PA3:  AF2, TIM2_XH4      */ \
+                                     ((4<<8) | (14<<3) | 0),    /* PA4:  AF4, TIM14_CH1     */ \
+                                     255,                       /* PA5: no config           */ \
+                                     ((5<<8) | (16<<3) | 0),    /* PA6:  AF5, TIM16_CH1     */ \
+                                     ((5<<8) | (17<<3) | 0),    /* PA7:  AF5, TIM17_CH1     */ \
+                                     ((2<<8) | (1<<3) | 0),     /* PA8:  AF2, TIM1_CH1      */ \
+                                     ((2<<8) | (1<<3) | 1),     /* PA9:  AF2, TIM1_CH2      */ \
+                                     ((2<<8) | (1<<3) | 2),     /* PA10: AF2, TIM1_CH3      */ \
+                                     ((2<<8) | (1<<3) | 3),     /* PA11: AF2, TIM1_CH4      */ \
+                                     255,255,255,255,           /* PA12 - PA15, no config   */ \
+                                     ((1<<8) | (3<<3) | 2),     /* PB0:  AF1, TIM3_CH3      */ \
+                                     ((1<<8) | (3<<3) | 3),     /* PB1:  AF1, TIM3_CH4      */ \
+                                     255,255,                   /* PB2,PB3, no config       */ \
+                                     ((1<<8) | (3<<3) | 0),     /* PB4:  AF1, TIM3_CH1      */ \
+                                     ((1<<8) | (3<<3) | 1),     /* PB5:  AF1, TIM3_CH2      */ \
+                                     255,255,255,255,           /* PB6 - PB9, no config     */ \
+                                     255,255,255,255,           /* PB10 - PB13, no config   */ \
+                                     ((1<<8) | (15<<3) | 0),    /* PB14:  AF1, TIM15_CH1    */ \
+                                     ((1<<8) | (15<<3) | 1)     /* PB15:  AF1, TIM15_CH2    */ \
+                                    }
+// End PWM Section
 
 // UART PHY Section
 #define HAL_UART_NUM_PORTS          1
