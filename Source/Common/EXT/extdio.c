@@ -38,15 +38,6 @@ static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)
 #endif  //  EXTDIO_PORT_OFFSET
     *pPort = port;
     *pMask = (DIO_PORT_TYPE)1 << (pin & DIO_PORT_MASK);
-/*
-    // Convert Base to Mask
-    DIO_PORT_TYPE mask = 1;
-    pin &= DIO_PORT_MASK;
-    while(pin--)
-        mask <<= 1;
-
-    *pMask = mask;
-*/
 }
 
 // ignore some GCC warnings
@@ -290,9 +281,12 @@ void dioRelease(uint8_t pin)
 #ifdef EXTPLC_USED
 bool dioRead(subidx_t * pSubidx)
 {
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    if(pin == 0xFF)
+        return false;
+
     uint8_t port;
     DIO_PORT_TYPE mask;
-    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
     dioPin2hw(pin, &port, &mask);
     
     bool sr = (dio_status[port] & mask) != 0;
@@ -303,9 +297,12 @@ bool dioRead(subidx_t * pSubidx)
 
 void dioWrite(subidx_t * pSubidx, bool sr)
 {
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    if(pin == 0xFF)
+        return;
+
     uint8_t port;
     DIO_PORT_TYPE mask;
-    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
     dioPin2hw(pin, &port, &mask);
 
     if(pSubidx->Type == objPinNPN)

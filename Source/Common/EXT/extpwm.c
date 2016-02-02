@@ -68,6 +68,10 @@ void pwmDeleteOD(subidx_t * pSubidx)
 #ifdef EXTPLC_USED
 void pwmWrite(subidx_t *pSubidx, uint16_t val)
 {
+    uint16_t base = pSubidx->Base;
+    if(hal_pwm_base2dio(base) == 0xFF)
+        return;
+
     hal_pwm_write(pSubidx->Base, val);
 }
 #endif  //  EXTPLC_USED
