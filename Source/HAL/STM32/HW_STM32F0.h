@@ -20,6 +20,8 @@ See LICENSE file for license details.
 #include "S2xxxx/S2En13.h"    // ENC28J60
 #elif   (defined CFG_S2Cn13)
 #include "S2xxxx/S2Cn13.h"    // CC1101
+#elif   (defined CFG_S2Sn13)
+#include "S2xxxx/S2Sn13.h"    // UART_ALT
 
 // STM32F051R8T6
 #elif   (defined CFG_S2Sn10)

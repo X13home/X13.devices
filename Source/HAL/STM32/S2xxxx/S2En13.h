@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_S2EN13_H
-#define HWCONFIG_S2EN13_H
+#ifndef _S2EN13_H
+#define _S2EN13_H
 
 // Board: S2EC13
 // uC: STM32F051C8T6
@@ -19,25 +19,25 @@ See LICENSE file for license details.
 
 // GPIOA
 // Pin  Port    CN  Func            PWM
-//   0  PA0     3                   TIM2_CH1
+//   0  PA0     3                  !TIM2_CH1
 //   1  PA1     4                   TIM2_CH2
-//   2  PA2     5   _USART2_TX      TIM2_CH3
-//   3  PA3     6   _USART2_RX      TIM2_CH4
+//   2  PA2     5   _USART2_TX      TIM15_CH1
+//   3  PA3     6   _USART2_RX      TIM15_CH2
 //   4  PA4     15                  TIM14_CH1
-//   5  PA5     16
-//   6  PA6     17
-//   7  PA7     18
-//   8  PA8                         TIM1_CH1
+//   5  PA5     16                 !TIM2_CH1
+//   6  PA6     17                  TIM3_CH1
+//   7  PA7     18                  TIM3_CH2
+//   8  PA8
 //   9  PA9     9   _USART1_TX      TIM1_CH2
 //  10  PA10    10  _USART1_RX      TIM1_CH3
 //  11  PA11    7                   TIM1_CH4
-//  12  PA12    8
+//  12  PA12    8                   
 //  13  PA13        SWDIO
 //  14  PA14        SWCLK
 //  15  PA15        ENC_IRQ
 // GPIOB
-//  16  PB0     19
-//  17  PB1     20
+//  16  PB0     19                  TIM3_CH3
+//  17  PB1     20                  TIM3_CH4
 //  18  PB2         LED
 //  19  PB3         ENC_SCK
 //  20  PB4         ENC_MISO
@@ -46,8 +46,8 @@ See LICENSE file for license details.
 //  23  PB7         ENC_RST
 //  24  PB8
 //  25  PB9
-//  26  PB10    13  SCL2
-//  27  PB11    14  SDA2
+//  26  PB10    13  SCL2            TIM2_CH3
+//  27  PB11    14  SDA2            TIM2_CH4
 //  28  PB12
 //  29  PB13
 //  30  PB14
@@ -144,4 +144,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_S2EC13_H
+#endif // _S2EN13_H
