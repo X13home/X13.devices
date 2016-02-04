@@ -1,35 +1,41 @@
 #include "config.h"
 
-#if ((defined EXTDIO_USED) && (defined EXTPWM_USED) && (defined STM32F0))
-
-/*
-static TIM_TypeDef * hal_pwm_timers[] =
-{
-    NULL,       // TIM0
-#ifdef  TIM1
-    TIM1,
-#else
-    NULL,
-#endif  //  TIM1
-
-#ifdef  TIM2
-    TIM2,
-#else
-    NULL,
-#endif  //  TIM2
-
-#ifdef  TIM3
-    TIM3,
-#else
-    NULL,
-#endif  //  TIM3
-}
-*/
+#if ((defined EXTDIO_USED) && (defined EXTPWM_USED))
 
 // Mapping physical DIO channel to configuration
 // bits 11-8 - AF Number, bits 7-3 Timer, bits 2-0 Channel
 static const uint16_t hal_pwm_port2cfg[] = EXTPWM_PORT2CFG;
 static const uint8_t  hal_pwm_port2dio[] = EXTPWM_PORT2DIO;
+
+static const TIM_TypeDef * hal_pwm_timers[] = {
+    NULL, TIM1, TIM2, TIM3,
+#ifdef TIM4
+    TIM4,
+#else
+    NULL,
+#endif  // TIM4 
+    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,   // TIM5 - TIM13
+#ifdef TIM14
+    TIM14,
+#else
+    NULL,
+#endif  //  TIM14
+#ifdef TIM15
+    TIM15,
+#else
+    NULL,
+#endif  //  TIM15
+#ifdef  TIM16
+    TIM16,
+#else
+    NULL,
+#endif  //  TIM16
+#ifdef  TIM17
+    TIM17
+#else
+    NULL
+#endif  //  TIM17
+};
 
 uint8_t hal_pwm_base2dio(uint16_t base)
 {
@@ -62,37 +68,44 @@ void hal_pwm_configure(uint16_t base, bool inv)
             RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
             TIMx = TIM1;
             break;
-
         case 2:     // Timer 2
             RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
             TIMx = TIM2;
             break;
-            
         case 3:     // Timer 3
             RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
             TIMx = TIM3;
             break;
-            
+#ifdef TIM4
+        case 4:     // Timer 4
+            RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
+            TIMx = TIM4;
+            break;
+#endif  // TIM4 
+#ifdef TIM14
         case 14:
             RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
             TIMx = TIM14;
             break;
-            
+#endif  //  TIM14
+#ifdef TIM15
         case 15:
             RCC->APB2ENR |= RCC_APB2ENR_TIM15EN;
             TIMx = TIM15;
             break;
-
+#endif  //  TIM15
+#ifdef  TIM16
         case 16:
             RCC->APB2ENR |= RCC_APB2ENR_TIM16EN;
             TIMx = TIM16;
             break;
-
+#endif  //  TIM16
+#ifdef  TIM17
         case 17:
             RCC->APB2ENR |= RCC_APB2ENR_TIM17EN;
             TIMx = TIM17;
             break;
-
+#endif  //  TIM17
         default:
             return;
     }
@@ -101,7 +114,7 @@ void hal_pwm_configure(uint16_t base, bool inv)
     TIMx->PSC = 13;                 // Set Prescaler N + 1
     TIMx->ARR = 0xFFFE;             // Set Autoreload Register (up value)
     
-    switch(cfg & 0x07)
+    switch(cfg & 0x03)
     {
         case 0:     // Channel 1
             TIMx->CCR1 = 0;
@@ -146,9 +159,6 @@ void hal_pwm_configure(uint16_t base, bool inv)
             else
                 TIMx->CCER &= ~TIM_CCER_CC4P;                                       // Select active high polarity on OC4
             break;
-
-        default:
-            return;
     }
 
     TIMx->BDTR |= TIM_BDTR_MOE;     // Enable output (MOE = 1)
@@ -165,71 +175,18 @@ void hal_pwm_delete(uint16_t base)
 
     uint8_t  pin = hal_pwm_port2dio[base];
     hal_dio_configure(pin, DIO_MODE_IN_FLOAT);
+    
+    TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
+    if(TIMx == NULL)
+        return;
 
-    TIM_TypeDef * TIMx;
-
-    switch((cfg >> 3) & 0x001F)
-    {
-        case 1:
-            TIMx = TIM1;
-            break;
-
-        case 2:
-            TIMx = TIM2;
-            break;
-
-        case 3:
-            TIMx = TIM3;
-            break;
-
-        case 14:
-            TIMx = TIM14;
-            break;
-            
-        case 15:
-            TIMx = TIM15;
-            break;
-            
-        case 16:
-            TIMx = TIM16;
-            break;
-
-        case 17:
-            TIMx = TIM17;
-            break;
-
-        default:
-            return;
-    }
-
-    switch(cfg & 0x07)
-    {
-        case 0:     // Channel 1
-            TIMx->CCER &= ~(TIM_CCER_CC1E | TIM_CCER_CC1P);     // Disable Output OC1
-            break;
-            
-        case 1:     // Channel 2
-            TIMx->CCER &= ~(TIM_CCER_CC2E | TIM_CCER_CC2P);     // Disable Output OC2
-            break;
-            
-        case 2:     // Channel 3
-            TIMx->CCER &= ~(TIM_CCER_CC3E | TIM_CCER_CC3P);     // Disable Output OC3
-            break;
-            
-        case 3:     // Channel 4
-            TIMx->CCER &= ~(TIM_CCER_CC4E | TIM_CCER_CC4P);     // Disable Output OC4
-            break;
-
-        default:
-            return;
-    }
+    TIMx->CCER &= ~((TIM_CCER_CC1E | TIM_CCER_CC1P) << ((cfg & 0x03) * 4));
     
     if((TIMx->CCER & (TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E)) == 0)
     {
         TIMx->BDTR &= ~TIM_BDTR_MOE;        // Disable master output
         TIMx->CR1  &= ~TIM_CR1_CEN;         // Stop Timer
-        
-        
+
         switch((cfg >> 3) & 0x001F)
         {
             case 1:     // Timer 1
@@ -243,22 +200,31 @@ void hal_pwm_delete(uint16_t base)
             case 3:     // Timer 3
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM3EN;
                 break;
-            
+#ifdef TIM4
+            case 4:
+                RCC->APB1ENR &= ~RCC_APB1ENR_TIM4EN;
+                break;
+#endif  //  TIM4
+#ifdef TIM14
             case 14:
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM14EN;
                 break;
-            
+#endif  //  TIM14
+#ifdef TIM15
             case 15:
                 RCC->APB2ENR &= ~RCC_APB2ENR_TIM15EN;
                 break;
-
+#endif  //  TIM15
+#ifdef TIM16
             case 16:
                 RCC->APB2ENR &= ~RCC_APB2ENR_TIM16EN;
                 break;
-
+#endif  //  TIM16
+#ifdef TIM17
             case 17:
                 RCC->APB2ENR &= ~RCC_APB2ENR_TIM17EN;
                 break;
+#endif  //  TIM17
         }
     }
 }
@@ -269,63 +235,11 @@ void hal_pwm_write(uint16_t base, uint16_t value)
     base -= EXTPWM_BASE_OFFSET;
 #endif
     uint16_t cfg = hal_pwm_port2cfg[base];
-    TIM_TypeDef * TIMx;
+    TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
 
-    switch((cfg >> 3) & 0x001F)
-    {
-        case 1:
-            TIMx = TIM1;
-            break;
-
-        case 2:
-            TIMx = TIM2;
-            break;
-
-        case 3:
-            TIMx = TIM3;
-            break;
-
-        case 14:
-            TIMx = TIM14;
-            break;
-            
-        case 15:
-            TIMx = TIM15;
-            break;
-            
-        case 16:
-            TIMx = TIM16;
-            break;
-
-        case 17:
-            TIMx = TIM17;
-            break;
-
-        default:
-            return;
-    }
-    
-    switch(cfg & 0x07)
-    {
-        case 0:     // Channel 1
-            TIMx->CCR1 = value;
-            break;
-            
-        case 1:     // Channel 2
-            TIMx->CCR2 = value;
-            break;
-            
-        case 2:     // Channel 3
-            TIMx->CCR3 = value;
-            break;
-            
-        case 3:     // Channel 4
-            TIMx->CCR4 = value;
-            break;
-
-        default:
-            break;
-    }
+    uint32_t timbase = (uint32_t)TIMx + 0x34;
+    timbase += (cfg & 0x03) * 4;
+    *(__IO uint32_t *)timbase = value;
 }
 
 #endif  //  (defined EXTDIO_USED) && (defined EXTPWM_USED)

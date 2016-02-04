@@ -250,9 +250,12 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #if (defined HAL_USE_USART1)
         case HAL_USE_USART1:
             {
+#if ((defined STM32F1) && (defined HAL_USE_ALT_USART1))
+            AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;                           // Remap USART1 from PA9/PA10 to PB6/PB7
+#endif
             USARTx = USART1;
             UARTx_IRQn = USART1_IRQn;
-            RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                             // Enable UART1 Clock
+            RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                         // Enable UART1 Clock
 #if (defined STM32F0)
             if(enable & 1) // Enable Rx
 #if (defined HAL_USE_ALT_USART1)

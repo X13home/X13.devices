@@ -69,7 +69,7 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
         {
             uint32_t gpio_cr;
         
-            switch(Mode)
+            switch(Mode & 0x00FF)
             {
                 case DIO_MODE_IN_PU:
                     gpio_cr = GPIO_CRL_CNF0_1;  // Input with pull-up / pull-down

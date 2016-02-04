@@ -68,22 +68,44 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
-#define HAL_DIO_MAPPING             {0xFF, 0xFF, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0, 47, 46, 45, 23, 22, 21, 20, 19, 15, 0xFF, 0xFF, 12, 11, 10, 9, 8, 31, 30, 29, 28}
+#define HAL_DIO_MAPPING             {0xFF, 0xFF, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0,    /* PB11, PB10, PB2, PB0, PA7 - PA0 */ \
+                                     47, 46, 45, 23, 22, 21, 20, 19,                /* PC13 - PC15, PB7 - PB3 */ \
+                                     15, 0xFF, 0xFF, 12, 11, 10, 9, 8,              /* PA15 - PA8 */ \
+                                     31, 30, 29, 28}                                /* PB15 - PB12 */
 // End DIO Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           12
-#define EXTAIN_BASE_2_APIN          {0xFF, 0xFF, 0xFF, 8, 7, 6, 5, 4, 3, 2, 1, 0}
+#define EXTAIN_BASE_2_APIN          {0xFF, 0xFF, 0xFF, 8, 7, 6, 5, 4, 3, 2, 1, 0}   /* PB11, PB10, PB2, PB0, PA7 - PA0 */
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
 // PWM Section
-//#define EXTPWM_USED                 1
-#define EXTPWM_BASE_OFFSET          8
-#define EXTPWM_PORT2DIO             {3, 2, 1, 0}                // Mapping PWM channel to DIO
-// End PWM Section
+#define EXTPWM_USED                 1
+#define EXTPWM_PORT2DIO             {255, 255, 255, 16, 7, 6, 255, 255, 3, 2, 1, 0, /* PB11, PB10, PB2, PB0, PA7 - PA0 */ \
+                                     255, 255, 255, 23, 22, 255, 255, 255,          /* PC13 - PC15, PB7 - PB3 */ \
+                                     255, 255, 255, 255, 11, 10, 9 , 8}             /* PA15 - PA8 */
 
+#define EXTPWM_PORT2CFG             {255, 255, 255,             /* PB11, PB10, PB2  */ \
+                                     ((3<<3) | 2),              /* PB0:  TIM3_CH3   */ \
+                                     ((3<<3) | 1),              /* PA7:  TIM3_CH2   */ \
+                                     ((3<<3) | 0),              /* PA6:  TIM3_CH1   */ \
+                                     255, 255,                  /* PA5, PA4         */ \
+                                     ((2<<3) | 3),              /* PA3:  TIM2_CH4   */ \
+                                     ((2<<3) | 2),              /* PA2:  TIM2_CH3   */ \
+                                     ((2<<3) | 1),              /* PA1:  TIM2_CH2   */ \
+                                     ((2<<3) | 0),              /* PA0:  TIM2_CH1   */ \
+                                     255, 255, 255,             /* PC13 - PC15      */ \
+                                     ((4<<3) | 1),              /* PB7:  TIM4_CH2   */ \
+                                     ((4<<3) | 0),              /* PB6:  TIM4_CH1   */ \
+                                     255, 255, 255,             /* PB5 - PB3        */ \
+                                     255, 255, 255, 255,        /* PA15 - PA12      */ \
+                                     ((1<<3) | 3),              /* PA11: TIM1_CH4   */ \
+                                     ((1<<3) | 2),              /* PA10: TIM1_CH3   */ \
+                                     ((1<<3) | 1),              /* PA9:  TIM1_CH2   */ \
+                                     ((1<<3) | 0)}              /* PA8:  TIM1_CH2   */
+// End PWM Section
 
 // UART PHY Section
 #define HAL_UART_NUM_PORTS          1

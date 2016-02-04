@@ -113,6 +113,9 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
             break;
 #if (defined DIO_MODE_SPI11)
         case 11:
+#if (defined STM32F1)
+            AFIO->MAPR |= AFIO_MAPR_SPI1_REMAP;     // Remap SPI1
+#endif  //  STM32F1
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
             hal_gpio_cfg(SPI11_PORT, (SPI11_SCK_PIN | SPI11_MISO_PIN | SPI11_MOSI_PIN), DIO_MODE_SPI11);
             SPIx = SPI1;
