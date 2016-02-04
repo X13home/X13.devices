@@ -107,6 +107,11 @@ extern "C" {
                                      ((1<<3) | 0)}              /* PA8:  TIM1_CH2   */
 // End PWM Section
 
+// LEDs
+#define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS1
+#define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR1
+#define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_1, DIO_MODE_OUT_PP)
+
 // UART PHY Section
 #define HAL_UART_NUM_PORTS          1
 #define HAL_USE_USART3              0

@@ -16,6 +16,8 @@ See LICENSE file for license details.
 // STM32F103CBT6, Maple Mini
 #if   (defined CFG_S3Sn10)
 #include "S3xxxx/S3Sn10.h"    // UART
+#elif (defined CFG_S3En10)
+#include "S3xxxx/S3En10.h"    // ENC28J60
 #else
 #error Unknown configuration
 #endif  //  Configuration
