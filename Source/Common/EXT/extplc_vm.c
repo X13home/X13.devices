@@ -470,18 +470,10 @@ void plcvm_load_config(void)
     eeprom_read((uint8_t *)&plcvm_stack_bot, eePLCStackBot, 4);
 }
 
-uint8_t cbWriteStackBot(subidx_t * pUnused, uint8_t Len, uint8_t *pBuf)
+void plcvm_set_stack_bot(uint32_t val)
 {
-    uint32_t val;
-    memcpy(&val, pBuf, 4);
-
-    if(val > EXTPLC_SIZEOF_RAM)
-        return MQTTSN_RET_REJ_CONG;
-
-    eeprom_write(pBuf, eePLCStackBot, 4);
+    eeprom_write((uint8_t *)&val, eePLCStackBot, 4);
     plcvm_stack_bot = val;
-
-    return MQTTSN_RET_ACCEPTED;
 }
 
 #endif  //  EXTPLC_USED

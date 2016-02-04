@@ -34,6 +34,11 @@ static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 #endif  //  ASLEEP
 
+#ifdef EXTPLC_USED
+static uint8_t cbWriteStackBot(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+#endif  //  EXTPLC_USED
+
+
 // List of pre defined objects
 static const indextable_t listPredefOD[] = 
 {
@@ -153,6 +158,24 @@ static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 #endif  //  ASLEEP
+
+#ifdef EXTPLC_USED
+// ignore some GCC warnings
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+static uint8_t cbWriteStackBot(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    uint32_t val;
+    memcpy(&val, pBuf, 4);
+    plcvm_set_stack_bot(val);
+    return MQTTSN_RET_ACCEPTED;
+}
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
+#endif  //  EXTPLC_USED
 
 // End callback's
 //////////////////////////
@@ -449,6 +472,9 @@ void InitOD(void)
 #endif  //  ASLEEP
         ucTmp = 0;
         WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                          // Device Name
+#ifdef EXTPLC_USED
+        plcvm_set_stack_bot(0);
+#endif  //  EXTPLC_USED
     }
 
     // Clear listOD

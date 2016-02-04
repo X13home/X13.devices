@@ -30,7 +30,11 @@ bool pwmCheckSubidx(subidx_t * pSubidx)
     return true;
 }
 
-static e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+static e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx, uint8_t Unused, uint8_t *pBuf)
 {
     // Prevent hard fault on ARM
     uint16_t value = pBuf[1];
@@ -40,6 +44,9 @@ static e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
 
     return MQTTSN_RET_ACCEPTED;
 }
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 e_MQTTSN_RETURNS_t pwmRegisterOD(indextable_t *pIdx)
 {
