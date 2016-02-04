@@ -21,6 +21,7 @@ typedef void (*cbCOP_t)(void);
 uint32_t                plc_ram[EXTPLC_SIZEOF_RAM];         // PLC data + merkers + stack
 static ePLC_ANSWER_t    plcvm_stat = PLC_ANSWER_OK;
 static uint32_t         plcvm_page = 0xFFFFFFFF;
+static uint32_t         plcvm_stack_bot = 0;
 
 static uint32_t         plcvm_sp =  EXTPLC_SIZEOF_RAM;      // Stack pointer
 static uint32_t         plcvm_sfp = EXTPLC_SIZEOF_RAM;      // Stack frame pointer
@@ -204,10 +205,10 @@ static void plcvm_set_u32(uint32_t addr, uint32_t val){
 
 // (u32)RAM[--plcvm_sp] = val
 static void plcvm_push(uint32_t val){
-    if(plcvm_sp > 0)
+    if(plcvm_sp > plcvm_stack_bot)
         plc_ram[--plcvm_sp] = val;
     else
-    	plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
+        plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
 }
 
 // Operators callback
@@ -462,6 +463,25 @@ ePLC_ANSWER_t plcvm(void){
             cop_proc();
     }
     return plcvm_stat;
+}
+
+void plcvm_load_config(void)
+{
+    eeprom_read((uint8_t *)&plcvm_stack_bot, eePLCStackBot, 4);
+}
+
+uint8_t cbWriteStackBot(subidx_t * pUnused, uint8_t Len, uint8_t *pBuf)
+{
+    uint32_t val;
+    memcpy(&val, pBuf, 4);
+
+    if(val > EXTPLC_SIZEOF_RAM)
+        return MQTTSN_RET_REJ_CONG;
+
+    eeprom_write(pBuf, eePLCStackBot, 4);
+    plcvm_stack_bot = val;
+
+    return MQTTSN_RET_ACCEPTED;
 }
 
 #endif  //  EXTPLC_USED

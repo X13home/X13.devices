@@ -287,6 +287,8 @@ void plcInit(void)
     plc_run     = true;
     plc_answer  = false;
     plc_exchg   = NULL;
+    
+    plcvm_load_config();
 }
 
 // Merkers

@@ -44,8 +44,6 @@ typedef enum
 
 static uint8_t fee_pages_map[FEE_SECTORS];
 
-
-
 static void flash_clear_flags(void)
 {
 #if (defined STM32F0)

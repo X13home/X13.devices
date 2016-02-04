@@ -20,6 +20,7 @@ extern "C" {
 uint8_t plcvm_get_state(uint8_t *pBuf);
 ePLC_ANSWER_t plcvm(void);
 void plcvm_reset_cache(void);
+void plcvm_load_config(void);
 
 #ifdef __cplusplus
 }

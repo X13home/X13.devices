@@ -47,6 +47,8 @@ e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx);
 
 void plcProc(void);
 
+uint8_t cbWriteStackBot(subidx_t * pUnused, uint8_t Len, uint8_t *pBuf);
+
 #ifdef __cplusplus
 }
 #endif

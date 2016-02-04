@@ -37,6 +37,8 @@ typedef enum
     objIPMask           = (uint16_t)0xFF22, // cfg/Xa_IPMask    - Array - Len 4
     objIPRouter         = (uint16_t)0xFF23, // cfg/Xa_IPRouter  - Array - Len 4
     objIPBroker         = (uint16_t)0xFF24, // cfg/Xa_IPBroker  - Array - Len 4
+    // PLC Settings
+    objPLCStackBot      = (uint16_t)0xFF50, // cfg/XD_StackBot
     // Read Only Variables
     objDeviceTyp        = (uint16_t)0xFFC0, // _declarer<String>
     objPHY1addr         = (uint16_t)0xFFC1, // cfg/_a_phy1
@@ -158,10 +160,11 @@ enum
 #endif  //  RF_ADDR_t
 
 #ifdef EXTPLC_USED
+    eePLCStackBot,
+    eePLCStackBotBody = eePLCStackBot + sizeof(uint32_t) - 1,
     eePLCprogram,
     eePLCprogram_body = eePLCprogram + EXTPLC_SIZEOF_PRG - 1,
 #endif  //  EXTPLC_USED
-
     eeNextFreeAddress
 } eEEPROMAddr;
 

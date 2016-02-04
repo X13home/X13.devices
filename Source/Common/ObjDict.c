@@ -73,6 +73,10 @@ static const indextable_t listPredefOD[] =
     {{objEEMEM, objArray, eeIPBroker},
         objIPBroker, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
 #endif  //  LAN_NODE
+#ifdef EXTPLC_USED
+    {{objEEMEM, objUInt32, eePLCStackBot},
+        objPLCStackBot, NULL, (cbWrite_t)&cbWriteStackBot, NULL},
+#endif  //  EXTPLC_USED
     // Read Only Objects
     {{objPROGMEM, objString, 0},
         objDeviceTyp, (cbRead_t)&readDeviceInfo, NULL, NULL},
