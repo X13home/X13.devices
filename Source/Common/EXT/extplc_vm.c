@@ -362,6 +362,30 @@ static void cb_ret(void){
         plcvm_stat = PLC_ANSWER_ERROR_OFR_SFP;
     }
 }
+// 0xC6 - API functions
+static void cb_api(void){
+    switch(plcvm_lpm_u16())
+    {
+#ifdef EXTTWI_USED
+        case 1: // Write TWI Control
+            twiControl(plcvm_pop());
+            break;
+        case 2: // Read TWI Status
+            plcvm_push(twiStat());
+            break;
+        case 3: // Write TWI Data
+            twiWr(plcvm_pop() & 0x000000FF);
+            break;
+        case 4: // Read TWI Data
+            plcvm_push(twiRd());
+            break;
+#endif  //  EXTTWI_USED
+        default:
+            plcvm_stat = PLC_ANSWER_ERROR_UNK_API;
+            break;
+    }
+}
+// End API functions
 
 // Operators table
 static const cbCOP_t plcmv_cb[] = {
@@ -397,7 +421,7 @@ static const cbCOP_t plcmv_cb[] = {
     cb_stm_b1_cs16, cb_stm_s1_cs16, cb_stm_s2_cs16, cb_stm_s4_cs16, NULL,           NULL,           NULL,           NULL,
     cb_stm_b1_c16,  cb_stm_s1_c16,  cb_stm_s2_c16,  cb_stm_s4_c16,  NULL,           NULL,           NULL,           NULL,
     // 0xC0 - 0xDF
-    cb_in,          cb_out,         NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+    cb_in,          cb_out,         NULL,           NULL,           NULL,           NULL,           cb_api,         NULL,
     NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
     NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
     NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
