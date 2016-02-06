@@ -96,24 +96,16 @@ extern "C" {
 #define LED_Off()                   PORTB |= (1<<PB0)
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
-// RF Section
+// CC11 Section
 #define HAL_USE_SPI                 1
 #define CC11_USE_SPI                1
-
-#define CC11_PORT                   PORTB
-#define CC11_DDR                    DDRB
-#define CC11_PIN                    PINB
-#define CC11_PIN_SS                 PB2
-#define CC11_PIN_MOSI               PB3
-#define CC11_PIN_MISO               PB4
-#define CC11_PIN_SCK                PB5
-
-#define CC11_WAIT_LOW_MISO()        while(CC11_PIN & (1<<CC11_PIN_MISO))
-#define CC11_SELECT()               CC11_PORT &= ~(1<<CC11_PIN_SS)
-#define CC11_RELEASE()              CC11_PORT |= (1<<CC11_PIN_SS)
-//  End RF Section
-
+#define CC11_NSS_PIN                10  // PB2
+#define CC11_WAIT_LOW_MISO()        while(PINB & (1<<PB4))
+#define CC11_SELECT()               PORTB &= ~(1<<PB2)
+#define CC11_RELEASE()              PORTB |= (1<<PB2)
 #define CC11_PHY                    1
+#include "PHY/CC1101/cc11_phy.h"
+//  End CC11 Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           17      // Size of identificators list
@@ -123,8 +115,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
-
-#include "PHY/CC1101/cc11_phy.h"
 
 #ifdef __cplusplus
 }

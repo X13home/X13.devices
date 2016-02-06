@@ -96,30 +96,21 @@ extern "C" {
 #define ENC_USE_SPI                 11  // Config 2, PB3-PB5
 #define ENC_NSS_PORT                GPIOB
 #define ENC_NSS_PIN                 GPIO_Pin_6
-
 #define ENC_SELECT()                ENC_NSS_PORT->BRR = ENC_NSS_PIN
 #define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRR = ENC_NSS_PIN;}
-
 #define ENC28J60_PHY                1
+#include "PHY/ENC28J60/enc28j60_phy.h"
 // End ENC Section
 
 // CC11 Section
 #define HAL_USE_SPI2                1
-
 #define CC11_USE_SPI                2
-
-#define CC11_NSS_PORT               GPIOB
-#define CC11_NSS_PIN                GPIO_Pin_12
-
-#define CC11_SPI_PORT               GPIOB
-#define CC11_SPI_MISO_PIN           GPIO_Pin_14
-
-#define CC11_WAIT_LOW_MISO()        while(CC11_SPI_PORT->IDR & CC11_SPI_MISO_PIN)
-
-#define CC11_SELECT()               CC11_NSS_PORT->BRR = CC11_NSS_PIN
-#define CC11_RELEASE()              CC11_NSS_PORT->BSRR = CC11_NSS_PIN
-
+#define CC11_NSS_PIN                28                          // PB12
+#define CC11_WAIT_LOW_MISO()        while(GPIOB->IDR & GPIO_Pin_14)
+#define CC11_SELECT()               GPIOB->BRR = GPIO_Pin_12
+#define CC11_RELEASE()              GPIOB->BSRR = GPIO_Pin_12
 #define CC11_PHY                    2
+#include "PHY/CC1101/cc11_phy.h"
 // End CC11 Section
 
 // Object's Dictionary Section
@@ -136,9 +127,6 @@ extern "C" {
 //#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
 //#define OD_DEF_IP_ROUTER            inet_addr(192,168,10,1)
 //#define OD_DEF_IP_BROKER            inet_addr(192,168,20,8)
-
-#include "PHY/ENC28J60/enc28j60_phy.h"
-#include "PHY/CC1101/cc11_phy.h"
 
 #ifdef __cplusplus
 }

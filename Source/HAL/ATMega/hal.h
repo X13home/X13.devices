@@ -87,7 +87,18 @@ uint8_t     hal_uart_get(uint8_t port);
 
 //////////////////////////////////////////////////////////////
 // SPI Section
-uint8_t hal_spi_exch8(uint8_t unused, uint8_t data);
+#define HAL_SPI_MODE_0              0
+#define HAL_SPI_MODE_1              1
+#define HAL_SPI_MODE_2              2
+#define HAL_SPI_MODE_3              3
+#define HAL_SPI_MSB                 0
+#define HAL_SPI_LSB                 4
+#define HAL_SPI_8B                  0
+#define HAL_SPI_16B                 8
+
+void        hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed);
+uint8_t     hal_spi_exch8(uint8_t port, uint8_t data);
+uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
 // SPI Section
 //////////////////////////////////////////////////////////////
 

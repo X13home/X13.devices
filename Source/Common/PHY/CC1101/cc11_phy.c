@@ -272,7 +272,11 @@ void CC11_Init(void)
     Len = sizeof(uint16_t);
     ReadOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF,  &Len, (uint8_t *)&GroupID);
 
-    hal_cc11_init_hw();
+    // Init Hardware
+    hal_dio_configure(CC11_NSS_PIN, DIO_MODE_OUT_PP_HS);
+    CC11_RELEASE();
+    hal_spi_cfg(CC11_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 6500000UL);
+
     // Reset CC1101
     _delay_us(5);
     CC11_SELECT();

@@ -37,10 +37,18 @@ See LICENSE file for license details.
 #endif  //  Configuration
 
 #if (defined __AVR_ATmega328P__)
+// DIO
 #define HAL_DIO_PORTNUM2PORT        {0xFFFF, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
+// AIn
 #define HAL_AIN_BASE2DIO            {16,   17,   18,   19,   20,   21,   0xFE, 0xFE,    /* PC0 - PC5, Ain6, Ain7 */ \
                                      0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE}    // TempSens, Vbg, GND}
-                                     
+// SPI
+#define SPI_DDR                     DDRB
+#define SPI_PIN_SS                  PB2
+#define SPI_PIN_MOSI                PB3
+#define SPI_PIN_MISO                PB4
+#define SPI_PIN_SCK                 PB5
+
 #elif defined (__AVR_ATmega2560__)
 #define HAL_DIO_PORTNUM2PORT        {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD,    \
                                      (uint16_t)&PORTE, (uint16_t)&PORTF, (uint16_t)&PORTG, (uint16_t)&PORTH,    \
@@ -53,7 +61,5 @@ See LICENSE file for license details.
 #else
 #error HW_ATMega.h unknown uC
 #endif  //  uC
-
-
 
 #endif  //  HW_ATMEGA_H

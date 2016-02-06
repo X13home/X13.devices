@@ -93,21 +93,13 @@ extern "C" {
 
 // CC11 Section
 #define HAL_USE_SPI2                1
-
 #define CC11_USE_SPI                2
-
-#define CC11_NSS_PORT               GPIOB
-#define CC11_NSS_PIN                GPIO_Pin_12
-
-#define CC11_SPI_PORT               GPIOB
-#define CC11_SPI_MISO_PIN           GPIO_Pin_14
-
-#define CC11_WAIT_LOW_MISO()        while(CC11_SPI_PORT->IDR & CC11_SPI_MISO_PIN)
-
-#define CC11_SELECT()               CC11_NSS_PORT->BRR = CC11_NSS_PIN
-#define CC11_RELEASE()              CC11_NSS_PORT->BSRR = CC11_NSS_PIN
-
+#define CC11_NSS_PIN                28                          // PB12
+#define CC11_WAIT_LOW_MISO()        while(GPIOB->IDR & GPIO_Pin_14)
+#define CC11_SELECT()               GPIOB->BRR = GPIO_Pin_12
+#define CC11_RELEASE()              GPIOB->BSRR = GPIO_Pin_12
 #define CC11_PHY                    1
+#include "PHY/CC1101/cc11_phy.h"
 // End CC11 Section
 
 // Object's Dictionary Section
@@ -118,8 +110,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '3'
-
-#include "PHY/CC1101/cc11_phy.h"
 
 #ifdef __cplusplus
 }
