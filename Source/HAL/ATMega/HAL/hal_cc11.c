@@ -2,14 +2,6 @@
 
 #ifdef CC11_PHY
 
-// low level SPI exchange
-uint8_t hal_cc11_spiExch(uint8_t data)
-{
-    SPDR = data;
-    while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
-    return SPDR;
-}
-
 void hal_cc11_init_hw(void)
 {
     // Init Ports

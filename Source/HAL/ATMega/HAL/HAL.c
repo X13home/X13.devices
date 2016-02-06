@@ -166,3 +166,14 @@ void HAL_Reboot(void)
     wdt_enable(WDTO_250MS);
     while(1);
 }
+
+// SPI Section
+#ifdef HAL_USE_SPI
+uint8_t hal_spi_exch8(uint8_t unused, uint8_t data)
+{
+    SPDR = data;
+    while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
+    return SPDR;
+}
+#endif  //  HAL_USE_SPI
+// End SPI Section

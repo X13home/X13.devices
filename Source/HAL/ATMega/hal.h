@@ -41,6 +41,7 @@ typedef enum
     DIO_MODE_IN_PD      = 0,
     DIO_MODE_IN_PU      = 0x01,
 
+    DIO_MODE_OUT_PP_HS  = 0x08,
     DIO_MODE_OUT_PP     = 0x08,
     
     DIO_MODE_AIN        = 0x18
@@ -82,6 +83,12 @@ void        hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf);
 bool        hal_uart_datardy(uint8_t port);
 uint8_t     hal_uart_get(uint8_t port);
 // UART Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// SPI Section
+uint8_t hal_spi_exch8(uint8_t unused, uint8_t data);
+// SPI Section
 //////////////////////////////////////////////////////////////
 
 #include "HW_ATMega.h"

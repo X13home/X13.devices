@@ -95,6 +95,9 @@ extern "C" {
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // CC11 Section
+#define HAL_USE_SPI                 1
+#define CC11_USE_SPI                1
+
 #define CC11_PORT                   PORTB
 #define CC11_DDR                    DDRB
 #define CC11_PIN                    PINB

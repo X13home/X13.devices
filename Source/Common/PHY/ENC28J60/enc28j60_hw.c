@@ -25,8 +25,9 @@ static void enc28j60WriteOp(uint8_t op, uint8_t address, uint8_t data)
 {
   //taskENTER_CRITICAL();
   ENC_SELECT();
-  hal_enc28j60exchg(op | (address & ADDR_MASK));     // issue write command
-  hal_enc28j60exchg(data);
+  op |= (address & ADDR_MASK);
+  hal_spi_exch8(ENC_USE_SPI, op);       // issue write command
+  hal_spi_exch8(ENC_USE_SPI, data);
   ENC_RELEASE();
   //taskEXIT_CRITICAL();
 }
@@ -53,10 +54,10 @@ static uint8_t enc28j60Read(uint8_t address)
     enc28j60SetBank(address); // set the bank
   uint8_t data;
   ENC_SELECT();
-  hal_enc28j60exchg(ENC28J60_READ_CTRL_REG | (address & ADDR_MASK));     // issue read command
-  if(address & 0x80)                          // do dummy read if needed
-    hal_enc28j60exchg(0x00);                      // (for mac and mii, see datasheet page 29)
-  data = hal_enc28j60exchg(0);                    // read data
+  hal_spi_exch8(ENC_USE_SPI, (ENC28J60_READ_CTRL_REG | (address & ADDR_MASK)));     // issue read command
+  if(address & 0x80)                                                                // do dummy read if needed
+    hal_spi_exch8(ENC_USE_SPI, 0);                                                  // (for mac and mii, see datasheet page 29)
+  data = hal_spi_exch8(ENC_USE_SPI, 0);                                             // read data
   ENC_RELEASE();
   //taskEXIT_CRITICAL();
   return data;
@@ -83,9 +84,9 @@ static void enc28j60ReadBuffer(uint16_t len, uint8_t* data)
 {
   //taskENTER_CRITICAL();
   ENC_SELECT();
-  hal_enc28j60exchg(ENC28J60_READ_BUF_MEM);          // issue read command
+  hal_spi_exch8(ENC_USE_SPI, ENC28J60_READ_BUF_MEM);            // issue read command
   while(len--)
-    *(data++) = hal_enc28j60exchg(0);                 // read data
+    *(data++) = hal_spi_exch8(ENC_USE_SPI, 0);                  // read data
   ENC_RELEASE();
   //taskEXIT_CRITICAL();
 }
@@ -95,9 +96,9 @@ static void enc28j60WriteBuffer(uint16_t len, uint8_t* data)
 {
   //taskENTER_CRITICAL();
   ENC_SELECT();
-  hal_enc28j60exchg(ENC28J60_WRITE_BUF_MEM);         // issue write command
+  hal_spi_exch8(ENC_USE_SPI, ENC28J60_WRITE_BUF_MEM);           // issue write command
   while(len--)
-    hal_enc28j60exchg(*(data++));                    // write data
+    hal_spi_exch8(ENC_USE_SPI, *(data++));                      // write data
   ENC_RELEASE();
   //taskEXIT_CRITICAL();
 }
@@ -264,9 +265,9 @@ void enc28j60_PutData(uint16_t len, uint8_t* pBuf)
 void enc28j60_Fill(uint8_t len)
 {
     ENC_SELECT();
-    hal_enc28j60exchg(ENC28J60_WRITE_BUF_MEM);         // issue write command
+    hal_spi_exch8(ENC_USE_SPI, ENC28J60_WRITE_BUF_MEM);             // issue write command
     while(len--)
-        hal_enc28j60exchg(0);
+        hal_spi_exch8(ENC_USE_SPI, 0);
     ENC_RELEASE();
 }
 
@@ -399,9 +400,9 @@ void enc28j60_GetPacket(uint8_t * pBuf, uint16_t len)
 void enc28j60_Skip(uint16_t len)
 {
     ENC_SELECT();
-    hal_enc28j60exchg(ENC28J60_READ_BUF_MEM);   // issue read command
+    hal_spi_exch8(ENC_USE_SPI, ENC28J60_READ_BUF_MEM);   // issue read command
     while(len--)
-        hal_enc28j60exchg(0);                   // skip data
+        hal_spi_exch8(ENC_USE_SPI, 0);                   // skip data
     ENC_RELEASE();
 }
 

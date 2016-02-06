@@ -53,7 +53,6 @@ extern "C" {
 
 // HAL Section
 void hal_enc28j60_init_hw(void);
-uint8_t hal_enc28j60exchg(uint8_t data);
 
 // API Section
 void ENC28J60_Init(void);

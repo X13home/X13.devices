@@ -94,6 +94,9 @@ extern "C" {
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // LAN Section
+#define HAL_USE_SPI                 1
+#define ENC_USE_SPI                 1
+
 #define ENC_PORT                    PORTB
 #define ENC_DDR                     DDRB
 #define ENC_PIN                     PINB
