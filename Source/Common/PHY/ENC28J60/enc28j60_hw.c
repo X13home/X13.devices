@@ -132,78 +132,80 @@ static void enc28j60PhyWrite(uint8_t address, uint16_t data)
 
 void enc28j60Init(uint8_t* macaddr)
 {
-  // initialize I/O
-  hal_enc28j60_init_hw();
+    // Init Hardware
+    hal_dio_configure(ENC_NSS_PIN, DIO_MODE_OUT_PP_HS);
+    ENC_RELEASE();
+    hal_spi_cfg(ENC_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 20000000UL);
 
-  // perform system reset
-  enc28j60WriteOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
-  _delay_ms(20);
+    // perform system reset
+    enc28j60WriteOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
+    _delay_ms(20);
 
-  // change clkout from 6.25MHz to 12.5MHz
-  enc28j60Write(ECOCON, 2);
-  _delay_ms(20);
+    // change clkout from 6.25MHz to 12.5MHz
+    enc28j60Write(ECOCON, 2);
+    _delay_ms(20);
 
-  // Check connection
-  while(enc28j60Read(ECOCON) != 2);
+    // Check connection
+    while(enc28j60Read(ECOCON) != 2);
 
-  // do bank 0 stuff
-  // initialize receive buffer
-  // 16-bit transfers, must write low byte first
-  // set receive buffer start address
-  gNextPacketPtr = RXSTART_INIT;
-  // Rx start
-  enc28j60WriteW(ERXST, RXSTART_INIT);
-  // set receive pointer address
-  enc28j60WriteW(ERXRDPT, RXSTART_INIT);
-  // RX end
-  enc28j60WriteW(ERXND, RXSTOP_INIT);
-  // TX start
-  enc28j60WriteW(ETXST, TXSTART_INIT);
-  // TX end
-  enc28j60WriteW(ETXND, TXSTOP_INIT);
-  // do bank 1 stuff, packet filter:
-  enc28j60Write(ERXFCON, (ERXFCON_UCEN | ERXFCON_CRCEN | ERXFCON_PMEN));
-  enc28j60Write(EPMM0, 0x3f);
-  enc28j60Write(EPMM1, 0x30);
-  enc28j60Write(EPMCSL, 0xf9);
-  enc28j60Write(EPMCSH, 0xf7);
-  // do bank 2 stuff
-  // enable MAC receive
-  enc28j60Write(MACON1, (MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS));
-  // bring MAC out of reset
-  enc28j60Write(MACON2, 0x00);
-  // enable automatic padding to 60bytes and CRC operations
-  enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, MACON3, (MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN | MACON3_FULDPX));
-  // set inter-frame gap (non-back-to-back)
-  enc28j60Write(MAIPGL, 0x12);
-  enc28j60Write(MAIPGH, 0x0C);
-  // set inter-frame gap (back-to-back)
-  enc28j60Write(MABBIPG, 0x12);
-  // Set the maximum packet size which the controller will accept
-  // Do not send packets longer than MAX_FRAMELEN:
-  enc28j60WriteW(MAMXFL, MAX_FRAMELEN);
-  // do bank 3 stuff
-  // write MAC address
-  // NOTE: MAC address in ENC28J60 is byte-backward
-  enc28j60Write(MAADR5, macaddr[0]);
-  enc28j60Write(MAADR4, macaddr[1]);
-  enc28j60Write(MAADR3, macaddr[2]);
-  enc28j60Write(MAADR2, macaddr[3]);
-  enc28j60Write(MAADR1, macaddr[4]);
-  enc28j60Write(MAADR0, macaddr[5]);
-  // Setup PHY
-  enc28j60PhyWrite(PHCON1, PHCON1_PDPXMD);  // Force full-duplex mode
-  enc28j60PhyWrite(PHCON2, PHCON2_HDLDIS);  // Disable loopback
-  // Magjack leds configuration, LEDA=links status(yellow, LEDB=receive/transmit(green)
-  enc28j60PhyWrite(PHLCON, (PHLCON_LACFG2 | 
-                            PHLCON_LBCFG2 | PHLCON_LBCFG1 | PHLCON_LBCFG0 |
-                            PHLCON_LFRQ0 | PHLCON_STRCH));
-  // Enable Rx packets
-  enc28j60SetBank(ECON1);     // switch to bank 0
-  // enable interrupts
-  // enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
-  // enable packet reception
-  enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
+    // do bank 0 stuff
+    // initialize receive buffer
+    // 16-bit transfers, must write low byte first
+    // set receive buffer start address
+    gNextPacketPtr = RXSTART_INIT;
+    // Rx start
+    enc28j60WriteW(ERXST, RXSTART_INIT);
+    // set receive pointer address
+    enc28j60WriteW(ERXRDPT, RXSTART_INIT);
+    // RX end
+    enc28j60WriteW(ERXND, RXSTOP_INIT);
+    // TX start
+    enc28j60WriteW(ETXST, TXSTART_INIT);
+    // TX end
+    enc28j60WriteW(ETXND, TXSTOP_INIT);
+    // do bank 1 stuff, packet filter:
+    enc28j60Write(ERXFCON, (ERXFCON_UCEN | ERXFCON_CRCEN | ERXFCON_PMEN));
+    enc28j60Write(EPMM0, 0x3f);
+    enc28j60Write(EPMM1, 0x30);
+    enc28j60Write(EPMCSL, 0xf9);
+    enc28j60Write(EPMCSH, 0xf7);
+    // do bank 2 stuff
+    // enable MAC receive
+    enc28j60Write(MACON1, (MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS));
+    // bring MAC out of reset
+    enc28j60Write(MACON2, 0x00);
+    // enable automatic padding to 60bytes and CRC operations
+    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, MACON3, (MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN | MACON3_FULDPX));
+    // set inter-frame gap (non-back-to-back)
+    enc28j60Write(MAIPGL, 0x12);
+    enc28j60Write(MAIPGH, 0x0C);
+    // set inter-frame gap (back-to-back)
+    enc28j60Write(MABBIPG, 0x12);
+    // Set the maximum packet size which the controller will accept
+    // Do not send packets longer than MAX_FRAMELEN:
+    enc28j60WriteW(MAMXFL, MAX_FRAMELEN);
+    // do bank 3 stuff
+    // write MAC address
+    // NOTE: MAC address in ENC28J60 is byte-backward
+    enc28j60Write(MAADR5, macaddr[0]);
+    enc28j60Write(MAADR4, macaddr[1]);
+    enc28j60Write(MAADR3, macaddr[2]);
+    enc28j60Write(MAADR2, macaddr[3]);
+    enc28j60Write(MAADR1, macaddr[4]);
+    enc28j60Write(MAADR0, macaddr[5]);
+    // Setup PHY
+    enc28j60PhyWrite(PHCON1, PHCON1_PDPXMD);  // Force full-duplex mode
+    enc28j60PhyWrite(PHCON2, PHCON2_HDLDIS);  // Disable loopback
+    // Magjack leds configuration, LEDA=links status(yellow, LEDB=receive/transmit(green)
+    enc28j60PhyWrite(PHLCON, (PHLCON_LACFG2 | 
+                              PHLCON_LBCFG2 | PHLCON_LBCFG1 | PHLCON_LBCFG0 |
+                              PHLCON_LFRQ0 | PHLCON_STRCH));
+    // Enable Rx packets
+    enc28j60SetBank(ECON1);     // switch to bank 0
+    // enable interrupts
+    // enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
+    // enable packet reception
+    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
 }
 
 // A number of utility functions to enable/disable broadcast 

@@ -94,10 +94,9 @@ extern "C" {
 // ENC Section
 #define HAL_USE_SPI1                1   // SPI1
 #define ENC_USE_SPI                 11  // Config 2, PB3-PB5
-#define ENC_NSS_PORT                GPIOB
-#define ENC_NSS_PIN                 GPIO_Pin_6
-#define ENC_SELECT()                ENC_NSS_PORT->BRR = ENC_NSS_PIN
-#define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); ENC_NSS_PORT->BSRR = ENC_NSS_PIN;}
+#define ENC_NSS_PIN                 22  // PB6
+#define ENC_SELECT()                GPIOB->BRR = GPIO_Pin_6
+#define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); GPIOB->BSRR = GPIO_Pin_6;}
 #define ENC28J60_PHY                1
 #include "PHY/ENC28J60/enc28j60_phy.h"
 // End ENC Section
