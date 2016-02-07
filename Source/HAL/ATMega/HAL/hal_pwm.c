@@ -21,38 +21,37 @@ uint8_t hal_pwm_base2dio(uint16_t base)
     return pgm_read_byte(&hal_pwm_port2dio[base]);
 }
 
-void hal_pwm_configure(uint16_t base)
+void hal_pwm_configure(uint16_t base, bool inv)
 {
 #ifdef EXTPWM_BASE_OFFSET
     base -= EXTPWM_BASE_OFFSET;
 #endif
 
     // Configure port
-    uint8_t port, mask;
-    port = pgm_read_byte(&hal_pwm_port2dio[base]);
-    mask = (1<<(port & 0x07));
-    port >>= 3;
-
-#ifdef EXTDIO_BASE_OFFSET
-    port -= EXTDIO_BASE_OFFSET;
-#endif  //  EXTDIO_BASE_OFFSET
-    hal_dio_configure(port, mask, DIO_MODE_OUT_PP);
+    uint8_t pin;
+    pin = pgm_read_byte(&hal_pwm_port2dio[base]);
+    hal_dio_configure(pin, DIO_MODE_OUT_PP);
     
     // configure timer
     uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
     uint8_t channel = Config & 0x07;
     uint8_t tccra;
+    uint8_t mode;
+    if(inv)
+        mode = 2;
+    else
+        mode = 3;
 
     volatile uint8_t * pTIM;
     
     switch(Config>>3)
     {
         case 0:     // Timer 0
-            tccra = TCCR0A & ((1<<COM0A1) | (1<<COM0B1));
+            tccra = TCCR0A & ((3<<COM0A0) | (3<<COM0B0));
             if(channel == 0)
-                tccra |= (1<<COM0A1);
+                tccra |= (mode<<COM0A0);
             else
-                tccra |= (1<<COM0B1);
+                tccra |= (mode<<COM0B0);
 
             TCCR0A = tccra | (1<<WGM00);    // PWM, Phase Correct, 0x00 - 0xFF
             TCCR0B = (4<<CS00);             // Clock = Fcpu/256
@@ -81,12 +80,12 @@ void hal_pwm_configure(uint16_t base)
     }
 
 #ifndef OCR1C   // ATM328 + ATM1284
-    tccra = *pTIM & ((1<<COM0A1) | (1<<COM0B1));
+    tccra = *pTIM & ((3<<COM0A0) | (3<<COM0B0));
 #else           // ATM2560
-    tccra = *pTIM & ((1<<COM1A1) | (1<<COM1B1) | (1<<COM1C1));
+    tccra = *pTIM & ((3<<COM1A0) | (3<<COM1B0) | (3<<COM1C0));
     if(channel == 2)
     {
-        tccra |= (1<<COM1C1);
+        tccra |= (mode<<COM1C0);
         *(pTIM + 0x0D) = 0;         // OCRnCH
         *(pTIM + 0x0C) = 0;         // OCRnCL
     }
@@ -94,13 +93,13 @@ void hal_pwm_configure(uint16_t base)
 #endif  //  OCR1C
     if(channel == 0)        // Channel 0
     {
-        tccra |= (1<<COM1A1);
+        tccra |= (mode<<COM1A0);
         *(pTIM + 0x09) = 0;         // OCRnAH
         *(pTIM + 0x08) = 0;         // OCRnAL
     }
     else                    // Channel 1
     {
-        tccra |= (1<<COM1B1);
+        tccra |= (mode<<COM1B0);
         *(pTIM + 0x0B) = 0;         // OCRnBH
         *(pTIM + 0x0A) = 0;         // OCRnBL
     }
@@ -118,7 +117,7 @@ void hal_pwm_delete(uint16_t base)
 #ifdef EXTPWM_BASE_OFFSET
     base -= EXTPWM_BASE_OFFSET;
 #endif
-    
+
     // configure timer
     uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
     uint8_t channel = Config & 0x07;
@@ -129,11 +128,11 @@ void hal_pwm_delete(uint16_t base)
     {
         case 0:     // Timer 0
             if(channel == 0)
-                TCCR0A &= ~(1<<COM0A1);
+                TCCR0A &= ~(3<<COM0A0);
             else
-                TCCR0A &= ~(1<<COM0B1);
+                TCCR0A &= ~(3<<COM0B0);
 
-            if((TCCR0A & ((1<<COM0A1) | (1<<COM0B1))) == 0)     // stop timer
+            if((TCCR0A & ((3<<COM0A0) | (3<<COM0B0))) == 0)     // stop timer
             {
                 TCCR0A = 0;
                 TCCR0B = 0;
@@ -166,23 +165,23 @@ void hal_pwm_delete(uint16_t base)
     {
         uint8_t tccra;
 #ifndef OCR1C   // ATM328 + ATM1284
-        tccra = *pTIM & ((1<<COM0A1) | (1<<COM0B1));
+        tccra = *pTIM & ((3<<COM0A0) | (3<<COM0B0));
 #else           // ATM2560
-        tccra = *pTIM & ((1<<COM1A1) | (1<<COM1B1) | (1<<COM1C1));
+        tccra = *pTIM & ((3<<COM1A0) | (3<<COM1B0) | (3<<COM1C0));
 
         if(channel == 2)
         {
-            tccra &= ~(1<<COM1C1);
+            tccra &= ~(3<<COM1C0);
         }
         else
 #endif  //  OCR1C
         if(channel == 0)        // Channel 0
         {
-            tccra &= ~(1<<COM1A1);
+            tccra &= ~(3<<COM1A0);
         }
         else                    // Channel 1
         {
-            tccra &= ~(1<<COM1B1);
+            tccra &= ~(3<<COM1B0);
         }
 
         if(tccra == 0)
@@ -192,20 +191,13 @@ void hal_pwm_delete(uint16_t base)
         }
         else
         {
-            *(pTIM + 0) = tccra | (2<<WGM10);       // FastPWM, top in ICR1
+            *(pTIM + 0) = tccra | (1<<WGM11);       // PWM Phase Correct, top in ICR1
         }
     }
-
+    
     // Configure port
-    uint8_t port, mask;
-    port = pgm_read_byte(&hal_pwm_port2dio[base]);
-    mask = (1<<(port & 0x07));
-    port >>= 3;
-
-#ifdef EXTDIO_BASE_OFFSET
-    port -= EXTDIO_BASE_OFFSET;
-#endif  //  EXTDIO_BASE_OFFSET
-    hal_dio_configure(port, mask, DIO_MODE_IN_FLOAT);
+    uint8_t pin = pgm_read_byte(&hal_pwm_port2dio[base]);
+    hal_dio_configure(pin, DIO_MODE_IN_FLOAT);
 }
 
 void hal_pwm_write(uint16_t base, uint16_t value)

@@ -48,6 +48,11 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx);      // Register Object
 void extDeleteOD(subidx_t * pSubidx);                       // Delete Object
 void extProc(void);                                         // Update IO's
 
+#ifdef EXTPLC_USED
+uint32_t ext_in(subidx_t * pSubidx);                        // PLC read data from IO
+void ext_out(subidx_t * pSubidx, uint32_t val);             // PLC write data to IO
+#endif  //  EXTPLC_USED
+
 #ifdef __cplusplus
 }
 #endif

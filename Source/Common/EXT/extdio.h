@@ -29,6 +29,10 @@ uint8_t dioCheckBase(uint8_t base);
 void    dioTake(uint8_t base);
 void    dioRelease(uint8_t base);
 
+// PLC Subroutines
+bool    dioRead(subidx_t * pSubidx);
+void    dioWrite(subidx_t * pSubidx, bool sr);
+
 #ifdef __cplusplus
 }
 #endif

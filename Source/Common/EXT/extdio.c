@@ -16,7 +16,9 @@ See LICENSE file for license details.
 
 #ifdef EXTDIO_USED
 
-#include "extdio.h"
+#ifndef EXTDIO_PORT_OFFSET
+#define EXTDIO_PORT_OFFSET 0
+#endif  //  EXTDIO_PORT_OFFSET
 
 // DIO Variables
 
@@ -31,18 +33,11 @@ static DIO_PORT_TYPE dio_status[EXTDIO_MAXPORT_NR];
 static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)
 {
     uint8_t port = (pin >> DIO_PORT_POS);
-#ifdef EXTDIO_BASE_OFFSET
-    port -= EXTDIO_BASE_OFFSET;
-#endif  //  EXTDIO_BASE_OFFSET
+#if (EXTDIO_PORT_OFFSET > 0)
+    port -= EXTDIO_PORT_OFFSET;
+#endif  //  EXTDIO_PORT_OFFSET
     *pPort = port;
-
-    // Convert Base to Mask
-    DIO_PORT_TYPE mask = 1;
-    pin &= DIO_PORT_MASK;
-    while(pin--)
-        mask <<= 1;
-
-    *pMask = mask;
+    *pMask = (DIO_PORT_TYPE)1 << (pin & DIO_PORT_MASK);
 }
 
 // ignore some GCC warnings
@@ -50,7 +45,6 @@ static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
-
 // Write DIO Object's
 static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t *pBuf)
 {
@@ -72,9 +66,12 @@ static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t
 
     return MQTTSN_RET_ACCEPTED;
 }
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 // Poll Procedure
-static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t unused)
+static uint8_t dioPollOD(subidx_t * pSubidx)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;
@@ -83,10 +80,6 @@ static uint8_t dioPollOD(subidx_t * pSubidx, uint8_t unused)
 
     return ((dio_change_flag[port] & mask) != 0);
 }
-
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 // Read digital Inputs
 static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
@@ -146,7 +139,7 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
     if(pIdx->sidx.Place == objDout)
     {
         pIdx->cbWrite = &dioWriteOD;
-        hal_dio_configure(port, mask, DIO_MODE_OUT_PP);
+        hal_dio_configure(pin, DIO_MODE_OUT_PP);
         dio_write_mask[port] |= mask;
 
         if(pIdx->sidx.Type == objPinPNP)
@@ -169,13 +162,13 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
 
         if(pIdx->sidx.Type == objPinPNP)
         {
-            hal_dio_configure(port, mask, DIO_MODE_IN_PD);
+            hal_dio_configure(pin, DIO_MODE_IN_PD);
             dio_state_flag[port] &= ~mask;
             dio_status[port] &= ~mask;
         } // else NPN
         else
         {
-            hal_dio_configure(port, mask, DIO_MODE_IN_PU);
+            hal_dio_configure(pin, DIO_MODE_IN_PU);
             dio_state_flag[port] |= mask;
             dio_status[port] |= mask;
         }
@@ -194,12 +187,12 @@ void dioDeleteOD(subidx_t * pSubidx)
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
 
-    hal_dio_configure(port, mask, DIO_MODE_IN_FLOAT);
+    hal_dio_configure(pin, DIO_MODE_IN_FLOAT);
 }
 
 void dioProc(void)
 {
-    uint8_t port;
+    uint8_t port, port_hal = EXTDIO_PORT_OFFSET;
     DIO_PORT_TYPE state, mask;
 
     for(port = 0; port < EXTDIO_MAXPORT_NR; port++)
@@ -207,7 +200,7 @@ void dioProc(void)
         mask = dio_read_mask[port] & ~dio_write_mask[port];
         if(mask != 0)
         {
-            state = hal_dio_read(port) & mask;
+            state = hal_dio_read(port_hal) & mask;
 
             DIO_PORT_TYPE maskp = 1;
             while(maskp)
@@ -239,12 +232,14 @@ void dioProc(void)
         {
             state = dio_status[port] & mask;
             if(state)
-                hal_dio_set(port, state);
+                hal_dio_set(port_hal, state);
         
             state = ~dio_status[port] & mask;
             if(state)
-                hal_dio_reset(port, state);
+                hal_dio_reset(port_hal, state);
         }
+
+        port_hal++;
     }
 }
 
@@ -282,4 +277,42 @@ void dioRelease(uint8_t pin)
     dio_write_mask[port] &= ~mask;
     dio_read_mask[port] &= ~mask;
 }
-#endif  // EXTDIO_USED
+
+#ifdef EXTPLC_USED
+bool dioRead(subidx_t * pSubidx)
+{
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    if(pin == 0xFF)
+        return false;
+
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioPin2hw(pin, &port, &mask);
+    
+    bool sr = (dio_status[port] & mask) != 0;
+    if(pSubidx->Type == objPinNPN)
+        sr = !sr;
+    return sr;
+}
+
+void dioWrite(subidx_t * pSubidx, bool sr)
+{
+    uint8_t pin = hal_dio_base2pin(pSubidx->Base);
+    if(pin == 0xFF)
+        return;
+
+    uint8_t port;
+    DIO_PORT_TYPE mask;
+    dioPin2hw(pin, &port, &mask);
+
+    if(pSubidx->Type == objPinNPN)
+        sr = !sr;
+
+    if(sr)
+        dio_status[port] |= mask;
+    else
+        dio_status[port] &= ~mask;
+}
+#endif  //  EXTPLC_USED
+
+#endif  //  EXTDIO_USED

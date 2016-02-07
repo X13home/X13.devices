@@ -113,11 +113,15 @@ void HAL_ASleep(uint16_t duration)
 
 #ifdef EXTAIN_USED
     // Disable ADC
-    if(ADCSRA & (1<<ADEN))
-        while(ADCSRA & (1<<ADSC));
     uint8_t oldAD = ADCSRA;
-    ADCSRA &= ~(1<<ADEN);
+    if(ADCSRA & (1<<ADEN))
+    {
+        while(ADCSRA & (1<<ADSC));
+        ADCSRA &= ~(1<<ADEN);
+    }
 #endif  //  EXTAIN_USED
+
+    // ToDo disable TWI
 
     MCUSR &= ~(1<<WDRF);
     wdt_reset();
@@ -138,12 +142,12 @@ void HAL_ASleep(uint16_t duration)
     }
 
     wdt_disable();
-
     sleep_disable();
 
 #ifdef EXTAIN_USED
     // Restore ADC State
-    ADCSRA = oldAD;
+    if(oldAD & (1<<ADEN))
+        ADCSRA = oldAD;
 #endif  //  EXTAIN_USED
 }
 #endif  //  ASLEEP
@@ -162,3 +166,46 @@ void HAL_Reboot(void)
     wdt_enable(WDTO_250MS);
     while(1);
 }
+
+// SPI Section
+#ifdef HAL_USE_SPI
+void hal_spi_cfg(uint8_t unused, uint8_t mode, uint32_t speed)
+{
+    PRR &= ~(1<<PRSPI);                                                     // Enable clock on SPI
+    // Configure DIO
+    SPI_DDR |= (1<<SPI_PIN_SCK) | (1<<SPI_PIN_MOSI) | (1<<SPI_PIN_SS);      // for Master SPI_PIN_SS MUST be set as out
+    SPI_DDR &= ~(1<<SPI_PIN_MISO);
+
+    uint32_t spiclk = (F_CPU/2);
+    uint8_t  div = 0;
+    uint8_t  tmp = (1<<SPE) | (1<<MSTR);
+
+    SPCR = 0;       // Disable SPI
+
+    // Calculate divider
+    while((spiclk > speed) && (div < 5))
+    {
+        div++;
+        spiclk >>= 1;
+    }
+
+    if((div & 1) == 0)
+        SPSR = (1<<SPI2X);
+
+    if(mode & HAL_SPI_LSB)      // MSB/LSB
+        tmp |= (1<<DORD);
+
+    tmp |= (mode & 3) << 2;     // CPOL, CPHA
+    tmp |= div >> 1;
+    
+    SPCR = tmp;
+}
+
+uint8_t hal_spi_exch8(uint8_t unused, uint8_t data)
+{
+    SPDR = data;
+    while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
+    return SPDR;
+}
+#endif  //  HAL_USE_SPI
+// End SPI Section

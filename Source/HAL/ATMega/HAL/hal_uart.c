@@ -404,7 +404,7 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
             UCSR1B |= (1<<UDRIE1);
             break;
 #endif  //  HAL_USE_USART1
-        default:		// Paranoid Check. Send over not exist port
+        default:        // Paranoid Check. Send over not exist port
             while(1);
     }
 }

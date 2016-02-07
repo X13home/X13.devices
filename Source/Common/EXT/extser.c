@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 #ifdef EXTSER_USED
 
-#include "extdio.h"
-#include "extser.h"
-
 #define EXTSER_FLAG_TXEN    1
 #define EXTSER_FLAG_RXEN    2
 #define EXTSER_FLAG_RXRDY   0x10
@@ -38,7 +35,7 @@ typedef struct
 static EXTSER_VAR_t * extSerV[EXTSER_USED] = {NULL,};
 
 // Prototypes
-uint8_t serPollOD(subidx_t * pSubidx, uint8_t sleep);
+uint8_t serPollOD(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);
 e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 
@@ -124,14 +121,8 @@ e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 
-// ignore some GCC warnings
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-
 // Poll Procedure
-uint8_t serPollOD(subidx_t * pSubidx, uint8_t unused)
+uint8_t serPollOD(subidx_t * pSubidx)
 {
     uint8_t port = pSubidx->Base/10;
     
@@ -149,10 +140,6 @@ uint8_t serPollOD(subidx_t * pSubidx, uint8_t unused)
     
     return 0;
 }
-
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 // Register Object
 e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)

@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 #ifdef EXTAIN_USED
 
-#include "extdio.h"
-#include "extain.h"
-
 /////////////////////////////////////////////////////
 // AIn Section ,   depended from extdio.c
 
@@ -157,7 +154,6 @@ static e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
-
 static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t *pBuf)
 {
     // Prevent hard fault on ARM
@@ -173,16 +169,15 @@ static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t
 
     return MQTTSN_RET_ACCEPTED;
 }
-
-// Poll Procedure
-static uint8_t ainPollOD(subidx_t * pSubidx, uint8_t unused)
-{
-    return ain_check_mask((uint8_t)(pSubidx->Base & 0xFF));
-}
-
 #if defined ( __GNUC__ )
 #pragma GCC diagnostic pop
 #endif
+
+// Poll Procedure
+static uint8_t ainPollOD(subidx_t * pSubidx)
+{
+    return ain_check_mask((uint8_t)(pSubidx->Base & 0xFF));
+}
 
 // Register analogue input
 e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
@@ -268,6 +263,16 @@ void ainProc(void)
             ain_pos = 0;
     }
 }
+
+#ifdef EXTPLC_USED
+int16_t ainRead(subidx_t * pSubidx)
+{
+    uint16_t apin = pSubidx->Base;
+    if(apin < EXTAIN_MAXPORT_NR)
+        return ain_act_val[apin];
+    return 0;
+}
+#endif  //  EXTPLC_USED
 
 // AIn Section
 /////////////////////////////////////////////////////

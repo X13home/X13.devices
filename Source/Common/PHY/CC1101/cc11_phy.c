@@ -104,7 +104,7 @@ static void cc11_cmdStrobe(uint8_t cmd)
 {
     CC11_SELECT();                      // Select CC1101
     CC11_WAIT_LOW_MISO();               // Wait until MISO goes low
-    hal_cc11_spiExch(cmd);
+    hal_spi_exch8(CC11_USE_SPI, cmd);
     CC11_RELEASE();                     // Release CC1101
 }
 
@@ -113,8 +113,8 @@ static void cc11_writeReg(uint8_t Addr, uint8_t value)
 {
     CC11_SELECT();                      // Select CC1101
     CC11_WAIT_LOW_MISO();               // Wait until MISO goes low
-    hal_cc11_spiExch(Addr);             // Send register address
-    hal_cc11_spiExch(value);            // Send value
+    hal_spi_exch8(CC11_USE_SPI, Addr);  // Send register address
+    hal_spi_exch8(CC11_USE_SPI, value); // Send value
     CC11_RELEASE();                     // Release CC1101
 }
 
@@ -125,9 +125,9 @@ static uint8_t cc11_readReg(uint8_t Addr)
 
     CC11_SELECT();                      // Select CC1101
     CC11_WAIT_LOW_MISO();               // Wait until MISO goes low
-    hal_cc11_spiExch(Addr);             // Send register address
+    hal_spi_exch8(CC11_USE_SPI, Addr);  // Send register address
     // Read result
-    retval = hal_cc11_spiExch(0);
+    retval = hal_spi_exch8(CC11_USE_SPI, 0);
     CC11_RELEASE();                     // Release CC1101
     return retval;
 }
@@ -178,19 +178,19 @@ static void cc11_tx_task(void)
 
     len = pTxBuf->Length;
     // Send burst
-    CC11_SELECT();                              // Select CC1101
-    CC11_WAIT_LOW_MISO();                       // Wait until MISO goes low
-    hal_cc11_spiExch(CC11_BIT_BURST | CC11_TXFIFO);
-    hal_cc11_spiExch(len + 2);                  // Set data length at the first position of the TX FIFO
-    hal_cc11_spiExch(pTxBuf->phy1addr[0]);      // Send destination address
-    hal_cc11_spiExch(cc11s_NodeID);             // Send Source address
-    for(i = 0; i < len; i++)                    // Send Payload
-        hal_cc11_spiExch(pTxBuf->raw[i]);
-    CC11_RELEASE();                             // Release CC1101
+    CC11_SELECT();                                              // Select CC1101
+    CC11_WAIT_LOW_MISO();                                       // Wait until MISO goes low
+    hal_spi_exch8(CC11_USE_SPI, (CC11_BIT_BURST | CC11_TXFIFO));
+    hal_spi_exch8(CC11_USE_SPI, len + 2);                       // Set data length at the first position of the TX FIFO
+    hal_spi_exch8(CC11_USE_SPI, pTxBuf->phy1addr[0]);           // Send destination address
+    hal_spi_exch8(CC11_USE_SPI, cc11s_NodeID);                  // Send Source address
+    for(i = 0; i < len; i++)                                    // Send Payload
+        hal_spi_exch8(CC11_USE_SPI, pTxBuf->raw[i]);
+    CC11_RELEASE();                                             // Release CC1101
 
     mqFree(pTxBuf);
 
-    cc11_cmdStrobe(CC11_STX);                   // Switch to TX state
+    cc11_cmdStrobe(CC11_STX);                                   // Switch to TX state
 }
 
 static MQ_t * cc11_rx_task(void)
@@ -226,21 +226,21 @@ static MQ_t * cc11_rx_task(void)
     pRxBuf->Length = frameLen;
 
     // Read Burst
-    CC11_SELECT();                                  // Select CC1101
-    CC11_WAIT_LOW_MISO();                           // Wait until MISO goes low
-    hal_cc11_spiExch(CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO);
-    hal_cc11_spiExch(0);                            // Read Length
-    hal_cc11_spiExch(0);                            // Read Destination address
-    pRxBuf->phy1addr[0] = hal_cc11_spiExch(0);      // Read Source address
+    CC11_SELECT();                                                              // Select CC1101
+    CC11_WAIT_LOW_MISO();                                                       // Wait until MISO goes low
+    hal_spi_exch8(CC11_USE_SPI, (CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO));
+    hal_spi_exch8(CC11_USE_SPI, 0);                                             // Read Length
+    hal_spi_exch8(CC11_USE_SPI, 0);                                             // Read Destination address
+    pRxBuf->phy1addr[0] = hal_spi_exch8(CC11_USE_SPI, 0);                       // Read Source address
 
-    for(i = 0; i < frameLen; i++)                   // Read Payload
-        pRxBuf->raw[i] = hal_cc11_spiExch(0);
+    for(i = 0; i < frameLen; i++)                                               // Read Payload
+        pRxBuf->raw[i] = hal_spi_exch8(CC11_USE_SPI, 0);
 
-    cc11_rssi = hal_cc11_spiExch(0);                // Read RSSI
-    tmp  = hal_cc11_spiExch(0);                     // Read LQI 
-    CC11_RELEASE();                                 // Release CC1101
+    cc11_rssi = hal_spi_exch8(CC11_USE_SPI, 0);                                 // Read RSSI
+    tmp  = hal_spi_exch8(CC11_USE_SPI, 0);                                      // Read LQI 
+    CC11_RELEASE();                                                             // Release CC1101
 
-    //int8_t Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);    // int8_t frequency offset
+    //int8_t Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);           // int8_t frequency offset
 
     if((tmp & CC11_LQI_CRC_OK) == 0)
     {
@@ -272,7 +272,11 @@ void CC11_Init(void)
     Len = sizeof(uint16_t);
     ReadOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF,  &Len, (uint8_t *)&GroupID);
 
-    hal_cc11_init_hw();
+    // Init Hardware
+    hal_dio_configure(CC11_NSS_PIN, DIO_MODE_OUT_PP_HS);
+    CC11_RELEASE();
+    hal_spi_cfg(CC11_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 6500000UL);
+
     // Reset CC1101
     _delay_us(5);
     CC11_SELECT();
@@ -281,7 +285,7 @@ void CC11_Init(void)
     _delay_us(40);
     CC11_SELECT();
     CC11_WAIT_LOW_MISO();                   // Wait until MISO goes low
-    hal_cc11_spiExch(CC11_SRES);            // Reset CC1101 chip
+    hal_spi_exch8(CC11_USE_SPI, CC11_SRES); // Reset CC1101 chip
     CC11_WAIT_LOW_MISO();                   // Wait until MISO goes low
     CC11_RELEASE();
 

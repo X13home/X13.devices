@@ -25,6 +25,7 @@ void    ainDeleteOD(subidx_t * pSubidx);
 void    ainProc(void);
 
 void    ainLoadAverage(void);
+int16_t ainRead(subidx_t * pSubidx);
 
 #ifdef __cplusplus
 }

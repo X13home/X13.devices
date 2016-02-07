@@ -68,10 +68,6 @@ See LICENSE file for license details.
 
 #endif  //  RF_ADDR_t
 
-// HAL Section
-void    hal_cc11_init_hw(void);
-uint8_t hal_cc11_spiExch(uint8_t data);
-
 // API Section
 void    CC11_Init(void);
 void    CC11_Send(void *pBuf);

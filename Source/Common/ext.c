@@ -11,7 +11,6 @@ See LICENSE file for license details.
 */
 
 #include "config.h"
-#include "ext.h"
 
 // Initialise extensions
 void extInit(void)
@@ -61,12 +60,12 @@ bool extCheckSubidx(subidx_t * pSubidx)
         case objSer:
             return serCheckSubidx(pSubidx);
 #endif  //  EXTSER_USED
-/*
+
 #ifdef EXTPLC_USED
         case objMerker:
             return plcCheckSubidx(pSubidx);
 #endif  //  EXTPLC_USED
-*/
+
         default:
             break;
   }
@@ -104,12 +103,12 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
         case objSer:        // User Serial I/O
             return serRegisterOD(pIdx);
 #endif  //  EXTSER_USED
-/*
+
 #ifdef EXTPLC_USED
         case objMerker:
             return plcRegisterOD(pIdx);
 #endif  //  EXTPLC_USED
-*/
+
         default:
             break;
     }
@@ -170,3 +169,46 @@ void extProc(void)
     plcProc();
 #endif  // EXTPLC_USED
 }
+
+#ifdef EXTPLC_USED
+uint32_t ext_in(subidx_t * pSubidx)
+{
+    switch(pSubidx->Place)
+    {
+#ifdef EXTDIO_USED
+        case objDin:
+        case objDout:
+            return dioRead(pSubidx);
+#endif  //  EXTDIO_USED
+#ifdef EXTAIN_USED
+        case objAin:
+            return ainRead(pSubidx);
+#endif  //  EXTAIN_USED
+        default:
+            break;
+    }
+
+    return 0;
+}
+
+void ext_out(subidx_t * pSubidx, uint32_t val)
+{
+    switch(pSubidx->Place)
+    {
+#ifdef EXTDIO_USED
+        case objDout:
+            dioWrite(pSubidx, val != 0);
+            break;
+#endif  //  EXTDIO_USED
+#ifdef EXTPWM_USED
+        case objPWM:        // PWM
+            if(val > 0xFFFF)
+                val = 0xFFFF;
+            pwmWrite(pSubidx, val);
+            break;
+#endif  //  EXTPWM_USED
+        default:
+            break;
+    }
+}
+#endif  // EXTPLC_USED

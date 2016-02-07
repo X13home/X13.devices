@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- device configuration file for ST devices  -->
+<!-- device configuration file for S2EC13 devices  -->
 <root head="/etc/declarers/dev">
-    <item name="S2En13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.15.1220">
+    <item name="S2En13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0214">
         <item name="Add">
-            <item name="bool" value="1Z" saved="True" type="System.String" />
-            <item name="long" value="4I" saved="True" type="System.String" />
-            <item name="string" value="5S" saved="True" type="System.String" />
+            <item name="bool" value="yZ" saved="True" type="System.String" />
+            <item name="long" value="yI" saved="True" type="System.String" />
+            <item name="string" value="yS" saved="True" type="System.String" />
         </item>
-        <item name="remove" value="ZD" saved="True" type="System.String" />
+        <item name="remove" value="zD" saved="True" type="System.String" />
         <item name="Digital Pull-Down Inputs">
             <item name="Ip0" value="AzX0" saved="True" type="System.String">
                 <item name="_description" value="Digital input, CN-20" saved="True" type="System.String" />
@@ -233,11 +233,108 @@
                 <item name="_description" value="I2C Devices" saved="True" type="System.String" />
             </item>
         </item>
+       <item name="PWM">
+            <item name="Pp0" value="AiX0" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB1" saved="True" type="System.String" />
+            </item>
+            <item name="Pp1" value="BiX1" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB0" saved="True" type="System.String" />
+            </item>
+            <item name="Pp2" value="CiX2" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA7" saved="True" type="System.String" />
+            </item>
+            <item name="Pp3" value="DiX3" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA6" saved="True" type="System.String" />
+            </item>
+            <item name="Pp4" value="EiX4" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA5" saved="True" type="System.String" />
+            </item>
+            <item name="Pp5" value="FiX5" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA4" saved="True" type="System.String" />
+            </item>
+            <item name="Pp6" value="GiX6" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB11" saved="True" type="System.String" />
+            </item>
+            <item name="Pp7" value="HiX7" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB10" saved="True" type="System.String" />
+            </item>
+            <item name="Pp8" value="IiX8" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA10" saved="True" type="System.String" />
+            </item>
+            <item name="Pp9" value="JiX9" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA9" saved="True" type="System.String" />
+            </item>
+            <!-- Px10 - No Config -->
+            <item name="Pp11" value="LiX11" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA11" saved="True" type="System.String" />
+            </item>
+            <item name="Pp12" value="MiX12" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA3" saved="True" type="System.String" />
+            </item>
+            <item name="Pp13" value="NiX13" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA2" saved="True" type="System.String" />
+            </item>
+            <item name="Pp14" value="OiX14" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA1" saved="True" type="System.String" />
+            </item>
+            <item name="Pp15" value="PiX15" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA0" saved="True" type="System.String" />
+            </item>
+            <item name="Pn0" value="AiX0" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB1" saved="True" type="System.String" />
+            </item>
+            <item name="Pn1" value="BiX1" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB0" saved="True" type="System.String" />
+            </item>
+            <item name="Pn2" value="CiX2" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA7" saved="True" type="System.String" />
+            </item>
+            <item name="Pn3" value="DiX3" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA6" saved="True" type="System.String" />
+            </item>
+            <item name="Pn4" value="EiX4" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA5" saved="True" type="System.String" />
+            </item>
+            <item name="Pn5" value="FiX5" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA4" saved="True" type="System.String" />
+            </item>
+            <item name="Pn6" value="GiX6" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB11" saved="True" type="System.String" />
+            </item>
+            <item name="Pn7" value="HiX7" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB10" saved="True" type="System.String" />
+            </item>
+            <item name="Pn8" value="IiX8" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA10" saved="True" type="System.String" />
+            </item>
+            <item name="Pn9" value="JiX9" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA9" saved="True" type="System.String" />
+            </item>
+            <!-- Px10 - No Config -->
+            <item name="Pn11" value="LiX11" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA11" saved="True" type="System.String" />
+            </item>
+            <item name="Pn12" value="MiX12" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA3" saved="True" type="System.String" />
+            </item>
+            <item name="Pn13" value="NiX13" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA2" saved="True" type="System.String" />
+            </item>
+            <item name="Pn14" value="OiX14" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA1" saved="True" type="System.String" />
+            </item>
+            <item name="Pn15" value="PiX15" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA0" saved="True" type="System.String" />
+            </item>
+        </item>        
     </item>
-    <item name="S2EC13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.15.1220">
+    <item name="S2EC13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0214">
         <item name="_proto" value="S2En13" saved="True" type="System.String" />
     </item>
-    <item name="S2Cn13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.15.1220">
+    <item name="S2Cn13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0214">
+        <item name="_proto" value="S2En13" saved="True" type="System.String" />
+    </item>
+    <item name="S2Sn13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0214">
         <item name="_proto" value="S2En13" saved="True" type="System.String" />
     </item>
 </root>

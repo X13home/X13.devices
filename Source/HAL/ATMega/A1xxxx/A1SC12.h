@@ -58,9 +58,9 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define EXTDIO_BASE_OFFSET          2
-#define EXTDIO_MAXPORT_NR           2                                   // Number of digital Ports
-#define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 26, 27, 28, 29, 30, 31}
+#define EXTDIO_PORT_OFFSET          2
+#define EXTDIO_MAXPORT_NR           2                                   // Number of used physical digital Ports
+#define HAL_DIO_MAPPING             {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 26, 27, 28, 29, 30, 31}
 // End DIO Section
 
 // PWM Section
@@ -82,34 +82,29 @@ extern "C" {
 #define EXTTWI_USED                 1
 // End TWI Section
 
-// UART Section
-#define HAL_USE_USART0              0
-#define HAL_UART_NUM_PORTS          1
-
-#define UART_PHY_PORT               0
-// End UART Section
-
 // LED
 #define LED_On()                    PORTB &= ~(1<<PB0)
 #define LED_Off()                   PORTB |= (1<<PB0)
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
-// CC11 Section
-#define CC11_PORT                   PORTB
-#define CC11_DDR                    DDRB
-#define CC11_PIN                    PINB
-#define CC11_PIN_SS                 PB2
-#define CC11_PIN_MOSI               PB3
-#define CC11_PIN_MISO               PB4
-#define CC11_PIN_SCK                PB5
-
-#define CC11_WAIT_LOW_MISO()        while(CC11_PIN & (1<<CC11_PIN_MISO))
-#define CC11_SELECT()               CC11_PORT &= ~(1<<CC11_PIN_SS)
-#define CC11_RELEASE()              CC11_PORT |= (1<<CC11_PIN_SS)
-//  End CC11 Section
-
+// UART Section
+#define HAL_USE_USART0              0
+#define HAL_UART_NUM_PORTS          1
+#define UART_PHY_PORT               0
 #define UART_PHY                    1
+#include "PHY/UART/uart_phy.h"
+// End UART Section
+
+// CC11 Section
+#define HAL_USE_SPI                 1
+#define CC11_USE_SPI                1
+#define CC11_NSS_PIN                10  // PB2
+#define CC11_WAIT_LOW_MISO()        while(PINB & (1<<PB4))
+#define CC11_SELECT()               PORTB &= ~(1<<PB2)
+#define CC11_RELEASE()              PORTB |= (1<<PB2)
 #define CC11_PHY                    2
+#include "PHY/CC1101/cc11_phy.h"
+//  End CC11 Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           15      // Size of identificators list
@@ -119,9 +114,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'C'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
-
-#include "PHY/UART/uart_phy.h"
-#include "PHY/CC1101/cc11_phy.h"
 
 #ifdef __cplusplus
 }

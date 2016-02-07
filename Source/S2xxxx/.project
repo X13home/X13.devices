@@ -25,11 +25,6 @@
 	</natures>
 	<linkedResources>
 		<link>
-			<name>CMSIS</name>
-			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/ARM/CMSIS</locationURI>
-		</link>
-		<link>
 			<name>Common</name>
 			<type>2</type>
 			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/Common</locationURI>
@@ -37,7 +32,17 @@
 		<link>
 			<name>HAL</name>
 			<type>2</type>
-			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/STM32F0</locationURI>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/STM32</locationURI>
+		</link>
+		<link>
+			<name>HAL/CMSIS</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/ARM/CMSIS</locationURI>
+		</link>
+		<link>
+			<name>HAL/Device</name>
+			<type>2</type>
+			<locationURI>$%7BPARENT-1-PROJECT_LOC%7D/HAL/ARM/Device/ST/STM32F0xx</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

@@ -37,6 +37,8 @@ typedef enum
     objIPMask           = (uint16_t)0xFF22, // cfg/Xa_IPMask    - Array - Len 4
     objIPRouter         = (uint16_t)0xFF23, // cfg/Xa_IPRouter  - Array - Len 4
     objIPBroker         = (uint16_t)0xFF24, // cfg/Xa_IPBroker  - Array - Len 4
+    // PLC Settings
+    objPLCStackBot      = (uint16_t)0xFF50, // cfg/XD_StackBot
     // Read Only Variables
     objDeviceTyp        = (uint16_t)0xFFC0, // _declarer<String>
     objPHY1addr         = (uint16_t)0xFFC1, // cfg/_a_phy1
@@ -107,9 +109,9 @@ typedef struct
   uint16_t    Base;
 }subidx_t;
 
-typedef e_MQTTSN_RETURNS_t (*cbRead_t)(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);  // Callback Read
-typedef e_MQTTSN_RETURNS_t (*cbWrite_t)(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);   // Callback Write
-typedef uint8_t (*cbPoll_t)(subidx_t * pSubidx, uint8_t sleep);                  // Callback Poll
+typedef e_MQTTSN_RETURNS_t (*cbRead_t)(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);   // Callback Read
+typedef e_MQTTSN_RETURNS_t (*cbWrite_t)(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);    // Callback Write
+typedef uint8_t (*cbPoll_t)(subidx_t * pSubidx);                                            // Callback Poll
 
 // Structure for creating entries
 typedef struct
@@ -158,10 +160,11 @@ enum
 #endif  //  RF_ADDR_t
 
 #ifdef EXTPLC_USED
-//    eePLCprogram,
-//    eePLCprogram_body = eePLCprogram + PLC_SIZEOF_EEPROM - 1,
+    eePLCStackBot,
+    eePLCStackBotBody = eePLCStackBot + sizeof(uint32_t) - 1,
+    eePLCprogram,
+    eePLCprogram_body = eePLCprogram + EXTPLC_SIZEOF_PRG - 1,
 #endif  //  EXTPLC_USED
-
     eeNextFreeAddress
 } eEEPROMAddr;
 

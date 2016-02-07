@@ -7,6 +7,9 @@
 /A1SR11
 /A1Sn10
 /A1Sn12
+/A4Sn10
+/A4Sn10d
 /S2En13
 /*.cogui
 /*.comarker
+/*.componentinfo.xml

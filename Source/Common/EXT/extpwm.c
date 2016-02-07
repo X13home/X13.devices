@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 #if ((defined EXTDIO_USED) && (defined EXTPWM_USED))
     
-#include "extdio.h"
-#include "extpwm.h"
-
 /////////////////////////////////////////////////////
 // PWM Section ,   depended from extdio.c
 
@@ -33,19 +30,23 @@ bool pwmCheckSubidx(subidx_t * pSubidx)
     return true;
 }
 
-static e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-parameter"
+#endif
+static e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx, uint8_t Unused, uint8_t *pBuf)
 {
     // Prevent hard fault on ARM
     uint16_t value = pBuf[1];
     value <<= 8;
     value |= pBuf[0];
-    if(pSubidx->Type == objPinNPN)
-        value = ~value;
-    
     hal_pwm_write(pSubidx->Base, value);
 
     return MQTTSN_RET_ACCEPTED;
 }
+#if defined ( __GNUC__ )
+#pragma GCC diagnostic pop
+#endif
 
 e_MQTTSN_RETURNS_t pwmRegisterOD(indextable_t *pIdx)
 {
@@ -56,10 +57,7 @@ e_MQTTSN_RETURNS_t pwmRegisterOD(indextable_t *pIdx)
         return MQTTSN_RET_REJ_INV_ID;
     
     dioTake(dio);
-    hal_pwm_configure(base);
-    
-    if(pIdx->sidx.Type == objPinNPN)
-        hal_pwm_write(base, 0xFFFF);
+    hal_pwm_configure(base, (pIdx->sidx.Type == objPinNPN));
 
     pIdx->cbWrite = &pwmWriteOD;
     
@@ -74,6 +72,15 @@ void pwmDeleteOD(subidx_t * pSubidx)
     dioRelease(hal_pwm_base2dio(base));
 }
 
+#ifdef EXTPLC_USED
+void pwmWrite(subidx_t *pSubidx, uint16_t val)
+{
+    uint16_t base = pSubidx->Base;
+    if(hal_pwm_base2dio(base) == 0xFF)
+        return;
+
+    hal_pwm_write(pSubidx->Base, val);
+}
+#endif  //  EXTPLC_USED
+
 #endif  // ((defined EXTDIO_USED) && (defined EXTPWM_USED))
-
-

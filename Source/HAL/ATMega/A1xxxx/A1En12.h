@@ -57,9 +57,9 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define EXTDIO_BASE_OFFSET          2
-#define EXTDIO_MAXPORT_NR           2                                   // Number of digital Ports
-#define EXTDIO_MAPPING              {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31}
+#define EXTDIO_PORT_OFFSET          2
+#define EXTDIO_MAXPORT_NR           2                                   // Number of used physical digital Ports
+#define HAL_DIO_MAPPING             {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 24, 25, 26, 27, 28, 29, 30, 31}
 // End DIO Section
 
 // PWM Section
@@ -93,20 +93,15 @@ extern "C" {
 #define LED_Off()                   PORTB |= (1<<PB0)
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
-// LAN Section
-#define ENC_PORT                    PORTB
-#define ENC_DDR                     DDRB
-#define ENC_PIN                     PINB
-#define ENC_PIN_SS                  PB2
-#define ENC_PIN_MOSI                PB3
-#define ENC_PIN_MISO                PB4
-#define ENC_PIN_SCK                 PB5
-
-#define ENC_SELECT()                (PORTB &= ~(1<<ENC_PIN_SS))
-#define ENC_RELEASE()               (PORTB |= (1<<ENC_PIN_SS))
-// End LAN Section
-
+// ENC28J60 Section
+#define HAL_USE_SPI                 1
+#define ENC_USE_SPI                 1
+#define ENC_NSS_PIN                 10  // PB2
+#define ENC_SELECT()                (PORTB &= ~(1<<PB2))
+#define ENC_RELEASE()               (PORTB |= (1<<PB2))
 #define ENC28J60_PHY                1
+#include "PHY/ENC28J60/enc28j60_phy.h"
+// End ENC28J60 Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           17      // Size of identificators list
@@ -122,8 +117,6 @@ extern "C" {
 //#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
 //#define OD_DEF_IP_ROUTER            inet_addr(192,168,10,1)
 //#define OD_DEF_IP_BROKER            inet_addr(192,168,20,8)
-
-#include "PHY/ENC28J60/enc28j60_phy.h"
 
 #ifdef __cplusplus
 }

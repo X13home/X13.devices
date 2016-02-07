@@ -46,6 +46,12 @@ typedef struct sTWI_QUEUE
 // TWI API
 void twiInit(void);
 
+// TWI PLC API
+void twiControl(uint32_t ctrl);
+uint32_t twiStat(void);
+void twiWr(uint8_t data);
+uint8_t twiRd(void);
+
 #ifdef __cplusplus
 }
 #endif

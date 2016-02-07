@@ -16,13 +16,12 @@ See LICENSE file for license details.
 
 #ifdef EXTTWI_USED
 
-#include "extdio.h"
-#include "exttwi.h"
-
 #define TWIM_BUS_TIMEOUT            250 // ms
 
 // Global variable used in HAL
 volatile TWI_QUEUE_t  * pTwi_exchange = NULL;
+
+#ifndef EXTPLC_USED
 
 // local queues
 static Queue_t  twi_tx_queue = {NULL, NULL, 4, 0};      // Max Size = 4 records
@@ -81,7 +80,7 @@ static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pUnused, uint8_t Len, uint8_t *p
     return MQTTSN_RET_ACCEPTED;
 }
 
-static uint8_t twiPollOD(subidx_t * pUnused, uint8_t unused)
+static uint8_t twiPollOD(subidx_t * pUnused)
 {
     if(pTwi_exchange != NULL)
     {
@@ -135,6 +134,7 @@ static uint8_t twiPollOD(subidx_t * pUnused, uint8_t unused)
 #if defined ( __GNUC__ )
 #pragma GCC diagnostic pop
 #endif
+#endif  //  EXTPLC_USED
 
 void twiInit()
 {
@@ -157,6 +157,7 @@ void twiInit()
         pTwi_exchange = NULL;
     }
 
+#ifndef EXTPLC_USED
     // Register variable Ta0
     indextable_t * pIndex = getFreeIdxOD();
     if(pIndex == NULL)
@@ -173,5 +174,117 @@ void twiInit()
     pIndex->sidx.Place = objTWI;        // TWI object
     pIndex->sidx.Type  = objArray;      // Variable Type -  Byte Array
     pIndex->sidx.Base  = 0;             // Device address
+#endif  //  EXTPLC_USED
 }
+
+#ifdef EXTPLC_USED
+static uint8_t twi_pnt = 0;
+
+void twiControl(uint32_t ctrl)
+{
+    if(pTwi_exchange != NULL)
+        return;
+    
+    pTwi_exchange = mqAlloc(sizeof(MQ_t));
+    if(pTwi_exchange == NULL)
+        return;
+    
+    twi_pnt = 0;
+    
+    memcpy((void *)&pTwi_exchange->frame, &ctrl, 4);
+
+    pTwi_exchange->frame.access &= (TWI_WRITE | TWI_READ);
+
+    if(pTwi_exchange->frame.read != 0)
+        pTwi_exchange->frame.access |= TWI_READ;    
+
+    if(pTwi_exchange->frame.write != 0)
+        pTwi_exchange->frame.access |= TWI_WRITE;
+    else
+        hal_twi_start();
+}
+
+uint32_t twiStat(void)
+{
+    if(pTwi_exchange == NULL)
+        return 0;
+    
+    uint8_t access = pTwi_exchange->frame.access;
+
+    if((access & (TWI_RDY | TWI_WD | TWI_SLANACK | TWI_ERROR)) == 0)
+    {
+        static uint16_t twi_ms = 0;
+
+        if((access & TWI_WD_ARMED) == 0)
+        {
+            pTwi_exchange->frame.access |= TWI_WD_ARMED;
+            twi_ms = HAL_get_ms();
+        }
+        else if((HAL_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
+        {
+            if(pTwi_exchange->frame.access & TWI_BUSY)
+                hal_twi_stop();
+            
+            pTwi_exchange->frame.access |= TWI_WD;
+            access |= TWI_WD;
+        }
+    }
+
+    uint32_t retval;
+    memcpy(&retval, (void *)&pTwi_exchange->frame, 4);
+    
+    if(access & (TWI_WD | TWI_SLANACK | TWI_ERROR))     // Error state
+    {
+        mqFree((void *)pTwi_exchange);
+        pTwi_exchange = NULL;
+    }
+    else if(access & TWI_RDY)
+    {
+        twi_pnt = 0;
+        if(pTwi_exchange->frame.read == 0)              // Bus Free
+        {
+            mqFree((void *)pTwi_exchange);
+            pTwi_exchange = NULL;
+        }
+    }
+    
+    return retval;
+}
+
+void twiWr(uint8_t data)
+{
+    if( (pTwi_exchange == NULL) || 
+       ((pTwi_exchange->frame.access & (TWI_BUSY | TWI_RDY | TWI_WD | TWI_SLANACK | TWI_ERROR)) != 0))
+        return;
+    
+    if(twi_pnt < pTwi_exchange->frame.write)
+    {
+        pTwi_exchange->frame.data[twi_pnt++] = data;
+        if(twi_pnt == pTwi_exchange->frame.write)
+            hal_twi_start();
+    }
+}
+
+uint8_t twiRd(void)
+{
+    uint8_t retval = 0;
+    
+    if((pTwi_exchange != NULL) && (pTwi_exchange->frame.access & TWI_RDY))
+    {
+        if(twi_pnt < pTwi_exchange->frame.read)
+            retval = pTwi_exchange->frame.data[twi_pnt++];
+        
+        if(twi_pnt == pTwi_exchange->frame.read)
+        {
+            mqFree((void *)pTwi_exchange);
+            pTwi_exchange = NULL;
+        }
+    }
+
+    return retval;
+}
+
+#endif  //  EXTPLC_USED
+
+
 #endif    //  EXTTWI_USED
