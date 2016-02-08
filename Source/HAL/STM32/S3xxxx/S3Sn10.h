@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_S3Sn10_H
-#define HWCONFIG_S3Sn10_H
+#ifndef _S3Sn10_H
+#define _S3Sn10_H
 
 // Board: Maple Mini
 // uC: STM32F103CBT6
@@ -135,4 +135,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_S3Sn10_H
+#endif // _S3Sn10_H

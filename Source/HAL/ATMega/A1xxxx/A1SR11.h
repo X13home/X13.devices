@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_A1SR11_H
-#define HWCONFIG_A1SR11_H
+#ifndef _A1SR11_H
+#define _A1SR11_H
 
 // uNode Version 2.0
 // uc ATMega328p
@@ -123,4 +123,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_A1SC12_H
+#endif // _A1SC12_H

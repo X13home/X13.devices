@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_A1SN10_H
-#define HWCONFIG_A1SN10_H
+#ifndef _A1SN10_H
+#define _A1SN10_H
 
 // Board:   Arduino Nano 
 // uc:      ATMega328p
@@ -107,4 +107,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_A1SN10_H
+#endif // _A1SN10_H

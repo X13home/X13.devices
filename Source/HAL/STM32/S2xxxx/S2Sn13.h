@@ -133,4 +133,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_S2EC13_H
+#endif // _S2SN13_H
