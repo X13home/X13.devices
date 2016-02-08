@@ -3,11 +3,11 @@
 <root head="/etc/declarers/dev">
     <item name="A1Sn10" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.15.1225">
         <item name="Add">
-            <item name="bool" value="1Z" saved="True" type="System.String" />
-            <item name="long" value="4I" saved="True" type="System.String" />
-            <item name="string" value="5S" saved="True" type="System.String" />
+            <item name="bool" value="yZ" saved="True" type="System.String" />
+            <item name="long" value="yI" saved="True" type="System.String" />
+            <item name="string" value="yS" saved="True" type="System.String" />
         </item>
-        <item name="remove" value="ZD" saved="True" type="System.String" />
+        <item name="remove" value="zD" saved="True" type="System.String" />
         <item name="Digital Inputs">
             <item name="Ip0" value="AzX0" saved="True" type="System.String">
                 <item name="_description" value="Digital input, A0 - PC0" saved="True" type="System.String" />
@@ -310,11 +310,11 @@
     </item>
     <item name="A4Sn10" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0131">
         <item name="Add">
-            <item name="bool" value="1Z" saved="True" type="System.String" />
-            <item name="long" value="4I" saved="True" type="System.String" />
-            <item name="string" value="5S" saved="True" type="System.String" />
+            <item name="bool" value="yZ" saved="True" type="System.String" />
+            <item name="long" value="yI" saved="True" type="System.String" />
+            <item name="string" value="yS" saved="True" type="System.String" />
         </item>
-        <item name="remove" value="6D" saved="True" type="System.String" />
+        <item name="remove" value="zD" saved="True" type="System.String" />
         <item name="A0">
             <item name="Op0" value="AzX0" saved="True" type="System.String">
                 <item name="_description" value="Digital output, A0 - PF0" saved="True" type="System.String" />

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- device configuration file for ST devices  -->
+<!-- device configuration file for S2EC13 devices  -->
 <root head="/etc/declarers/dev">
     <item name="S2En13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0214">
         <item name="Add">
@@ -331,10 +331,10 @@
     <item name="S2EC13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0214">
         <item name="_proto" value="S2En13" saved="True" type="System.String" />
     </item>
-    <item name="S2Cn13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0214">
+    <item name="S2Cn13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0214">
         <item name="_proto" value="S2En13" saved="True" type="System.String" />
     </item>
-    <item name="S2Sn13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0214">
+    <item name="S2Sn13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0214">
         <item name="_proto" value="S2En13" saved="True" type="System.String" />
     </item>
 </root>

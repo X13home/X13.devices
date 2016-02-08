@@ -25,9 +25,9 @@ See LICENSE file for license details.
 //   2  PA2     P1.17           In2     USART2_TX       TIM2_CH3
 //   3  PA3     P1.18           In3     USART2_RX       TIM2_CH4
 //   4  PA4     P1.21           In4                     TIM14_CH1
-//   5  PA5     P1.22           In5                     
-//   6  PA6     P1.23           In6
-//   7  PA7     P1.24           In7
+//   5  PA5     P1.22           In5
+//   6  PA6     P1.23           In6                     TIM16_CH1
+//   7  PA7     P1.24           In7                     TIM17_CH1
 //   8  PA8     P2.25                                   TIM1_CH1
 //   9  PA9     P2.24                   USART1_TX       TIM1_CH2
 //  10  PA10    P2.23                   USART1_RX       TIM1_CH3
@@ -35,18 +35,18 @@ See LICENSE file for license details.
 //  12  PA12    P2.21
 //  13  PA13    P2.20   *               SWDIO
 //  14  PA14    P2.17   *               SWCLK
-//  15  PA15    P2.16                                   
+//  15  PA15    P2.16
 // GPIOB
-//  16  PB0     P1.27           In8
-//  17  PB1     P1.28           In9
+//  16  PB0     P1.27           In8                     TIM3_CH3
+//  17  PB1     P1.28           In9                     TIM3_CH4
 //  18  PB2     P1.29
 //  19  PB3     P2.11   ?               SWO
-//  20  PB4     P2.10
-//  21  PB5     P2.9
+//  20  PB4     P2.10                                   TIM3_CH1
+//  21  PB5     P2.9                                    TIM3_CH2
 //  22  PB6     P2.8    *               /USART1_TX
 //  23  PB7     P2.7    *               /USART1_RX
-//  24  PB8     P2.4                                    TIM16_CH1
-//  25  PB9     P2.3                                    TIM17_CH1
+//  24  PB8     P2.4
+//  25  PB9     P2.3
 //  26  PB10    P1.30                   SCL2
 //  27  PB11    P1.31                   SDA2
 //  28  PB12    P1.32
@@ -60,10 +60,10 @@ See LICENSE file for license details.
 //  35  PC3     P1.14           In13
 //  36  PC4     P1.25           In14
 //  37  PC5     P1.26           In15
-//  38  PC6     P2.29                                   TIM3_CH1
-//  39  PC7     P2.28                                   TIM3_CH2
-//  40  PC8     P2.27                   LED_BLUE        TIM3_CH3
-//  41  PC9     P2.26                   LED_GREEN       TIM3_CH4
+//  38  PC6     P2.29
+//  39  PC7     P2.28
+//  40  PC8     P2.27                   LED_BLUE
+//  41  PC9     P2.26                   LED_GREEN
 //  42  PC10    P2.15
 //  43  PC11    P2.14
 //  44  PC12    P2.13
@@ -98,7 +98,7 @@ extern "C" {
 #define EXTPWM_PORT2CFG             {((2<<8) | (2<<3) | 0),     /* PA0:  AF2, TIM2_CH1      */ \
                                      ((2<<8) | (2<<3) | 1),     /* PA1:  AF2, TIM2_CH2      */ \
                                      ((2<<8) | (2<<3) | 2),     /* PA2:  AF2, TIM2_CH3      */ \
-                                     ((2<<8) | (2<<3) | 3),     /* PA3:  AF2, TIM2_XH4      */ \
+                                     ((2<<8) | (2<<3) | 3),     /* PA3:  AF2, TIM2_CH4      */ \
                                      ((4<<8) | (14<<3) | 0),    /* PA4:  AF4, TIM14_CH1     */ \
                                      255,                       /* PA5: no config           */ \
                                      ((5<<8) | (16<<3) | 0),    /* PA6:  AF5, TIM16_CH1     */ \

@@ -3,11 +3,11 @@
 <root head="/etc/declarers/dev">
     <item name="A1SC12" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.15.1225">
         <item name="Add">
-            <item name="bool" value="1Z" saved="True" type="System.String" />
-            <item name="long" value="4I" saved="True" type="System.String" />
-            <item name="string" value="5S" saved="True" type="System.String" />
+            <item name="bool" value="yZ" saved="True" type="System.String" />
+            <item name="long" value="yI" saved="True" type="System.String" />
+            <item name="string" value="yS" saved="True" type="System.String" />
         </item>
-        <item name="remove" value="ZD" saved="True" type="System.String" />
+        <item name="remove" value="zD" saved="True" type="System.String" />
         <item name="Digital Inputs">
             <item name="Ip2" value="AzX2" saved="True" type="System.String">
                 <item name="_description" value="Digital input, PC0" saved="True" type="System.String" />
@@ -222,7 +222,7 @@
                 <item name="_description" value="I2C Devices" saved="True" type="System.String" />
             </item>
         </item>
-      <item name="PWM">
+        <item name="PWM">
             <item name="Pp13" value="LiX13" saved="True" type="System.String">
                 <item name="_description" value="PWM Output, PD5" saved="True" type="System.String" />
             </item>
