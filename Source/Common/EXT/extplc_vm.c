@@ -109,7 +109,7 @@ static uint32_t plcvm_get_s8(uint32_t addr){
 static uint32_t plcvm_get_u16(uint32_t addr){
     if(addr < (EXTPLC_SIZEOF_RAM * 4))
     {
-        uint32_t acc = plc_ram[addr >> 2];
+        uint32_t acc = plc_ram[addr >> 1];
         acc >>= ((addr & 0x01) * 16);
         return (acc & 0x0000FFFF);
     }
