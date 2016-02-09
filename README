@@ -29,9 +29,11 @@ Devices
     S2En13      PHY1 - ENC28J60
     S2Sn13      PHY1 - UART
     
-  Board: Discovery F0, uC: STM32F051R8T6
+  Board: Discovery F0, uC: STM32F051R8 - ARM Cortex M0
     S2Sn10      PHY1 - UART
     
   Board: / Board: Maple Mini, uC: STM32F103CB - ARM Cortex M3
     S3En10      PHY1 - ENC28J60
     S3Sn10      PHY1 - UART
+    S3SC10      PHY1 - UART, PHY2 - CC1101
+    S3Cn10      PHY1 - CC1101

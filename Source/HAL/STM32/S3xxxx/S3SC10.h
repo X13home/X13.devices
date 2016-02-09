@@ -10,13 +10,13 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _S3Sn10_H
-#define _S3Sn10_H
+#ifndef _S3SC10_H
+#define _S3SC10_H
 
 // Board: Maple Mini
 // uC: STM32F103CBT6
 // PHY1: UART
-// PHY2: --
+// PHY2: CC1101
 
 // GPIOA
 // Pin  Port    Maple   Func
@@ -121,12 +121,23 @@ extern "C" {
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section
 
+// CC11 Section
+#define HAL_USE_SPI2                1
+#define CC11_USE_SPI                2
+#define CC11_NSS_PIN                28                          // PB12
+#define CC11_WAIT_LOW_MISO()        while(GPIOB->IDR & GPIO_Pin_14)
+#define CC11_SELECT()               GPIOB->BRR = GPIO_Pin_12
+#define CC11_RELEASE()              GPIOB->BSRR = GPIO_Pin_12
+#define CC11_PHY                    2
+#include "PHY/CC1101/cc11_phy.h"
+// End CC11 Section
+
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           64
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '3'
 #define OD_DEV_PHY1                 'S'
-#define OD_DEV_PHY2                 'n'
+#define OD_DEV_PHY2                 'C'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '0'
 // End OD Section
@@ -135,4 +146,4 @@ extern "C" {
 }
 #endif
 
-#endif // _S3Sn10_H
+#endif // _S3SC10_H

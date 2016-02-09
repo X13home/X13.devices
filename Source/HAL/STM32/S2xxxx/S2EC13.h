@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_S2EC13_H
-#define HWCONFIG_S2EC13_H
+#ifndef _S2EC13_H
+#define _S2EC13_H
 
 // Board: S2EC13
 // uC: STM32F051C8T6
@@ -131,4 +131,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_S2EC13_H
+#endif // _S2EC13_H

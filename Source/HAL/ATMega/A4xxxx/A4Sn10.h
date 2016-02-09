@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HWCONFIG_A4SN10_H
-#define HWCONFIG_A4SN10_H
+#ifndef _A4SN10_H
+#define _A4SN10_H
 
 // Arduino MEGA
 // uc ATMega2560
@@ -163,4 +163,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_A4SN12_H
+#endif // _A4SN12_H

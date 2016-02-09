@@ -142,4 +142,4 @@ extern "C" {
 }
 #endif
 
-#endif // HWCONFIG_S3Sn10_H
+#endif // _S3En10_H

@@ -10,13 +10,13 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _S3Sn10_H
-#define _S3Sn10_H
+#ifndef _S3SC10_H
+#define _S3SC10_H
 
 // Board: Maple Mini
 // uC: STM32F103CBT6
 // PHY1: UART
-// PHY2: --
+// PHY2: CC1101
 
 // GPIOA
 // Pin  Port    Maple   Func
@@ -47,8 +47,8 @@ See LICENSE file for license details.
 //  23  PB7     15      SDA1                    TIM4_CH2
 //  24  PB8           * BUT_SW                  TIM4_CH3
 //  25  PB9           * DISC                    TIM4_CH4
-//  26  PB10    1     * SCL2    USART3_TX
-//  27  PB11    0     * SDA2    USART3_RX
+//  26  PB10    1       SCL2    USART3_TX
+//  27  PB11    0       SDA2    USART3_RX
 //  28  PB12    31      NSS2
 //  29  PB13    30      SCLK2
 //  30  PB14    29      MISO2
@@ -112,20 +112,22 @@ extern "C" {
 #define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR1
 #define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_1, DIO_MODE_OUT_PP)
 
-// UART PHY Section
-#define HAL_UART_NUM_PORTS          1
-#define HAL_USE_USART3              0
-
-#define UART_PHY_PORT               0   // Logical port
-#define UART_PHY                    1
-#include "PHY/UART/uart_phy.h"
-// End UART PHY Section
+// CC11 Section
+#define HAL_USE_SPI2                1
+#define CC11_USE_SPI                2
+#define CC11_NSS_PIN                28                          // PB12
+#define CC11_WAIT_LOW_MISO()        while(GPIOB->IDR & GPIO_Pin_14)
+#define CC11_SELECT()               GPIOB->BRR = GPIO_Pin_12
+#define CC11_RELEASE()              GPIOB->BSRR = GPIO_Pin_12
+#define CC11_PHY                    1
+#include "PHY/CC1101/cc11_phy.h"
+// End CC11 Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           64
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '3'
-#define OD_DEV_PHY1                 'S'
+#define OD_DEV_PHY1                 'C'
 #define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '0'
@@ -135,4 +137,4 @@ extern "C" {
 }
 #endif
 
-#endif // _S3Sn10_H
+#endif // _S3SC10_H
