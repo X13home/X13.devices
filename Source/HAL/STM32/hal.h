@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 #if (defined STM32F0)
 #include "stm32f0xx.h"
 #elif (defined STM32F1)

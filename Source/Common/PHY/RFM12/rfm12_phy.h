@@ -13,6 +13,8 @@ See LICENSE file for license details.
 #ifndef _RFM12_PHY_H
 #define _RFM12_PHY_H
 
+#include <stdbool.h>
+
 #if (RFM12_PHY == 1)
 
 #define PHY1_ADDR_t                 uint8_t

@@ -5,6 +5,7 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
 #include <avr/io.h>
 #include <avr/eeprom.h>
 
