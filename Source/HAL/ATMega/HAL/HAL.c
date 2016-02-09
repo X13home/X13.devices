@@ -154,12 +154,8 @@ void HAL_ASleep(uint16_t duration)
 
 void HAL_Reboot(void)
 {
-#ifdef LED1_On
-    LED1_On();
-#endif
-
-#ifdef LED2_On
-    LED2_On();
+#ifdef LED_On
+    LED_On();
 #endif
 
     cli();
