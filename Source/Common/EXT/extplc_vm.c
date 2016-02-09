@@ -139,7 +139,6 @@ static uint32_t plcvm_get_u32(uint32_t addr){
         return plc_ram[addr];
     plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
     return 0;
-    
 }
 
 // return u32 RAM[plcvm_sp++]
@@ -236,8 +235,8 @@ static void cb_sub(void){int32_t r1 = (int32_t)plcvm_pop();int32_t r2 = (int32_t
 static void cb_mul(void){int32_t r1 = (int32_t)plcvm_pop();int32_t r2 = (int32_t)plcvm_pop();plcvm_push(r1 * r2);}
 static void cb_div(void){int32_t r1 = (int32_t)plcvm_pop();int32_t r2 = (int32_t)plcvm_pop();if(r2 == 0){plcvm_stat = PLC_ANSWER_ERROR_DIV0;}else{plcvm_push(r1/r2);}}
 static void cb_mod(void){int32_t r1 = (int32_t)plcvm_pop();int32_t r2 = (int32_t)plcvm_pop();plcvm_push(r1 % r2);}
-static void cb_inc(void){plcvm_push((int32_t)plcvm_pop() + 1);}
-static void cb_dec(void){plcvm_push((int32_t)plcvm_pop() - 1);}
+static void cb_inc(void){if(plcvm_sp < plcvm_sfp){plc_ram[plcvm_sp]++;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_dec(void){if(plcvm_sp < plcvm_sfp){plc_ram[plcvm_sp]--;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_neg(void){plcvm_push(-(int32_t)plcvm_pop());}
 // 0x18 - 0x1F - Reserved
 // 0x20 - 0x27 - Compare
@@ -255,8 +254,8 @@ static void cb_xor_l(void){uint32_t c1 = plcvm_pop();uint32_t c2 = plcvm_pop();p
 // 0x30 - 0x37 - Reserved 
 // 0x38 - 0x3F - Load Constant
 static void cb_ldi_0(void){plcvm_push(0);}
-static void cb_ldi_s1(void){int32_t tmp = plcvm_lpm_u8();  if(tmp & 0x80)   tmp |= 0xFFFFFF00; plcvm_push(tmp);}
-static void cb_ldi_s2(void){int32_t tmp = plcvm_lpm_u16(); if(tmp & 0x8000) tmp |= 0xFFFF0000; plcvm_push(tmp);}
+static void cb_ldi_s1(void){plcvm_push(plcvm_lpm_u8() | 0xFFFFFF00);}
+static void cb_ldi_s2(void){plcvm_push(plcvm_lpm_u16() | 0xFFFF0000);}
 static void cb_ldi_s4(void){plcvm_push(plcvm_lpm_u32());}
 static void cb_ldi_u1(void){plcvm_push(plcvm_lpm_u8());}
 static void cb_ldi_u2(void){plcvm_push(plcvm_lpm_u16());}
@@ -323,8 +322,8 @@ static void cb_in(void){subidx_t IO; IO.Base  = plcvm_lpm_u16(); IO.Type  = plcv
 static void cb_out(void){subidx_t IO; IO.Base  = plcvm_lpm_u16(); IO.Type  = plcvm_lpm_u8(); IO.Place = plcvm_lpm_u8(); ext_out(&IO, plcvm_pop());}
 // 0xF0 - 0xFF
 static void cb_sjmp(void){plcvm_pc = plcvm_pop();}
-static void cb_jz(void){uint16_t addr = plcvm_lpm_u16();if(plcvm_pop() == 0){plcvm_pc = addr;}}
-static void cb_jnz(void){uint16_t addr = plcvm_lpm_u16();if(plcvm_pop() != 0){plcvm_pc = addr;}}
+static void cb_jz(void){if(plcvm_pop() == 0){plcvm_pc = plcvm_lpm_u16();}else{plcvm_pc += 2;}}
+static void cb_jnz(void){if(plcvm_pop() != 0){plcvm_pc = plcvm_lpm_u16();}else{plcvm_pc += 2;}}
 static void cb_jmp(void){plcvm_pc = plcvm_lpm_u16();}
 static void cb_scall(void){
     uint32_t tmp = plcvm_pop();
@@ -341,9 +340,9 @@ static void cb_call(void){
     plcvm_pc = tmp;                             // PC = *(uint16_t *)(PC)  //LPM
 }
 static void cb_test_eq(void){
-	int32_t val1 = plcvm_pop();
-	int32_t val2 = plcvm_lpm_u32();
-	if(val1 != val2)
+    int32_t val1 = plcvm_pop();
+    int32_t val2 = plcvm_lpm_u32();
+    if(val1 != val2)
         plcvm_stat = PLC_ANSWER_ERROR_TEST;
 }
 static void cb_ret(void){
@@ -386,19 +385,20 @@ static void cb_api(void){
     }
 }
 // End API functions
+static void cb_unk(void){plcvm_stat = PLC_ANSWER_ERROR_UNK_COP;}
 
 // Operators table
 static const cbCOP_t plcmv_cb[] = {
     // 0x00 - 0x1F
     //              //              //              //              //              //              //              //
-    cb_nop,         NULL,           cb_dup,         cb_drop,        cb_nip,         cb_swap,        cb_over,        cb_rot,
-    cb_not,         cb_and,         cb_or,          cb_xor,         cb_lsl,         cb_lsr,         cb_asr,         NULL,
+    cb_nop,         cb_unk,         cb_dup,         cb_drop,        cb_nip,         cb_swap,        cb_over,        cb_rot,
+    cb_not,         cb_and,         cb_or,          cb_xor,         cb_lsl,         cb_lsr,         cb_asr,         cb_unk,
     cb_add,         cb_sub,         cb_mul,         cb_div,         cb_mod,         cb_inc,         cb_dec,         cb_neg,
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
     // 0x20 - 0x3F 
-    cb_ceq,         cb_cne,         cb_cgt,         cb_cge,         cb_clt,         cb_cle,         NULL,           NULL,
-    cb_not_l,       cb_and_l,       cb_or_l,        cb_xor_l,       NULL,           NULL,           NULL,           NULL,
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+    cb_ceq,         cb_cne,         cb_cgt,         cb_cge,         cb_clt,         cb_cle,         cb_unk,         cb_unk,
+    cb_not_l,       cb_and_l,       cb_or_l,        cb_xor_l,       cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
     cb_ldi_0,       cb_ldi_s1,      cb_ldi_s2,      cb_ldi_s4,      cb_ldi_u1,      cb_ldi_u2,      cb_ldi_1,       cb_ldi_m1,
     // 0x40 - 0x5F 
     cb_ld_p,        cb_ld_p,        cb_ld_p,        cb_ld_p,        cb_ld_p,        cb_ld_p,        cb_ld_p,        cb_ld_p,
@@ -411,25 +411,25 @@ static const cbCOP_t plcmv_cb[] = {
     cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,
     cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,
     // 0x80 - 0x9F
-    cb_ldi_b1_s,    cb_ldm_s1_s,    cb_ldm_s2_s,    cb_ldm_s4_s,    cb_ldm_u1_s,    cb_ldm_u2_s,    NULL,           NULL,
-    cb_ldi_b1_cs8,  cb_ldm_s1_cs8,  cb_ldm_s2_cs8,  cb_ldm_s4_cs8,  cb_ldm_u1_cs8,  cb_ldm_u2_cs8,  NULL,           NULL,
-    cb_ldi_b1_cs16, cb_ldm_s1_cs16, cb_ldm_s2_cs16, cb_ldm_s4_cs16, cb_ldm_u1_cs16, cb_ldm_u2_cs16, NULL,           NULL,
-    cb_ldi_b1_c16,  cb_ldm_s1_c16,  cb_ldm_s2_c16,  cb_ldm_s4_c16,  cb_ldm_u1_c16,  cb_ldm_u2_c16,  NULL,           NULL,
+    cb_ldi_b1_s,    cb_ldm_s1_s,    cb_ldm_s2_s,    cb_ldm_s4_s,    cb_ldm_u1_s,    cb_ldm_u2_s,    cb_unk,         cb_unk,
+    cb_ldi_b1_cs8,  cb_ldm_s1_cs8,  cb_ldm_s2_cs8,  cb_ldm_s4_cs8,  cb_ldm_u1_cs8,  cb_ldm_u2_cs8,  cb_unk,         cb_unk,
+    cb_ldi_b1_cs16, cb_ldm_s1_cs16, cb_ldm_s2_cs16, cb_ldm_s4_cs16, cb_ldm_u1_cs16, cb_ldm_u2_cs16, cb_unk,         cb_unk,
+    cb_ldi_b1_c16,  cb_ldm_s1_c16,  cb_ldm_s2_c16,  cb_ldm_s4_c16,  cb_ldm_u1_c16,  cb_ldm_u2_c16,  cb_unk,         cb_unk,
     // 0xA0 - 0xBF
-    cb_stm_b1_s,    cb_stm_s1_s,    cb_stm_s2_s,    cb_stm_s4_s,    NULL,           NULL,           NULL,           NULL,
-    cb_stm_b1_cs8,  cb_stm_s1_cs8,  cb_stm_s2_cs8,  cb_stm_s4_cs8,  NULL,           NULL,           NULL,           NULL,
-    cb_stm_b1_cs16, cb_stm_s1_cs16, cb_stm_s2_cs16, cb_stm_s4_cs16, NULL,           NULL,           NULL,           NULL,
-    cb_stm_b1_c16,  cb_stm_s1_c16,  cb_stm_s2_c16,  cb_stm_s4_c16,  NULL,           NULL,           NULL,           NULL,
+    cb_stm_b1_s,    cb_stm_s1_s,    cb_stm_s2_s,    cb_stm_s4_s,    cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_stm_b1_cs8,  cb_stm_s1_cs8,  cb_stm_s2_cs8,  cb_stm_s4_cs8,  cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_stm_b1_cs16, cb_stm_s1_cs16, cb_stm_s2_cs16, cb_stm_s4_cs16, cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_stm_b1_c16,  cb_stm_s1_c16,  cb_stm_s2_c16,  cb_stm_s4_c16,  cb_unk,         cb_unk,         cb_unk,         cb_unk,
     // 0xC0 - 0xDF
-    cb_in,          cb_out,         NULL,           NULL,           NULL,           NULL,           cb_api,         NULL,
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
+    cb_in,          cb_out,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_api,         cb_unk,
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
     // 0xE0 - 0xFF
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           NULL,
-    cb_sjmp,        cb_jz,          cb_jnz,         cb_jmp,         cb_scall,       NULL,           NULL,           cb_call,
-    NULL,           NULL,           NULL,           NULL,           NULL,           NULL,           cb_test_eq,     cb_ret
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_sjmp,        cb_jz,          cb_jnz,         cb_jmp,         cb_scall,       cb_unk,         cb_unk,         cb_call,
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_test_eq,     cb_ret
 };
 
 uint8_t plcvm_get_state(uint8_t *pBuf){
@@ -471,6 +471,9 @@ ePLC_ANSWER_t plcvm(void){
     plcvm_stat = PLC_ANSWER_RUN;
     
     uint16_t plc_wd = 0xFFFF;
+#if (defined DEBUG) && (defined LED_On)
+    LED_On();
+#endif  //  LED_On
 
     while(plcvm_stat == PLC_ANSWER_RUN)
     {
@@ -481,11 +484,12 @@ ePLC_ANSWER_t plcvm(void){
 
         plcvm_cop = plcvm_lpm_u8();
         cbCOP_t cop_proc = plcmv_cb[plcvm_cop];
-        if(cop_proc == NULL)
-            return PLC_ANSWER_ERROR_UNK_COP;
-        else
-            cop_proc();
+        cop_proc();
     }
+#if (defined DEBUG) && (defined LED_Off)
+    LED_Off();
+#endif  //  LED_Off
+
     return plcvm_stat;
 }
 
