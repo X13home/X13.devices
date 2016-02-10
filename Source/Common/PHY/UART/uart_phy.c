@@ -85,13 +85,13 @@ void * UART_Get(void)
     static uint8_t  rx_pos = 0;
     static uint8_t  rx_len = 0;
     static MQ_t   * pRx_buf;
-    static uint16_t  rx_wd = 0;
+    static uint8_t  rx_wd = 0;
 
     while(hal_uart_datardy(UART_PHY_PORT))
     {
         uint8_t data = hal_uart_get(UART_PHY_PORT);
 
-        rx_wd = HAL_get_ms();
+        rx_wd = (HAL_get_ms() & 0xFF);
 
         if(rx_len == 0)
         {
@@ -120,7 +120,7 @@ void * UART_Get(void)
         }
     }
 
-    if((rx_len != 0) && ((HAL_get_ms() - rx_wd) > 50))
+    if((rx_len != 0) && (((HAL_get_ms() & 0xFF) - rx_wd) > 50))
         rx_len = 0;
 
     return NULL;

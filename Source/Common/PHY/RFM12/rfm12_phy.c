@@ -97,11 +97,12 @@ static void rfm12_tx_task(void)
     // CDMA
     if(rfm12_tx_delay > 0)
     {
-        static uint16_t rfm12_ms = 0;
+        static uint8_t rfm12_ms = 0;
+        uint8_t act_ms = HAL_get_ms() & 0xFF;
 
-        if(rfm12_ms == HAL_get_ms())
+        if(rfm12_ms == act_ms)
             return;
-        rfm12_ms = HAL_get_ms();
+        rfm12_ms = act_ms;
         rfm12_tx_delay--;
         return;
     }

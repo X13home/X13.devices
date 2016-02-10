@@ -139,11 +139,11 @@ void enc28j60Init(uint8_t* macaddr)
 
     // perform system reset
     enc28j60WriteOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
-    _delay_ms(20);
+    _delay_us(20000);
 
     // change clkout from 6.25MHz to 12.5MHz
     enc28j60Write(ECOCON, 2);
-    _delay_ms(20);
+    _delay_us(20000);
 
     // Check connection
     while(enc28j60Read(ECOCON) != 2);

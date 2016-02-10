@@ -170,7 +170,6 @@ void eeprom_init_hw(void);
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 
-void _delay_ms(uint16_t ms);
 void _delay_us(uint16_t us);
 
 #define  HAL_Reboot     NVIC_SystemReset

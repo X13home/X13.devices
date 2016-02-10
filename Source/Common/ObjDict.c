@@ -167,6 +167,8 @@ static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 #endif
 static uint8_t cbWriteStackBot(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
+    eeprom_write(pBuf, eePLCStackBot, 4);
+
     uint32_t val;
     memcpy(&val, pBuf, 4);
     plcvm_set_stack_bot(val);
@@ -415,6 +417,7 @@ void InitOD(void)
     uint8_t     Len = 1;
     uint8_t     ucTmp = 0;
     uint16_t    uiTmp;
+    uint32_t    ulTmp;
 
     ReadOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, &Len, &ucTmp);
     if(ucTmp == 0xFF)                                                                       // Not Configured
@@ -450,7 +453,6 @@ void InitOD(void)
 #ifndef OD_DEF_IP_BROKER
 #define OD_DEF_IP_BROKER    0xFFFFFFFF      // Default IP Broker - auto resolve
 #endif  //  OD_DEF_IP_BROKER
-        uint32_t  ulTmp;
         ulTmp = OD_DEF_IP_BROKER;
         WriteOD(objIPBroker, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
         ulTmp = OD_DEF_IP_ROUTER;
@@ -473,7 +475,8 @@ void InitOD(void)
         ucTmp = 0;
         WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                          // Device Name
 #ifdef EXTPLC_USED
-        plcvm_set_stack_bot(0);
+        ulTmp = 0;
+        WriteOD(objPLCStackBot, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
 #endif  //  EXTPLC_USED
     }
 
@@ -616,7 +619,10 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
     uint8_t i;
     uint16_t val = 0;
     uint8_t Len = pMsg->Length;
-    for(i = MQTTSN_SIZEOF_MSG_REGISTER + 2; i < Len; i++)
+    Len -= (MQTTSN_SIZEOF_MSG_REGISTER + 2);
+    if((Len < 1) || (Len > 5))
+        return MQTTSN_RET_REJ_NOT_SUPP;
+    for(i = 0; i < Len; i++)
     {
         uint8_t ch = *(pTopicName++);
         if(ch >= '0' && ch <= '9')
@@ -625,7 +631,7 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
             val += ch -'0';
         }
         else
-            break;
+            return MQTTSN_RET_REJ_NOT_SUPP;
     }
     Subidx.Base = val;
     }

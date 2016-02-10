@@ -14,8 +14,6 @@ See LICENSE file for license details.
 
 #ifdef EXTPLC_USED
 
-#include "extplc_vm.h"
-
 // PLC Control, command and response
 // Response format: [cmd] [stat] [optional]
 typedef enum
@@ -45,9 +43,23 @@ typedef struct
 static bool             plc_run     = true;
 static bool             plc_answer  = false;
 static sPLCexch_t     * plc_exchg   = NULL;
+static uint32_t         plc_old[EXTPLC_SIZEOF_RW];          // PLC RW Data
 
-extern uint32_t         plc_ram[];                      // PLC data + merkers + stack
-static uint32_t         plc_old[EXTPLC_SIZEOF_RW];      // PLC RW Data
+// PLC_VM Section
+static uint32_t         plc_ram[EXTPLC_SIZEOF_RAM];         // PLC data + merkers + stack
+static ePLC_ANSWER_t    plcvm_stat = PLC_ANSWER_OK;
+static uint32_t         plcvm_page = 0xFFFFFFFF;
+static uint32_t         plcvm_stack_bot = 0;
+
+static uint32_t         plcvm_sp =  EXTPLC_SIZEOF_RAM;      // Stack pointer
+static uint32_t         plcvm_sfp = EXTPLC_SIZEOF_RAM;      // Stack frame pointer
+static uint32_t         plcvm_pc = 0;                       // program counter
+static uint8_t          plcvm_cop = 0;                      // operator
+
+static bool             plcvm_1st_start = true;
+
+#include "extplc_vm.h"
+// End PLC_VM Section
 
 static uint16_t plc_calc_crc(uint16_t crc_in, uint16_t len, uint8_t *pBuf)
 {
@@ -71,8 +83,6 @@ static uint16_t plc_calc_crc(uint16_t crc_in, uint16_t len, uint8_t *pBuf)
 
 static void plc_control(void)
 {
-    plc_answer = true;
-
     switch(plc_exchg->data[0])
     {
         case PLC_CMD_START_REQ:
@@ -82,6 +92,8 @@ static void plc_control(void)
             else
             {
                 plc_exchg->data[1] = PLC_ANSWER_OK;
+                plcvm_1st_start = true;
+                plcvm_page = 0xFFFFFFFF;  // Reset cache
                 plc_run = true;
             }
             plc_exchg->len = 2;
@@ -90,7 +102,6 @@ static void plc_control(void)
         }
         case PLC_CMD_STOP_REQ:
         {
-            plcvm_reset_cache();      // Reset cache
             plc_run = false;
             plc_exchg->len = 2;
             plc_exchg->data[0] = PLC_CMD_STOP_RESP;
@@ -194,38 +205,6 @@ static void plc_control(void)
     }
 }
 
-void plcProc(void)
-{
-    if((plc_answer == false) && (plc_exchg != NULL))
-        plc_control();
-    
-    static ePLC_ANSWER_t plc_sts = PLC_ANSWER_OK;
-
-    if(plc_run)
-        plc_sts = plcvm();
-    
-    if(plc_sts != PLC_ANSWER_OK)
-    {
-        // PLC_VM Blue Screen :(
-        plc_run = false;
-
-        if(plc_exchg == NULL)
-        {
-            plc_exchg = mqAlloc(sizeof(MQ_t));
-            if(plc_exchg != NULL)
-            {
-                plc_exchg->data[0] = PLC_CMD_STOP_RESP;
-                plc_exchg->data[1] = plc_sts;
-                plc_exchg->len = plcvm_get_state(&plc_exchg->data[2]) + 2;
-
-                plcvm_reset_cache();      // Reset cache
-                plc_sts = PLC_ANSWER_OK;
-                plc_answer = true;
-            }
-        }
-    }
-}
-
 // ignore some GCC warnings
 #if defined ( __GNUC__ )
 #pragma GCC diagnostic push
@@ -262,63 +241,20 @@ static uint8_t plcPollOD(subidx_t * pSubidx)
 {
     if(plc_answer)
         return 1;
+
+    if(plc_exchg != NULL)
+    {
+        plc_control();
+        plc_answer = true;
+        return 1;
+    }
+
     return 0;
 }
 
 #if defined ( __GNUC__ )
 #pragma GCC diagnostic pop
 #endif
-
-void plcInit(void)
-{
-   // Register variable pa0
-    indextable_t * pIndex = getFreeIdxOD();
-    if(pIndex == NULL)
-        return;
-    
-    pIndex->cbRead     = &plcReadOD;
-    pIndex->cbWrite    = &plcWriteOD;
-    pIndex->cbPoll     = &plcPollOD;
-    pIndex->sidx.Place = objPLCctrl;    // PLC Control
-    pIndex->sidx.Type  = objArray;      // Variable Type - Byte Array
-    pIndex->sidx.Base  = 0;             // not used
-
-    // Init variables
-    plc_run     = true;
-    plc_answer  = false;
-    plc_exchg   = NULL;
-    
-    plcvm_load_config();
-}
-
-// Merkers
-// Check Index
-bool plcCheckSubidx(subidx_t * pSubidx)
-{
-    uint16_t base = pSubidx->Base;
-    switch(pSubidx->Type)
-    {
-        case objBool:
-            base >>= 5;
-            break;
-        case objInt8:
-        case objUInt8:
-            base >>= 2;
-            break;
-        case objInt16:
-        case objUInt16:
-            base >>= 1;
-            break;
-        case objInt32:
-            break;
-        default:
-            return false;
-    }
-
-    if(base >= EXTPLC_SIZEOF_WO)
-        return false;
-    return true;
-}
 
 static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
@@ -515,6 +451,39 @@ static uint8_t merkerPollOD(subidx_t * pSubidx)
     return (plc_ram[base] & mask) != (plc_old[base] & mask);
 }
 
+void plcvm_set_stack_bot(uint32_t val)
+{
+    plcvm_stack_bot = val;
+}
+
+// Check Merkers Index
+bool plcCheckSubidx(subidx_t * pSubidx)
+{
+    uint16_t base = pSubidx->Base;
+    switch(pSubidx->Type)
+    {
+        case objBool:
+            base >>= 5;
+            break;
+        case objInt8:
+        case objUInt8:
+            base >>= 2;
+            break;
+        case objInt16:
+        case objUInt16:
+            base >>= 1;
+            break;
+        case objInt32:
+            break;
+        default:
+            return false;
+    }
+
+    if(base >= EXTPLC_SIZEOF_WO)
+        return false;
+    return true;
+}
+
 // Register merker
 e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
 {
@@ -548,6 +517,114 @@ e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
 
     pIdx->cbWrite   = &merkerWriteOD;
     return MQTTSN_RET_ACCEPTED;
+}
+
+void plcInit(void)
+{
+   // Register variable pa0
+    indextable_t * pIndex = getFreeIdxOD();
+    if(pIndex == NULL)
+        return;
+    
+    pIndex->cbRead     = &plcReadOD;
+    pIndex->cbWrite    = &plcWriteOD;
+    pIndex->cbPoll     = &plcPollOD;
+    pIndex->sidx.Place = objPLCctrl;    // PLC Control
+    pIndex->sidx.Type  = objArray;      // Variable Type - Byte Array
+    pIndex->sidx.Base  = 0;             // not used
+
+    // Init variables
+    plc_run     = true;
+    plc_answer  = false;
+    plc_exchg   = NULL;
+    
+    // Read Config
+    eeprom_read((uint8_t *)&plcvm_stack_bot, eePLCStackBot, 4);
+}
+
+void plcProc(void)
+{
+    if(plc_run)
+    {
+#if (defined LED_On) // && (defined DEBUG)
+        LED_On();
+#endif  //  LED_On
+        plcvm_sfp = EXTPLC_SIZEOF_RAM;      // Stack frame pointer
+        plcvm_sp = EXTPLC_SIZEOF_RAM;       // Stack pointer
+        plcvm_pc = 0;                       // program counter
+        plcvm_stat = PLC_ANSWER_RUN;
+
+        uint16_t plc_wd = 0xFFFF;
+        while(plcvm_stat == PLC_ANSWER_RUN)
+        {
+            if(plc_wd > 0)
+            {    
+                plc_wd--;
+            }
+            else
+            {
+                plcvm_stat = PLC_ANSWER_ERROR_WD;
+                break;
+            }
+
+            plcvm_cop = plcvm_lpm_u8();
+            cbCOP_t cop_proc = plcvm_cb[plcvm_cop];
+            cop_proc();
+        }
+        
+        plcvm_1st_start = false;
+#if (defined LED_Off)// && (defined DEBUG)
+        LED_Off();
+#endif  //  LED_Off
+    }
+    
+    if(plcvm_stat != PLC_ANSWER_OK)
+    {
+        // PLC_VM Blue Screen :(
+        plc_run = false;
+
+        if(plc_exchg == NULL)
+        {
+            plc_exchg = mqAlloc(sizeof(MQ_t));
+            if(plc_exchg != NULL)
+            {
+                uint8_t * pBuf = plc_exchg->data;
+                
+                *(pBuf++) = PLC_CMD_STOP_RESP;
+                *(pBuf++) = plcvm_stat;
+
+                *(pBuf++) = plcvm_sp & 0xFF;
+                *(pBuf++) = (plcvm_sp>>8) & 0xFF;
+                *(pBuf++) = (plcvm_sp>>16) & 0xFF;
+                *(pBuf++) = (plcvm_sp>>24) & 0xFF;
+    
+                uint32_t acc = 0;
+                if((plcvm_sp > 0) && (plcvm_sp < EXTPLC_SIZEOF_RAM))
+                    acc = plc_ram[plcvm_sp - 1];
+    
+                *(pBuf++) = acc & 0xFF;
+                *(pBuf++) = (acc>>8) & 0xFF;
+                *(pBuf++) = (acc>>16) & 0xFF;
+                *(pBuf++) = (acc>>24) & 0xFF;
+    
+                *(pBuf++) = plcvm_sfp & 0xFF;
+                *(pBuf++) = (plcvm_sfp>>8) & 0xFF;
+                *(pBuf++) = (plcvm_sfp>>16) & 0xFF;
+                *(pBuf++) = (plcvm_sfp>>24) & 0xFF;
+    
+                *(pBuf++) = plcvm_pc & 0xFF;
+                *(pBuf++) = (plcvm_pc>>8) & 0xFF;
+                *(pBuf++) = (plcvm_pc>>16) & 0xFF;
+                *(pBuf)   = (plcvm_pc>>24) & 0xFF;
+
+                plc_exchg->len = 18;
+
+                plcvm_page = 0xFFFFFFFF;  // Reset cache
+                plcvm_stat = PLC_ANSWER_OK;
+                plc_answer = true;
+            }
+        }
+    }
 }
 
 #endif  //  EXTPLC_USED
