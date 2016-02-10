@@ -159,6 +159,11 @@ static void plcvm_set_bool(uint32_t addr, bool sr){
 static void plcvm_set_u8(uint32_t addr, uint8_t val){
     if(addr < (EXTPLC_SIZEOF_RAM * 4))
     {
+        CVT_t v;
+        v.ul = plc_ram[addr >> 2];
+        v.uc[addr & 3] = val;
+        plc_ram[addr >> 2] = v.ul;
+/*
         uint32_t acc = plc_ram[addr >> 2];
         uint32_t mask = 0x000000FF << ((addr & 3)*8);
         uint32_t bcc = val;
@@ -166,6 +171,7 @@ static void plcvm_set_u8(uint32_t addr, uint8_t val){
         acc &= ~mask;
         acc |= bcc;
         plc_ram[addr >> 2] = acc;
+*/
     }
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -174,6 +180,11 @@ static void plcvm_set_u8(uint32_t addr, uint8_t val){
 static void plcvm_set_u16(uint32_t addr, uint16_t val){
     if(addr < (EXTPLC_SIZEOF_RAM * 2))
     {
+        CVT_t v;
+        v.ul = plc_ram[addr >> 1];
+        v.ui[addr & 1] = val;
+        plc_ram[addr >> 1] = v.ul;
+/*        
         uint32_t acc = plc_ram[addr >> 1];
         uint32_t bcc = val;
         
@@ -189,6 +200,7 @@ static void plcvm_set_u16(uint32_t addr, uint16_t val){
 
         acc |= bcc;
         plc_ram[addr >> 1] = acc;
+*/
     }
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -246,7 +258,7 @@ static void cb_swap(void){      // tmp = *(SP); *(SP) = *(SP+1); *(SP+1) = tmp; 
 static void cb_over(void){uint32_t c1 = plcvm_pop(); uint32_t c2 = plcvm_pop(); plcvm_push(c2); plcvm_push(c1); plcvm_push(c2);}    // *(--SP) = *(SP+1);  //( a b -- a b a )
 static void cb_rot(void){uint32_t c1 = plcvm_pop(); uint32_t c2 = plcvm_pop(); uint32_t c3 = plcvm_pop(); plcvm_push(c2); plcvm_push(c1); plcvm_push(c3); }    // ( a b c -- b c a )
 // 0x08 - 0x0F - Bitwise and Bit Shift Operators
-static void cb_not(void){plcvm_push(~plcvm_pop());}
+static void cb_not(void){if(plcvm_sp < plcvm_sfp){plc_ram[plcvm_sp] = ~plc_ram[plcvm_sp];}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_and(void){plcvm_push(plcvm_pop() & plcvm_pop());}
 static void cb_or(void) {plcvm_push(plcvm_pop() | plcvm_pop());}
 static void cb_xor(void){plcvm_push(plcvm_pop() ^ plcvm_pop());}
@@ -403,7 +415,6 @@ static void cb_api(void){
             plcvm_push(twiRd());
             break;
 #endif  //  EXTTWI_USED
-
         case 5: // Return status, -1: 1st start, 0: disconnected, 1: connected
             if(plcvm_1st_start)
                 cb_ldi_m1();
@@ -417,6 +428,9 @@ static void cb_api(void){
             break;
         case 7:
             plcvm_push(HAL_get_sec());
+            break;
+        case 8:
+            plcvm_push(HAL_RNG32());
             break;
         default:
             plcvm_stat = PLC_ANSWER_ERROR_UNK_API;

@@ -129,6 +129,10 @@ void HAL_Init(void)
 #error HAL_Init Unknown uC Family
 #endif
 
+    // Enable CRC, Used for RNG
+    RCC->AHBENR |= RCC_AHBENR_CRCEN;
+    CRC->CR = CRC_CR_RESET;
+
     CriticalNesting = 0;
 }
 
@@ -141,6 +145,18 @@ void HAL_StartSystemTick(void)
     __enable_irq();
 }
 
+uint32_t HAL_RNG32(void)
+{
+    CRC->DR = SysTick->VAL;
+    return CRC->DR;
+}
+uint16_t HAL_RNG(void)
+{
+    CRC->DR = SysTick->VAL;
+    return (CRC->DR & 0x0000FFFF);
+}
+
+/*
 // Generate pseudo random uint16
 uint16_t HAL_RNG(void)
 {
@@ -157,6 +173,8 @@ uint16_t HAL_RNG(void)
   
     return rand16;
 }
+*/
+
 
 uint32_t HAL_get_ms(void)
 {
