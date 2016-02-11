@@ -90,7 +90,6 @@ static void rfm12_tx_task(void)
 {
     static uint8_t rfm12_tx_delay = 0;
     static uint8_t rfm12_tx_retry = RFM12_TX_RETRYS;
-    static uint16_t rfm12_ms = 0;
 
     if(rfm12_tx_queue.Size == 0)
         return;
@@ -98,9 +97,12 @@ static void rfm12_tx_task(void)
     // CDMA
     if(rfm12_tx_delay > 0)
     {
-        if(rfm12_ms == HAL_get_ms())
+        static uint8_t rfm12_ms = 0;
+        uint8_t act_ms = HAL_get_ms() & 0xFF;
+
+        if(rfm12_ms == act_ms)
             return;
-        rfm12_ms = HAL_get_ms();
+        rfm12_ms = act_ms;
         rfm12_tx_delay--;
         return;
     }
@@ -138,21 +140,22 @@ static void rfm12_tx_task(void)
 void rfm12_irq(void)
 {
     static uint16_t     rfm12v_RfCRC;       // Actual CRC
-    static uint8_t      rfm12v_RfLen;       // Packet Length
-    static uint8_t      rfm12v_Pos;         // Position
 
     uint16_t intstat = hal_rfm12_spiExch(0);
     uint8_t ch;
     
-    if(intstat & (uint16_t)RFM12_STATUS_POR)          // Power-on reset
+    if(intstat & (uint16_t)RFM12_STATUS_POR)        // Power-on reset
     {
         hal_rfm12_spiExch(RFM12_SLEEP_MODE);
         rfm12_state = RFM12_TRVPOR;
         return;
     }
     
-    if(intstat & (uint16_t)RFM12_STATUS_RGIT)         // Rx/Tx FIFO events
+    if(intstat & (uint16_t)RFM12_STATUS_RGIT)       // Rx/Tx FIFO events
     {
+        static uint8_t rfm12v_RfLen = 0;            // Packet Length
+        static uint8_t rfm12v_Pos = 0;              // Position
+
         switch(rfm12_state)
         {
             // Start Rx Section

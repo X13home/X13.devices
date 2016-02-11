@@ -751,10 +751,10 @@ void mqttsn_parser_phy2(MQ_t * pPHY2outBuf)
             {
                 uint8_t Size = (MQTTSN_SIZEOF_MSG_FORWARD + sizeof(PHY2_ADDR_t) + 1);
                 uint8_t Length = pPHY2outBuf->Length + Size;
-                
-                uint8_t pos;
+
                 if(Length <= sizeof(MQTTSN_MESSAGE_t))
                 {
+                    uint8_t pos;
                     for(pos = (Length - 1); pos >= Size; pos--)
                         pPHY2outBuf->raw[pos] = pPHY2outBuf->raw[pos - Size];
 
@@ -832,11 +832,10 @@ static uint8_t mqttsn_build_node_name(uint8_t * pBuf)
 // Send Gateway Info message
 static void mqttsn_send_gwinfo(uint8_t phy)
 {
-    MQ_t * pGWInfo;
 #if (defined MQTTSN_USE_MESH)
     if(phy == 1)
     {
-        pGWInfo = mqAlloc(sizeof(MQ_t));
+        MQ_t * pGWInfo = mqAlloc(sizeof(MQ_t));
         memcpy(pGWInfo->phy1addr, &addr1_broad, sizeof(PHY1_ADDR_t));
         pGWInfo->Length = MQTTSN_SIZEOF_MSG_GWINFO;
         pGWInfo->mq.Length = MQTTSN_SIZEOF_MSG_GWINFO;
@@ -850,7 +849,7 @@ static void mqttsn_send_gwinfo(uint8_t phy)
 #if (defined PHY2_ADDR_t)
     if(phy == 2)
     {
-        pGWInfo = mqAlloc(sizeof(MQ_t));
+        MQ_t * pGWInfo = mqAlloc(sizeof(MQ_t));
         memcpy(pGWInfo->phy2addr, &addr2_broad, sizeof(PHY2_ADDR_t));
         pGWInfo->Length = MQTTSN_SIZEOF_MSG_GWINFO;
         pGWInfo->mq.Length = MQTTSN_SIZEOF_MSG_GWINFO;

@@ -1,7 +1,7 @@
 #include "config.h"
 
 static uint32_t CriticalNesting = 0;
-static volatile uint16_t hal_ms_counter = 0;
+static volatile uint32_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;    // Max Uptime 136 Jr.
 
 static void SetSysClock(void)
@@ -129,6 +129,10 @@ void HAL_Init(void)
 #error HAL_Init Unknown uC Family
 #endif
 
+    // Enable CRC, Used for RNG
+    RCC->AHBENR |= RCC_AHBENR_CRCEN;
+    CRC->CR = CRC_CR_RESET;
+
     CriticalNesting = 0;
 }
 
@@ -141,6 +145,18 @@ void HAL_StartSystemTick(void)
     __enable_irq();
 }
 
+uint32_t HAL_RNG32(void)
+{
+    CRC->DR = SysTick->VAL;
+    return CRC->DR;
+}
+uint16_t HAL_RNG(void)
+{
+    CRC->DR = SysTick->VAL;
+    return (CRC->DR & 0x0000FFFF);
+}
+
+/*
 // Generate pseudo random uint16
 uint16_t HAL_RNG(void)
 {
@@ -157,8 +173,10 @@ uint16_t HAL_RNG(void)
   
     return rand16;
 }
+*/
 
-uint16_t HAL_get_ms(void)
+
+uint32_t HAL_get_ms(void)
 {
     return hal_ms_counter;
 }
@@ -166,25 +184,6 @@ uint16_t HAL_get_ms(void)
 uint32_t HAL_get_sec(void)
 {
     return hal_sec_counter;
-}
-
-
-void _delay_ms(uint16_t ms)
-{
-    uint32_t new_ms;
-    
-    if(SysTick->CTRL & SysTick_CTRL_ENABLE_Msk)
-    {
-        new_ms = hal_ms_counter + ms;
-        while(hal_ms_counter != new_ms);
-    }
-    else
-    {
-        new_ms = (const uint32_t)(SystemCoreClock / 12000UL);
-        new_ms *= ms;
-        while(new_ms > 0)
-            new_ms--;
-    }
 }
 
 void _delay_us(uint16_t us)

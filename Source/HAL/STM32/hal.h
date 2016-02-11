@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 #if (defined STM32F0)
 #include "stm32f0xx.h"
 #elif (defined STM32F1)
@@ -151,7 +153,7 @@ uint8_t     hal_uart_get(uint8_t port);
 // PLC Section
 #define EXTPLC_USED                     1
 #define EXTPLC_SIZEOF_PRG               512
-#define EXTPLC_SIZEOF_PRG_CACHE         16      // Must be 2^n
+#define EXTPLC_SIZEOF_PRG_CACHE         32      // Must be 2^n, bytes
 #define EXTPLC_SIZEOF_RAM               32      // size in uint32_t
 #define EXTPLC_SIZEOF_RW                8       // size in uint32_t
 #define EXTPLC_SIZEOF_WO                16      // size in uint32_t
@@ -168,7 +170,6 @@ void eeprom_init_hw(void);
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 
-void _delay_ms(uint16_t ms);
 void _delay_us(uint16_t us);
 
 #define  HAL_Reboot     NVIC_SystemReset

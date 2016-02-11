@@ -146,10 +146,12 @@ static void cc11_tx_task(void)
     // CDMA
     if(cc11_tx_delay > 0)
     {
-        static uint16_t cc11_ms = 0;
-        if(cc11_ms == HAL_get_ms())
+        static uint8_t cc11_ms = 0;
+        uint8_t act_ms = HAL_get_ms() & 0xFF;
+
+        if(cc11_ms == act_ms)
             return;
-        cc11_ms = HAL_get_ms();
+        cc11_ms = act_ms;
         cc11_tx_delay--;
         return;
     }

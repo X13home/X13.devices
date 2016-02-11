@@ -20,7 +20,6 @@ extern "C" {
 #endif
 
 #include <stdlib.h>
-#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 
@@ -57,7 +56,8 @@ extern "C" {
 void        HAL_Init(void);
 void        HAL_StartSystemTick(void);
 uint16_t    HAL_RNG(void);
-uint16_t    HAL_get_ms(void);
+uint32_t    HAL_RNG32(void);
+uint32_t    HAL_get_ms(void);
 uint32_t    HAL_get_sec(void);
 void        HAL_ASleep(uint16_t duration);
 void        HAL_Reboot(void);

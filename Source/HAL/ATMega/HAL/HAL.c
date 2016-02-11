@@ -65,10 +65,10 @@ uint16_t HAL_RNG(void)
     return rand16;
 }
 
-static volatile uint16_t hal_ms_counter = 0;
+static volatile uint32_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;        // Max Uptime 136 Jr.
 
-uint16_t HAL_get_ms(void)
+uint32_t HAL_get_ms(void)
 {
     return hal_ms_counter;
 }
@@ -154,12 +154,8 @@ void HAL_ASleep(uint16_t duration)
 
 void HAL_Reboot(void)
 {
-#ifdef LED1_On
-    LED1_On();
-#endif
-
-#ifdef LED2_On
-    LED2_On();
+#ifdef LED_On
+    LED_On();
 #endif
 
     cli();

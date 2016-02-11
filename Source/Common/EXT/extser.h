@@ -17,6 +17,8 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
 // UART API
 void    serInit(void);
 bool    serCheckSubidx(subidx_t * pSubidx);

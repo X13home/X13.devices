@@ -104,13 +104,14 @@ static uint8_t twiPollOD(subidx_t * pUnused)
         else
         {
             static uint16_t twi_ms = 0;
+            uint16_t act_ms = HAL_get_ms() & 0x0000FFFF;
 
             if((access & TWI_WD_ARMED) == 0)
             {
                 pTwi_exchange->frame.access |= TWI_WD_ARMED;
-                twi_ms = HAL_get_ms();
+                twi_ms = act_ms;
             }
-            else if((HAL_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
+            else if((act_ms - twi_ms) > TWIM_BUS_TIMEOUT)
             {
                 if(access & TWI_BUSY)
                     hal_twi_stop();
@@ -214,13 +215,14 @@ uint32_t twiStat(void)
     if((access & (TWI_RDY | TWI_WD | TWI_SLANACK | TWI_ERROR)) == 0)
     {
         static uint16_t twi_ms = 0;
+        uint16_t act_ms = HAL_get_ms() & 0x0000FFFF;
 
         if((access & TWI_WD_ARMED) == 0)
         {
             pTwi_exchange->frame.access |= TWI_WD_ARMED;
-            twi_ms = HAL_get_ms();
+            twi_ms = act_ms;
         }
-        else if((HAL_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
+        else if((act_ms - twi_ms) > TWIM_BUS_TIMEOUT)
         {
             if(pTwi_exchange->frame.access & TWI_BUSY)
                 hal_twi_stop();

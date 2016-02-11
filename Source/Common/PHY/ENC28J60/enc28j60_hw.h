@@ -13,6 +13,8 @@ See LICENSE file for license details.
 #ifndef _ENC28J60_HW_H
 #define _ENC28J60_HW_H
 
+#include <stdbool.h>
+
 // functions
 void enc28j60Init(uint8_t* macaddr);
 void enc28j60EnableBroadcast(void);

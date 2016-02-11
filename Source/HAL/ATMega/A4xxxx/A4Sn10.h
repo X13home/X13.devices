@@ -25,7 +25,7 @@ See LICENSE file for license details.
 //  44  PF4 A4          Ain4    JTAG-TCK
 //  45  PF5 A5          Ain5    JTAG-TMS
 //  46  PF6 A6          Ain6    JTAG-TDO
-//  47  PF7 A7          Ain7    JTAG-TDO
+//  47  PF7 A7          Ain7    JTAG-TDI
 //  72  PK0 A8          Ain8
 //  73  PK1 A9          Ain9
 //  74  PK2 A10         Ain10
@@ -36,18 +36,18 @@ See LICENSE file for license details.
 //  79  PK7 A15         Ain15
 //  32  PE0 0         * RXD0
 //  33  PE1 1         * TXD0
-//  36  PE4 2           PWM0
-//  37  PE5 3           PWM1
-//  53  PG5 4           PWM2
-//  35  PE3 5           PWM3
-//  59  PH3 6           PWM4
-//  60  PH4 7           PWM5
-//  61  PH5 8           PWM6
-//  62  PH6 9
-//  12  PB4 10
-//  13  PB5 11          PWM7
-//  14  PB6 12          PWM8
-//  15  PB7 13          PWM9    LED_L
+//  36  PE4 2           OC3B
+//  37  PE5 3           OC3C
+//  53  PG5 4           OC0B
+//  35  PE3 5           OC3A
+//  59  PH3 6           OC4A
+//  60  PH4 7           OC4B
+//  61  PH5 8           OC4C
+//  62  PH6 9           (OC2B)
+//  12  PB4 10          (OC2A)
+//  13  PB5 11          OC1A
+//  14  PB6 12          OC1B
+//  15  PB7 13          OC1C    LED_L
 //  65  PJ1 14          TXD3
 //  64  PJ0 15          RXD3
 //  57  PH1 16          TXD2
@@ -78,9 +78,9 @@ See LICENSE file for license details.
 //  48  PG0 41
 //  87  PL7 42
 //  86  PL6 43
-//  85  PL5 44          PWM12
-//  84  PL4 45          PWM11
-//  83  PL3 46          PWM10
+//  85  PL5 44          OC5C
+//  84  PL4 45          OC5B
+//  83  PL3 46          OC5A
 //  82  PL2 47
 //  81  PL1 48
 //  80  PL0 49
@@ -108,6 +108,23 @@ extern "C" {
                                      81, 80, 11, 10, 9, 8}
 // End DIO Section
 
+// PWM Section
+#define EXTPWM_USED                 1
+#define EXTPWM_BASE_OFFSET          18
+#define EXTPWM_PORT2CFG             {((3<<3) | 1),      /* PE4, OC3B */ \
+                                     ((3<<3) | 2),      /* PE5, OC3C */ \
+                                     ((0<<3) | 1),      /* PG5, OC0B */ \
+                                     ((3<<3) | 0),      /* PE3, OC3A */ \
+                                     ((4<<3) | 0),      /* PH3, OC4A */ \
+                                     ((4<<3) | 1),      /* PH4, OC4B */ \
+                                     ((4<<3) | 2),      /* PH5, OC4C */ \
+                                     255,255,           /* PH6, PB4, OC2 busy */\
+                                     ((1<<3) | 0),      /* PB5, OC1A */ \
+                                     ((1<<3) | 1),      /* PB6, OC1B */ \
+                                     ((1<<3) | 2)}      /* PB7, OC1C */
+#define EXTPWM_PORT2DIO             {36, 37, 53, 35, 59, 60, 61, 255, 255, 13, 14, 15}
+ // End PWM Section
+
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           17                                  // ADC0 - ADC15, Vbg
@@ -115,23 +132,20 @@ extern "C" {
 #define EXTAIN_REF                  0x0F                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
-/*
-//#define EXTPWM_USED                 1
-#define EXTPWM_MAXPORT_NR           13
-#define EXTPWM_PORT2CFG             {0x19, 0x1A, 0x01, 0x18, 0x20, 0x21, 0x22, 0x08, 0x09, 0x0A, 0x28, 0x29, 0x2A}  // bits 7-3 Timer, bits 2-0 Channel
-#define EXTPWM_PORT2DIO             {36, 37, 53, 35, 59, 60, 61, 13, 14, 15, 83, 84, 85}    // Mapping PWM channel to DIO
-// End PWM Section
-
 // TWI Section
 #define EXTTWI_USED                 1
 // End TWI Section
 
 // UART Section
-#define UART_PHY_PORT               0
+#define HAL_USE_USART0              3
+#define HAL_USE_USART1              0
+#define HAL_USE_USART2              1
+#define HAL_USE_USART3              2
 
-#define EXTSER_USED                 4
+#define HAL_UART_NUM_PORTS          4
+
+#define EXTSER_USED                 1
 // End UART Section
-*/
 
 // End Extensions configuration
 ////////////////////////////////////////////////////////
@@ -139,14 +153,11 @@ extern "C" {
 ////////////////////////////////////////////////////////
 // Start PHY Section
 
-// UART Section
-#define HAL_USE_USART0              0       // Logical Port Number 0,1,2,...
-#define HAL_UART_NUM_PORTS          1
-
-#define UART_PHY_PORT               0       // Logical Port Number 0,1,2,...
-// End UART Section
-
+// UART PHY Section
+#define UART_PHY_PORT               3       // Logical Port Number 0,1,2,...
 #define UART_PHY                    1
+#include "PHY/UART/uart_phy.h"
+// End UART PHY Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           80      // Size of identificators list
@@ -156,8 +167,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '0'
-
-#include "PHY/UART/uart_phy.h"
 
 #ifdef __cplusplus
 }

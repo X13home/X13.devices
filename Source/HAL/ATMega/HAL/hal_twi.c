@@ -7,20 +7,6 @@
 #include <avr/interrupt.h>
 #include <util/twi.h>
 
-#if (defined __AVR_ATmega328P__)
-#define TWIM_SCL_STAT()             (PINC & (1<<PC5))
-#define I2C_DIO_SDA                 20
-#define I2C_DIO_SCL                 21
-#elif (defined __AVR_ATmega1284P__) || (defined __AVR_ATmega164P__) || (defined __AVR_ATmega164PA__)
-#define TWIM_SCL_STAT()             (PINC & (1<<PC0))
-#define I2C_DIO_SCL                 16
-#define I2C_DIO_SDA                 17
-#elif defined (__AVR_ATmega2560__)
-#define TWIM_SCL_STAT()             (PIND & (1<<PD0))
-#define I2C_DIO_SCL                 24
-#define I2C_DIO_SDA                 25
-#endif  // uC
-
 // Global variable defined in exttwi.c
 extern volatile TWI_QUEUE_t * pTwi_exchange;
 
@@ -33,7 +19,6 @@ void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA)
 // HAL
 bool hal_twi_configure(uint8_t enable)
 {
-    // Disable TWI
     TWCR = (1<<TWINT);
 
     if(enable)
@@ -43,13 +28,14 @@ bool hal_twi_configure(uint8_t enable)
 
         // Set Speed
         TWBR = (((F_CPU/100000UL)-16)/2);   // 100kHz
-        // Clear data register
-        TWDR = 0xFF;
-        // Enable TWI & Interrupt
-        TWCR = (1<<TWEN) | (1<<TWIE);
+        TWDR = 0xFF;                        // Clear data register
+        TWCR = (1<<TWEN) | (1<<TWINT);      // Enable TWI and clear the interrupt flag.
+        TWCR |= (1<<TWIE);                  // Enable TWI Interrupt
+
+        return true;
     }
 
-    return true;
+    return false;
 }
 
 void hal_twi_stop(void)

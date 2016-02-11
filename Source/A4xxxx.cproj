@@ -27,14 +27,14 @@
     <BootSegment>2</BootSegment>
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfFrameworkConfig>
-      <framework-data xmlns="">
+      <framework-data>
         <options />
         <configurations />
         <files />
         <documentation help="" />
         <offline-documentation help="" />
         <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.29.0" />
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.18.1" />
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
@@ -151,24 +151,6 @@
     <Compile Include="Common\EXT\extdio.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Common\EXT\extops.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\EXT\extops.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\EXT\extplc.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\EXT\extplc.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\EXT\extplc_vm.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\EXT\extplc_vm.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Common\EXT\extpwm.c">
       <SubType>compile</SubType>
     </Compile>
@@ -229,13 +211,7 @@
     <Compile Include="HAL\ATMega\HAL\hal_ain.c">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="HAL\ATMega\HAL\hal_cc11.c">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="HAL\ATMega\HAL\hal_dio.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="HAL\ATMega\HAL\hal_enc28j60.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="HAL\ATMega\HAL\hal_pwm.c">
