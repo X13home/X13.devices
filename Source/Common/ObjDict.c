@@ -417,7 +417,6 @@ void InitOD(void)
     uint8_t     Len = 1;
     uint8_t     ucTmp = 0;
     uint16_t    uiTmp;
-    uint32_t    ulTmp;
 
     ReadOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, &Len, &ucTmp);
     if(ucTmp == 0xFF)                                                                       // Not Configured
@@ -453,7 +452,7 @@ void InitOD(void)
 #ifndef OD_DEF_IP_BROKER
 #define OD_DEF_IP_BROKER    0xFFFFFFFF      // Default IP Broker - auto resolve
 #endif  //  OD_DEF_IP_BROKER
-        ulTmp = OD_DEF_IP_BROKER;
+        uint32_t ulTmp = OD_DEF_IP_BROKER;
         WriteOD(objIPBroker, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
         ulTmp = OD_DEF_IP_ROUTER;
         WriteOD(objIPRouter, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
@@ -475,8 +474,8 @@ void InitOD(void)
         ucTmp = 0;
         WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                          // Device Name
 #ifdef EXTPLC_USED
-        ulTmp = 0;
-        WriteOD(objPLCStackBot, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
+        uint32_t ul1Tmp = 0;
+        WriteOD(objPLCStackBot, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ul1Tmp);
 #endif  //  EXTPLC_USED
     }
 

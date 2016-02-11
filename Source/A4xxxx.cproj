@@ -151,18 +151,6 @@
     <Compile Include="Common\EXT\extdio.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Common\EXT\extplc.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\EXT\extplc.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\EXT\extplc_vm.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\EXT\extplc_vm.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Common\EXT\extpwm.c">
       <SubType>compile</SubType>
     </Compile>
