@@ -5,33 +5,7 @@
 #define FLASH_FKEY1         ((uint32_t)0x45670123)
 #define FLASH_FKEY2         ((uint32_t)0xCDEF89AB)
 
-#if (defined STM32F051x8)
-
-#define FEE_BASE_ADDRESS    (uint32_t)0x0800F000    // Base for 'EEPROM'
-#define FEE_SECTOR_SIZE     (uint32_t)0x00000400    // Size of FLASH Sectors
-
-#define FEE_EEPROM_SIZE     (uint32_t)0x00000800    // Size of 'EEPROM'
-#define FEE_MIRROR_NUMBER   (uint8_t)2
-
-#define EraseTimeout        ((uint32_t)0x000B0000)
-#define ProgramTimeout      ((uint32_t)0x000B0000)
-
-#elif (defined STM32F103xB)
-
-#define FEE_BASE_ADDRESS    (uint32_t)0x0801F000    // Base for 'EEPROM'
-#define FEE_SECTOR_SIZE     (uint32_t)0x00000400    // Size of FLASH Sectors
-
-#define FEE_EEPROM_SIZE     (uint32_t)0x00000800    // Size of 'EEPROM'
-#define FEE_MIRROR_NUMBER   (uint8_t)2
-
-#define EraseTimeout        ((uint32_t)0x000B0000)
-#define ProgramTimeout      ((uint32_t)0x00002000)
-
-#else
-#error hal_eeprom_flash.c Unknown uC
-#endif
-
-#define FEE_SECTORS                 (uint16_t)(FEE_EEPROM_SIZE / FEE_SECTOR_SIZE)
+#define FEE_SECTORS         (uint16_t)(FEE_EEPROM_SIZE / FEE_SECTOR_SIZE)
 
 typedef enum
 {
@@ -81,7 +55,7 @@ static bool flash_wait(uint32_t Timeout)
 
 static bool flash_erase_page(uint32_t Page_Address)
 {
-    bool status = flash_wait(EraseTimeout);
+    bool status = flash_wait(FEE_EraseTimeout);
     if(status)
     {
         // If the previous operation is completed, proceed to erase the page
@@ -90,7 +64,7 @@ static bool flash_erase_page(uint32_t Page_Address)
         FLASH->CR |= FLASH_CR_STRT;
     
         // Wait for last operation to be completed
-        status = flash_wait(EraseTimeout);
+        status = flash_wait(FEE_EraseTimeout);
     
         // Disable the PER Bit
         FLASH->CR &= ~FLASH_CR_PER;
@@ -102,7 +76,7 @@ static bool flash_erase_page(uint32_t Page_Address)
 // Programm Half Word
 static bool flash_programm(uint32_t Address, uint16_t Data)
 {
-    bool status = flash_wait(ProgramTimeout);
+    bool status = flash_wait(FEE_ProgramTimeout);
     if(status)
     {
         // If the previous operation is completed, proceed to program the new data
@@ -111,7 +85,7 @@ static bool flash_programm(uint32_t Address, uint16_t Data)
         *(__IO uint16_t*)Address = Data;
 
         // Wait for last operation to be completed
-        status = flash_wait(ProgramTimeout);
+        status = flash_wait(FEE_ProgramTimeout);
     
         // Disable the PG Bit */
         FLASH->CR &= ~FLASH_CR_PG;

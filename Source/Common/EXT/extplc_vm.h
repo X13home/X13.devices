@@ -15,12 +15,6 @@ See LICENSE file for license details.
 
 typedef void (*cbCOP_t)(void);
 
-typedef union {
-    uint32_t    ul;
-    uint16_t    ui[2];
-    uint8_t     uc[4];
-}CVT_t;
-
 // return LPM8[pc++]
 static uint8_t plcvm_lpm_u8(void){
     static uint8_t  plc_prg_cache[EXTPLC_SIZEOF_PRG_CACHE];
@@ -43,26 +37,16 @@ static uint8_t plcvm_lpm_u8(void){
 }
 
 // return LPM16[pc+=2]
-static uint16_t plcvm_lpm_u16(void){
-    uint16_t retval = plcvm_lpm_u8();
-    retval |= (uint16_t)(plcvm_lpm_u8())<<8;
-    return retval;
-}
+static uint16_t plcvm_lpm_u16(void){return plcvm_lpm_u8() | (plcvm_lpm_u8()<<16);}
 
 // return LPM32[pc+=4]
-static uint32_t plcvm_lpm_u32(void){
-    uint32_t acc = plcvm_lpm_u8();
-    acc |= (uint32_t)(plcvm_lpm_u8())<<8;
-    acc |= (uint32_t)(plcvm_lpm_u8())<<16;
-    acc |= (uint32_t)(plcvm_lpm_u8())<<24;
-    return acc;
-}
+static uint32_t plcvm_lpm_u32(void){return plcvm_lpm_u8() | (plcvm_lpm_u8()<<8) | (plcvm_lpm_u8()<<16) | (plcvm_lpm_u8()<<24);}
 
 // return bool->uint32 RAM[addr'bool]
 static uint32_t plcvm_get_bool(uint32_t addr){
     if(addr < (EXTPLC_SIZEOF_RAM * 32))
     {
-        uint32_t acc = plc_ram[addr >> 5];
+        uint32_t acc = plcvm_ram[addr >> 5];
         return ((acc & (1UL<<(addr & 0x1F))) != 0) ? 1 : 0;
     }
     plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -73,9 +57,8 @@ static uint32_t plcvm_get_bool(uint32_t addr){
 static uint32_t plcvm_get_u8(uint32_t addr){
     if(addr < (EXTPLC_SIZEOF_RAM * 4))
     {
-        CVT_t v;
-        v.ul = plc_ram[addr >> 2];
-        uint32_t acc = v.uc[addr & 0x03];
+        uint8_t *pDat = (uint8_t *)&plcvm_ram[addr >> 2];
+        uint32_t acc = *(pDat + (addr & 0x03));
         return acc;
     }
     plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -86,9 +69,8 @@ static uint32_t plcvm_get_u8(uint32_t addr){
 static uint32_t plcvm_get_s8(uint32_t addr){
     if(addr < (EXTPLC_SIZEOF_RAM * 4))
     {
-        CVT_t v;
-        v.ul = plc_ram[addr >> 2];
-        uint32_t acc = v.uc[addr & 0x03];
+        uint8_t *pDat = (uint8_t *)&plcvm_ram[addr >> 2];
+        uint32_t acc = *(pDat + (addr & 0x03));
         if(acc & 0x80)
             acc |= 0xFFFFFF00;
         return acc;
@@ -101,9 +83,8 @@ static uint32_t plcvm_get_s8(uint32_t addr){
 static uint32_t plcvm_get_u16(uint32_t addr){
     if(addr < (EXTPLC_SIZEOF_RAM * 2))
     {
-        CVT_t v;
-        v.ul = plc_ram[addr >> 1];
-        uint32_t acc = v.ui[addr & 0x01];
+        uint16_t *pDat = (uint16_t *)&plcvm_ram[addr >> 1];
+        uint32_t acc = *(pDat + (addr & 0x01) * 2);
         return acc;
     }
     plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -114,9 +95,8 @@ static uint32_t plcvm_get_u16(uint32_t addr){
 static uint32_t plcvm_get_s16(uint32_t addr){
     if(addr < (EXTPLC_SIZEOF_RAM * 2))
     {
-        CVT_t v;
-        v.ul = plc_ram[addr >> 1];
-        uint32_t acc = v.ui[addr & 0x01];
+        uint16_t *pDat = (uint16_t *)&plcvm_ram[addr >> 1];
+        uint32_t acc = *(pDat + (addr & 0x01) * 2);
         if(acc & 0x8000)
             acc |= 0xFFFF0000;
         return acc;
@@ -128,7 +108,7 @@ static uint32_t plcvm_get_s16(uint32_t addr){
 // return u32 RAM[addr'u32]
 static uint32_t plcvm_get_u32(uint32_t addr){
     if(addr < EXTPLC_SIZEOF_RAM)
-        return plc_ram[addr];
+        return plcvm_ram[addr];
     plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
     return 0;
 }
@@ -136,7 +116,7 @@ static uint32_t plcvm_get_u32(uint32_t addr){
 // return u32 RAM[plcvm_sp++]
 static uint32_t plcvm_pop(void){
     if(plcvm_sp < plcvm_sfp)
-        return plc_ram[plcvm_sp++];
+        return plcvm_ram[plcvm_sp++];
     plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
     return 0;
 }
@@ -148,9 +128,9 @@ static void plcvm_set_bool(uint32_t addr, bool sr){
         addr >>= 5;
         
         if(sr)
-            plc_ram[addr] |= mask;
+            plcvm_ram[addr] |= mask;
         else
-            plc_ram[addr] &= ~mask;
+            plcvm_ram[addr] &= ~mask;
     }
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -159,19 +139,8 @@ static void plcvm_set_bool(uint32_t addr, bool sr){
 static void plcvm_set_u8(uint32_t addr, uint8_t val){
     if(addr < (EXTPLC_SIZEOF_RAM * 4))
     {
-        CVT_t v;
-        v.ul = plc_ram[addr >> 2];
-        v.uc[addr & 3] = val;
-        plc_ram[addr >> 2] = v.ul;
-/*
-        uint32_t acc = plc_ram[addr >> 2];
-        uint32_t mask = 0x000000FF << ((addr & 3)*8);
-        uint32_t bcc = val;
-        bcc <<= ((addr & 3)*8);
-        acc &= ~mask;
-        acc |= bcc;
-        plc_ram[addr >> 2] = acc;
-*/
+        uint8_t *pDat = (uint8_t *)&plcvm_ram[addr >> 2];
+        *(pDat + (addr & 3)) = val;
     }
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -180,27 +149,8 @@ static void plcvm_set_u8(uint32_t addr, uint8_t val){
 static void plcvm_set_u16(uint32_t addr, uint16_t val){
     if(addr < (EXTPLC_SIZEOF_RAM * 2))
     {
-        CVT_t v;
-        v.ul = plc_ram[addr >> 1];
-        v.ui[addr & 1] = val;
-        plc_ram[addr >> 1] = v.ul;
-/*        
-        uint32_t acc = plc_ram[addr >> 1];
-        uint32_t bcc = val;
-        
-        if(addr & 1)
-        {
-            acc &= 0x0000FFFF;
-            bcc <<= 16;
-        }
-        else
-        {
-            acc &= 0xFFFF0000;
-        }
-
-        acc |= bcc;
-        plc_ram[addr >> 1] = acc;
-*/
+        uint16_t *pDat = (uint16_t *)&plcvm_ram[addr >> 2];
+        *(pDat + (addr & 1) * 2) = val;
     }
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -208,7 +158,7 @@ static void plcvm_set_u16(uint32_t addr, uint16_t val){
 
 static void plcvm_set_u32(uint32_t addr, uint32_t val){
     if(addr < EXTPLC_SIZEOF_RAM)
-        plc_ram[addr] = val;
+        plcvm_ram[addr] = val;
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
 }
@@ -216,7 +166,7 @@ static void plcvm_set_u32(uint32_t addr, uint32_t val){
 // (u32)RAM[--plcvm_sp] = val
 static void plcvm_push(uint32_t val){
     if(plcvm_sp > plcvm_stack_bot)
-        plc_ram[--plcvm_sp] = val;
+        plcvm_ram[--plcvm_sp] = val;
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
 }
@@ -229,8 +179,8 @@ static void cb_nop(void){}
 static void cb_dup(void){       // *(SP) = *(SP--);  (a -- a a)
     if((plcvm_sp < plcvm_sfp) && (plcvm_sp > plcvm_stack_bot))
     {
-        uint32_t tmp = plc_ram[plcvm_sp];
-        plc_ram[--plcvm_sp] = tmp;
+        uint32_t tmp = plcvm_ram[plcvm_sp];
+        plcvm_ram[--plcvm_sp] = tmp;
     }
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
@@ -239,8 +189,8 @@ static void cb_drop(void){if(plcvm_sp < plcvm_sfp){plcvm_sp++;}else{plcvm_stat =
 static void cb_nip(void){       // *(SP) = *(SP++)  //( a b -- b )
     if((plcvm_sp + 1) < plcvm_sfp)
     {
-        uint32_t tmp = plc_ram[plcvm_sp++];
-        plc_ram[plcvm_sp] = tmp;
+        uint32_t tmp = plcvm_ram[plcvm_sp++];
+        plcvm_ram[plcvm_sp] = tmp;
     }
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
@@ -248,9 +198,9 @@ static void cb_nip(void){       // *(SP) = *(SP++)  //( a b -- b )
 static void cb_swap(void){      // tmp = *(SP); *(SP) = *(SP+1); *(SP+1) = tmp;  // (a b -- b a)
     if((plcvm_sp + 1) < plcvm_sfp)
     {
-        uint32_t tmp = plc_ram[plcvm_sp];
-        plc_ram[plcvm_sp] = plc_ram[plcvm_sp + 1];
-        plc_ram[plcvm_sp + 1] = tmp;
+        uint32_t tmp = plcvm_ram[plcvm_sp];
+        plcvm_ram[plcvm_sp] = plcvm_ram[plcvm_sp + 1];
+        plcvm_ram[plcvm_sp + 1] = tmp;
     }
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
@@ -258,7 +208,7 @@ static void cb_swap(void){      // tmp = *(SP); *(SP) = *(SP+1); *(SP+1) = tmp; 
 static void cb_over(void){uint32_t c1 = plcvm_pop(); uint32_t c2 = plcvm_pop(); plcvm_push(c2); plcvm_push(c1); plcvm_push(c2);}    // *(--SP) = *(SP+1);  //( a b -- a b a )
 static void cb_rot(void){uint32_t c1 = plcvm_pop(); uint32_t c2 = plcvm_pop(); uint32_t c3 = plcvm_pop(); plcvm_push(c2); plcvm_push(c1); plcvm_push(c3); }    // ( a b c -- b c a )
 // 0x08 - 0x0F - Bitwise and Bit Shift Operators
-static void cb_not(void){if(plcvm_sp < plcvm_sfp){plc_ram[plcvm_sp] = ~plc_ram[plcvm_sp];}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_not(void){if(plcvm_sp < plcvm_sfp){plcvm_ram[plcvm_sp] = ~plcvm_ram[plcvm_sp];}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_and(void){plcvm_push(plcvm_pop() & plcvm_pop());}
 static void cb_or(void) {plcvm_push(plcvm_pop() | plcvm_pop());}
 static void cb_xor(void){plcvm_push(plcvm_pop() ^ plcvm_pop());}
@@ -271,9 +221,9 @@ static void cb_sub(void){int32_t r1 = (int32_t)plcvm_pop();int32_t r2 = (int32_t
 static void cb_mul(void){int32_t r1 = (int32_t)plcvm_pop();int32_t r2 = (int32_t)plcvm_pop();plcvm_push(r1 * r2);}
 static void cb_div(void){int32_t r1 = (int32_t)plcvm_pop();int32_t r2 = (int32_t)plcvm_pop();if(r2 == 0){plcvm_stat = PLC_ANSWER_ERROR_DIV0;}else{plcvm_push(r1/r2);}}
 static void cb_mod(void){int32_t r1 = (int32_t)plcvm_pop();int32_t r2 = (int32_t)plcvm_pop();plcvm_push(r1 % r2);}
-static void cb_inc(void){if(plcvm_sp < plcvm_sfp){plc_ram[plcvm_sp]++;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
-static void cb_dec(void){if(plcvm_sp < plcvm_sfp){plc_ram[plcvm_sp]--;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
-static void cb_neg(void){if(plcvm_sp < plcvm_sfp){plc_ram[plcvm_sp] = -plc_ram[plcvm_sp];}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_inc(void){if(plcvm_sp < plcvm_sfp){plcvm_ram[plcvm_sp]++;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_dec(void){if(plcvm_sp < plcvm_sfp){plcvm_ram[plcvm_sp]--;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_neg(void){if(plcvm_sp < plcvm_sfp){plcvm_ram[plcvm_sp] = -plcvm_ram[plcvm_sp];}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 // 0x18 - 0x1F - Reserved
 // 0x20 - 0x27 - Compare
 static void cb_ceq(void){plcvm_push((plcvm_pop() == plcvm_pop())? 1 : 0);}
@@ -289,14 +239,14 @@ static void cb_or_l(void) {uint32_t c1 = plcvm_pop();uint32_t c2 = plcvm_pop();p
 static void cb_xor_l(void){uint32_t c1 = plcvm_pop();uint32_t c2 = plcvm_pop();plcvm_push(((c1 != 0) ^ (c2 != 0))? 1 : 0);}
 // 0x30 - 0x37 - Reserved 
 // 0x38 - 0x3F - Load Constant
-static void cb_ldi_0(void){plcvm_push(0);}
-static void cb_ldi_s1(void){plcvm_push(plcvm_lpm_u8() | 0xFFFFFF00);}
-static void cb_ldi_s2(void){plcvm_push(plcvm_lpm_u16() | 0xFFFF0000);}
-static void cb_ldi_s4(void){plcvm_push(plcvm_lpm_u32());}
-static void cb_ldi_u1(void){plcvm_push(plcvm_lpm_u8());}
-static void cb_ldi_u2(void){plcvm_push(plcvm_lpm_u16());}
-static void cb_ldi_1(void){plcvm_push(1ul);}
-static void cb_ldi_m1(void){plcvm_push(~0ul);}
+static void cb_ldi_0(void) {if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = 0;}                             else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_ldi_s1(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = (plcvm_lpm_u8() | 0xFFFFFF00);} else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_ldi_s2(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = (plcvm_lpm_u16() | 0xFFFF0000);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_ldi_s4(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = plcvm_lpm_u32();}               else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_ldi_u1(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = plcvm_lpm_u8();}                else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_ldi_u2(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = plcvm_lpm_u16();}               else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_ldi_1(void) {if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = 1UL;}                           else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_ldi_m1(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = ~0UL;}                          else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 // 0x40 - 0x5F - Load with SFP based offset
 static void cb_ld_p(void){plcvm_push(plcvm_get_u32(plcvm_sfp + (plcvm_cop & 0x0F) + 2));}
 static void cb_ld_l(void){plcvm_push(plcvm_get_u32(plcvm_sfp - 1 - (plcvm_cop & 0x0F)));}

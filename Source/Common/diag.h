@@ -19,7 +19,6 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-void DIAG_Init(void);
 void DIAG_Poll(void);
 
 #ifdef __cplusplus

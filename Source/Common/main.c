@@ -34,9 +34,6 @@ int main(void)
 #ifdef  LED_Init
     LED_Init();
 #endif  //  LEDsInit
-#ifdef DIAG_USED
-    DIAG_Init();
-#endif  //  USE_DIAG
 
     SystemTickCnt = 0;
 

@@ -4,12 +4,7 @@
 
 #define DIAG_DEF_TIMEOUT    300
 
-static uint32_t diag_timeout;
-
-void DIAG_Init(void)
-{
-    diag_timeout = hal_get_sec();
-}
+static uint32_t diag_timeout = 0;
 
 void DIAG_Poll(void)
 {
