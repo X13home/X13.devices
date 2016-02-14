@@ -152,7 +152,7 @@ uint8_t     hal_uart_get(uint8_t port);
 //////////////////////////////////////////////////////////////
 // PLC Section
 #define EXTPLC_USED                     1
-#define EXTPLC_SIZEOF_PRG               512
+#define EXTPLC_SIZEOF_PRG               2048
 #define EXTPLC_SIZEOF_PRG_CACHE         32      // Must be 2^n, bytes
 #define EXTPLC_SIZEOF_RAM               256     // size in uint32_t
 #define EXTPLC_SIZEOF_RW                16      // size in uint32_t

@@ -2,22 +2,35 @@
 
 #include "config.h"
 
-#define FLASH_FKEY1         ((uint32_t)0x45670123)
-#define FLASH_FKEY2         ((uint32_t)0xCDEF89AB)
+#ifdef FEE_SECTORS
 
-#define FEE_SECTORS         (uint16_t)(FEE_EEPROM_SIZE / FEE_SECTOR_SIZE)
+// If defined FEE_BASE, data allocated in the FLASH from address: FEE_BASE
+// User MUST check, that:
+//  data aligned to page
+//  enough FLASH
+//  data not overlapped with program memory
 
-typedef enum
-{
-    eFEE_PAGE_INVALID   = (uint16_t)0x0000,
-    eFEE_PAGE_VALID     = (uint16_t)0xF0F0,
-    eFEE_PAGE_ERASED    = (uint16_t)0xFFFF
-}eFEE_STATUS;
+#ifndef FEE_BASE
+// Data allocated in program memory
+static const uint8_t fee_data[] __attribute__ ((aligned(FEE_SECTOR_SIZE))) = { [0 ... (FEE_SECTORS * FEE_SECTOR_SIZE - 1)] = 0xFF};
 
-//const uint8_t eeprom_arr[FEE_EEPROM_SIZE * FEE_MIRROR_NUMBER] __attribute__((section("IROM2"))) = {0xFF,};
+// Data allocated in program memory, but counted in bss Size, section ".feedata" must be defined in linker script
+/*// EEPROM Emulation  section
+  .feedata ALIGN(0x0400) (NOLOAD) :
+  {
+    *(.feedata)
+    *(.feedata*)
+  } >FLASH
+*/
+//static const uint8_t fee_data[FEE_SECTORS * FEE_SECTOR_SIZE] __attribute__ ((section (".feedata")));
+
+#define FEE_BASE    (uint32_t)fee_data
+
+#endif  //  FEE_BASE
 
 static uint8_t fee_pages_map[FEE_SECTORS];
 
+// HAL Flash
 static void flash_clear_flags(void)
 {
 #if (defined STM32F0)
@@ -34,8 +47,8 @@ static void flash_unlock(void)
     if((FLASH->CR & FLASH_CR_LOCK) != RESET)
     {
         // Unlocking the program memory access
-        FLASH->KEYR = FLASH_FKEY1;
-        FLASH->KEYR = FLASH_FKEY2;
+        FLASH->KEYR = FLASH_KEY1;
+        FLASH->KEYR = FLASH_KEY2;
     }
 }
 
@@ -89,23 +102,31 @@ static bool flash_programm(uint32_t Address, uint16_t Data)
     
         // Disable the PG Bit */
         FLASH->CR &= ~FLASH_CR_PG;
+        
+        if(*(__IO uint16_t*)Address != Data)
+            status = false;
     }
 
     return status;
 }
-// End HAL HAL EEPROM
+// End HAL Flash
 
 // Convert virtual EEPROM address to physical FLASH address
-static uint32_t fee_get_fee_addr(uint32_t virt_addr)
+static uint32_t fee_virt2real(uint32_t addr)
 {
-    virt_addr *= 2;
-    uint16_t page = virt_addr / (FEE_SECTOR_SIZE - 2);
-    virt_addr += (page + 1)*2;
+    if(addr >= ((FEE_SECTORS - FEE_TRANSIT_SECTORS)*(FEE_SECTOR_SIZE - 2)))
+        while(1);                                       // Error
 
-    if((virt_addr >= FEE_EEPROM_SIZE) || (fee_pages_map[page] == 0xFF))
-        return 0;
-
-    return FEE_BASE_ADDRESS + FEE_EEPROM_SIZE * fee_pages_map[page] + virt_addr;
+    uint16_t page = 0;
+    addr += 2;
+    while(addr >= FEE_SECTOR_SIZE)
+    {
+        addr -= (FEE_SECTOR_SIZE - 2);
+        page++;
+    }
+    addr += (uint32_t)FEE_SECTOR_SIZE * fee_pages_map[page];
+    addr += FEE_BASE;
+    return addr;
 }
 
 // write data to FLASH, only within 1 page.
@@ -113,10 +134,29 @@ static bool fee_write_page(uint32_t fee_addr, uint32_t len, uint8_t *pData)
 {
     uint16_t din, dout;
 
-    for(; len > 0; len--)
+    while(len > 0)
     {
-        din = (uint16_t)(*(pData++)) | 0xFF00;
-        dout = *(uint16_t *)(fee_addr);
+        if(fee_addr & 1)
+        {
+            len++;
+            fee_addr--;
+            din = ((*(pData++))<<8);
+            dout = *(uint16_t *)(fee_addr);
+            din |= dout & 0x00FF;
+        }
+        else if(len > 1)
+        {
+            din  = *(pData++);
+            din |= ((*(pData++))<<8);
+            dout = *(uint16_t *)(fee_addr);
+        }
+        else  // len == 1
+        {
+            din = *pData;
+            dout = *(uint16_t *)(fee_addr);
+            din |= dout & 0xFF00;
+            len = 2;
+        }
 
         if(din != dout)
         {
@@ -130,101 +170,168 @@ static bool fee_write_page(uint32_t fee_addr, uint32_t len, uint8_t *pData)
             }
         }
         fee_addr += 2;
+        len -= 2;
     }
 
     return true;
 }
 
-// transfer data from old page to new mirror
-static bool fee_transfer_page(uint32_t fee_addr, uint32_t len)
+// Transfer data from old to new sector
+static bool fee_transfer(uint32_t fee_addr, uint32_t len, uint8_t *pData)
 {
-    uint16_t page = ((fee_addr - FEE_BASE_ADDRESS) & (FEE_EEPROM_SIZE - 1)) / FEE_SECTOR_SIZE;
-    uint8_t old_mirror = fee_pages_map[page];
-    uint8_t new_mirror = old_mirror + 1;
-    if(new_mirror == FEE_MIRROR_NUMBER)
-        new_mirror = 0;
+    uint32_t src_sddr = fee_addr & ~(FEE_SECTOR_SIZE - 1);
+    uint32_t dst_addr = (fee_pages_map[FEE_SECTORS - FEE_TRANSIT_SECTORS] * FEE_SECTOR_SIZE) + FEE_BASE;
 
-    bool fee_retry = false;
-    uint32_t dst_addr, src_addr;
+    // Read and update version
+    uint16_t info = *(uint16_t *)(src_sddr);
+    if(info < 0xFF00)
+    {
+        info += 0x100;
+    }
+    else
+    {
+        info &= 0x00FF;
+        info |= 0x0100;
+    }
 
-    uint16_t din, dout;
+    // Write header to new page
+    if(flash_programm(dst_addr, info) != true)
+    {
+        flash_clear_flags();
+        return false;
+    }
 
-fee_retransfer:
-    dst_addr = FEE_BASE_ADDRESS + FEE_EEPROM_SIZE * new_mirror + FEE_SECTOR_SIZE * page;
-    src_addr = FEE_BASE_ADDRESS + FEE_EEPROM_SIZE * old_mirror + FEE_SECTOR_SIZE * page + 2;
-
-    if((*(uint16_t *)(dst_addr)) != eFEE_PAGE_ERASED)
-        flash_erase_page(dst_addr);
-
+    src_sddr += 2;
     dst_addr += 2;
+    uint32_t dst_len = fee_addr - src_sddr;
 
-    // write head
-    for(;src_addr < fee_addr; src_addr += 2)
+    uint16_t data;
+
+    // Transfer Head
+    while(dst_len > 1)
     {
-        din = (*(uint8_t *)src_addr) | 0xFF00;
-        dout = *(uint16_t *)(dst_addr);
-    
-        if(din != dout)
+        data = *(uint16_t *)(src_sddr);
+        if(data != 0xFFFF)
         {
-            if((dout != 0xFFFF) ||
-               (flash_programm(dst_addr, din) != true))
+            if(flash_programm(dst_addr, data) != true)
             {
                 flash_clear_flags();
-                if(fee_retry)
-                    return false;
-
-                dst_addr &= ~(FEE_SECTOR_SIZE - 1);
-                flash_erase_page(dst_addr);
-                fee_retry = true;    
-                goto fee_retransfer;      
+                return false;
             }
         }
 
+        src_sddr += 2;
         dst_addr += 2;
+        dst_len  -= 2;
     }
-  
-    // write tail
-    src_addr += len* 2;
-    dst_addr += len* 2;
-    fee_addr |= (FEE_SECTOR_SIZE - 1);
 
-    for(;src_addr < fee_addr; src_addr += 2)
+    // Write Body
+    if(dst_len)
     {
-        din = (*(uint8_t *)src_addr) | 0xFF00;
-        dout = *(uint16_t *)(dst_addr);
-    
-        if(din != dout)
+        data = *(uint16_t *)(src_sddr);
+        data |= (*(pData++))<<8;
+
+        if(data != 0xFFFF)
         {
-            if((dout != 0xFFFF) ||
-               (flash_programm(dst_addr, din) != true))
+            if(flash_programm(dst_addr, data) != true)
             {
                 flash_clear_flags();
-                if(fee_retry)
-                    return false;
-
-                dst_addr &= ~(FEE_SECTOR_SIZE - 1);
-                flash_erase_page(dst_addr);
-                fee_retry = true;    
-                goto fee_retransfer;      
+                return false;
             }
         }
 
+        src_sddr += 2;
+        dst_addr += 2;
+        len--;
+    }
+
+    while(len > 1)
+    {
+        data = *(pData++);
+        data |= (*(pData++))<<8;
+        
+        if(data != 0xFFFF)
+        {
+            if(flash_programm(dst_addr, data) != true)
+            {
+                flash_clear_flags();
+                return false;
+            }
+        }
+
+        src_sddr += 2;
+        dst_addr += 2;
+        len -= 2;
+    }
+
+    // Transfer last odd byte
+    if(len)
+    {
+        data = *(uint16_t *)(src_sddr);
+        data |= *pData;
+
+        if(data != 0xFFFF)
+        {
+            if(flash_programm(dst_addr, data) != true)
+            {
+                flash_clear_flags();
+                return false;
+            }
+        }
+        src_sddr += 2;
         dst_addr += 2;
     }
 
-    dst_addr -= FEE_SECTOR_SIZE;
-    src_addr -= FEE_SECTOR_SIZE;
+    // Transfer Tail
+    dst_len = FEE_SECTOR_SIZE - (dst_addr & (FEE_SECTOR_SIZE - 1));
+    while(dst_len > 1)
+    {
+        data = *(uint16_t *)(src_sddr);
+        if(data != 0xFFFF)
+        {
+            if(flash_programm(dst_addr, data) != true)
+            {
+                flash_clear_flags();
+                return false;
+            }
+        }
 
-    flash_programm(dst_addr, eFEE_PAGE_VALID);
-    flash_erase_page(src_addr);
-    fee_pages_map[page] = new_mirror;
+        src_sddr += 2;
+        dst_addr += 2;
+        dst_len  -= 2;
+    }
+
+    // Erase Old Page
+    if(!flash_erase_page(fee_addr))
+        return false;
+
+    // Rotate free sectors    
+    uint8_t sector;
+    for(sector = (FEE_SECTORS - FEE_TRANSIT_SECTORS); sector < (FEE_SECTORS - 1); sector++)
+        fee_pages_map[sector] = fee_pages_map[sector + 1];
+    fee_pages_map[FEE_SECTORS - 1] = (fee_addr & (FEE_SECTORS * FEE_SECTOR_SIZE - 1))/FEE_SECTOR_SIZE;
+
+    return true;
+}
+
+static bool fee_check_blank(uint32_t addr)
+{
+    addr &= ~(uint32_t)(FEE_SECTOR_SIZE - 1);
+    uint32_t pos;
+    for(pos = 0; pos < FEE_SECTOR_SIZE; pos += 2)
+    {
+        if(*(uint16_t *)(addr) != 0xFFFF)
+            return false;
+        
+        addr += 2;
+    }
     return true;
 }
 
 /////////////////////////////
 // API
 
-// Initialise EEPROM hardware
+// Initialise EEPROM hardware and allocate sectors
 void eeprom_init_hw(void)
 {
     // unlock flash
@@ -233,73 +340,126 @@ void eeprom_init_hw(void)
     // Clear Flags
     flash_clear_flags();
 
-    uint8_t mirror;
-    uint16_t page;
-    uint32_t addr;
+    uint8_t  sector, page;
+    uint16_t info;
+    uint16_t pginfo[FEE_SECTORS];
+    uint32_t addr = FEE_BASE;
 
-    // Read pages status
-    eFEE_STATUS pages_status[FEE_MIRROR_NUMBER];
-    eFEE_STATUS status;
-
-    for(page = 0; page < FEE_SECTORS; page++)
+    // Read sectors info and clear mapping
+    for(sector = 0; sector < FEE_SECTORS; sector++)
     {
-        fee_pages_map[page] = 0xFF;
-        for(mirror = 0; mirror < FEE_MIRROR_NUMBER; mirror++)
-        {
-            addr = FEE_BASE_ADDRESS + FEE_EEPROM_SIZE * mirror + FEE_SECTOR_SIZE * page;
-            status = *(uint16_t *)(addr);
-            pages_status[mirror] = status;
+        fee_pages_map[sector] = 0xFF;                       // Clear mapping info
+        
+        info = *(uint16_t *)(addr);                         // Read page info, LSB Sector, MSB Version
 
-            if((status == eFEE_PAGE_VALID) && (fee_pages_map[page] == 0xFF))
+        if(((info & 0xFF00) == 0) ||                        // Bad Page Info
+           ((info & 0x00FF) >= FEE_SECTOR_SIZE) ||
+           ((info == 0xFFFF) && !fee_check_blank(addr)))    // Page marked as blank, but it's not blank
+        {
+            if(!flash_erase_page(addr))
+                while(1);                                   // FLASH Error, HALT !
+            info = 0xFFFF;
+        }
+
+        pginfo[sector] = info;
+        addr += FEE_SECTOR_SIZE;
+    }
+
+    // Allocate Used Sectors
+    for(sector = 0; sector < (FEE_SECTORS - FEE_TRANSIT_SECTORS); sector++)
+    {
+        info = 0xFFFF;
+
+        for(page = 0; page < FEE_SECTORS; page++)
+        {
+            uint16_t actInf = pginfo[page];
+
+            if((actInf & 0xFF) == sector)
             {
-                fee_pages_map[page] = mirror;
-            }
-            else if(status != eFEE_PAGE_ERASED)
-            {
-                if(flash_erase_page(addr))
-                    pages_status[mirror] = eFEE_PAGE_ERASED;
-                else
+                if(info == 0xFFFF)
                 {
-                    flash_clear_flags();
-                    pages_status[mirror] = eFEE_PAGE_INVALID;
+                    info = actInf;
+                }
+                else                                        // Transfer Error, use old Page, erase new Page
+                {
+                    uint16_t vers1 = info >> 8;
+                    uint16_t vers2 = actInf >> 8;
+                    
+                    if(vers1 == 0xFF)
+                        vers1 = 0;
+                    if(vers2 == 0xFF)
+                        vers2 = 0;
+
+                    addr = FEE_BASE;
+                    
+                    if(vers2 > vers1)
+                    {
+                        addr += page * FEE_SECTOR_SIZE;
+                        pginfo[page] = 0xFFFF;
+                    }
+                    else
+                    {
+                        uint8_t pg = info & 0xFF;
+                        addr += pg * FEE_SECTOR_SIZE;
+                        pginfo[pg] = 0xFFFF;
+                    }
+                    
+                    if(!flash_erase_page(addr))
+                        while(1);                   // FLASH Error, HALT !
                 }
             }
         }
 
-        if(fee_pages_map[page] == 0xFF) //  No Valid mirror
-            for(mirror = 0; mirror < FEE_MIRROR_NUMBER; mirror++)
+        if(info == 0xFFFF)                          // Page not allocated
+        {
+            for(page = 0; page < FEE_SECTORS; page++)
             {
-                if(pages_status[mirror] == eFEE_PAGE_ERASED)
+                if(pginfo[page] == 0xFFFF)          // Allocate sector
                 {
-                    addr = FEE_BASE_ADDRESS + FEE_EEPROM_SIZE * mirror + FEE_SECTOR_SIZE * page;
-                    if(flash_programm(addr, eFEE_PAGE_VALID))
-                    {
-                        fee_pages_map[page] = mirror;
-                        break;
-                    }
-                    else
-                        flash_clear_flags();
+                    info = 0x0100 | sector;         // 1st Version
+                    pginfo[page] = info;
+
+                    addr = FEE_BASE;
+                    addr += page * FEE_SECTOR_SIZE;
+                    if(!flash_programm(addr, info))
+                        while(1);                   // FLASH Error, HALT !
+
+                    info = page;
+                    break;
                 }
             }
+        }
+
+        fee_pages_map[sector] = info & 0xFF;
+    }
+
+    // Allocate Free Sectors
+    for(;sector < FEE_SECTORS; sector++)
+    {
+        for(page = 0; page < FEE_SECTORS; page++)
+        {
+            if(pginfo[page] == 0xFFFF)
+            {
+                pginfo[page] = sector;
+                fee_pages_map[sector] = page;
+                break;
+            }
+        }
     }
 }
 
 // Read data from EEPROM
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 {
-    uint32_t fee_addr = 0;
+    uint32_t fee_addr = fee_virt2real(Addr);
 
     while(Len > 0)
     {
-        if((fee_addr & (FEE_SECTOR_SIZE - 1)) == 0)
-        {
-            fee_addr = fee_get_fee_addr(Addr);
-            if(fee_addr == 0)
-                return;
-        }
+        if((fee_addr & (const uint32_t)(FEE_SECTOR_SIZE - 1)) == 0)
+            fee_addr = fee_virt2real(Addr);
 
         *(pBuf++) = *(uint8_t *)(fee_addr);
-        fee_addr += 2;
+        fee_addr++;
         Addr++;
         Len--;
     }
@@ -308,16 +468,10 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 // Write data to EEPROM
 void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 {
-    halEnterCritical();
-    
     while(Len > 0)
     {
-        uint32_t fee_addr = fee_get_fee_addr(Addr);
-        if(fee_addr == 0)
-            break;
-
-        uint32_t length = (~(fee_addr - 1) & (FEE_SECTOR_SIZE - 1))/2;
-
+        uint32_t fee_addr = fee_virt2real(Addr);
+        uint32_t length = FEE_SECTOR_SIZE - (fee_addr & (FEE_SECTOR_SIZE - 1));
         if(Len < length)
             length = Len;
 
@@ -327,10 +481,13 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
             Addr += length;
             continue;
         }
-    
-        if(!fee_transfer_page(fee_addr, length))
-            break;
+        
+        if(!fee_transfer(fee_addr, length, pBuf))
+            while(1);                               // FLASH Error, HALT !
+        
+        Len -= length;
+        Addr += length;
     }
-
-    halLeaveCritical();
 }
+
+#endif  //  FEE_SECTORS
