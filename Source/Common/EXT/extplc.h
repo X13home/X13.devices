@@ -47,8 +47,6 @@ e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx);
 
 void plcProc(void);
 
-void plcvm_set_stack_bot(uint32_t val);
-
 #ifdef __cplusplus
 }
 #endif

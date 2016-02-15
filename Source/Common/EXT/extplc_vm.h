@@ -262,19 +262,19 @@ static void cb_ldm_s2_s(void){plcvm_push(plcvm_get_s16( plcvm_pop()));}
 static void cb_ldm_u2_s(void){plcvm_push(plcvm_get_u16( plcvm_pop()));}
 static void cb_ldm_s4_s(void){plcvm_push(plcvm_get_u32( plcvm_pop()));}
 //*(SP) = (type)*(*(SP)+*(uint8*)(PC++));
-static void cb_ldi_b1_cs8(void){plcvm_push(plcvm_get_bool(plcvm_pop() + plcvm_lpm_u8()));}
-static void cb_ldm_s1_cs8(void){plcvm_push(plcvm_get_s8(  plcvm_pop() + plcvm_lpm_u8()));}
-static void cb_ldm_u1_cs8(void){plcvm_push(plcvm_get_u8(  plcvm_pop() + plcvm_lpm_u8()));}
-static void cb_ldm_s2_cs8(void){plcvm_push(plcvm_get_s16( plcvm_pop() + plcvm_lpm_u8()));}
-static void cb_ldm_u2_cs8(void){plcvm_push(plcvm_get_u16( plcvm_pop() + plcvm_lpm_u8()));}
-static void cb_ldm_s4_cs8(void){plcvm_push(plcvm_get_u32( plcvm_pop() + plcvm_lpm_u8()));}
+static void cb_ldi_b1_cs8(void){plcvm_push(plcvm_get_bool(plcvm_pop()*32  + plcvm_lpm_u8()));}
+static void cb_ldm_s1_cs8(void){plcvm_push(plcvm_get_s8(  plcvm_pop()*4   + plcvm_lpm_u8()));}
+static void cb_ldm_u1_cs8(void){plcvm_push(plcvm_get_u8(  plcvm_pop()*4   + plcvm_lpm_u8()));}
+static void cb_ldm_s2_cs8(void){plcvm_push(plcvm_get_s16( plcvm_pop()*2   + plcvm_lpm_u8()));}
+static void cb_ldm_u2_cs8(void){plcvm_push(plcvm_get_u16( plcvm_pop()*2   + plcvm_lpm_u8()));}
+static void cb_ldm_s4_cs8(void){plcvm_push(plcvm_get_u32( plcvm_pop()     + plcvm_lpm_u8()));}
 // *(SP) = (type)*(*(SP)+*(uint16*)(PC+=2));
-static void cb_ldi_b1_cs16(void){plcvm_push(plcvm_get_bool(plcvm_pop() + plcvm_lpm_u16()));}
-static void cb_ldm_s1_cs16(void){plcvm_push(plcvm_get_s8(  plcvm_pop() + plcvm_lpm_u16()));}
-static void cb_ldm_u1_cs16(void){plcvm_push(plcvm_get_u8(  plcvm_pop() + plcvm_lpm_u16()));}
-static void cb_ldm_s2_cs16(void){plcvm_push(plcvm_get_s16( plcvm_pop() + plcvm_lpm_u16()));}
-static void cb_ldm_u2_cs16(void){plcvm_push(plcvm_get_u16( plcvm_pop() + plcvm_lpm_u16()));}
-static void cb_ldm_s4_cs16(void){plcvm_push(plcvm_get_u32( plcvm_pop() + plcvm_lpm_u16()));}
+static void cb_ldi_b1_cs16(void){plcvm_push(plcvm_get_bool(plcvm_pop()*32 + plcvm_lpm_u16()));}
+static void cb_ldm_s1_cs16(void){plcvm_push(plcvm_get_s8(  plcvm_pop()*4  + plcvm_lpm_u16()));}
+static void cb_ldm_u1_cs16(void){plcvm_push(plcvm_get_u8(  plcvm_pop()*4  + plcvm_lpm_u16()));}
+static void cb_ldm_s2_cs16(void){plcvm_push(plcvm_get_s16( plcvm_pop()*2  + plcvm_lpm_u16()));}
+static void cb_ldm_u2_cs16(void){plcvm_push(plcvm_get_u16( plcvm_pop()*2  + plcvm_lpm_u16()));}
+static void cb_ldm_s4_cs16(void){plcvm_push(plcvm_get_u32( plcvm_pop()    + plcvm_lpm_u16()));}
 // *(--SP) = (type)*(*(uint16*)(PC+=2)); // bool LPM(addr)
 static void cb_ldi_b1_c16(void){plcvm_push(plcvm_get_bool(plcvm_lpm_u16()));}
 static void cb_ldm_s1_c16(void){plcvm_push(plcvm_get_s8(  plcvm_lpm_u16()));}
@@ -289,15 +289,15 @@ static void cb_stm_s1_s(void){uint32_t addr = plcvm_pop();uint32_t acc  = plcvm_
 static void cb_stm_s2_s(void){uint32_t addr = plcvm_pop();uint32_t acc  = plcvm_pop();plcvm_set_u16(addr, acc & 0x0000FFFF);}
 static void cb_stm_s4_s(void){uint32_t addr = plcvm_pop();uint32_t acc  = plcvm_pop();plcvm_set_u32(addr, acc);}
 // (type)*(*(SP++) + *(uint8*)(PC++)) = *(SP++);
-static void cb_stm_b1_cs8(void){uint32_t addr = plcvm_pop() + plcvm_lpm_u8();uint32_t acc  = plcvm_pop();plcvm_set_bool(addr, (acc != 0) ? 1 : 0);}
-static void cb_stm_s1_cs8(void){uint32_t addr = plcvm_pop() + plcvm_lpm_u8();uint32_t acc  = plcvm_pop();plcvm_set_u8(addr, acc & 0x000000FF);}
-static void cb_stm_s2_cs8(void){uint32_t addr = plcvm_pop() + plcvm_lpm_u8();uint32_t acc  = plcvm_pop();plcvm_set_u16(addr, acc & 0x0000FFFF);}
-static void cb_stm_s4_cs8(void){uint32_t addr = plcvm_pop() + plcvm_lpm_u8();uint32_t acc  = plcvm_pop();plcvm_set_u32(addr, acc);}
+static void cb_stm_b1_cs8(void){uint32_t addr = plcvm_pop()*32  + plcvm_lpm_u8();uint32_t acc  = plcvm_pop();plcvm_set_bool(addr, (acc != 0) ? 1 : 0);}
+static void cb_stm_s1_cs8(void){uint32_t addr = plcvm_pop()*4   + plcvm_lpm_u8();uint32_t acc  = plcvm_pop();plcvm_set_u8(addr, acc & 0x000000FF);}
+static void cb_stm_s2_cs8(void){uint32_t addr = plcvm_pop()*2   + plcvm_lpm_u8();uint32_t acc  = plcvm_pop();plcvm_set_u16(addr, acc & 0x0000FFFF);}
+static void cb_stm_s4_cs8(void){uint32_t addr = plcvm_pop()     + plcvm_lpm_u8();uint32_t acc  = plcvm_pop();plcvm_set_u32(addr, acc);}
 //(type)*(*(SP++) + *(uint16*)(PC+=2)) = *(SP++);
-static void cb_stm_b1_cs16(void){uint32_t addr = plcvm_pop() + plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_bool(addr, (acc != 0) ? 1 : 0);}
-static void cb_stm_s1_cs16(void){uint32_t addr = plcvm_pop() + plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_u8(addr, acc & 0x000000FF);}
-static void cb_stm_s2_cs16(void){uint32_t addr = plcvm_pop() + plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_u16(addr, acc & 0x0000FFFF);}
-static void cb_stm_s4_cs16(void){uint32_t addr = plcvm_pop() + plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_u32(addr, acc);}
+static void cb_stm_b1_cs16(void){uint32_t addr = plcvm_pop()*32 + plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_bool(addr, (acc != 0) ? 1 : 0);}
+static void cb_stm_s1_cs16(void){uint32_t addr = plcvm_pop()*4  + plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_u8(addr, acc & 0x000000FF);}
+static void cb_stm_s2_cs16(void){uint32_t addr = plcvm_pop()*2  + plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_u16(addr, acc & 0x0000FFFF);}
+static void cb_stm_s4_cs16(void){uint32_t addr = plcvm_pop()    + plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_u32(addr, acc);}
 //(type)*((uint16*)(PC+=2)) = *(SP++);
 static void cb_stm_b1_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_bool(addr, (acc != 0) ? 1 : 0);}
 static void cb_stm_s1_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_u8(addr, acc & 0x000000FF);}
@@ -365,10 +365,8 @@ static void cb_api(void){
             plcvm_push(twiRd());
             break;
 #endif  //  EXTTWI_USED
-        case 5: // Return status, -1: 1st start, 0: disconnected, 1: connected
-            if(plcvm_1st_start)
-                cb_ldi_m1();
-            else if(MQTTSN_GetStatus() == MQTTSN_STATUS_CONNECT)
+        case 5: // Return status, 0: disconnected, 1: connected
+            if(MQTTSN_GetStatus() == MQTTSN_STATUS_CONNECT)
                 cb_ldi_1();
             else
                 cb_ldi_0();

@@ -12,7 +12,7 @@
 
 #ifndef FEE_BASE
 // Data allocated in program memory
-static const uint8_t fee_data[] __attribute__ ((aligned(FEE_SECTOR_SIZE))) = { [0 ... (FEE_SECTORS * FEE_SECTOR_SIZE - 1)] = 0xFF};
+//static const uint8_t fee_data[] __attribute__ ((aligned(FEE_SECTOR_SIZE))) = { [0 ... (FEE_SECTORS * FEE_SECTOR_SIZE - 1)] = 0xFF};
 
 // Data allocated in program memory, but counted in bss Size, section ".feedata" must be defined in linker script
 /*// EEPROM Emulation  section
@@ -22,7 +22,7 @@ static const uint8_t fee_data[] __attribute__ ((aligned(FEE_SECTOR_SIZE))) = { [
     *(.feedata*)
   } >FLASH
 */
-//static const uint8_t fee_data[FEE_SECTORS * FEE_SECTOR_SIZE] __attribute__ ((section (".feedata")));
+static const uint8_t fee_data[FEE_SECTORS * FEE_SECTOR_SIZE] __attribute__ ((section (".feedata")));
 
 #define FEE_BASE    (uint32_t)fee_data
 
@@ -73,7 +73,7 @@ static bool flash_erase_page(uint32_t Page_Address)
     {
         // If the previous operation is completed, proceed to erase the page
         FLASH->CR |= FLASH_CR_PER;
-        FLASH->AR  = Page_Address;
+        FLASH->AR  = Page_Address & ~(FEE_SECTOR_SIZE - 1);
         FLASH->CR |= FLASH_CR_STRT;
     
         // Wait for last operation to be completed
@@ -228,7 +228,7 @@ static bool fee_transfer(uint32_t fee_addr, uint32_t len, uint8_t *pData)
     // Write Body
     if(dst_len)
     {
-        data = *(uint16_t *)(src_sddr);
+        data = *(uint8_t *)(src_sddr);
         data |= (*(pData++))<<8;
 
         if(data != 0xFFFF)
@@ -353,7 +353,7 @@ void eeprom_init_hw(void)
         info = *(uint16_t *)(addr);                         // Read page info, LSB Sector, MSB Version
 
         if(((info & 0xFF00) == 0) ||                        // Bad Page Info
-           ((info & 0x00FF) >= FEE_SECTOR_SIZE) ||
+           ((info & 0x00FF) >= FEE_SECTORS) ||
            ((info == 0xFFFF) && !fee_check_blank(addr)))    // Page marked as blank, but it's not blank
         {
             if(!flash_erase_page(addr))
@@ -378,7 +378,7 @@ void eeprom_init_hw(void)
             {
                 if(info == 0xFFFF)
                 {
-                    info = actInf;
+                    info = (actInf & 0xFF00) | page;
                 }
                 else                                        // Transfer Error, use old Page, erase new Page
                 {
@@ -451,7 +451,7 @@ void eeprom_init_hw(void)
 // Read data from EEPROM
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 {
-    uint32_t fee_addr = fee_virt2real(Addr);
+    uint32_t fee_addr = 0;
 
     while(Len > 0)
     {

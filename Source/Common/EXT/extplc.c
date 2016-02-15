@@ -29,6 +29,8 @@ typedef enum
     PLC_CMD_WRITE_RESP      = 0x08, // Write Block Response: 8, 0 - Ok / 1-255 error + [optional info]
     PLC_CMD_ERASE_REQ       = 0x09, // Erase Block Request: 9, addrL, addrH, lenL, lenH
     PLC_CMD_ERASE_RESP      = 0x0A, // Erase Block Response: 0x0a, 0  - Ok / 1-255 error + [optional info]
+    PLC_CMD_SET_STACK_REQ   = 0x0B, // Set Stack Bottom, 0x08, (uint32_t)StackBot
+    PLC_CMD_SET_STACK_RESP  = 0x0C  // Set Stack Bottom Response, 0 - Ok, / 1-255 error + [optional info]
 }ePLC_CMD_t;
 
 typedef struct 
@@ -196,6 +198,39 @@ static void plc_control(void)
             eeprom_write(&plc_exchg->data[3], eePLCprogram + addr, len - 5);
             break;
         }
+        
+        case PLC_CMD_SET_STACK_REQ:
+        {
+            if(plc_exchg->len != 5)
+            {
+                plc_exchg->len = 2;
+                plc_exchg->data[0] = PLC_CMD_SET_STACK_RESP;
+                plc_exchg->data[1] = PLC_ANSWER_ERROR_FMT;
+                break;
+            }
+
+            plc_exchg->len = 2;
+            plc_exchg->data[0] = PLC_CMD_SET_STACK_RESP;
+
+            if(plc_run)
+            {
+                plc_exchg->data[1] = PLC_ANSWER_ERROR_WRS;      // Wrong State
+                break;
+            }
+
+            uint32_t val;
+            memcpy(&val, &plc_exchg->data[1], 4);
+            if(val >= (EXTPLC_SIZEOF_RAM - 2))
+            {
+                plc_exchg->data[1] = PLC_ANSWER_ERROR_OFR_SP;
+                break;
+            }
+
+            plcvm_stack_bot = val;
+            eeprom_write(&plc_exchg->data[1], eePLCStackBot, 4);
+            break;
+        }
+        
         default:
         {
             plc_exchg->len = 2;
@@ -417,11 +452,6 @@ static uint8_t merkerPollOD(subidx_t * pSubidx)
     return (plcvm_ram[base] & mask) != (plc_old[base] & mask);
 }
 
-void plcvm_set_stack_bot(uint32_t val)
-{
-    plcvm_stack_bot = val;
-}
-
 // Check Merkers Index
 bool plcCheckSubidx(subidx_t * pSubidx)
 {
@@ -502,6 +532,8 @@ void plcInit(void)
     
     // Read Config
     eeprom_read((uint8_t *)&plcvm_stack_bot, eePLCStackBot, 4);
+    if(plcvm_stack_bot == 0xFFFFFFFF)
+        plcvm_stack_bot = 0;
 }
 
 void plcProc(void)
@@ -510,7 +542,12 @@ void plcProc(void)
     {
         plcvm_sfp = EXTPLC_SIZEOF_RAM;      // Stack frame pointer
         plcvm_sp = EXTPLC_SIZEOF_RAM;       // Stack pointer
-        plcvm_pc = 0;                       // program counter
+        
+        if(plcvm_1st_start)                 // program counter
+            plcvm_pc = 0;
+        else
+            plcvm_pc = 4;
+
         plcvm_stat = PLC_ANSWER_RUN;
 
         uint16_t plc_wd = 0xFFFF;

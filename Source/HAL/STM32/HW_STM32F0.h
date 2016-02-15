@@ -31,7 +31,7 @@ See LICENSE file for license details.
 #define FEE_TRANSIT_SECTORS     2                       // Reserved Sectors for Transfer
 
 // WARNING !! does not check overlapping with program memory
-#define FEE_BASE ((FLASH_BANK1_END + 1) - (FEE_SECTORS * FEE_SECTOR_SIZE))
+//#define FEE_BASE ((FLASH_BANK1_END + 1) - (FEE_SECTORS * FEE_SECTOR_SIZE))
 // End EEPROM Emulation Section
 
 // STM32F051C8
