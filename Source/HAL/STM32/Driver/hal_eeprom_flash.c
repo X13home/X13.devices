@@ -1,55 +1,57 @@
 // EEPROM emulation for STM32F0/STM32F1
 
-#include "config.h"
-
-#ifdef FEE_SECTORS
-
-// If defined FEE_BASE, data allocated in the FLASH from address: FEE_BASE
+/******************************************************************************************************************/
+// Data placed in the FLASH from address: FEE_BASE
 // User MUST check, that:
 //  data aligned to page
 //  enough FLASH
 //  data not overlapped with program memory
 
-#ifndef FEE_BASE
+/******************************************************************************************************************/
 // Data allocated in program memory
-//static const uint8_t fee_data[] __attribute__ ((aligned(FEE_SECTOR_SIZE))) = { [0 ... (FEE_SECTORS * FEE_SECTOR_SIZE - 1)] = 0xFF};
+//static const uint8_t fee_data[] __attribute__ ((aligned(FEE_PAGE_SIZE))) = { [0 ... (FEE_SIZE - 1)] = 0xFF};
+//#define FEE_BASE    (uint32_t)fee_data
 
+/******************************************************************************************************************/
 // Data allocated in program memory, but counted in bss Size, section ".feedata" must be defined in linker script
-/*// EEPROM Emulation  section
-  .feedata ALIGN(0x0400) (NOLOAD) :
-  {
-    *(.feedata)
-    *(.feedata*)
-  } >FLASH
-*/
-static const uint8_t fee_data[FEE_SECTORS * FEE_SECTOR_SIZE] __attribute__ ((section (".feedata")));
+// EEPROM Emulation  section
 
-#define FEE_BASE    (uint32_t)fee_data
+//MEMORY
+//{
+//FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 56K
+//FEEPROM (r)     : ORIGIN = 0x0800E000, LENGTH = 8K
+//RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 8K
+//}
+//
+//SECTIONS
+//{
+//  .feedata ALIGN(0x0400) (NOLOAD) :
+//  {
+//    *(.feedata)
+//    *(.feedata*)
+//  } >FEEPROM
+//}
+//static const uint8_t fee_data[FEE_SIZE] __attribute__ ((section (".feedata")));
+//#define FEE_BASE    (uint32_t)fee_data
 
-#endif  //  FEE_BASE
+#include "config.h"
 
-static uint8_t fee_pages_map[FEE_SECTORS];
+#ifdef FEE_SIZE
 
-// HAL Flash
+#if (defined STM32F0)
+#define FEE_EraseTimeout        (uint32_t)0x000B0000
+#define FEE_ProgramTimeout      (uint32_t)0x000B0000
+#elif (defined STM32F1)
+#define FEE_EraseTimeout        (uint32_t)0x000B0000
+#define FEE_ProgramTimeout      (uint32_t)0x00002000
+#endif
+
+#define FEE_AVAIL_PAGES (uint8_t)((FEE_SIZE/FEE_PAGE_SIZE) - FEE_TRANSFER_PAGES)
+
+// HAL FLASH
 static void flash_clear_flags(void)
 {
-#if (defined STM32F0)
-    FLASH->SR = (FLASH_SR_PGERR | FLASH_SR_WRPERR | FLASH_SR_EOP);
-#elif (defined STM32F1)
     FLASH->SR = (FLASH_SR_PGERR | FLASH_SR_WRPRTERR | FLASH_SR_EOP);
-#else
-#error flash_clear_flags Unknown uC
-#endif
-}
-
-static void flash_unlock(void)
-{
-    if((FLASH->CR & FLASH_CR_LOCK) != RESET)
-    {
-        // Unlocking the program memory access
-        FLASH->KEYR = FLASH_KEY1;
-        FLASH->KEYR = FLASH_KEY2;
-    }
 }
 
 static bool flash_wait(uint32_t Timeout)
@@ -71,9 +73,15 @@ static bool flash_erase_page(uint32_t Page_Address)
     bool status = flash_wait(FEE_EraseTimeout);
     if(status)
     {
+        halEnterCritical();
+        
+        // Unlocking the program memory access
+        FLASH->KEYR = FLASH_KEY1;
+        FLASH->KEYR = FLASH_KEY2;
+        
         // If the previous operation is completed, proceed to erase the page
         FLASH->CR |= FLASH_CR_PER;
-        FLASH->AR  = Page_Address & ~(FEE_SECTOR_SIZE - 1);
+        FLASH->AR  = Page_Address & ~(FEE_PAGE_SIZE - 1);
         FLASH->CR |= FLASH_CR_STRT;
     
         // Wait for last operation to be completed
@@ -81,8 +89,12 @@ static bool flash_erase_page(uint32_t Page_Address)
     
         // Disable the PER Bit
         FLASH->CR &= ~FLASH_CR_PER;
-    }
+        
+        // Lock the program memory access
+        FLASH->CR |= FLASH_CR_LOCK;
 
+        halLeaveCritical();
+    }
     return status;
 }
 
@@ -92,6 +104,12 @@ static bool flash_programm(uint32_t Address, uint16_t Data)
     bool status = flash_wait(FEE_ProgramTimeout);
     if(status)
     {
+        halEnterCritical();
+        
+        // Unlocking the program memory access
+        FLASH->KEYR = FLASH_KEY1;
+        FLASH->KEYR = FLASH_KEY2;
+        
         // If the previous operation is completed, proceed to program the new data
         FLASH->CR |= FLASH_CR_PG;
 
@@ -105,58 +123,23 @@ static bool flash_programm(uint32_t Address, uint16_t Data)
         
         if(*(__IO uint16_t*)Address != Data)
             status = false;
+        
+        // Lock the program memory access
+        FLASH->CR |= FLASH_CR_LOCK;
+        
+        halLeaveCritical();
     }
-
     return status;
 }
 // End HAL Flash
 
-// Convert virtual EEPROM address to physical FLASH address
-static uint32_t fee_virt2real(uint32_t addr)
-{
-    if(addr >= ((FEE_SECTORS - FEE_TRANSIT_SECTORS)*(FEE_SECTOR_SIZE - 2)))
-        while(1);                                       // Error
-
-    uint16_t page = 0;
-    addr += 2;
-    while(addr >= FEE_SECTOR_SIZE)
-    {
-        addr -= (FEE_SECTOR_SIZE - 2);
-        page++;
-    }
-    addr += (uint32_t)FEE_SECTOR_SIZE * fee_pages_map[page];
-    addr += FEE_BASE;
-    return addr;
-}
-
 // write data to FLASH, only within 1 page.
 static bool fee_write_page(uint32_t fee_addr, uint32_t len, uint8_t *pData)
 {
-    uint16_t din, dout;
-
     while(len > 0)
     {
-        if(fee_addr & 1)
-        {
-            len++;
-            fee_addr--;
-            din = ((*(pData++))<<8);
-            dout = *(uint16_t *)(fee_addr);
-            din |= dout & 0x00FF;
-        }
-        else if(len > 1)
-        {
-            din  = *(pData++);
-            din |= ((*(pData++))<<8);
-            dout = *(uint16_t *)(fee_addr);
-        }
-        else  // len == 1
-        {
-            din = *pData;
-            dout = *(uint16_t *)(fee_addr);
-            din |= dout & 0xFF00;
-            len = 2;
-        }
+        uint16_t din  = *(pData++) | 0xFF00;
+        uint16_t dout = *(uint16_t *)(fee_addr);
 
         if(din != dout)
         {
@@ -170,19 +153,34 @@ static bool fee_write_page(uint32_t fee_addr, uint32_t len, uint8_t *pData)
             }
         }
         fee_addr += 2;
-        len -= 2;
+        len -= 1;
     }
 
     return true;
 }
 
-// Transfer data from old to new sector
-static bool fee_transfer(uint32_t fee_addr, uint32_t len, uint8_t *pData)
+// Transfer Page from old to new place
+
+static bool fee_transfer(uint32_t fee_addr, uint32_t len)
 {
-    uint32_t src_sddr = fee_addr & ~(FEE_SECTOR_SIZE - 1);
-    uint32_t dst_addr = (fee_pages_map[FEE_SECTORS - FEE_TRANSIT_SECTORS] * FEE_SECTOR_SIZE) + FEE_BASE;
+    uint32_t dst_addr = FEE_BASE;
+    uint16_t din, dout;
+    
+fee_transfer_rep1:
+
+    while(dst_addr < (FEE_BASE + FEE_SIZE))
+    {
+        if(*(uint16_t *)(dst_addr) == 0xFFFF)
+            break;
+        dst_addr += FEE_PAGE_SIZE;
+    }
+
+    if(dst_addr == (FEE_BASE + FEE_SIZE))       // Error, no available free page
+        return false;
 
     // Read and update version
+    uint32_t src_sddr = fee_addr & ~(FEE_PAGE_SIZE - 1);
+
     uint16_t info = *(uint16_t *)(src_sddr);
     if(info < 0xFF00)
     {
@@ -198,253 +196,167 @@ static bool fee_transfer(uint32_t fee_addr, uint32_t len, uint8_t *pData)
     if(flash_programm(dst_addr, info) != true)
     {
         flash_clear_flags();
-        return false;
+        flash_erase_page(dst_addr);
+        goto fee_transfer_rep1;
     }
-
     src_sddr += 2;
     dst_addr += 2;
-    uint32_t dst_len = fee_addr - src_sddr;
 
-    uint16_t data;
-
-    // Transfer Head
-    while(dst_len > 1)
+    // Copy Head
+    while(src_sddr < fee_addr)
     {
-        data = *(uint16_t *)(src_sddr);
-        if(data != 0xFFFF)
+        din  = *(uint16_t *)(src_sddr);
+        dout = *(uint16_t *)(dst_addr);
+        if(din != dout)
         {
-            if(flash_programm(dst_addr, data) != true)
+            if((dout != 0xFFFF) ||
+               (flash_programm(dst_addr, *(uint16_t *)(src_sddr)) != true))
             {
                 flash_clear_flags();
-                return false;
+                dst_addr &= ~(FEE_PAGE_SIZE - 1);
+                flash_erase_page(dst_addr);
+                goto fee_transfer_rep1;
             }
         }
-
-        src_sddr += 2;
-        dst_addr += 2;
-        dst_len  -= 2;
-    }
-
-    // Write Body
-    if(dst_len)
-    {
-        data = *(uint8_t *)(src_sddr);
-        data |= (*(pData++))<<8;
-
-        if(data != 0xFFFF)
-        {
-            if(flash_programm(dst_addr, data) != true)
-            {
-                flash_clear_flags();
-                return false;
-            }
-        }
-
-        src_sddr += 2;
-        dst_addr += 2;
-        len--;
-    }
-
-    while(len > 1)
-    {
-        data = *(pData++);
-        data |= (*(pData++))<<8;
         
-        if(data != 0xFFFF)
+        src_sddr += 2;
+        dst_addr += 2;
+    }
+
+    // Copy Tail
+    src_sddr += len * 2;
+    dst_addr += len * 2;
+    len = (~src_sddr & (FEE_PAGE_SIZE - 1)) + 1;
+    while(len > 0)
+    {
+        din  = *(uint16_t *)(src_sddr);
+        dout = *(uint16_t *)(dst_addr);
+        if(din != dout)
         {
-            if(flash_programm(dst_addr, data) != true)
+            if((dout != 0xFFFF) ||
+               (flash_programm(dst_addr, *(uint16_t *)(src_sddr)) != true))
             {
                 flash_clear_flags();
-                return false;
+                dst_addr &= ~(FEE_PAGE_SIZE - 1);
+                flash_erase_page(dst_addr);
+                goto fee_transfer_rep1;
             }
         }
-
+        
         src_sddr += 2;
         dst_addr += 2;
         len -= 2;
     }
 
-    // Transfer last odd byte
-    if(len)
-    {
-        data = *(uint16_t *)(src_sddr);
-        data |= *pData;
-
-        if(data != 0xFFFF)
-        {
-            if(flash_programm(dst_addr, data) != true)
-            {
-                flash_clear_flags();
-                return false;
-            }
-        }
-        src_sddr += 2;
-        dst_addr += 2;
-    }
-
-    // Transfer Tail
-    dst_len = FEE_SECTOR_SIZE - (dst_addr & (FEE_SECTOR_SIZE - 1));
-    while(dst_len > 1)
-    {
-        data = *(uint16_t *)(src_sddr);
-        if(data != 0xFFFF)
-        {
-            if(flash_programm(dst_addr, data) != true)
-            {
-                flash_clear_flags();
-                return false;
-            }
-        }
-
-        src_sddr += 2;
-        dst_addr += 2;
-        dst_len  -= 2;
-    }
-
-    // Erase Old Page
-    if(!flash_erase_page(fee_addr))
-        return false;
-
-    // Rotate free sectors    
-    uint8_t sector;
-    for(sector = (FEE_SECTORS - FEE_TRANSIT_SECTORS); sector < (FEE_SECTORS - 1); sector++)
-        fee_pages_map[sector] = fee_pages_map[sector + 1];
-    fee_pages_map[FEE_SECTORS - 1] = (fee_addr & (FEE_SECTORS * FEE_SECTOR_SIZE - 1))/FEE_SECTOR_SIZE;
-
+    flash_erase_page(fee_addr);
     return true;
 }
 
 static bool fee_check_blank(uint32_t addr)
 {
-    addr &= ~(uint32_t)(FEE_SECTOR_SIZE - 1);
+    addr &= ~(uint32_t)(FEE_PAGE_SIZE - 1);
     uint32_t pos;
-    for(pos = 0; pos < FEE_SECTOR_SIZE; pos += 2)
+    for(pos = 0; pos < FEE_PAGE_SIZE; pos += 4)
     {
-        if(*(uint16_t *)(addr) != 0xFFFF)
+        if(*(uint32_t *)(addr) != 0xFFFFFFFF)
             return false;
-        
-        addr += 2;
+        addr += 4;
     }
     return true;
+}
+
+// Convert virtual EEPROM address to physical FLASH address
+static uint32_t fee_virt2real(uint32_t addr)
+{
+    addr++;
+    addr *= 2;
+
+    uint8_t page = 0;
+    while(addr >= FEE_PAGE_SIZE)
+    {
+        addr -= (FEE_PAGE_SIZE - 2);
+        page++;
+        if(page >= FEE_AVAIL_PAGES)
+            return 0;
+    }
+
+    uint32_t base_addr;
+    for(base_addr = FEE_BASE; base_addr < (FEE_BASE + FEE_SIZE); base_addr += FEE_PAGE_SIZE)
+    {
+        if(*(uint8_t *)(base_addr) == page)
+        {
+            addr += base_addr;
+            return addr;
+        }
+    }
+    
+    // Allocate Page
+    for(base_addr = FEE_BASE; base_addr < (FEE_BASE + FEE_SIZE); base_addr += FEE_PAGE_SIZE)
+    {
+        if(*(uint16_t *)(base_addr) == 0xFFFF)
+        {
+            if(flash_programm(base_addr, 0x0100 | page))
+            {
+                addr += base_addr;
+                return addr;
+            }
+            flash_clear_flags();
+            flash_erase_page(base_addr);    // Flash Write Error, erase Page
+        }
+    }
+
+    return 0;
 }
 
 /////////////////////////////
 // API
 
-// Initialise EEPROM hardware and allocate sectors
+// Initialise EEPROM hardware and validate pages
 void eeprom_init_hw(void)
 {
-    // unlock flash
-    flash_unlock();
-
-    // Clear Flags
-    flash_clear_flags();
-
-    uint8_t  sector, page;
-    uint16_t info;
-    uint16_t pginfo[FEE_SECTORS];
     uint32_t addr = FEE_BASE;
-
-    // Read sectors info and clear mapping
-    for(sector = 0; sector < FEE_SECTORS; sector++)
+    while(addr < (FEE_BASE + FEE_SIZE))
     {
-        fee_pages_map[sector] = 0xFF;                       // Clear mapping info
+        // Clear Flags
+        flash_clear_flags();
         
-        info = *(uint16_t *)(addr);                         // Read page info, LSB Sector, MSB Version
+        uint16_t info = *(uint16_t *)(addr);                // Read page Info, LSB page, MSB Version
 
-        if(((info & 0xFF00) == 0) ||                        // Bad Page Info
-           ((info & 0x00FF) >= FEE_SECTORS) ||
+        if(((info & 0xFF00) == 0) ||                        // Bad Version
+           ((info & 0x00FF) >= FEE_AVAIL_PAGES) ||          // Bad Page Number
            ((info == 0xFFFF) && !fee_check_blank(addr)))    // Page marked as blank, but it's not blank
         {
-            if(!flash_erase_page(addr))
-                while(1);                                   // FLASH Error, HALT !
-            info = 0xFFFF;
+            flash_erase_page(addr);
         }
-
-        pginfo[sector] = info;
-        addr += FEE_SECTOR_SIZE;
-    }
-
-    // Allocate Used Sectors
-    for(sector = 0; sector < (FEE_SECTORS - FEE_TRANSIT_SECTORS); sector++)
-    {
-        info = 0xFFFF;
-
-        for(page = 0; page < FEE_SECTORS; page++)
+        else if(info != 0xFFFF)
         {
-            uint16_t actInf = pginfo[page];
-
-            if((actInf & 0xFF) == sector)
+            uint32_t addr1 = addr + FEE_PAGE_SIZE;
+            while(addr1 < (FEE_BASE + FEE_SIZE))
             {
-                if(info == 0xFFFF)
-                {
-                    info = (actInf & 0xFF00) | page;
-                }
-                else                                        // Transfer Error, use old Page, erase new Page
+                uint16_t info1 = *(uint16_t *)(addr1);
+                if((info1 & 0xFF) == (info & 0xFF))         // Transfer Error
                 {
                     uint16_t vers1 = info >> 8;
-                    uint16_t vers2 = actInf >> 8;
+                    uint16_t vers2 = info1 >> 8;
                     
                     if(vers1 == 0xFF)
                         vers1 = 0;
                     if(vers2 == 0xFF)
                         vers2 = 0;
 
-                    addr = FEE_BASE;
-                    
-                    if(vers2 > vers1)
+                    if(vers2 > vers1)                       // Erase New Version
                     {
-                        addr += page * FEE_SECTOR_SIZE;
-                        pginfo[page] = 0xFFFF;
+                        flash_erase_page(addr1);
                     }
                     else
                     {
-                        uint8_t pg = info & 0xFF;
-                        addr += pg * FEE_SECTOR_SIZE;
-                        pginfo[pg] = 0xFFFF;
+                        flash_erase_page(addr);
                     }
-                    
-                    if(!flash_erase_page(addr))
-                        while(1);                   // FLASH Error, HALT !
                 }
+                addr1 += FEE_PAGE_SIZE;
             }
         }
-
-        if(info == 0xFFFF)                          // Page not allocated
-        {
-            for(page = 0; page < FEE_SECTORS; page++)
-            {
-                if(pginfo[page] == 0xFFFF)          // Allocate sector
-                {
-                    info = 0x0100 | sector;         // 1st Version
-                    pginfo[page] = info;
-
-                    addr = FEE_BASE;
-                    addr += page * FEE_SECTOR_SIZE;
-                    if(!flash_programm(addr, info))
-                        while(1);                   // FLASH Error, HALT !
-
-                    info = page;
-                    break;
-                }
-            }
-        }
-
-        fee_pages_map[sector] = info & 0xFF;
-    }
-
-    // Allocate Free Sectors
-    for(;sector < FEE_SECTORS; sector++)
-    {
-        for(page = 0; page < FEE_SECTORS; page++)
-        {
-            if(pginfo[page] == 0xFFFF)
-            {
-                pginfo[page] = sector;
-                fee_pages_map[sector] = page;
-                break;
-            }
-        }
+        addr += FEE_PAGE_SIZE;
     }
 }
 
@@ -452,14 +364,21 @@ void eeprom_init_hw(void)
 void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 {
     uint32_t fee_addr = 0;
-
     while(Len > 0)
     {
-        if((fee_addr & (const uint32_t)(FEE_SECTOR_SIZE - 1)) == 0)
+        if((fee_addr & (const uint32_t)(FEE_PAGE_SIZE - 1)) == 0)
             fee_addr = fee_virt2real(Addr);
 
-        *(pBuf++) = *(uint8_t *)(fee_addr);
-        fee_addr++;
+        if(fee_addr == 0)       // Page not allocated
+        {
+            *(pBuf++) = 0xFF;
+        }
+        else
+        {
+            *(pBuf++) = *(uint8_t *)(fee_addr);
+            fee_addr += 2;
+        }
+
         Addr++;
         Len--;
     }
@@ -471,7 +390,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
     while(Len > 0)
     {
         uint32_t fee_addr = fee_virt2real(Addr);
-        uint32_t length = FEE_SECTOR_SIZE - (fee_addr & (FEE_SECTOR_SIZE - 1));
+        uint32_t length = (FEE_PAGE_SIZE - (fee_addr & (FEE_PAGE_SIZE - 1))) / 2;
         if(Len < length)
             length = Len;
 
@@ -482,12 +401,9 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
             continue;
         }
         
-        if(!fee_transfer(fee_addr, length, pBuf))
-            while(1);                               // FLASH Error, HALT !
-        
-        Len -= length;
-        Addr += length;
+        if(!fee_transfer(fee_addr, length))
+            return;                                 // Flash Error
     }
 }
 
-#endif  //  FEE_SECTORS
+#endif  //  FEE_SIZE

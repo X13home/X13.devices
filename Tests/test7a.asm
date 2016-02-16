@@ -1,3 +1,8 @@
+	JMP	L0
+	NOP
+	RET
+:L0
+
 	LD	41
 	LD	42
 	LD	L0

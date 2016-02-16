@@ -1,3 +1,7 @@
+	JMP	L0
+	NOP
+	RET
+:L0
 	LD	23
 	LD	24
 	SWAP

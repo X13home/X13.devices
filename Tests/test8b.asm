@@ -1,3 +1,8 @@
+	JMP	L0
+	NOP
+	RET
+:L0
+
 	LD	87
 	LD	88
 	CGT

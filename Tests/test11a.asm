@@ -6,6 +6,7 @@
 	JZ	A1
 	LD	1
 	OUT	Op20
+	JMP	A0
 :A1	LD	200
     OVER
 	CLT

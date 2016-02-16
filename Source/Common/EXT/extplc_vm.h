@@ -37,7 +37,7 @@ static uint8_t plcvm_lpm_u8(void){
 }
 
 // return LPM16[pc+=2]
-static uint16_t plcvm_lpm_u16(void){return plcvm_lpm_u8() | (plcvm_lpm_u8()<<16);}
+static uint16_t plcvm_lpm_u16(void){return plcvm_lpm_u8() | (plcvm_lpm_u8()<<8);}
 
 // return LPM32[pc+=4]
 static uint32_t plcvm_lpm_u32(void){return plcvm_lpm_u8() | (plcvm_lpm_u8()<<8) | (plcvm_lpm_u8()<<16) | (plcvm_lpm_u8()<<24);}
@@ -84,7 +84,7 @@ static uint32_t plcvm_get_u16(uint32_t addr){
     if(addr < (EXTPLC_SIZEOF_RAM * 2))
     {
         uint16_t *pDat = (uint16_t *)&plcvm_ram[addr >> 1];
-        uint32_t acc = *(pDat + (addr & 0x01) * 2);
+        uint32_t acc = *(pDat + (addr & 0x01));
         return acc;
     }
     plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -149,8 +149,9 @@ static void plcvm_set_u8(uint32_t addr, uint8_t val){
 static void plcvm_set_u16(uint32_t addr, uint16_t val){
     if(addr < (EXTPLC_SIZEOF_RAM * 2))
     {
-        uint16_t *pDat = (uint16_t *)&plcvm_ram[addr >> 2];
-        *(pDat + (addr & 1) * 2) = val;
+        uint16_t *pDat = (uint16_t *)&plcvm_ram[addr >> 1];
+        pDat += (addr & 1);
+        *pDat = val;
     }
     else
         plcvm_stat = PLC_ANSWER_ERROR_OFR_RAM;
@@ -329,7 +330,10 @@ static void cb_test_eq(void){
     int32_t val1 = plcvm_pop();
     int32_t val2 = plcvm_lpm_u32();
     if(val1 != val2)
+    {
+        plcvm_sp--;
         plcvm_stat = PLC_ANSWER_ERROR_TEST;
+    }
 }
 static void cb_ret(void){
     if(plcvm_sfp == (const uint32_t)EXTPLC_SIZEOF_RAM)  // Last RET

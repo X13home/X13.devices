@@ -1,3 +1,8 @@
+	JMP	L0
+	NOP
+	RET
+:L0
+
 	LD	17
 	NOT_L
 	TEST_EQ	0

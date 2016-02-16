@@ -1,3 +1,8 @@
+	JMP	L0
+	NOP
+	RET
+:L0
+
 	LD	5
 	LSL	7
 	TEST_EQ	640

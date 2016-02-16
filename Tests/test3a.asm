@@ -1,3 +1,7 @@
+	JMP	L0
+	NOP
+	RET
+:L0
 	LD	17
 	DUP
 	TEST_EQ	17

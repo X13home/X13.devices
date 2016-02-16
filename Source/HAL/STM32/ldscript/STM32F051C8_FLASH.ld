@@ -40,9 +40,8 @@ _Min_Stack_Size = 0x400; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 56K
-FEEPROM (r)     : ORIGIN = 0x0800E000, LENGTH = 8K
-RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 8K
+FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 64K
+RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 8K
 }
 
 /* Define output sections */
@@ -124,6 +123,7 @@ SECTIONS
     . = ALIGN(4);
     _edata = .;        /* define a global symbol at data end */
   } >RAM AT> FLASH
+
   
   /* Uninitialized data section */
   . = ALIGN(4);
@@ -152,6 +152,8 @@ SECTIONS
     . = ALIGN(4);
   } >RAM
 
+  
+
   /* Remove information from the standard libraries */
   /DISCARD/ :
   {
@@ -161,13 +163,4 @@ SECTIONS
   }
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
-}
-
-SECTIONS
-{
-  .feedata (NOLOAD) :
-  {
-    *(.feedata)
-    *(.feedata*)
-  } >FEEPROM
 }

@@ -1,3 +1,8 @@
+	JMP	L0
+	NOP
+	RET
+:L0
+
 	LD	61
 	CALL	A1
 	TEST_EQ	62
