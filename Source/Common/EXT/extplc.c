@@ -294,13 +294,11 @@ static uint8_t plcPollOD(subidx_t * pSubidx)
 static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     uint16_t    base = pSubidx->Base;
-    uint8_t     offset;
 
     switch(pSubidx->Type)
     {
         case objBool:
             {
-            *pLen = 1;
             uint32_t mask = 1UL << (base & 0x001F);
             base >>= 5;
             if((plcvm_ram[base] & mask) != 0)
@@ -313,30 +311,34 @@ static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_
                 *pBuf = 0;
                 plc_old[base] &= ~mask;
             }
-            break;
             }
+            *pLen = 1;
+            break;
+
         case objInt8:
         case objUInt8:
             {
-            offset = base & 0x03;
-            base >>= 2;
-            
-            uint8_t *pDat = (uint8_t *)&plcvm_ram[base];
-            uint8_t data = *(pDat + offset);
+            uint8_t * pDat  = (uint8_t *)&plcvm_ram[0];
+            uint8_t * pDat1 = (uint8_t *)&plc_old[0];
+            uint8_t data = *(pDat + base);
+            *(pDat1 + base) = data;
             *pBuf = data;
-            *pLen = 1;
-
-            pDat = (uint8_t *)&plc_old[base];
-            *(pDat + offset) = data;
             }
+            *pLen = 1;
             break;
             
         case objInt16:
         case objUInt16:
-            offset = (base & 0x01)*2;
-            base >>= 1;
-            memcpy(pBuf, &plcvm_ram[base] + offset, 2);
-            memcpy(&plc_old[base] + offset, &plcvm_ram[base] + offset, 2);
+            {
+            uint8_t * pDat  = (uint8_t *)&plcvm_ram[0];
+            uint8_t * pDat1 = (uint8_t *)&plc_old[0];
+            base <<= 1;
+            pDat  += base;
+            pDat1 += base;
+            memcpy(pBuf,  pDat, 2);
+            memcpy(pDat1, pDat, 2);
+            }
+            *pLen = 2;
             break;
 
         case objInt32:
@@ -344,8 +346,8 @@ static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_
             uint32_t data = plcvm_ram[base];
             plc_old[base] = data;
             memcpy(pBuf, &data, 4);
-            *pLen = 4;
             }
+            *pLen = 4;
             break;
 
         // supressed warning -Wswitch;
@@ -388,21 +390,22 @@ static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint
         case objInt8:
         case objUInt8:
             {
-            offset = base & 0x03;
-            base >>= 2;
             uint8_t data = *pBuf;
-            uint8_t *pDat = (uint8_t *)&plcvm_ram[base];
-            *(pDat + offset) = data;
-            pDat = (uint8_t *)&plc_old[base];
-            *(pDat + offset) = data;
+            uint8_t * pDat =  (uint8_t *)&plcvm_ram[0];
+            uint8_t * pDat1 = (uint8_t *)&plc_old[0];
+            *(pDat + base) = data;
+            *(pDat1 + base) = data;
             break;
             }
         case objInt16:
         case objUInt16:
-            offset = (base & 0x01) * 2;
-            base >>= 1;
-            memcpy(&plcvm_ram[base] + offset, pBuf, 2);
-            memcpy(&plc_old[base] + offset, pBuf, 2);
+            {
+            uint8_t * pDat  = (uint8_t *)&plcvm_ram[0];
+            uint8_t * pDat1 = (uint8_t *)&plc_old[0];
+            base <<= 1;
+            memcpy(pDat  + base, pBuf, 2);
+            memcpy(pDat1 + base, pBuf, 2);
+            }
             break;
         case objInt32:
             memcpy(&plcvm_ram[base], pBuf, 4);

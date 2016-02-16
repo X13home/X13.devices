@@ -21,6 +21,11 @@ uint8_t hal_pwm_base2dio(uint16_t base)
     return pgm_read_byte(&hal_pwm_port2dio[base]);
 }
 
+bool hal_pwm_busy(uint16_t base)
+{
+    return false;
+}
+
 void hal_pwm_configure(uint16_t base, bool inv)
 {
 #ifdef EXTPWM_BASE_OFFSET

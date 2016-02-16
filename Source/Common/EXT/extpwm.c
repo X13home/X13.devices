@@ -53,9 +53,9 @@ e_MQTTSN_RETURNS_t pwmRegisterOD(indextable_t *pIdx)
     uint16_t base = pIdx->sidx.Base;
     uint8_t dio = hal_pwm_base2dio(base);
     
-    if(dioCheckBase(dio) != 0)
+    if((dioCheckBase(dio) != 0) || hal_pwm_busy(base))
         return MQTTSN_RET_REJ_INV_ID;
-    
+
     dioTake(dio);
     hal_pwm_configure(base, (pIdx->sidx.Type == objPinNPN));
 

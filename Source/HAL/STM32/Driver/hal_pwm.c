@@ -51,6 +51,20 @@ uint8_t hal_pwm_base2dio(uint16_t base)
     return hal_pwm_port2dio[base];
 }
 
+bool hal_pwm_busy(uint16_t base)
+{
+#ifdef EXTPWM_BASE_OFFSET
+    base -= EXTPWM_BASE_OFFSET;
+#endif
+    uint16_t cfg = hal_pwm_port2cfg[base];
+
+    TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
+    if(TIMx == NULL)
+        return true;
+
+    return ((TIMx->CCER & ((TIM_CCER_CC1E | TIM_CCER_CC1P) << ((cfg & 0x03) * 4))) != 0);
+}
+
 void hal_pwm_configure(uint16_t base, bool inv)
 {
 #ifdef EXTPWM_BASE_OFFSET

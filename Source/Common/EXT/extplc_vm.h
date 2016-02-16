@@ -96,7 +96,7 @@ static uint32_t plcvm_get_s16(uint32_t addr){
     if(addr < (EXTPLC_SIZEOF_RAM * 2))
     {
         uint16_t *pDat = (uint16_t *)&plcvm_ram[addr >> 1];
-        uint32_t acc = *(pDat + (addr & 0x01) * 2);
+        uint32_t acc = *(pDat + (addr & 0x01));
         if(acc & 0x8000)
             acc |= 0xFFFF0000;
         return acc;
