@@ -32,8 +32,8 @@ void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame)
 
     ip_packet_t *ip = (void*)(pFrame->data);
 
-    enc28j60_GetPacket((void*)pRx_buf->raw, len);
-    memcpy(pRx_buf->phy1addr, ip->sender_ip, 4);
+    enc28j60_GetPacket((void*)pRx_buf->m.raw, len);
+    memcpy(pRx_buf->a.phy1addr, ip->sender_ip, 4);
     pRx_buf->Length = len;
     
     if(!mqEnqueue(&enc_out_queue, pRx_buf))
@@ -73,11 +73,11 @@ void ENC28J60_Send(void *pBuf)
     ip_packet_t *ip = (void*)(pFrame->data);
     udp_packet_t *udp = (void*)(ip->data);
 
-    memcpy(ip->target_ip, (((MQ_t *)pBuf)->phy1addr), 4);
+    memcpy(ip->target_ip, (((MQ_t *)pBuf)->a.phy1addr), 4);
     udp->target_port = MQTTSN_UDP_PORT;
     udp->sender_port = MQTTSN_UDP_PORT;
     uint16_t len = ((MQ_t *)pBuf)->Length;
-    memcpy((void*)(udp->data), (((MQ_t *)pBuf)->raw), len);
+    memcpy((void*)(udp->data), (((MQ_t *)pBuf)->m.raw), len);
 
     mqFree(pBuf);
     udp_send(len, pFrame);

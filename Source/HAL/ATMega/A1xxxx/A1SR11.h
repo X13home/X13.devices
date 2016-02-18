@@ -62,10 +62,9 @@ extern "C" {
 
 // PWM Section
 #define EXTPWM_USED                 1
-#define EXTPWM_BASE_OFFSET          13
-#define EXTPWM_PORT2CFG             {1, 0}      // Mapping PWM channel to configuration
+#define HAL_PWM_BASE_OFFSET         13
+#define HAL_PWM_PORT2CFG            {1, 0}      // Mapping PWM channel to configuration
                                                 // bits 7-3 Timer, bits 2-0 Channel
-#define EXTPWM_PORT2DIO             {29, 30}    // Mapping PWM channel to DIO
 // End PWM Section
 
 // Analogue Inputs

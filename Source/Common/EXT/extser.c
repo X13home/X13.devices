@@ -109,8 +109,8 @@ e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
         if((extSerV[port]->pTxBuf == NULL) && hal_uart_free(port))
         {
             MQ_t * pTxBuf = mqAlloc(sizeof(MQ_t));
-            memcpy(pTxBuf->raw, pBuf, Len);
-            hal_uart_send(port, Len, pTxBuf->raw);
+            memcpy(pTxBuf->m.raw, pBuf, Len);
+            hal_uart_send(port, Len, pTxBuf->m.raw);
 
             extSerV[port]->pTxBuf = pTxBuf;
         }

@@ -241,12 +241,7 @@ static void plc_control(void)
 }
 
 // ignore some GCC warnings
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-
-static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx __attribute__ ((unused)), uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = plc_exchg->len;
     memcpy(pBuf, plc_exchg->data, plc_exchg->len);
@@ -257,7 +252,7 @@ static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
     return MQTTSN_RET_ACCEPTED;
 }
 
-static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx __attribute__ ((unused)), uint8_t Len, uint8_t *pBuf)
 {
     if(plc_exchg != NULL)
         return MQTTSN_RET_REJ_CONG;
@@ -272,7 +267,7 @@ static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
     return MQTTSN_RET_ACCEPTED;
 }
 
-static uint8_t plcPollOD(subidx_t * pSubidx)
+static uint8_t plcPollOD(subidx_t * pSubidx __attribute__ ((unused)))
 {
     if(plc_answer)
         return 1;
@@ -286,10 +281,6 @@ static uint8_t plcPollOD(subidx_t * pSubidx)
 
     return 0;
 }
-
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
@@ -358,16 +349,9 @@ static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_
     return MQTTSN_RET_ACCEPTED;
 }
 
-// ignore some GCC warnings
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-
-static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
 {
     uint16_t    base = pSubidx->Base;
-    uint8_t     offset;
     
     switch(pSubidx->Type)
     {
@@ -418,10 +402,6 @@ static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint
 
     return MQTTSN_RET_ACCEPTED;
 }
-
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 static uint8_t merkerPollOD(subidx_t * pSubidx)
 {

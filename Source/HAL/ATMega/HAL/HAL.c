@@ -165,7 +165,7 @@ void HAL_Reboot(void)
 
 // SPI Section
 #ifdef HAL_USE_SPI
-void hal_spi_cfg(uint8_t unused, uint8_t mode, uint32_t speed)
+void hal_spi_cfg(uint8_t port __attribute__ ((unused)), uint8_t mode, uint32_t speed)
 {
     PRR &= ~(1<<PRSPI);                                                     // Enable clock on SPI
     // Configure DIO
@@ -197,7 +197,7 @@ void hal_spi_cfg(uint8_t unused, uint8_t mode, uint32_t speed)
     SPCR = tmp;
 }
 
-uint8_t hal_spi_exch8(uint8_t unused, uint8_t data)
+uint8_t hal_spi_exch8(uint8_t port __attribute__ ((unused)), uint8_t data)
 {
     SPDR = data;
     while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated

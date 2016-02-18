@@ -124,7 +124,7 @@ static void rfm12_tx_task(void)
         return;
 
     rfm12_tx_hdr.Len = rfm12_pTxBuf->Length + 2;
-    rfm12_tx_hdr.Dst = rfm12_pTxBuf->phy1addr[0];
+    rfm12_tx_hdr.Dst = rfm12_pTxBuf->a.phy1addr[0];
 
     rfm12_tx_delay = 0;
     rfm12_tx_retry = RFM12_TX_RETRYS;
@@ -185,7 +185,7 @@ void rfm12_irq(void)
                 ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
 
-                rfm12_pRxBuf->phy1addr[0] = ch;
+                rfm12_pRxBuf->a.phy1addr[0] = ch;
                 rfm12v_Pos = 0;
                 rfm12_state = RFM12_TRVRXDATA;
                 return;
@@ -194,7 +194,7 @@ void rfm12_irq(void)
                 if(rfm12v_Pos < rfm12v_RfLen)
                 {
                     rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
-                    rfm12_pRxBuf->raw[rfm12v_Pos++] = ch;
+                    rfm12_pRxBuf->m.raw[rfm12v_Pos++] = ch;
                     return;
                 }
                 else if(rfm12v_Pos == rfm12v_RfLen)     // 1st CRC byte;
@@ -252,7 +252,7 @@ void rfm12_irq(void)
                 return;
             // Send Data
             case RFM12_TRVTXDATA:
-                ch = rfm12_pTxBuf->raw[rfm12v_Pos++];
+                ch = rfm12_pTxBuf->m.raw[rfm12v_Pos++];
                 hal_rfm12_spiExch(RFM12_CMD_TX | ch);
                 rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
                 

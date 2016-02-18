@@ -576,7 +576,7 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
     // Convert Topic Name to IDX record.
     subidx_t    Subidx;
     uint8_t     *pTopicName;
-    pTopicName   = (uint8_t *)&pMsg->regist.TopicName;
+    pTopicName   = (uint8_t *)&pMsg->m.regist.TopicName;
     Subidx.Place = *(pTopicName++);
     Subidx.Type  = *(pTopicName++);
 
@@ -605,7 +605,7 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
     if(!extCheckSubidx(&Subidx))
         return MQTTSN_RET_REJ_NOT_SUPP;
 
-    uint16_t TopicId = (pMsg->regist.TopicId[0]<<8) | pMsg->regist.TopicId[1];
+    uint16_t TopicId = (pMsg->m.regist.TopicId[0]<<8) | pMsg->m.regist.TopicId[1];
 
     // Get Index OD
     uint16_t id = 0xFFFF;

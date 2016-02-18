@@ -59,8 +59,8 @@ void        hal_dio_reset(uint8_t PortNr, uint8_t Mask);
 //////////////////////////////////////////////////////////////
 // AIN Section
 uint8_t     hal_ain_apin2dio(uint8_t apin);
-void        hal_ain_configure(uint8_t apin, uint8_t unused);
-void        hal_ain_select(uint8_t apin, uint8_t unused);
+void        hal_ain_configure(uint8_t apin, uint8_t aref);
+void        hal_ain_select(uint8_t apin, uint8_t aref);
 int16_t     hal_ain_get(void);
 // AIN Section
 //////////////////////////////////////////////////////////////
@@ -99,7 +99,7 @@ uint8_t     hal_uart_get(uint8_t port);
 
 void        hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed);
 uint8_t     hal_spi_exch8(uint8_t port, uint8_t data);
-uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
+//uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
 // SPI Section
 //////////////////////////////////////////////////////////////
 

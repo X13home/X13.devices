@@ -184,10 +184,10 @@ static void cc11_tx_task(void)
     CC11_WAIT_LOW_MISO();                                       // Wait until MISO goes low
     hal_spi_exch8(CC11_USE_SPI, (CC11_BIT_BURST | CC11_TXFIFO));
     hal_spi_exch8(CC11_USE_SPI, len + 2);                       // Set data length at the first position of the TX FIFO
-    hal_spi_exch8(CC11_USE_SPI, pTxBuf->phy1addr[0]);           // Send destination address
+    hal_spi_exch8(CC11_USE_SPI, pTxBuf->a.phy1addr[0]);         // Send destination address
     hal_spi_exch8(CC11_USE_SPI, cc11s_NodeID);                  // Send Source address
     for(i = 0; i < len; i++)                                    // Send Payload
-        hal_spi_exch8(CC11_USE_SPI, pTxBuf->raw[i]);
+        hal_spi_exch8(CC11_USE_SPI, pTxBuf->m.raw[i]);
     CC11_RELEASE();                                             // Release CC1101
 
     mqFree(pTxBuf);
@@ -233,10 +233,10 @@ static MQ_t * cc11_rx_task(void)
     hal_spi_exch8(CC11_USE_SPI, (CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO));
     hal_spi_exch8(CC11_USE_SPI, 0);                                             // Read Length
     hal_spi_exch8(CC11_USE_SPI, 0);                                             // Read Destination address
-    pRxBuf->phy1addr[0] = hal_spi_exch8(CC11_USE_SPI, 0);                       // Read Source address
+    pRxBuf->a.phy1addr[0] = hal_spi_exch8(CC11_USE_SPI, 0);                     // Read Source address
 
     for(i = 0; i < frameLen; i++)                                               // Read Payload
-        pRxBuf->raw[i] = hal_spi_exch8(CC11_USE_SPI, 0);
+        pRxBuf->m.raw[i] = hal_spi_exch8(CC11_USE_SPI, 0);
 
     cc11_rssi = hal_spi_exch8(CC11_USE_SPI, 0);                                 // Read RSSI
     tmp  = hal_spi_exch8(CC11_USE_SPI, 0);                                      // Read LQI 

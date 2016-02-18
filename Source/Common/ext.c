@@ -204,7 +204,7 @@ void ext_out(subidx_t * pSubidx, uint32_t val)
         case objPWM:        // PWM
             if(val > 0xFFFF)
                 val = 0xFFFF;
-            pwmWrite(pSubidx, val);
+            hal_pwm_write(pSubidx->Base, val);
             break;
 #endif  //  EXTPWM_USED
         default:
