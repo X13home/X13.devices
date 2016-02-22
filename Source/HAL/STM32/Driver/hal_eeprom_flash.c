@@ -60,9 +60,13 @@ static bool flash_wait(uint32_t Timeout)
     while(FLASH->SR & FLASH_SR_BSY)
     {
         if(Timeout > 0)
+        {
             Timeout--;
+        }
         else
+        {
             return false;
+        }
     }
 
     return ((FLASH->SR & (FLASH_SR_WRPRTERR | FLASH_SR_PGERR)) == 0);
@@ -144,7 +148,9 @@ static bool fee_write_page(uint32_t fee_addr, uint32_t len, uint8_t *pData)
         if(din != dout)
         {
             if(dout != 0xFFFF)
+            {
                 return false;
+            }
 
             if(flash_programm(fee_addr, din) != true)
             {
@@ -161,22 +167,45 @@ static bool fee_write_page(uint32_t fee_addr, uint32_t len, uint8_t *pData)
 
 // Transfer Page from old to new place
 
+static uint32_t fee_free_page = FEE_BASE;
+
 static bool fee_transfer(uint32_t fee_addr, uint32_t len)
 {
-    uint32_t dst_addr = FEE_BASE;
+    uint32_t dst_addr;
     uint16_t din, dout;
-    
+
 fee_transfer_rep1:
 
-    while(dst_addr < (FEE_BASE + FEE_SIZE))
+    if((fee_free_page < FEE_BASE) ||
+       (fee_free_page >= (FEE_BASE + FEE_SIZE)) ||
+       ((fee_free_page & (FEE_PAGE_SIZE - 1)) != 0))
     {
-        if(*(uint16_t *)(dst_addr) == 0xFFFF)
-            break;
-        dst_addr += FEE_PAGE_SIZE;
+        fee_free_page = FEE_BASE;
     }
 
-    if(dst_addr == (FEE_BASE + FEE_SIZE))       // Error, no available free page
+    dst_addr = 0;
+
+    uint8_t page;
+    for(page = 0; page < (FEE_SIZE/FEE_PAGE_SIZE); page++)
+    {
+        fee_free_page += FEE_PAGE_SIZE;
+
+        if(fee_free_page >= (FEE_BASE + FEE_SIZE))
+        {
+            fee_free_page = FEE_BASE;
+        }
+
+        if(*(uint16_t *)(fee_free_page) == 0xFFFF)
+        {
+            dst_addr = fee_free_page;
+            break;
+        }
+    }
+
+    if(dst_addr == 0)                   // Error, no available free page
+    {
         return false;
+    }
 
     // Read and update version
     uint32_t src_sddr = fee_addr & ~(FEE_PAGE_SIZE - 1);
@@ -259,7 +288,9 @@ static bool fee_check_blank(uint32_t addr)
     for(pos = 0; pos < FEE_PAGE_SIZE; pos += 4)
     {
         if(*(uint32_t *)(addr) != 0xFFFFFFFF)
+        {
             return false;
+        }
         addr += 4;
     }
     return true;
@@ -277,7 +308,9 @@ static uint32_t fee_virt2real(uint32_t addr)
         addr -= (FEE_PAGE_SIZE - 2);
         page++;
         if(page >= FEE_AVAIL_PAGES)
+        {
             return 0;
+        }
     }
 
     uint32_t base_addr;
@@ -322,13 +355,19 @@ void eeprom_init_hw(void)
         
         uint16_t info = *(uint16_t *)(addr);                // Read page Info, LSB page, MSB Version
 
-        if(((info & 0xFF00) == 0) ||                        // Bad Version
-           ((info & 0x00FF) >= FEE_AVAIL_PAGES) ||          // Bad Page Number
-           ((info == 0xFFFF) && !fee_check_blank(addr)))    // Page marked as blank, but it's not blank
+        if(info == 0xFFFF)
+        {
+            if(fee_check_blank(addr) == false)              // Page marked as blank, but it's not blank
+            {
+                flash_erase_page(addr);
+            }
+        }
+        else if(((info & 0xFF00) == 0) ||                   // Bad Version
+                ((info & 0x00FF) >= FEE_AVAIL_PAGES))       // Bad Page Number
         {
             flash_erase_page(addr);
         }
-        else if(info != 0xFFFF)
+        else
         {
             uint32_t addr1 = addr + FEE_PAGE_SIZE;
             while(addr1 < (FEE_BASE + FEE_SIZE))
@@ -340,9 +379,13 @@ void eeprom_init_hw(void)
                     uint16_t vers2 = info1 >> 8;
                     
                     if(vers1 == 0xFF)
+                    {
                         vers1 = 0;
+                    }
                     if(vers2 == 0xFF)
+                    {
                         vers2 = 0;
+                    }
 
                     if(vers2 > vers1)                       // Erase New Version
                     {
@@ -367,7 +410,9 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
     while(Len > 0)
     {
         if((fee_addr & (const uint32_t)(FEE_PAGE_SIZE - 1)) == 0)
+        {
             fee_addr = fee_virt2real(Addr);
+        }
 
         if(fee_addr == 0)       // Page not allocated
         {
@@ -392,17 +437,22 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
         uint32_t fee_addr = fee_virt2real(Addr);
         uint32_t length = (FEE_PAGE_SIZE - (fee_addr & (FEE_PAGE_SIZE - 1))) / 2;
         if(Len < length)
+        {
             length = Len;
+        }
 
         if(fee_write_page(fee_addr, length, pBuf))
         {
             Len -= length;
             Addr += length;
+            pBuf += length;
             continue;
         }
         
         if(!fee_transfer(fee_addr, length))
+        {
             return;                                 // Flash Error
+        }
     }
 }
 
