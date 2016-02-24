@@ -48,7 +48,7 @@ static sPLCexch_t     * plc_exchg   = NULL;
 static uint32_t         plc_old[EXTPLC_SIZEOF_RW];          // PLC RW Data
 
 // PLC_VM Section
-static uint32_t         plcvm_ram[EXTPLC_SIZEOF_RAM];         // PLC data + merkers + stack
+static uint32_t         plcvm_ram[EXTPLC_SIZEOF_RAM];       // PLC data + merkers + stack
 static ePLC_ANSWER_t    plcvm_stat = PLC_ANSWER_OK;
 static uint32_t         plcvm_page = 0xFFFFFFFF;
 static uint32_t         plcvm_stack_bot = 0;
@@ -56,7 +56,6 @@ static uint32_t         plcvm_stack_bot = 0;
 static uint32_t         plcvm_sp =  EXTPLC_SIZEOF_RAM;      // Stack pointer
 static uint32_t         plcvm_sfp = EXTPLC_SIZEOF_RAM;      // Stack frame pointer
 static uint32_t         plcvm_pc = 0;                       // program counter
-static uint8_t          plcvm_cop = 0;                      // operator
 
 static bool             plcvm_1st_start = true;
 
@@ -542,8 +541,7 @@ void plcProc(void)
                 break;
             }
 
-            plcvm_cop = plcvm_lpm_u8();
-            cbCOP_t cop_proc = plcvm_cb[plcvm_cop];
+            cbCOP_t cop_proc = plcvm_cb[plcvm_lpm_u8()];
             cop_proc();
         }
         
