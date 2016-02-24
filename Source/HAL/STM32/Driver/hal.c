@@ -252,6 +252,7 @@ void SysTick_Handler(void)
 void HardFault_Handler(void) __attribute__((naked));
 #ifdef STM32F0
 void HardFault_Handler(void)
+{
     asm volatile(
         " movs r0,#4    \n"
         " mov r1,lr     \n"
@@ -268,7 +269,6 @@ void HardFault_Handler(void)
         : /* Inputs */
         : /* Clobbers */
     );
-    
 #if defined(DEBUG)
     __DEBUG_BKPT();
 #endif
