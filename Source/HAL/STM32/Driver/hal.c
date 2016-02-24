@@ -249,9 +249,8 @@ void SysTick_Handler(void)
 }
 
 
-
-#ifdef STM32F0
 void HardFault_Handler(void) __attribute__((naked));
+#ifdef STM32F0
 void HardFault_Handler(void)
 {
     asm volatile(
@@ -270,10 +269,15 @@ void HardFault_Handler(void)
         : /* Inputs */
         : /* Clobbers */
     );
-    
 #if defined(DEBUG)
     __DEBUG_BKPT();
 #endif
+    while(1);
+}
+#else
+void HardFault_Handler(void)
+{
+    __disable_irq();
     while(1);
 }
 #endif  //STM32F0

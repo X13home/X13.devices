@@ -28,7 +28,11 @@ See LICENSE file for license details.
 #define FEE_TRANSFER_PAGES      2                       // Reserved Pages for Transfer
 
 // WARNING !! does not check overlapping with program memory
+#ifndef FLASH_BANK2_END
 #define FEE_BASE ((FLASH_BANK1_END + 1) - FEE_SIZE)
+#else   //  FLASH_BANK2_END
+#define FEE_BASE ((FLASH_BANK2_END + 1) - FEE_SIZE)
+#endif  //  FLASH_BANK2_END
 // End EEPROM Emulation Section
 
 // STM32F103CBT6, Maple Mini

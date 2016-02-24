@@ -61,8 +61,8 @@ void serInit()
 bool serCheckSubidx(subidx_t * pSubidx)
 {
     uint8_t type = pSubidx->Type;
-    uint8_t port = pSubidx->Base/10;
-    uint8_t nBaud = pSubidx->Base % 10;
+    uint8_t port = pSubidx->Base & 0x0F;
+    uint8_t nBaud = pSubidx->Base >> 4;
 
     if((port >= EXTSER_USED) ||
        (nBaud > 4) ||
@@ -75,7 +75,7 @@ bool serCheckSubidx(subidx_t * pSubidx)
 // Read data
 e_MQTTSN_RETURNS_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    uint8_t port = pSubidx->Base/10;
+    uint8_t port = pSubidx->Base & 0x0F;
     
     uint8_t size = *pLen;
     uint8_t pos = 0;
@@ -98,7 +98,7 @@ e_MQTTSN_RETURNS_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 // Write data
 e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
-    uint8_t port = pSubidx->Base/10;
+    uint8_t port = pSubidx->Base & 0x0F;
 
     // Paranoid test
     if(extSerV[port] == NULL)
@@ -124,7 +124,7 @@ e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 // Poll Procedure
 uint8_t serPollOD(subidx_t * pSubidx)
 {
-    uint8_t port = pSubidx->Base/10;
+    uint8_t port = pSubidx->Base & 0x0F;
     
     // Paranoid test
     if(extSerV[port] == NULL)
@@ -144,8 +144,8 @@ uint8_t serPollOD(subidx_t * pSubidx)
 // Register Object
 e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
 {
-    uint8_t port = pIdx->sidx.Base / 10;
-    uint8_t nBaud = pIdx->sidx.Base % 10;
+    uint8_t port = pIdx->sidx.Base & 0x0F;
+    uint8_t nBaud = pIdx->sidx.Base >> 4;
     eObjTyp_t type = pIdx->sidx.Type;
 
     uint8_t TxPin, RxPin;
@@ -219,7 +219,7 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
 
 void serDeleteOD(subidx_t * pSubidx)
 {
-    uint8_t port = pSubidx->Base / 10;
+    uint8_t port = pSubidx->Base & 0x0F;
     
     uint8_t TxPin, RxPin;
     hal_uart_get_pins(port, &RxPin, &TxPin);
