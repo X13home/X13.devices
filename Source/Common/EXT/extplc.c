@@ -536,11 +536,7 @@ void plcProc(void)
         uint16_t plc_wd = 0xFFFF;
         while(plcvm_stat == PLC_ANSWER_RUN)
         {
-            if(plc_wd > 0)
-            {    
-                plc_wd--;
-            }
-            else
+            if(--plc_wd == 0)
             {
                 plcvm_stat = PLC_ANSWER_ERROR_WD;
                 break;

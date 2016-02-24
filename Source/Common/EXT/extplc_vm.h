@@ -248,36 +248,37 @@ static void cb_ldi_u1(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp]
 static void cb_ldi_u2(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = plcvm_lpm_u16();}               else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_ldi_1(void) {if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = 1UL;}                           else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_ldi_m1(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = ~0UL;}                          else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_ldi_min(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = 0x80000000UL;}                 else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 // 0x40 - 0x5F - Load with SFP based offset
-static void cb_ld_p(void){plcvm_push(plcvm_get_u32(plcvm_sfp + (plcvm_cop & 0x0F) + 2));}
-static void cb_ld_l(void){plcvm_push(plcvm_get_u32(plcvm_sfp - 1 - (plcvm_cop & 0x0F)));}
+static void cb_ld_p(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = plcvm_get_u32(plcvm_sfp + plcvm_cop - 0x3E);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_ld_l(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = plcvm_get_u32(plcvm_sfp - plcvm_cop + 0x51);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 // 0x60 - 0x7F - Store with SFP based offset
-static void cb_st_p(void){plcvm_set_u32(plcvm_sfp + (plcvm_cop & 0x0F) + 2, plcvm_pop());}
-static void cb_st_l(void){plcvm_set_u32(plcvm_sfp - 1 - (plcvm_cop & 0x0F), plcvm_pop());}
+static void cb_st_p(void){if(plcvm_sp < plcvm_sfp){plcvm_set_u32(plcvm_sfp + plcvm_cop - 0x5E, plcvm_ram[plcvm_sp++]);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_st_l(void){if(plcvm_sp < plcvm_sfp){plcvm_set_u32(plcvm_sfp - plcvm_cop + 0x71, plcvm_ram[plcvm_sp++]);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 // 0x80 - 0x9F - Load from memory
 // *(SP) = (type)*(*(SP));
-static void cb_ldi_b1_s(void){plcvm_push(plcvm_get_bool(plcvm_pop()));}
+static void cb_ldm_b1_s(void){plcvm_push(plcvm_get_bool(plcvm_pop()));}
 static void cb_ldm_s1_s(void){plcvm_push(plcvm_get_s8(  plcvm_pop()));}
 static void cb_ldm_u1_s(void){plcvm_push(plcvm_get_u8(  plcvm_pop()));}
 static void cb_ldm_s2_s(void){plcvm_push(plcvm_get_s16( plcvm_pop()));}
 static void cb_ldm_u2_s(void){plcvm_push(plcvm_get_u16( plcvm_pop()));}
 static void cb_ldm_s4_s(void){plcvm_push(plcvm_get_u32( plcvm_pop()));}
 //*(SP) = (type)*(*(SP)+*(uint8*)(PC++));
-static void cb_ldi_b1_cs8(void){plcvm_push(plcvm_get_bool(plcvm_pop()*32  + plcvm_lpm_u8()));}
+static void cb_ldm_b1_cs8(void){plcvm_push(plcvm_get_bool(plcvm_pop()*32  + plcvm_lpm_u8()));}
 static void cb_ldm_s1_cs8(void){plcvm_push(plcvm_get_s8(  plcvm_pop()*4   + plcvm_lpm_u8()));}
 static void cb_ldm_u1_cs8(void){plcvm_push(plcvm_get_u8(  plcvm_pop()*4   + plcvm_lpm_u8()));}
 static void cb_ldm_s2_cs8(void){plcvm_push(plcvm_get_s16( plcvm_pop()*2   + plcvm_lpm_u8()));}
 static void cb_ldm_u2_cs8(void){plcvm_push(plcvm_get_u16( plcvm_pop()*2   + plcvm_lpm_u8()));}
 static void cb_ldm_s4_cs8(void){plcvm_push(plcvm_get_u32( plcvm_pop()     + plcvm_lpm_u8()));}
 // *(SP) = (type)*(*(SP)+*(uint16*)(PC+=2));
-static void cb_ldi_b1_cs16(void){plcvm_push(plcvm_get_bool(plcvm_pop()*32 + plcvm_lpm_u16()));}
+static void cb_ldm_b1_cs16(void){plcvm_push(plcvm_get_bool(plcvm_pop()*32 + plcvm_lpm_u16()));}
 static void cb_ldm_s1_cs16(void){plcvm_push(plcvm_get_s8(  plcvm_pop()*4  + plcvm_lpm_u16()));}
 static void cb_ldm_u1_cs16(void){plcvm_push(plcvm_get_u8(  plcvm_pop()*4  + plcvm_lpm_u16()));}
 static void cb_ldm_s2_cs16(void){plcvm_push(plcvm_get_s16( plcvm_pop()*2  + plcvm_lpm_u16()));}
 static void cb_ldm_u2_cs16(void){plcvm_push(plcvm_get_u16( plcvm_pop()*2  + plcvm_lpm_u16()));}
 static void cb_ldm_s4_cs16(void){plcvm_push(plcvm_get_u32( plcvm_pop()    + plcvm_lpm_u16()));}
 // *(--SP) = (type)*(*(uint16*)(PC+=2)); // bool LPM(addr)
-static void cb_ldi_b1_c16(void){plcvm_push(plcvm_get_bool(plcvm_lpm_u16()));}
+static void cb_ldm_b1_c16(void){plcvm_push(plcvm_get_bool(plcvm_lpm_u16()));}
 static void cb_ldm_s1_c16(void){plcvm_push(plcvm_get_s8(  plcvm_lpm_u16()));}
 static void cb_ldm_u1_c16(void){plcvm_push(plcvm_get_u8(  plcvm_lpm_u16()));}
 static void cb_ldm_s2_c16(void){plcvm_push(plcvm_get_s16( plcvm_lpm_u16()));}
@@ -416,10 +417,10 @@ static const cbCOP_t plcvm_cb[] = {
     cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,
     cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,        cb_st_l,
     // 0x80 - 0x9F
-    cb_ldi_b1_s,    cb_ldm_s1_s,    cb_ldm_s2_s,    cb_ldm_s4_s,    cb_ldm_u1_s,    cb_ldm_u2_s,    cb_unk,         cb_unk,
-    cb_ldi_b1_cs8,  cb_ldm_s1_cs8,  cb_ldm_s2_cs8,  cb_ldm_s4_cs8,  cb_ldm_u1_cs8,  cb_ldm_u2_cs8,  cb_unk,         cb_unk,
-    cb_ldi_b1_cs16, cb_ldm_s1_cs16, cb_ldm_s2_cs16, cb_ldm_s4_cs16, cb_ldm_u1_cs16, cb_ldm_u2_cs16, cb_unk,         cb_unk,
-    cb_ldi_b1_c16,  cb_ldm_s1_c16,  cb_ldm_s2_c16,  cb_ldm_s4_c16,  cb_ldm_u1_c16,  cb_ldm_u2_c16,  cb_unk,         cb_unk,
+    cb_ldm_b1_s,    cb_ldm_s1_s,    cb_ldm_s2_s,    cb_ldm_s4_s,    cb_ldm_u1_s,    cb_ldm_u2_s,    cb_unk,         cb_ldi_min,
+    cb_ldm_b1_cs8,  cb_ldm_s1_cs8,  cb_ldm_s2_cs8,  cb_ldm_s4_cs8,  cb_ldm_u1_cs8,  cb_ldm_u2_cs8,  cb_unk,         cb_unk,
+    cb_ldm_b1_cs16, cb_ldm_s1_cs16, cb_ldm_s2_cs16, cb_ldm_s4_cs16, cb_ldm_u1_cs16, cb_ldm_u2_cs16, cb_unk,         cb_unk,
+    cb_ldm_b1_c16,  cb_ldm_s1_c16,  cb_ldm_s2_c16,  cb_ldm_s4_c16,  cb_ldm_u1_c16,  cb_ldm_u2_c16,  cb_unk,         cb_unk,
     // 0xA0 - 0xBF
     cb_stm_b1_s,    cb_stm_s1_s,    cb_stm_s2_s,    cb_stm_s4_s,    cb_unk,         cb_unk,         cb_unk,         cb_unk,
     cb_stm_b1_cs8,  cb_stm_s1_cs8,  cb_stm_s2_cs8,  cb_stm_s4_cs8,  cb_unk,         cb_unk,         cb_unk,         cb_unk,
