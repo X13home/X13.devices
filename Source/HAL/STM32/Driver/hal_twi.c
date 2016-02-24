@@ -20,6 +20,7 @@ static volatile uint8_t twi_pnt = 0;
 #define I2C_DIO_SCL     22
 #define I2C_DIO_SDA     23
 
+void I2C1_IRQHandler(void);
 #else
 // I2C2, PB10 - SCL, PB11 - SDA
 #define I2C_BUS         I2C2
@@ -29,7 +30,7 @@ static volatile uint8_t twi_pnt = 0;
 
 #define I2C_DIO_SCL     26
 #define I2C_DIO_SDA     27
-
+void I2C2_IRQHandler(void);
 #endif
 
 void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA)
