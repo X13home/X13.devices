@@ -111,8 +111,8 @@ uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
 //////////////////////////////////////////////////////////////
 // AIN Section
 uint8_t     hal_ain_apin2dio(uint8_t apin);
-void        hal_ain_configure(uint8_t apin, uint8_t unused);
-void        hal_ain_select(uint8_t apin, uint8_t unused);
+void        hal_ain_configure(uint8_t apin, uint8_t aref);
+void        hal_ain_select(uint8_t apin, uint8_t aref);
 int16_t     hal_ain_get(void);
 // AIN Section
 //////////////////////////////////////////////////////////////
@@ -152,11 +152,10 @@ uint8_t     hal_uart_get(uint8_t port);
 //////////////////////////////////////////////////////////////
 // PLC Section
 #define EXTPLC_USED                     1
-#define EXTPLC_SIZEOF_PRG               512
+#define EXTPLC_SIZEOF_PRG               4096
 #define EXTPLC_SIZEOF_PRG_CACHE         32      // Must be 2^n, bytes
-#define EXTPLC_SIZEOF_RAM               32      // size in uint32_t
-#define EXTPLC_SIZEOF_RW                8       // size in uint32_t
-#define EXTPLC_SIZEOF_WO                16      // size in uint32_t
+#define EXTPLC_SIZEOF_RAM               256     // size in uint32_t
+#define EXTPLC_SIZEOF_RW                16      // size in uint32_t
 // PLC Section
 //////////////////////////////////////////////////////////////
 

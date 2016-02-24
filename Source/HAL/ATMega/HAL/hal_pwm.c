@@ -4,34 +4,85 @@
 
 #include <avr/pgmspace.h>
 
-static const PROGMEM uint8_t hal_pwm_port2dio[] = EXTPWM_PORT2DIO;
-static const PROGMEM uint8_t hal_pwm_port2cfg[] = EXTPWM_PORT2CFG;
+static const PROGMEM uint8_t hal_pwm_port2cfg[] = HAL_PWM_PORT2CFG;
 
-uint8_t hal_pwm_base2dio(uint16_t base)
+bool hal_pwm_checkbase(uint16_t base)
 {
-#ifdef EXTPWM_BASE_OFFSET
-    if(base < EXTPWM_BASE_OFFSET)
-        return 0xFF;
-    base -= EXTPWM_BASE_OFFSET;
+#ifdef HAL_PWM_BASE_OFFSET
+    if(base < HAL_PWM_BASE_OFFSET)
+        return false;
+    base -= HAL_PWM_BASE_OFFSET;
+#endif
+    if((base >= sizeof(hal_pwm_port2cfg)) ||
+       (pgm_read_byte(&hal_pwm_port2cfg[base]) == 0xFF))
+        return false;
+
+    return true;
+}
+
+bool hal_pwm_busy(uint16_t base)
+{
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
 #endif
 
-    if(base >= (const uint16_t)(sizeof(hal_pwm_port2dio)))
-        return 0xFF;
+    // configure timer
+    uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
+    uint8_t channel = Config & 0x07;
 
-    return pgm_read_byte(&hal_pwm_port2dio[base]);
+    volatile uint8_t * pTIM;
+    
+    switch(Config>>3)
+    {
+        case 0:     // Timer 0
+            if(channel == 0)
+                return ((TCCR0A & (3<<COM0A0)) != 0);
+            else
+                return ((TCCR0A & (3<<COM0B0)) != 0);
+        case 1:         //  Timer 1
+            pTIM = &TCCR1A;
+            break;
+#ifdef TCCR3A
+        case 3:         //  Timer 3
+            pTIM = &TCCR3A;
+            break;
+#endif  // TCCR3A
+#ifdef TCCR4A
+        case 4:         //  Timer 4
+            pTIM = &TCCR4A;
+            break;
+#endif  // TCCR3A
+#ifdef TCCR5A
+        case 5:         //  Timer 5
+            pTIM = &TCCR5A;
+            break;
+#endif  // TCCR3A
+        default:
+            return true;
+    }
+    
+    switch(channel)
+    {
+        case 0:
+            return ((*pTIM & (3<<COM1A0)) != 0);
+        case 1:
+            return ((*pTIM & (3<<COM1B0)) != 0);
+#ifdef OCR1C
+        case 2:
+            return ((*pTIM & (3<<COM1C0)) != 0);
+#endif
+        default:
+            break;
+    }
+    return true;
 }
 
 void hal_pwm_configure(uint16_t base, bool inv)
 {
-#ifdef EXTPWM_BASE_OFFSET
-    base -= EXTPWM_BASE_OFFSET;
+    hal_dio_configure(hal_dio_base2pin(base), DIO_MODE_OUT_PP);
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
 #endif
-
-    // Configure port
-    uint8_t pin;
-    pin = pgm_read_byte(&hal_pwm_port2dio[base]);
-    hal_dio_configure(pin, DIO_MODE_OUT_PP);
-    
     // configure timer
     uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
     uint8_t channel = Config & 0x07;
@@ -114,8 +165,8 @@ void hal_pwm_configure(uint16_t base, bool inv)
 
 void hal_pwm_delete(uint16_t base)
 {
-#ifdef EXTPWM_BASE_OFFSET
-    base -= EXTPWM_BASE_OFFSET;
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
 #endif
 
     // configure timer
@@ -196,16 +247,18 @@ void hal_pwm_delete(uint16_t base)
     }
     
     // Configure port
-    uint8_t pin = pgm_read_byte(&hal_pwm_port2dio[base]);
-    hal_dio_configure(pin, DIO_MODE_IN_FLOAT);
+    hal_dio_configure(hal_dio_base2pin(base), DIO_MODE_IN_FLOAT);
 }
 
 void hal_pwm_write(uint16_t base, uint16_t value)
 {
-#ifdef EXTPWM_BASE_OFFSET
-    base -= EXTPWM_BASE_OFFSET;
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
 #endif
-    
+
+    if(base > sizeof(hal_pwm_port2cfg))
+        return;
+
     uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
     uint8_t channel = Config & 0x07;
 

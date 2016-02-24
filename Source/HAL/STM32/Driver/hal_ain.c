@@ -80,13 +80,7 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
     }
 }
 
-// ignore some GCC warnings
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-
-void hal_ain_select(uint8_t apin, uint8_t unused)
+void hal_ain_select(uint8_t apin, uint8_t aref __attribute__ ((unused)))
 {
 #if (defined STM32F0)
     uint32_t mux;
@@ -100,10 +94,6 @@ void hal_ain_select(uint8_t apin, uint8_t unused)
     #error hal_ain_select unknown uC Family
 #endif
 }
-
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 int16_t hal_ain_get(void)
 {

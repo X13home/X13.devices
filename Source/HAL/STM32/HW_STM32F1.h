@@ -13,6 +13,27 @@ See LICENSE file for license details.
 #ifndef HW_STM32F1_H
 #define HW_STM32F1_H
 
+// EEPROM Emulation Section
+// HD + CL Devices
+#if defined(STM32F100xE) ||                         \
+    defined(STM32F101xE) || defined(STM32F101xG) || \
+    defined(STM32F103xE) || defined(STM32F103xG) || \
+    defined(STM32F105xC) || defined(STM32F107xC)
+#define FEE_PAGE_SIZE           (uint32_t)0x00000800    // Size of FLASH Page - 2k
+#else                                                   // LD + MD Devices
+#define FEE_PAGE_SIZE           (uint32_t)0x00000400    // Size of FLASH Page - 1k
+#endif
+
+#define FEE_SIZE                0x2000                  // 8K
+#define FEE_TRANSFER_PAGES      2                       // Reserved Pages for Transfer
+
+// WARNING !! does not check overlapping with program memory
+#ifndef FLASH_BANK2_END
+#define FEE_BASE ((FLASH_BANK1_END + 1) - FEE_SIZE)
+#else
+#define FEE_BASE ((FLASH_BANK2_END + 1) - FEE_SIZE)
+// End EEPROM Emulation Section
+
 // STM32F103CBT6, Maple Mini
 #if   (defined CFG_S3Sn10)
 #include "S3xxxx/S3Sn10.h"    // UART

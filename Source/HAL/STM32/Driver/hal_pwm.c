@@ -4,8 +4,7 @@
 
 // Mapping physical DIO channel to configuration
 // bits 11-8 - AF Number, bits 7-3 Timer, bits 2-0 Channel
-static const uint16_t hal_pwm_port2cfg[] = EXTPWM_PORT2CFG;
-static const uint8_t  hal_pwm_port2dio[] = EXTPWM_PORT2DIO;
+static const uint16_t hal_pwm_port2cfg[] = HAL_PWM_PORT2CFG;
 
 static const TIM_TypeDef * hal_pwm_timers[] = {
     NULL, TIM1, TIM2, TIM3,
@@ -37,27 +36,42 @@ static const TIM_TypeDef * hal_pwm_timers[] = {
 #endif  //  TIM17
 };
 
-uint8_t hal_pwm_base2dio(uint16_t base)
+bool hal_pwm_checkbase(uint16_t base)
 {
-#ifdef EXTPWM_BASE_OFFSET
-    if(base < EXTPWM_BASE_OFFSET)
-        return 0xFF;
-    base -= EXTPWM_BASE_OFFSET;
+#ifdef HAL_PWM_BASE_OFFSET
+    if(base < HAL_PWM_BASE_OFFSET)
+        return false;
+    base -= HAL_PWM_BASE_OFFSET;
 #endif
+    if((base >= sizeof(hal_pwm_port2cfg)) ||
+       (hal_pwm_port2cfg[base] == 0xFF))
+        return false;
 
-    if(base >= (const uint16_t)(sizeof(hal_pwm_port2dio)))
-        return 0xFF;
+    return true;
+}
 
-    return hal_pwm_port2dio[base];
+bool hal_pwm_busy(uint16_t base)
+{
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
+#endif
+    uint16_t cfg = hal_pwm_port2cfg[base];
+
+    TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
+    if(TIMx == NULL)
+        return true;
+
+    return ((TIMx->CCER & ((TIM_CCER_CC1E | TIM_CCER_CC1P) << ((cfg & 0x03) * 4))) != 0);
 }
 
 void hal_pwm_configure(uint16_t base, bool inv)
 {
-#ifdef EXTPWM_BASE_OFFSET
-    base -= EXTPWM_BASE_OFFSET;
+    uint8_t pin = hal_dio_base2pin(base);
+
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
 #endif
     uint16_t cfg = hal_pwm_port2cfg[base];
-    uint8_t  pin = hal_pwm_port2dio[base];
     hal_dio_configure(pin, DIO_MODE_AF_PP | (cfg & 0x0F00));
     
     TIM_TypeDef * TIMx;
@@ -168,13 +182,11 @@ void hal_pwm_configure(uint16_t base, bool inv)
 
 void hal_pwm_delete(uint16_t base)
 {
-#ifdef EXTPWM_BASE_OFFSET
-    base -= EXTPWM_BASE_OFFSET;
+    hal_dio_configure(hal_dio_base2pin(base), DIO_MODE_IN_FLOAT);    
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
 #endif
     uint16_t cfg = hal_pwm_port2cfg[base];
-
-    uint8_t  pin = hal_pwm_port2dio[base];
-    hal_dio_configure(pin, DIO_MODE_IN_FLOAT);
     
     TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
     if(TIMx == NULL)
@@ -231,11 +243,19 @@ void hal_pwm_delete(uint16_t base)
 
 void hal_pwm_write(uint16_t base, uint16_t value)
 {
-#ifdef EXTPWM_BASE_OFFSET
-    base -= EXTPWM_BASE_OFFSET;
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
 #endif
+    if(base > (const uint16_t)(sizeof(hal_pwm_port2cfg)/2))
+        return;
+
     uint16_t cfg = hal_pwm_port2cfg[base];
+    if(cfg == 0xFF)
+        return;
+    
     TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
+    if(TIMx == NULL)
+        return;
 
     uint32_t timbase = (uint32_t)TIMx + 0x34;
     timbase += (cfg & 0x03) * 4;

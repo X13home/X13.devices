@@ -83,11 +83,7 @@ extern "C" {
 
 // PWM Section
 #define EXTPWM_USED                 1
-#define EXTPWM_PORT2DIO             {255, 255, 255, 16, 7, 6, 255, 255, 3, 2, 1, 0, /* PB11, PB10, PB2, PB0, PA7 - PA0 */ \
-                                     255, 255, 255, 23, 22, 255, 255, 255,          /* PC13 - PC15, PB7 - PB3 */ \
-                                     255, 255, 255, 255, 11, 10, 9 , 8}             /* PA15 - PA8 */
-
-#define EXTPWM_PORT2CFG             {255, 255, 255,             /* PB11, PB10, PB2  */ \
+#define HAL_PWM_PORT2CFG            {255, 255, 255,             /* PB11, PB10, PB2  */ \
                                      ((3<<3) | 2),              /* PB0:  TIM3_CH3   */ \
                                      ((3<<3) | 1),              /* PA7:  TIM3_CH2   */ \
                                      ((3<<3) | 0),              /* PA6:  TIM3_CH1   */ \

@@ -85,17 +85,17 @@ void * UART_Get(void)
     static uint8_t  rx_pos = 0;
     static uint8_t  rx_len = 0;
     static MQ_t   * pRx_buf;
-    static uint8_t  rx_wd = 0;
+    static uint16_t rx_wd = 0;
 
     while(hal_uart_datardy(UART_PHY_PORT))
     {
         uint8_t data = hal_uart_get(UART_PHY_PORT);
 
-        rx_wd = (HAL_get_ms() & 0xFF);
+        rx_wd = (HAL_get_ms() & 0xFFFF);
 
         if(rx_len == 0)
         {
-            if(data >= 2)
+            if((data >= 2) && (data < sizeof(MQTTSN_MESSAGE_t)))
             {
                 pRx_buf = mqAlloc(sizeof(MQ_t));
                 rx_len = data;
@@ -105,11 +105,11 @@ void * UART_Get(void)
         else
         {
             if(rx_pos < sizeof(MQTTSN_MESSAGE_t))
-                pRx_buf->raw[rx_pos++] = data;
+                pRx_buf->m.raw[rx_pos++] = data;
 
             if(rx_pos == rx_len)
             {
-                memcpy(pRx_buf->phy1addr, (const void *)&uart_addr, sizeof(UART_ADDR_t));
+                memcpy(pRx_buf->a.phy1addr, (const void *)&uart_addr, sizeof(UART_ADDR_t));
                 pRx_buf->Length = rx_len;
                 rx_len = 0;
 #ifdef LED_On
@@ -120,8 +120,11 @@ void * UART_Get(void)
         }
     }
 
-    if((rx_len != 0) && (((HAL_get_ms() & 0xFF) - rx_wd) > 50))
+    if((rx_len != 0) && (((HAL_get_ms() & 0xFFFF) - rx_wd) > 100))
+    {
         rx_len = 0;
+        mqFree(pRx_buf);
+    }
 
     return NULL;
 }

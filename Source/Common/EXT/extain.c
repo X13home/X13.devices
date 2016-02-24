@@ -149,12 +149,7 @@ static e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
     return MQTTSN_RET_ACCEPTED;
 }
 
-// ignore some GCC warnings
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
 {
     // Prevent hard fault on ARM
     uint16_t val = pBuf[1];
@@ -169,9 +164,6 @@ static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t
 
     return MQTTSN_RET_ACCEPTED;
 }
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 // Poll Procedure
 static uint8_t ainPollOD(subidx_t * pSubidx)

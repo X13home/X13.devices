@@ -20,7 +20,7 @@ uint8_t hal_ain_apin2dio(uint8_t apin)
         return 0xFF;
 }
 
-void hal_ain_configure(uint8_t unused, uint8_t aref)
+void hal_ain_configure(uint8_t apin __attribute__ ((unused)), uint8_t aref)
 {
     if(aref == 0xFF)
         return;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- device configuration file for Discovery devices  -->
+<!-- device configuration file for Discovery Boards  -->
 <root head="/etc/declarers/dev">
     <item name="S2Sn10" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0214">
         <item name="Add">
@@ -699,4 +699,4 @@
             </item>
         </item>
     </item>
-</item>
+</root>

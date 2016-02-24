@@ -29,6 +29,8 @@ typedef enum
     PLC_CMD_WRITE_RESP      = 0x08, // Write Block Response: 8, 0 - Ok / 1-255 error + [optional info]
     PLC_CMD_ERASE_REQ       = 0x09, // Erase Block Request: 9, addrL, addrH, lenL, lenH
     PLC_CMD_ERASE_RESP      = 0x0A, // Erase Block Response: 0x0a, 0  - Ok / 1-255 error + [optional info]
+    PLC_CMD_SET_STACK_REQ   = 0x0B, // Set Stack Bottom, 0x08, (uint32_t)StackBot
+    PLC_CMD_SET_STACK_RESP  = 0x0C  // Set Stack Bottom Response, 0 - Ok, / 1-255 error + [optional info]
 }ePLC_CMD_t;
 
 typedef struct 
@@ -46,7 +48,7 @@ static sPLCexch_t     * plc_exchg   = NULL;
 static uint32_t         plc_old[EXTPLC_SIZEOF_RW];          // PLC RW Data
 
 // PLC_VM Section
-static uint32_t         plc_ram[EXTPLC_SIZEOF_RAM];         // PLC data + merkers + stack
+static uint32_t         plcvm_ram[EXTPLC_SIZEOF_RAM];         // PLC data + merkers + stack
 static ePLC_ANSWER_t    plcvm_stat = PLC_ANSWER_OK;
 static uint32_t         plcvm_page = 0xFFFFFFFF;
 static uint32_t         plcvm_stack_bot = 0;
@@ -196,6 +198,39 @@ static void plc_control(void)
             eeprom_write(&plc_exchg->data[3], eePLCprogram + addr, len - 5);
             break;
         }
+        
+        case PLC_CMD_SET_STACK_REQ:
+        {
+            if(plc_exchg->len != 5)
+            {
+                plc_exchg->len = 2;
+                plc_exchg->data[0] = PLC_CMD_SET_STACK_RESP;
+                plc_exchg->data[1] = PLC_ANSWER_ERROR_FMT;
+                break;
+            }
+
+            plc_exchg->len = 2;
+            plc_exchg->data[0] = PLC_CMD_SET_STACK_RESP;
+
+            if(plc_run)
+            {
+                plc_exchg->data[1] = PLC_ANSWER_ERROR_WRS;      // Wrong State
+                break;
+            }
+
+            uint32_t val;
+            memcpy(&val, &plc_exchg->data[1], 4);
+            if(val >= (EXTPLC_SIZEOF_RAM - 2))
+            {
+                plc_exchg->data[1] = PLC_ANSWER_ERROR_OFR_SP;
+                break;
+            }
+
+            plcvm_stack_bot = val;
+            eeprom_write(&plc_exchg->data[1], eePLCStackBot, 4);
+            break;
+        }
+        
         default:
         {
             plc_exchg->len = 2;
@@ -206,12 +241,7 @@ static void plc_control(void)
 }
 
 // ignore some GCC warnings
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-
-static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx __attribute__ ((unused)), uint8_t *pLen, uint8_t *pBuf)
 {
     *pLen = plc_exchg->len;
     memcpy(pBuf, plc_exchg->data, plc_exchg->len);
@@ -222,7 +252,7 @@ static e_MQTTSN_RETURNS_t plcReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
     return MQTTSN_RET_ACCEPTED;
 }
 
-static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx __attribute__ ((unused)), uint8_t Len, uint8_t *pBuf)
 {
     if(plc_exchg != NULL)
         return MQTTSN_RET_REJ_CONG;
@@ -237,7 +267,7 @@ static e_MQTTSN_RETURNS_t plcWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *p
     return MQTTSN_RET_ACCEPTED;
 }
 
-static uint8_t plcPollOD(subidx_t * pSubidx)
+static uint8_t plcPollOD(subidx_t * pSubidx __attribute__ ((unused)))
 {
     if(plc_answer)
         return 1;
@@ -252,82 +282,62 @@ static uint8_t plcPollOD(subidx_t * pSubidx)
     return 0;
 }
 
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
-
 static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     uint16_t    base = pSubidx->Base;
-    uint32_t    mask;
-    uint32_t    data;
-    uint8_t     offset;
 
     switch(pSubidx->Type)
     {
         case objBool:
-            *pLen = 1;
-            mask = 1UL << (base & 0x001F);
+            {
+            uint32_t mask = 1UL << (base & 0x001F);
             base >>= 5;
-            if((plc_ram[base] & mask) != 0)
+            if((plcvm_ram[base] & mask) != 0)
             {
                 *pBuf = 1;
-                if(base < EXTPLC_SIZEOF_RW)
-                    plc_old[base] |= mask;
+                plc_old[base] |= mask;
             }
             else
             {
                 *pBuf = 0;
-                if(base < EXTPLC_SIZEOF_RW)
-                    plc_old[base] &= ~mask;
+                plc_old[base] &= ~mask;
             }
+            }
+            *pLen = 1;
             break;
 
         case objInt8:
         case objUInt8:
-            offset = ((base & 0x003) * 8);
-            mask = 0x000000FFUL << offset;
-            base >>= 2;
-            data = (plc_ram[base] & mask);
-            if(base < EXTPLC_SIZEOF_RW)
             {
-                plc_old[base] &= ~mask;
-                plc_old[base] |= data;
+            uint8_t * pDat  = (uint8_t *)&plcvm_ram[0];
+            uint8_t * pDat1 = (uint8_t *)&plc_old[0];
+            uint8_t data = *(pDat + base);
+            *(pDat1 + base) = data;
+            *pBuf = data;
             }
-            *pBuf = data >> offset;
             *pLen = 1;
             break;
             
         case objInt16:
         case objUInt16:
-            offset = ((base & 0x001) * 16);
-            mask = 0x0000FFFFUL << offset;
-            base >>= 1;
-            data = (plc_ram[base] & mask);
-            if(base < EXTPLC_SIZEOF_RW)
             {
-                plc_old[base] &= ~mask;
-                plc_old[base] |= data;
+            uint8_t * pDat  = (uint8_t *)&plcvm_ram[0];
+            uint8_t * pDat1 = (uint8_t *)&plc_old[0];
+            base <<= 1;
+            pDat  += base;
+            pDat1 += base;
+            memcpy(pBuf,  pDat, 2);
+            memcpy(pDat1, pDat, 2);
             }
-            data >>= offset;
-            *(pBuf++) = data & 0xFF;
-            data >>= 8;
-            *pBuf = data;
             *pLen = 2;
             break;
 
         case objInt32:
-            data = plc_ram[base];
-            if(base < EXTPLC_SIZEOF_RW)
-                plc_old[base] = data;
-
-            *(pBuf++) = data & 0xFF;
-            data >>= 8;
-            *(pBuf++) = data & 0xFF;
-            data >>= 8;
-            *(pBuf++) = data & 0xFF;
-            data >>= 8;
-            *pBuf = data & 0xFF;
+            {
+            uint32_t data = plcvm_ram[base];
+            plc_old[base] = data;
+            memcpy(pBuf, &data, 4);
+            }
             *pLen = 4;
             break;
 
@@ -339,73 +349,51 @@ static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_
     return MQTTSN_RET_ACCEPTED;
 }
 
-// ignore some GCC warnings
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-
-static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
 {
     uint16_t    base = pSubidx->Base;
-    uint32_t    mask;
-    uint32_t    data;
     
     switch(pSubidx->Type)
     {
         case objBool:
-            mask = 1UL << (base & 0x001F);
+            {
+            uint32_t mask = 1UL << (base & 0x001F);
             base >>= 5;
             if(*pBuf == 0)
             {
-                plc_ram[base] &= ~mask;
-                if(base < EXTPLC_SIZEOF_RW)
-                    plc_old[base] &= ~mask;
+                plcvm_ram[base] &= ~mask;
+                plc_old[base] &= ~mask;
             }
             else
             {
-                plc_ram[base] |= mask;
-                if(base < EXTPLC_SIZEOF_RW)
-                    plc_old[base] |= mask;
+                plcvm_ram[base] |= mask;
+                plc_old[base] |= mask;
             }
             break;
+            }
         case objInt8:
         case objUInt8:
-            mask = 0x000000FFUL << ((base & 0x0003) * 8);
-            data = *pBuf;
-            data <<= (base & 0x0003) * 8;
-            base >>= 2;
-            plc_ram[base] &= ~mask;
-            plc_ram[base] |= data;
-            if(base < EXTPLC_SIZEOF_RW)
             {
-                plc_old[base] &= ~mask;
-                plc_old[base] |= data;
-            }
+            uint8_t data = *pBuf;
+            uint8_t * pDat =  (uint8_t *)&plcvm_ram[0];
+            uint8_t * pDat1 = (uint8_t *)&plc_old[0];
+            *(pDat + base) = data;
+            *(pDat1 + base) = data;
             break;
+            }
         case objInt16:
         case objUInt16:
-            mask = 0x0000FFFFUL << ((base & 0x0001) * 16);
-            data = *(pBuf++);
-            data |= (uint16_t)(*pBuf)<<8;
-            data <<= (base & 0x0001) * 16;
-            base >>= 1;
-            plc_ram[base] &= ~mask;
-            plc_ram[base] |= data;
-            if(base < EXTPLC_SIZEOF_RW)
             {
-                plc_old[base] &= ~mask;
-                plc_old[base] |= data;
+            uint8_t * pDat  = (uint8_t *)&plcvm_ram[0];
+            uint8_t * pDat1 = (uint8_t *)&plc_old[0];
+            base <<= 1;
+            memcpy(pDat  + base, pBuf, 2);
+            memcpy(pDat1 + base, pBuf, 2);
             }
             break;
         case objInt32:
-            data = *(pBuf++);
-            data |= (uint32_t)(*(pBuf++))<<8;
-            data |= (uint32_t)(*(pBuf++))<<16;
-            data |= (uint32_t)(*pBuf)<<24;
-            plc_ram[base] = data;
-            if(base < EXTPLC_SIZEOF_RW)
-                plc_old[base] = data;
+            memcpy(&plcvm_ram[base], pBuf, 4);
+            memcpy(&plc_old[base], pBuf, 4);
             break;
         // supressed warning -Wswitch;
         default:
@@ -414,10 +402,6 @@ static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t unused, uint
 
     return MQTTSN_RET_ACCEPTED;
 }
-
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 static uint8_t merkerPollOD(subidx_t * pSubidx)
 {
@@ -441,19 +425,14 @@ static uint8_t merkerPollOD(subidx_t * pSubidx)
             base >>= 1;
             break;
         case objInt32:
-            return (plc_ram[base] != plc_old[base]);
+            return (plcvm_ram[base] != plc_old[base]);
             
         // supressed warning -Wswitch;
         default:
             return 0;
     }
     
-    return (plc_ram[base] & mask) != (plc_old[base] & mask);
-}
-
-void plcvm_set_stack_bot(uint32_t val)
-{
-    plcvm_stack_bot = val;
+    return (plcvm_ram[base] & mask) != (plc_old[base] & mask);
 }
 
 // Check Merkers Index
@@ -479,7 +458,7 @@ bool plcCheckSubidx(subidx_t * pSubidx)
             return false;
     }
 
-    if(base >= EXTPLC_SIZEOF_WO)
+    if(base >= EXTPLC_SIZEOF_RW)
         return false;
     return true;
 }
@@ -509,12 +488,8 @@ e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
             return MQTTSN_RET_REJ_NOT_SUPP;
     }
 
-    if(base < EXTPLC_SIZEOF_RW)
-    {
-        pIdx->cbRead    = &merkerReadOD;
-        pIdx->cbPoll    = &merkerPollOD;
-    }
-
+    pIdx->cbRead    = &merkerReadOD;
+    pIdx->cbPoll    = &merkerPollOD;
     pIdx->cbWrite   = &merkerWriteOD;
     return MQTTSN_RET_ACCEPTED;
 }
@@ -540,18 +515,22 @@ void plcInit(void)
     
     // Read Config
     eeprom_read((uint8_t *)&plcvm_stack_bot, eePLCStackBot, 4);
+    if(plcvm_stack_bot == 0xFFFFFFFF)
+        plcvm_stack_bot = 0;
 }
 
 void plcProc(void)
 {
     if(plc_run)
     {
-#if (defined LED_On) // && (defined DEBUG)
-        LED_On();
-#endif  //  LED_On
         plcvm_sfp = EXTPLC_SIZEOF_RAM;      // Stack frame pointer
         plcvm_sp = EXTPLC_SIZEOF_RAM;       // Stack pointer
-        plcvm_pc = 0;                       // program counter
+        
+        if(plcvm_1st_start)                 // program counter
+            plcvm_pc = 0;
+        else
+            plcvm_pc = 4;
+
         plcvm_stat = PLC_ANSWER_RUN;
 
         uint16_t plc_wd = 0xFFFF;
@@ -573,9 +552,6 @@ void plcProc(void)
         }
         
         plcvm_1st_start = false;
-#if (defined LED_Off)// && (defined DEBUG)
-        LED_Off();
-#endif  //  LED_Off
     }
     
     if(plcvm_stat != PLC_ANSWER_OK)
@@ -598,9 +574,9 @@ void plcProc(void)
                 *(pBuf++) = (plcvm_sp>>16) & 0xFF;
                 *(pBuf++) = (plcvm_sp>>24) & 0xFF;
     
-                uint32_t acc = 0;
+                uint32_t acc = 0xFFFFFFFF;
                 if((plcvm_sp > 0) && (plcvm_sp < EXTPLC_SIZEOF_RAM))
-                    acc = plc_ram[plcvm_sp - 1];
+                    acc = plcvm_ram[plcvm_sp - 1];
     
                 *(pBuf++) = acc & 0xFF;
                 *(pBuf++) = (acc>>8) & 0xFF;

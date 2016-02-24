@@ -110,8 +110,8 @@ extern "C" {
 
 // PWM Section
 #define EXTPWM_USED                 1
-#define EXTPWM_BASE_OFFSET          18
-#define EXTPWM_PORT2CFG             {((3<<3) | 1),      /* PE4, OC3B */ \
+#define HAL_PWM_BASE_OFFSET          18
+#define HAL_PWM_PORT2CFG             {((3<<3) | 1),      /* PE4, OC3B */ \
                                      ((3<<3) | 2),      /* PE5, OC3C */ \
                                      ((0<<3) | 1),      /* PG5, OC0B */ \
                                      ((3<<3) | 0),      /* PE3, OC3A */ \
@@ -122,7 +122,6 @@ extern "C" {
                                      ((1<<3) | 0),      /* PB5, OC1A */ \
                                      ((1<<3) | 1),      /* PB6, OC1B */ \
                                      ((1<<3) | 2)}      /* PB7, OC1C */
-#define EXTPWM_PORT2DIO             {36, 37, 53, 35, 59, 60, 61, 255, 255, 13, 14, 15}
  // End PWM Section
 
 // Analogue Inputs
