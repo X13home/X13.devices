@@ -3,8 +3,8 @@
 	RET
 :L0
 
+	LD	165
 	LD	17
-    LD	165
 	MOD
 	TEST_EQ	12
 

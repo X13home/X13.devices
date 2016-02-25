@@ -1,3 +1,8 @@
+	JMP	L0
+	NOP
+	RET
+:L0
+
 	LD	197121
 	ST	d1
 

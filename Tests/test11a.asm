@@ -1,3 +1,8 @@
+	JMP	L0
+	NOP
+	RET
+:L0
+
 	LD	W0
 	INC
 	DUP
@@ -5,7 +10,7 @@
 	CEQ
 	JZ	A1
 	LD	1
-	OUT	Op20
+	OUT	Op2
 	JMP	A0
 :A1	LD	200
     OVER
@@ -14,7 +19,6 @@
 	DROP
 	LD	0
 	DUP
-	OUT	Op20
+	OUT	Op2
 :A0	ST	W0
 	RET
-	

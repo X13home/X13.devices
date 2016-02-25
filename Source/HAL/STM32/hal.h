@@ -71,15 +71,6 @@ void halLeaveCritical(void);
 #define DIO_MODE_AF_PP_HS           0x70    // Alternative function, Push/pull, high speed
 #define DIO_MODE_AIN                0x18
 
-__attribute__( ( always_inline ) ) __STATIC_INLINE void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask)
-{
-    GPIOx->BSRR = Mask;
-}
-
-__attribute__( ( always_inline ) ) __STATIC_INLINE void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask)
-{
-    GPIOx->BRR = Mask;
-}
 void        hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
 
 uint8_t     hal_dio_base2pin(uint16_t base);

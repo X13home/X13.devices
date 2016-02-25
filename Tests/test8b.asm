@@ -3,18 +3,18 @@
 	RET
 :L0
 
-	LD	87
 	LD	88
+	LD	87
 	CGT
 	TEST_EQ	1	
     
-    LD	89
+	LD	89
 	DUP	
 	CGT
 	TEST_EQ	0
 
-	LD	90
 	LD	91
+	LD	90
 	CGE
 	TEST_EQ	1
 	
@@ -23,8 +23,8 @@
 	CGE
 	TEST_EQ	1
 
-	LD	94
 	LD	93
+	LD	94
 	CGE
 	TEST_EQ	0
 

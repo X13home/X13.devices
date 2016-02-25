@@ -8,8 +8,8 @@
 	ADD
 	TEST_EQ	275
 
+	LD	-3
 	LD	-5
-    LD	-3
 	SUB
 	TEST_EQ	2
 
@@ -18,8 +18,8 @@
 	MUL
 	TEST_EQ	91
 
-    LD	13
 	LD	126
+	LD	13
 	DIV
 	TEST_EQ	9
 	
