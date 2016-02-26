@@ -47,19 +47,7 @@ static bool             plc_answer  = false;
 static sPLCexch_t     * plc_exchg   = NULL;
 static uint32_t         plc_old[EXTPLC_SIZEOF_RW];          // PLC RW Data
 
-// PLC_VM Section
-static uint32_t         plcvm_ram[EXTPLC_SIZEOF_RAM];       // PLC data + merkers + stack
-static ePLC_ANSWER_t    plcvm_stat = PLC_ANSWER_OK;
-static uint32_t         plcvm_stack_bot = 0;
-
-static uint32_t         plcvm_sp =  EXTPLC_SIZEOF_RAM;      // Stack pointer
-static uint32_t         plcvm_sfp = EXTPLC_SIZEOF_RAM;      // Stack frame pointer
-static uint32_t         plcvm_pc = 0;                       // program counter
-
-static bool             plcvm_1st_start = true;
-
 #include "extplc_vm.h"
-// End PLC_VM Section
 
 static uint16_t plc_calc_crc(uint16_t crc_in, uint16_t len, uint8_t *pBuf)
 {
@@ -223,8 +211,11 @@ static void plc_control(void)
                 break;
             }
 
-            plcvm_stack_bot = val;
-            eeprom_write(&plc_exchg->data[1], eePLCStackBot, 4);
+            if(val != plcvm_stack_bot)
+            {
+                plcvm_stack_bot = val;
+                eeprom_write(&plc_exchg->data[1], eePLCStackBot, 4);
+            }
             break;
         }
         
@@ -514,9 +505,6 @@ void plcInit(void)
     eeprom_read((uint8_t *)&plcvm_stack_bot, eePLCStackBot, 4);
     if(plcvm_stack_bot == 0xFFFFFFFF)
         plcvm_stack_bot = 0;
-    
-    
-    hal_gpio_cfg(GPIOA, GPIO_Pin_12, DIO_MODE_OUT_PP);
 }
 
 void plcProc(void)
@@ -529,8 +517,7 @@ void plcProc(void)
         if(plcvm_1st_start)                 // program counter
         {
             plcvm_1st_start = false;
-            plcvm_pc = EXTPLC_SIZEOF_PRG_CACHE;
-            plcvm_lpm_u8();      // Reset cache
+            plcvm_page = 0xFFFFFFFF;        // Reset cache
             plcvm_pc = 0;
         }
         else
@@ -546,11 +533,26 @@ void plcProc(void)
                 plcvm_stat = PLC_ANSWER_ERROR_WD;
                 break;
             }
+            
+            uint32_t act_page = plcvm_pc & (const uint32_t)(~(EXTPLC_SIZEOF_PRG_CACHE - 1UL));
+            uint32_t offset = plcvm_pc - act_page;
+            plcvm_pc++;
 
-            cbCOP_t cop_proc = plcvm_cb[plcvm_lpm_u8()];
-            GPIOA->BSRR = GPIO_BSRR_BS_12;
+            if(act_page != plcvm_page)
+            {
+                if(plcvm_pc >= EXTPLC_SIZEOF_PRG)
+                {
+                    plcvm_stat = PLC_ANSWER_ERROR_OFR_PC;
+                    break;
+                }
+
+                plcvm_page = act_page;
+                eeprom_read(plcvm_cache, eePLCprogram + act_page, EXTPLC_SIZEOF_PRG_CACHE);
+            }
+            
+            uint8_t cop = plcvm_cache[offset];
+            cbCOP_t cop_proc = plcvm_cb[cop];
             cop_proc();
-            GPIOA->BSRR = GPIO_BSRR_BR_12;
         }
     }
     

@@ -1,0 +1,32 @@
+TwiControl(s4)      UInt8 bytes to Read, UInt8 bytes to Write, UInt8 Access, UInt8 Address
+                     Access:
+                      TWI_WRITE       0x01    // Write access
+                      TWI_READ        0x02    // Read access
+
+                     0x1A010376 - Read 26 Bytes, Write 1 Byte, Read/Write Access, Addr 0x76 - BME280
+                    
+
+TwiStatus()         UInt8 Readed bytes, UInt8 Writed bytes, UInt8 Status, UInt8 Address
+                     Status:
+
+                      Internal Flags
+                       TWI_WD_ARMED    0x04    // Watchdog started
+                       TWI_BUSY        0x08    // Bus busy
+
+                      TWI_RDY         0x10    // Access complete
+
+                      Errors:
+                       TWI_WD          0x20    // Timeout
+                       TWI_SLANACK     0x40    // Slave Addr NACK received - Device not present
+                       TWI_ERROR       0x80    // Unknown error
+                    
+                     0x08010376  - Access compete on Address 0x76, 1 byte writed, 8 bytes ready to read
+
+TwiPutByte(u1)      Data exchange started only when writing all data bytes
+TwiGetByte()        User Must read all data, only then bus is free, execute TwiStatus - reset read pointer
+
+NodeStatus()        // 0 - Disconnected, 1 - Connected
+
+getMilliseconds()
+getSeconds()
+Random()
