@@ -1,7 +1,7 @@
-	JMP	L0
 	NOP
-	RET
-:L0
+	NOP
+	NOP
+    NOP
 
 	LD	41
 	LD	42
@@ -9,7 +9,7 @@
 	TEST_EQ	41
 	LD	L1
 	TEST_EQ	42
-
+    
 	LD	43
 	ST	L0
 	LD	44

@@ -1,7 +1,7 @@
-	JMP	L0
 	NOP
-	RET
-:L0
+	NOP
+	NOP
+    NOP
 
 	LD	165
 	LD	17

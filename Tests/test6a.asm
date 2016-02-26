@@ -1,7 +1,9 @@
-	JMP	L0
 	NOP
-	RET
-:L0
+	NOP
+	NOP
+    NOP
+
+    NOP
 
 	LD	33
 	LD	A0
