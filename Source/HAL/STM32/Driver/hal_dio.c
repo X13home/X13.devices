@@ -186,14 +186,18 @@ void hal_dio_set(uint8_t PortNr, uint16_t Mask)
 {
     GPIO_TypeDef * GPIOx = hal_dio_PortNr2GPIOx(PortNr);
     if(GPIOx != NULL)
-        hal_gpio_set(GPIOx, Mask);
+    {
+        GPIOx->BSRR = Mask;
+    }
 }
 
 void hal_dio_reset(uint8_t PortNr, uint16_t Mask)
 {
     GPIO_TypeDef * GPIOx = hal_dio_PortNr2GPIOx(PortNr);
     if(GPIOx != NULL)
-        hal_gpio_reset(GPIOx, Mask);
+    {
+        GPIOx->BRR = Mask;
+    }
 }
 
 #endif  //  EXTDIO_USED

@@ -48,6 +48,10 @@ See LICENSE file for license details.
 #elif   (defined CFG_S2Sn11)
 #include "S2xxxx/S2Sn11.h"    // UART
 
+// STM32F051K8
+#elif   (defined CFG_S2SC14)
+#include "S2xxxx/S2SC14.h"    // UART + CC1101
+
 #else
 #error Unknown configuration
 #endif  //  Configuration

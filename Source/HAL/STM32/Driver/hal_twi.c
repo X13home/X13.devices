@@ -5,7 +5,7 @@
 #include "EXT/exttwi.h"
 
 // Global variable defined in exttwi.c
-extern volatile TWI_QUEUE_t * pTwi_exchange;
+extern volatile TWI_QUEUE_t * pTWI;
 static volatile uint8_t twi_pnt = 0;
 
 #define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)       // Alternative function, AF = 1, Open Drain
@@ -20,6 +20,7 @@ static volatile uint8_t twi_pnt = 0;
 #define I2C_DIO_SCL     22
 #define I2C_DIO_SDA     23
 
+void I2C1_IRQHandler(void);
 #else
 // I2C2, PB10 - SCL, PB11 - SDA
 #define I2C_BUS         I2C2
@@ -29,7 +30,7 @@ static volatile uint8_t twi_pnt = 0;
 
 #define I2C_DIO_SCL     26
 #define I2C_DIO_SDA     27
-
+void I2C2_IRQHandler(void);
 #endif
 
 void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA)
@@ -44,8 +45,16 @@ bool hal_twi_configure(uint8_t enable)
     {
         // Check GPIO
         hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_PD);               // Configure GPIO as inputs with pull down
-        if((GPIOB->IDR & (I2C_PIN_SCL | I2C_PIN_SDA)) != (I2C_PIN_SCL | I2C_PIN_SDA))
-            return false;
+
+        uint16_t timeout = 0xFFFF;
+        while(--timeout > 0)
+        {
+            if((GPIOB->IDR & (I2C_PIN_SCL | I2C_PIN_SDA)) != (I2C_PIN_SCL | I2C_PIN_SDA))
+            {
+                hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);    // Release GPIO
+                return false;
+            }
+        }
 
         hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_TWI);                 // Configure GPIO
 #if (EXTTWI_USED == 1)
@@ -95,7 +104,7 @@ bool hal_twi_configure(uint8_t enable)
 
 void hal_twi_stop(void)
 {
-    I2C_BUS->CR1 &= ~I2C_CR1_PE;       // Disable I2C
+    I2C_BUS->CR1 &= ~I2C_CR1_PE;                                // Disable I2C
 }
 
 void hal_twi_start(void)
@@ -115,7 +124,7 @@ void hal_twi_start(void)
     if(isr & (I2C_ISR_OVR | I2C_ISR_ARLO | I2C_ISR_BERR))       // Bus Error
     {
         I2C_BUS->CR1 &= ~I2C_CR1_PE;                            // Disable I2C
-        pTwi_exchange->frame.access |= TWI_ERROR;
+        pTWI->frame.access |= TWI_ERROR;
         return;
     }
 
@@ -127,26 +136,26 @@ void hal_twi_start(void)
 
     twi_pnt = 0;
     
-    uint8_t access = pTwi_exchange->frame.access;
+    uint8_t access = pTWI->frame.access;
 
     if(access & TWI_WRITE)
     {
-        I2C_BUS->CR2 = (uint32_t)(pTwi_exchange->frame.address << 1) |  // Slave address
-                    ((uint32_t)(pTwi_exchange->frame.write) << 16);     // Bytes to send
+        I2C_BUS->CR2 = (uint32_t)(pTWI->frame.address << 1) |   // Slave address
+                    ((uint32_t)(pTWI->frame.write) << 16);      // Bytes to send
 
         if((access & TWI_READ) == 0)
             I2C_BUS->CR2 |= I2C_CR2_AUTOEND;
 
-        if(pTwi_exchange->frame.write > 0)
-            I2C_BUS->TXDR = pTwi_exchange->frame.data[twi_pnt++];
+        if(pTWI->frame.write > 0)
+            I2C_BUS->TXDR = pTWI->frame.data[twi_pnt++];
 
-        I2C_BUS->CR1 |= I2C_CR1_TXIE;                                   // Interrupt on Tx Buffer empty
+        I2C_BUS->CR1 |= I2C_CR1_TXIE;                           // Interrupt on Tx Buffer empty
     }
     else
     {
-        I2C_BUS->CR2 = ((uint32_t)(pTwi_exchange->frame.address << 1) | // Slave address
-                    ((uint32_t)(pTwi_exchange->frame.read) << 16) |     // Bytes to read
-                    I2C_CR2_RD_WRN | I2C_CR2_AUTOEND);                  // Read request with stop
+        I2C_BUS->CR2 = ((uint32_t)(pTWI->frame.address << 1) |  // Slave address
+                    ((uint32_t)(pTWI->frame.read) << 16) |      // Bytes to read
+                    I2C_CR2_RD_WRN | I2C_CR2_AUTOEND);          // Read request with stop
 
         I2C_BUS->CR1 |= I2C_CR1_RXIE;
     }
@@ -154,7 +163,7 @@ void hal_twi_start(void)
     // Send Start & Address
     I2C_BUS->CR2 |= I2C_CR2_START;
 
-    pTwi_exchange->frame.access |= TWI_BUSY;
+    pTWI->frame.access |= TWI_BUSY;
 }
 
 #if (EXTTWI_USED == 1)
@@ -165,72 +174,72 @@ void I2C2_IRQHandler(void)
 {
     uint32_t isr = I2C_BUS->ISR;
 
-    if(isr & (I2C_ISR_OVR | I2C_ISR_ARLO | I2C_ISR_BERR))   // Bus Error
+    if(isr & (I2C_ISR_OVR | I2C_ISR_ARLO | I2C_ISR_BERR))       // Bus Error
     {
-        I2C_BUS->CR1 &= ~I2C_CR1_PE;       // Disable I2C
-        pTwi_exchange->frame.access |= TWI_ERROR;
+        I2C_BUS->CR1 &= ~I2C_CR1_PE;                            // Disable I2C
+        pTWI->frame.access |= TWI_ERROR;
 
     }
-    else if(isr & I2C_ISR_TC)                                           // Transfer complete
+    else if(isr & I2C_ISR_TC)                                   // Transfer complete
     {
-        I2C_BUS->CR1 &= ~I2C_CR1_TXIE;                                     // Disable Tx Interrupt
-        I2C_BUS->CR2 = ((uint32_t)(pTwi_exchange->frame.address << 1) |    // Slave address
-                     ((uint32_t)(pTwi_exchange->frame.read) << 16) |    // Bytes to read
-                      I2C_CR2_RD_WRN | I2C_CR2_AUTOEND);                // Read request with stop
+        I2C_BUS->CR1 &= ~I2C_CR1_TXIE;                          // Disable Tx Interrupt
+        I2C_BUS->CR2 = ((uint32_t)(pTWI->frame.address << 1) |  // Slave address
+                     ((uint32_t)(pTWI->frame.read) << 16) |     // Bytes to read
+                      I2C_CR2_RD_WRN | I2C_CR2_AUTOEND);        // Read request with stop
 
-        I2C_BUS->CR1 |= I2C_CR1_RXIE;                                      // Enable Rx interrupt
+        I2C_BUS->CR1 |= I2C_CR1_RXIE;                           // Enable Rx interrupt
 
         // Send Repeat Start & Address
         I2C_BUS->CR2 |= I2C_CR2_START;
     }
-    else if(isr & I2C_ISR_STOPF)                                    // Stop received
+    else if(isr & I2C_ISR_STOPF)                                // Stop received
     {
-        I2C_BUS->ICR |= I2C_ICR_STOPCF;                                // Clear Stop Flag
+        I2C_BUS->ICR |= I2C_ICR_STOPCF;                         // Clear Stop Flag
 
-        if(pTwi_exchange->frame.access & TWI_WRITE)
+        if(pTWI->frame.access & TWI_WRITE)
         {
-            pTwi_exchange->frame.access &= ~TWI_WRITE;
+            pTWI->frame.access &= ~TWI_WRITE;
             
-            if(I2C_BUS->CR1 & I2C_CR1_TXIE)                            // Last Stop on Tx
+            if(I2C_BUS->CR1 & I2C_CR1_TXIE)                     // Last Stop on Tx
             {
-                I2C_BUS->CR1 = I2C_CR1_PE;                             // Disable Interrupts
-                pTwi_exchange->frame.access &= ~TWI_BUSY;
-                pTwi_exchange->frame.access |= TWI_RDY;             // Transaction complete
+                I2C_BUS->CR1 = I2C_CR1_PE;                      // Disable Interrupts
+                pTWI->frame.access &= ~TWI_BUSY;
+                pTWI->frame.access |= TWI_RDY;                  // Transaction complete
             }
-            pTwi_exchange->frame.write = twi_pnt;
+            pTWI->frame.write = twi_pnt;
             twi_pnt = 0;
         }
         else                                                    // Stop on Rx
         {
-            I2C_BUS->CR1 = I2C_CR1_PE;                             // Disable Interrupts
-            pTwi_exchange->frame.data[twi_pnt] = I2C_BUS->RXDR;
-            pTwi_exchange->frame.access &= ~(TWI_READ | TWI_BUSY);
-            pTwi_exchange->frame.access |= TWI_RDY;             // Transaction complete
-            pTwi_exchange->frame.read = twi_pnt;
+            I2C_BUS->CR1 = I2C_CR1_PE;                          // Disable Interrupts
+            pTWI->frame.data[twi_pnt] = I2C_BUS->RXDR;
+            pTWI->frame.access &= ~(TWI_READ | TWI_BUSY);
+            pTWI->frame.access |= TWI_RDY;                      // Transaction complete
+            pTWI->frame.read = twi_pnt;
         }
     }
-    else if(isr & I2C_ISR_NACKF)                            // NACK received
+    else if(isr & I2C_ISR_NACKF)                                // NACK received
     {
-        I2C_BUS->ICR |= I2C_ICR_NACKCF;                        // Clear NACK Flag
-        I2C_BUS->CR1 = I2C_CR1_PE;                             // Disable Interrupts
+        I2C_BUS->ICR |= I2C_ICR_NACKCF;                         // Clear NACK Flag
+        I2C_BUS->CR1 = I2C_CR1_PE;                              // Disable Interrupts
 
-        pTwi_exchange->frame.access &= ~(TWI_WRITE | TWI_READ);
-        pTwi_exchange->frame.write = 0;
-        pTwi_exchange->frame.read = 0;
+        pTWI->frame.access &= ~(TWI_WRITE | TWI_READ);
+        pTWI->frame.write = 0;
+        pTWI->frame.read = 0;
 
-        pTwi_exchange->frame.access |= TWI_SLANACK;
+        pTWI->frame.access |= TWI_SLANACK;
     }
-    else if((I2C_BUS->CR1 & I2C_CR1_TXIE) && (isr & I2C_ISR_TXIS)) // Transmit buffer empty
+    else if((I2C_BUS->CR1 & I2C_CR1_TXIE) && (isr & I2C_ISR_TXIS))  // Transmit buffer empty
     {
-        I2C_BUS->TXDR = pTwi_exchange->frame.data[twi_pnt++];
+        I2C_BUS->TXDR = pTWI->frame.data[twi_pnt++];
     }
-    else if((I2C_BUS->CR1 & I2C_CR1_RXIE) && (isr & I2C_ISR_RXNE))     // Data received
+    else if((I2C_BUS->CR1 & I2C_CR1_RXIE) && (isr & I2C_ISR_RXNE))  // Data received
     {
-         pTwi_exchange->frame.data[twi_pnt++] = I2C_BUS->RXDR;
+         pTWI->frame.data[twi_pnt++] = I2C_BUS->RXDR;
     }
     else                                                            // Unknown state
     {
-        I2C_BUS->CR1 &= ~I2C_CR1_PE;                                   // Disable I2C
+        I2C_BUS->CR1 &= ~I2C_CR1_PE;                                // Disable I2C
     }
 }
 

@@ -22,6 +22,9 @@ Devices
     A1SC12      PHY1 - UART, PHY2 - CC1101, old name RFGWUP
     A1Sn12      PHY1 - UART, old name DMGWDM
     A1SR11      PHY1 - UART, PHY2 - RFM12(MRF49XA), old name RFGWUN
+    
+  Board: GS, uC: ST32F051K8 - ARM Cortex M0
+    S2SC14      PHY1 - UART, PHY2 - CC1101
 
   Board: S2EC13, uC: ST32F051C8 - ARM Cortex M0
     S2Cn13      PHY1 - CC1101

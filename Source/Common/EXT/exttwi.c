@@ -19,7 +19,7 @@ See LICENSE file for license details.
 #define TWIM_BUS_TIMEOUT            250 // ms
 
 // Global variable used in HAL
-volatile TWI_QUEUE_t  * pTwi_exchange = NULL;
+volatile TWI_QUEUE_t  * pTWI = NULL;
 
 #ifndef EXTPLC_USED
 
@@ -28,13 +28,13 @@ static Queue_t  twi_tx_queue = {NULL, NULL, 4, 0};      // Max Size = 4 records
 
 static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)), uint8_t *pLen, uint8_t *pBuf)
 {
-    if(pTwi_exchange == NULL)
+    if(pTWI == NULL)
         return MQTTSN_RET_REJ_CONG;
 
-    *pLen = pTwi_exchange->frame.read + sizeof(TWI_FRAME_t);
-    memcpy(pBuf, (void *)&pTwi_exchange->frame, *pLen);
-    mqFree((void *)pTwi_exchange);
-    pTwi_exchange = NULL;
+    *pLen = pTWI->frame.read + sizeof(TWI_FRAME_t);
+    memcpy(pBuf, (void *)&pTWI->frame, *pLen);
+    mqFree((void *)pTWI);
+    pTWI = NULL;
     return MQTTSN_RET_ACCEPTED;
 }
 
@@ -76,23 +76,23 @@ static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx __attribute__ ((unused))
 
 static uint8_t twiPollOD(subidx_t * pSubidx __attribute__ ((unused)))
 {
-    if(pTwi_exchange != NULL)
+    if(pTWI != NULL)
     {
-        uint8_t access = pTwi_exchange->frame.access;
+        uint8_t access = pTWI->frame.access;
         if((access & (TWI_ERROR | TWI_SLANACK | TWI_WD)) != 0)      // Error state
         {
             return 1;
         }
         else if(access & TWI_RDY)
         {
-            if(pTwi_exchange->frame.read != 0)
+            if(pTWI->frame.read != 0)
             {
                 return 1;
             }
             else
             {
-                mqFree((void *)pTwi_exchange);
-                pTwi_exchange = NULL;
+                mqFree((void *)pTWI);
+                pTWI = NULL;
             }
         }
         else
@@ -102,7 +102,7 @@ static uint8_t twiPollOD(subidx_t * pSubidx __attribute__ ((unused)))
 
             if((access & TWI_WD_ARMED) == 0)
             {
-                pTwi_exchange->frame.access |= TWI_WD_ARMED;
+                pTWI->frame.access |= TWI_WD_ARMED;
                 twi_ms = act_ms;
             }
             else if((act_ms - twi_ms) > TWIM_BUS_TIMEOUT)
@@ -110,7 +110,7 @@ static uint8_t twiPollOD(subidx_t * pSubidx __attribute__ ((unused)))
                 if(access & TWI_BUSY)
                     hal_twi_stop();
                 
-                pTwi_exchange->frame.access |= TWI_WD;
+                pTWI->frame.access |= TWI_WD;
                 return 1;
             }
 
@@ -120,7 +120,7 @@ static uint8_t twiPollOD(subidx_t * pSubidx __attribute__ ((unused)))
     }
     else if(twi_tx_queue.Size != 0)
     {
-        pTwi_exchange = mqDequeue(&twi_tx_queue);
+        pTWI = mqDequeue(&twi_tx_queue);
     }
 
     return 0;
@@ -142,10 +142,10 @@ void twiInit()
         return;
     }
 
-    if(pTwi_exchange != NULL)
+    if(pTWI != NULL)
     {
-        mqFree((void *)pTwi_exchange);
-        pTwi_exchange = NULL;
+        mqFree((void *)pTWI);
+        pTWI = NULL;
     }
 
 #ifndef EXTPLC_USED
@@ -173,34 +173,34 @@ static uint8_t twi_pnt = 0;
 
 void twiControl(uint32_t ctrl)
 {
-    if(pTwi_exchange != NULL)
+    if(pTWI != NULL)
         return;
     
-    pTwi_exchange = mqAlloc(sizeof(MQ_t));
-    if(pTwi_exchange == NULL)
+    pTWI = mqAlloc(sizeof(MQ_t));
+    if(pTWI == NULL)
         return;
     
     twi_pnt = 0;
     
-    memcpy((void *)&pTwi_exchange->frame, &ctrl, 4);
+    memcpy((void *)&pTWI->frame, &ctrl, 4);
 
-    pTwi_exchange->frame.access &= (TWI_WRITE | TWI_READ);
+    pTWI->frame.access &= (TWI_WRITE | TWI_READ);
 
-    if(pTwi_exchange->frame.read != 0)
-        pTwi_exchange->frame.access |= TWI_READ;    
+    if(pTWI->frame.read != 0)
+        pTWI->frame.access |= TWI_READ;    
 
-    if(pTwi_exchange->frame.write != 0)
-        pTwi_exchange->frame.access |= TWI_WRITE;
+    if(pTWI->frame.write != 0)
+        pTWI->frame.access |= TWI_WRITE;
     else
         hal_twi_start();
 }
 
 uint32_t twiStat(void)
 {
-    if(pTwi_exchange == NULL)
+    if(pTWI == NULL)
         return 0;
     
-    uint8_t access = pTwi_exchange->frame.access;
+    uint8_t access = pTWI->frame.access;
 
     if((access & (TWI_RDY | TWI_WD | TWI_SLANACK | TWI_ERROR)) == 0)
     {
@@ -209,34 +209,34 @@ uint32_t twiStat(void)
 
         if((access & TWI_WD_ARMED) == 0)
         {
-            pTwi_exchange->frame.access |= TWI_WD_ARMED;
+            pTWI->frame.access |= TWI_WD_ARMED;
             twi_ms = act_ms;
         }
         else if((act_ms - twi_ms) > TWIM_BUS_TIMEOUT)
         {
-            if(pTwi_exchange->frame.access & TWI_BUSY)
+            if(pTWI->frame.access & TWI_BUSY)
                 hal_twi_stop();
             
-            pTwi_exchange->frame.access |= TWI_WD;
+            pTWI->frame.access |= TWI_WD;
             access |= TWI_WD;
         }
     }
 
     uint32_t retval;
-    memcpy(&retval, (void *)&pTwi_exchange->frame, 4);
+    memcpy(&retval, (void *)&pTWI->frame, 4);
     
     if(access & (TWI_WD | TWI_SLANACK | TWI_ERROR))     // Error state
     {
-        mqFree((void *)pTwi_exchange);
-        pTwi_exchange = NULL;
+        mqFree((void *)pTWI);
+        pTWI = NULL;
     }
     else if(access & TWI_RDY)
     {
         twi_pnt = 0;
-        if(pTwi_exchange->frame.read == 0)              // Bus Free
+        if(pTWI->frame.read == 0)              // Bus Free
         {
-            mqFree((void *)pTwi_exchange);
-            pTwi_exchange = NULL;
+            mqFree((void *)pTWI);
+            pTWI = NULL;
         }
     }
     
@@ -245,14 +245,14 @@ uint32_t twiStat(void)
 
 void twiWr(uint8_t data)
 {
-    if( (pTwi_exchange == NULL) || 
-       ((pTwi_exchange->frame.access & (TWI_BUSY | TWI_RDY | TWI_WD | TWI_SLANACK | TWI_ERROR)) != 0))
+    if( (pTWI == NULL) || 
+       ((pTWI->frame.access & (TWI_BUSY | TWI_RDY | TWI_WD | TWI_SLANACK | TWI_ERROR)) != 0))
         return;
     
-    if(twi_pnt < pTwi_exchange->frame.write)
+    if(twi_pnt < pTWI->frame.write)
     {
-        pTwi_exchange->frame.data[twi_pnt++] = data;
-        if(twi_pnt == pTwi_exchange->frame.write)
+        pTWI->frame.data[twi_pnt++] = data;
+        if(twi_pnt == pTWI->frame.write)
             hal_twi_start();
     }
 }
@@ -261,15 +261,15 @@ uint8_t twiRd(void)
 {
     uint8_t retval = 0;
     
-    if((pTwi_exchange != NULL) && (pTwi_exchange->frame.access & TWI_RDY))
+    if((pTWI != NULL) && (pTWI->frame.access & TWI_RDY))
     {
-        if(twi_pnt < pTwi_exchange->frame.read)
-            retval = pTwi_exchange->frame.data[twi_pnt++];
+        if(twi_pnt < pTWI->frame.read)
+            retval = pTWI->frame.data[twi_pnt++];
         
-        if(twi_pnt == pTwi_exchange->frame.read)
+        if(twi_pnt == pTWI->frame.read)
         {
-            mqFree((void *)pTwi_exchange);
-            pTwi_exchange = NULL;
+            mqFree((void *)pTWI);
+            pTWI = NULL;
         }
     }
 

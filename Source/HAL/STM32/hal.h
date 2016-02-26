@@ -71,15 +71,6 @@ void halLeaveCritical(void);
 #define DIO_MODE_AF_PP_HS           0x70    // Alternative function, Push/pull, high speed
 #define DIO_MODE_AIN                0x18
 
-__attribute__( ( always_inline ) ) __STATIC_INLINE void hal_gpio_set(GPIO_TypeDef * GPIOx, uint16_t Mask)
-{
-    GPIOx->BSRR = Mask;
-}
-
-__attribute__( ( always_inline ) ) __STATIC_INLINE void hal_gpio_reset(GPIO_TypeDef * GPIOx, uint16_t Mask)
-{
-    GPIOx->BRR = Mask;
-}
 void        hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode);
 
 uint8_t     hal_dio_base2pin(uint16_t base);
@@ -119,13 +110,6 @@ int16_t     hal_ain_get(void);
 
 //////////////////////////////////////////////////////////////
 // TWI Section
-
-#if (EXTTWI_USED == 1)
-void I2C1_IRQHandler(void);
-#else   // 
-void I2C2_IRQHandler(void);
-#endif
-
 void        hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA);
 bool        hal_twi_configure(uint8_t enable);
 void        hal_twi_stop(void);
