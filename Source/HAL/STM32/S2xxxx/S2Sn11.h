@@ -125,8 +125,10 @@ extern "C" {
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           8
-#define EXTAIN_BASE_2_APIN          {0, 1, 4, 8, 11, 10, 12, 13}    /*  PA0,  PA1,  PA4,  PB0,  PC1,  PC0,  PC2,  PC3 */
+#define EXTAIN_MAXPORT_NR           14
+#define EXTAIN_BASE_2_APIN          {0, 1, 4, 8, 11, 10, 12, 13, 3, 2,              /*  PA0, PA1, PA4, PB0, PC1, PC0, PC2, PC3, PA3, PA2 */ \
+                                     255, 255, 255, 255, 255, 255, 255, 255, 255,   /* GAP */   \
+                                     7, 6, 5}                                       /* PA7, PA6, PA5 */
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 

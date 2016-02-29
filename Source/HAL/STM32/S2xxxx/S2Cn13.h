@@ -19,36 +19,36 @@ See LICENSE file for license details.
 // PHY2: --
 
 // GPIOA
-// Pin  Port    CN  Func
-//   0  PA0     3
-//   1  PA1     4
-//   2  PA2     5   _USART2_TX
-//   3  PA3     6   _USART2_RX
-//   4  PA4     15
-//   5  PA5     16
-//   6  PA6     17
-//   7  PA7     18
-//   8  PA8         CC11_IRQ
-//   9  PA9     9   _USART1_TX
-//  10  PA10    10  _USART1_RX
-//  11  PA11    7
-//  12  PA12    8
-//  13  PA13        SWDIO
-//  14  PA14        SWCLK
-//  15  PA15
-// GPIOB
-//  16  PB0     19
-//  17  PB1     20
-//  18  PB2         LED
-//  19  PB3
-//  20  PB4
-//  21  PB5
-//  22  PB6
-//  23  PB7
-//  24  PB8
-//  25  PB9
-//  26  PB10    13  SCL2
-//  27  PB11    14  SDA2
+// Pin  Port    CN  Func            PWM
+//   0  PA0     3                   !TIM2_CH1
+//   1  PA1     4                   TIM2_CH2
+//   2  PA2     5   _USART2_TX      TIM15_CH1
+//   3  PA3     6   _USART2_RX      TIM15_CH2
+//   4  PA4     15                  TIM14_CH1
+//   5  PA5     16                  !TIM2_CH1
+//   6  PA6     17                  TIM3_CH1
+//   7  PA7     18                  TIM3_CH2
+//   8  PA8         CC11_IRQ        
+//   9  PA9     9   _USART1_TX      TIM1_CH2
+//  10  PA10    10  _USART1_RX      TIM1_CH3
+//  11  PA11    7                   TIM1_CH4
+//  12  PA12    8                   
+//  13  PA13        SWDIO           
+//  14  PA14        SWCLK           
+//  15  PA15                        
+// GPIOB                            
+//  16  PB0     19                  TIM3_CH3
+//  17  PB1     20                  TIM3_CH4
+//  18  PB2         LED             
+//  19  PB3                         
+//  20  PB4                         
+//  21  PB5                         
+//  22  PB6                         
+//  23  PB7                         
+//  24  PB8                         
+//  25  PB9                         
+//  26  PB10    13  SCL2            TIM2_CH3
+//  27  PB11    14  SDA2            TIM2_CH4
 //  28  PB12        CC11_SEL
 //  29  PB13        CC11_SCK
 //  30  PB14        CC11_MISO
@@ -65,12 +65,33 @@ extern "C" {
 #define HAL_DIO_MAPPING             {17, 16, 7, 6, 5, 4, 27, 26, 10, 9, 12, 11, 3, 2, 1, 0}
 // End DIO Section
 
-// PA4-PA7: 4 - 7
+// PWM Section
+#define EXTPWM_USED                 1
+#define HAL_PWM_PORT2CFG            {((1<<8) |  (3<<3) | 3),    /* PB1:  AF1, TIM3_CH4  */ \
+                                     ((1<<8) |  (3<<3) | 2),    /* PB0:  AF1, TIM3_CH3  */ \
+                                     ((1<<8) |  (3<<3) | 1),    /* PA7:  AF1, TIM3_CH2  */ \
+                                     ((1<<8) |  (3<<3) | 0),    /* PA6:  AF1, TIM3_CH1  */ \
+                                     ((2<<8) |  (2<<3) | 0),    /* PA5:  AF2, TIM2_CH1  */ \
+                                     ((4<<8) | (14<<3) | 0),    /* PA4:  AF4, TIM14_CH1 */ \
+                                     ((2<<8) |  (2<<3) | 3),    /* PB11: AF2, TIM2_CH4  */ \
+                                     ((2<<8) |  (2<<3) | 2),    /* PB10: AF2, TIM2_CH3  */ \
+                                     ((2<<8) |  (1<<3) | 2),    /* PA10: AF2, TIM1_CH3  */ \
+                                     ((2<<8) | ( 1<<3) | 1),    /* PA9:  AF2, TIM1_CH2  */ \
+                                     255,                       /* PA12: No Config      */ \
+                                     ((2<<8) |  (1<<3) | 3),    /* PA11: AF2, TIM1_CH4  */ \
+                                     ((0<<8) | (15<<3) | 1),    /* PA3:  AF0, TIM15_CH2 */ \
+                                     ((0<<8) | (15<<3) | 0),    /* PA2:  AF0, TIM15_CH1 */ \
+                                     ((2<<8) |  (2<<3) | 1),    /* PA1:  AF2, TIM2_CH2  */ \
+                                     ((2<<8) |  (2<<3) | 0)}    /* PA0:  AF2, TIM2_CH1  */
+
+// End PWM Section
+
+// PA0-PA7: 0 - 7
 // PB0-PB1: 8 - 9
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           6
-#define EXTAIN_BASE_2_APIN          {9, 8, 7, 6, 5, 4}
+#define EXTAIN_MAXPORT_NR           10
+#define EXTAIN_BASE_2_APIN          {9, 8, 7, 6, 5, 4, 255, 255, 255, 255, 255, 255, 3, 2, 1, 0}
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
