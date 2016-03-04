@@ -89,9 +89,9 @@ void hal_pwm_configure(uint16_t base, bool inv)
     uint8_t tccra;
     uint8_t mode;
     if(inv)
-        mode = 2;
-    else
         mode = 3;
+    else
+        mode = 2;
 
     volatile uint8_t * pTIM;
     
