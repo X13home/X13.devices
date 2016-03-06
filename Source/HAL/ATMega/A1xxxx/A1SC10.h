@@ -10,10 +10,10 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _A1SN10_H
-#define _A1SN10_H
+#ifndef _A1SC10_H
+#define _A1SC10_H
 
-// Board:   Arduino Nano 
+// Board:   Arduino Nano/Uno
 // uc:      ATMega328p
 // Phy1:    UART
 
@@ -21,10 +21,10 @@ See LICENSE file for license details.
 // PORTB
 //  8   PB0     D8
 //  9   PB1     D9      OC1A
-// 10   PB2     D10     OC1B
-// 11   PB3     D11
-// 12   PB4     D12
-// 13   PB5     D13     LED
+// 10   PB2     D10   * CC11_CSN
+// 11   PB3     D11   * CC11_MOSI
+// 12   PB4     D12   * CC11_MISO
+// 13   PB5     D13   * CC11_SCK/LED
 // 14   PB6     --      OSC
 // 15   PB7     --      OSC
 // PORT C
@@ -38,8 +38,8 @@ See LICENSE file for license details.
 // --   --      A6      Ain6
 // --   --      A7      Ain7
 // PORT D
-// 24   PD0     D0      RXD
-// 25   PD1     D1      TXD
+// 24   PD0     D0    * RXD
+// 25   PD1     D1    * TXD
 // 26   PD2     D2
 // 27   PD3     D3
 // 28   PD4     D4
@@ -56,19 +56,19 @@ extern "C" {
 //#define ASLEEP                      1       // Enable ASleep mode
 //#define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
 
-// PC0-PC5, Gap:Ain6-7, Gap:PD0-PD1, PD2-PD7, PB0-PB4
+// PC0-PC5, Gap:Ain6-7, Gap:PD0-PD1, PD2-PD7, PB0-PB1
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_PORT_OFFSET          1
 #define EXTDIO_MAXPORT_NR           3                                   // Number of used physical digital Ports
-#define HAL_DIO_MAPPING             {16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 0xFF, 0xFF, 26, 27, 28, 29, 30, 31, 8, 9, 10, 11, 12, 13}
+#define HAL_DIO_MAPPING             {16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 0xFF, 0xFF, 26, 27, 28, 29, 30, 31, 8, 9}
 // End DIO Section
 
 // PWM Section
 #define EXTPWM_USED                 1
 #define HAL_PWM_BASE_OFFSET         13
-#define HAL_PWM_PORT2CFG            {1, 0, 0xFF, 0xFF, 8, 9 }   // Mapping PWM channel to configuration
-                                                                // bits 7-3 Timer, bits 2-0 Channel
+#define HAL_PWM_PORT2CFG            {1, 0, 0xFF, 0xFF, 8}               // Mapping PWM channel to configuration
+                                                                        // bits 7-3 Timer, bits 2-0 Channel
 // End PWM Section
 
 // Analogue Inputs
@@ -96,7 +96,7 @@ extern "C" {
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'
 #define OD_DEV_PHY1                 'S'
-#define OD_DEV_PHY2                 'n'
+#define OD_DEV_PHY2                 'C'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '0'
 

@@ -6,24 +6,23 @@ static const __attribute__ ((aligned (4))) uint8_t hal_ainBase2Apin[] = EXTAIN_B
 static const __attribute__ ((aligned (4))) uint8_t hal_ain2dpin[] = {0,1,2,3,4,5,6,7,       // PA0 - PA7
                                                                      16,17,                 // PB0 - PB1
                                                                      32,33,34,35,36,37};    // PC0 - PC5
+uint8_t hal_ain_base2apin(uint16_t base)
+{
+    if(base > sizeof(hal_ainBase2Apin))
+        return 0xFF;
+    return hal_ainBase2Apin[base];
+}
+
 uint8_t hal_ain_apin2dio(uint8_t apin)
 {
-    if(apin >= sizeof(hal_ainBase2Apin))
+    if(apin >= sizeof(hal_ain2dpin))
         return 0xFF;
-    
-    uint8_t base = hal_ainBase2Apin[apin];
-
-    if(base == 0xFF)        // pin not exist
-        return 0xFF;
-    else if(base > 15)      // DIO not used
-        return 0xFE;
-    return hal_ain2dpin[base];
+    return hal_ain2dpin[apin];
 }
 
 void hal_ain_configure(uint8_t apin, uint8_t aref)
 {
-    uint8_t base = hal_ainBase2Apin[apin];
-    uint8_t dpin = hal_ain_apin2dio(base);
+    uint8_t dpin = hal_ain_apin2dio(apin);
 
     if(aref == 0xFF)
     {
@@ -83,13 +82,9 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
 void hal_ain_select(uint8_t apin, uint8_t aref __attribute__ ((unused)))
 {
 #if (defined STM32F0)
-    uint32_t mux;
-    mux = hal_ainBase2Apin[apin];
-    mux = (1 << mux);
-
-    ADC1->CHSELR = mux;
+    ADC1->CHSELR = (1<<apin);
 #elif (defined STM32F1)
-    ADC1->SQR3 = hal_ainBase2Apin[apin];
+    ADC1->SQR3 = apin;
 #else
     #error hal_ain_select unknown uC Family
 #endif

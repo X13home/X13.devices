@@ -4,20 +4,21 @@
 
 #include <avr/pgmspace.h>
 static const PROGMEM uint8_t hal_ainBase2Apin[] = EXTAIN_BASE_2_APIN;
-static const PROGMEM uint8_t hal_ainBase2Dio[] = HAL_AIN_BASE2DIO;
+static const PROGMEM uint8_t hal_ainApin2Dio[] = HAL_AIN_APIN2DIO;
+
+
+uint8_t hal_ain_base2apin(uint16_t base)
+{
+    if(base > sizeof(hal_ainBase2Apin))
+        return 0xFF;
+    return  pgm_read_byte(&hal_ainBase2Apin[base]);
+}
 
 uint8_t hal_ain_apin2dio(uint8_t apin)
 {
-    if(apin > sizeof(hal_ainBase2Dio))
+    if(apin > sizeof(hal_ainApin2Dio))
         return 0xFF;
-
-    uint8_t base = pgm_read_byte(&hal_ainBase2Apin[apin]);
-
-    // Paranoid check
-    if(base < sizeof(hal_ainBase2Dio))
-        return pgm_read_byte(&hal_ainBase2Dio[base]);
-    else
-        return 0xFF;
+    return pgm_read_byte(&hal_ainApin2Dio[apin]);
 }
 
 void hal_ain_configure(uint8_t apin __attribute__ ((unused)), uint8_t aref)
@@ -34,8 +35,7 @@ void hal_ain_configure(uint8_t apin __attribute__ ((unused)), uint8_t aref)
 
 void hal_ain_select(uint8_t apin, uint8_t aref)
 {
-    uint8_t mux = pgm_read_byte(&hal_ainBase2Apin[apin]);
-    mux |= aref<<6;
+    uint8_t mux = apin | (aref<<6);
 
     ADMUX = mux | (1<<ADLAR);
 #ifdef  MUX5

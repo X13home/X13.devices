@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root head="/etc/declarers/dev">
     <!-- device configuration file for S2EC13 devices  -->
-    <item name="S2En13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0214">
+    <item name="S2En13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0229">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />
             <item name="long" value="yI" saved="True" type="System.String" />
@@ -226,6 +226,18 @@
             </item>
             <item name="Av5" value="FiX5" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, CN-15" saved="True" type="System.String" />
+            </item>
+            <item name="Av12" value="MiX12" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA3 - CN-6" saved="True" type="System.String" />
+            </item>
+            <item name="Av13" value="NiX13" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA2 - CN-5" saved="True" type="System.String" />
+            </item>
+            <item name="Av14" value="OiX14" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA1 - CN-4" saved="True" type="System.String" />
+            </item>
+            <item name="Av15" value="PiX15" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA0 - CN-3" saved="True" type="System.String" />
             </item>
         </item>
         <item name="TWI">

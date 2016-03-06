@@ -47,8 +47,8 @@ See LICENSE file for license details.
 //  23  PB7     15      SDA1                    TIM4_CH2
 //  24  PB8           * BUT_SW                  TIM4_CH3
 //  25  PB9           * DISC                    TIM4_CH4
-//  26  PB10    1     * SCL2    USART3_TX
-//  27  PB11    0     * SDA2    USART3_RX
+//  26  PB10    1       SCL2  * USART3_TX
+//  27  PB11    0       SDA2  * USART3_RX
 //  28  PB12    31      NSS2
 //  29  PB13    30      SCLK2
 //  30  PB14    29      MISO2
@@ -76,7 +76,7 @@ extern "C" {
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           12
+#define EXTAIN_MAXPORT_NR           9
 #define EXTAIN_BASE_2_APIN          {0xFF, 0xFF, 0xFF, 8, 7, 6, 5, 4, 3, 2, 1, 0}   /* PB11, PB10, PB2, PB0, PA7 - PA0 */
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs

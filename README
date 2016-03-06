@@ -9,8 +9,9 @@ Version 3.1.0
 Automation System oriented to "Smart House" over MQTT(SN) protocol
 
 Devices
-  Board: Arduino Nano, uC: ATMega328P, Fosc = 16M
+  Board: Arduino Nano/Uno, uC: ATMega328P, Fosc = 16M
     A1Sn10      PHY1 - Serial Port
+    A1SC10      PHY1 - Serial Port, PHY2 - CC1101
 
   Board: Arduino Mega, uC: ATMega2560
     A4Sn10      PHY1 - Serial Port

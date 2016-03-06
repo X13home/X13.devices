@@ -101,6 +101,7 @@ uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
 
 //////////////////////////////////////////////////////////////
 // AIN Section
+uint8_t     hal_ain_base2apin(uint16_t base);
 uint8_t     hal_ain_apin2dio(uint8_t apin);
 void        hal_ain_configure(uint8_t apin, uint8_t aref);
 void        hal_ain_select(uint8_t apin, uint8_t aref);

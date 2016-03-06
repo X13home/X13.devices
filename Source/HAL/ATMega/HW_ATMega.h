@@ -22,13 +22,16 @@ See LICENSE file for license details.
 #include "A1xxxx/A1En12.h"
 #elif   (defined CFG_A1Sn12)        // UART
 #include "A1xxxx/A1Sn12.h"
-#elif   (defined CFG_A1Sn10)        // Arduino Nano + UART
-#include "A1xxxx/A1Sn10.h"
 #elif   (defined CFG_A1SR11)        // RFM12 vers. 1.1
 #include "A1xxxx/A1SR11.h"
 #elif   (defined CFG_A1Rn11)        // RFM12 vers. 1.1, node
 #include "A1xxxx/A1Rn11.h"
-// ATMega2560
+// Arduino Nano/Uno ATMega328P + OSC 16MHz
+#elif   (defined CFG_A1Sn10)        // Arduino Nano/Uno + UART
+#include "A1xxxx/A1Sn10.h"
+#elif   (defined CFG_A1SC10)        // Arduino Nano/Uno + UART + CC1101
+#include "A1xxxx/A1SC10.h"
+// Arduino Mega ATMega2560 + OSC 16 MHz
 #elif   (defined CFG_A4Sn10)
 #include "A4xxxx/A4Sn10.h"
 // Unknown
@@ -44,7 +47,7 @@ See LICENSE file for license details.
 // DIO
 #define HAL_DIO_PORTNUM2PORT        {0xFFFF, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
 // AIn
-#define HAL_AIN_BASE2DIO            {16,   17,   18,   19,   20,   21,   0xFE, 0xFE,    /* PC0 - PC5, Ain6, Ain7 */ \
+#define HAL_AIN_APIN2DIO            {16,   17,   18,   19,   20,   21,   0xFE, 0xFE,    /* PC0 - PC5, Ain6, Ain7 */ \
                                      0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE}    // TempSens, Vbg, GND}
 // TWI
 #define TWIM_SCL_STAT()             (PINC & (1<<PC5))
@@ -70,7 +73,7 @@ See LICENSE file for license details.
                                      (uint16_t)&PORTE, (uint16_t)&PORTF, (uint16_t)&PORTG, (uint16_t)&PORTH,    \
                                      (uint16_t)&PORTJ, (uint16_t)&PORTK, (uint16_t)&PORTL}
 // AIN
-#define HAL_AIN_BASE2DIO            {40, 41, 42, 43, 44, 45, 46, 47,                    /* PF0 - PF7 */ \
+#define HAL_AIN_APIN2DIO            {40, 41, 42, 43, 44, 45, 46, 47,                    /* PF0 - PF7 */ \
                                      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,                    \
                                      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,                    \
                                      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF,    /* Vbg */       \

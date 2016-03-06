@@ -24,28 +24,27 @@ See LICENSE file for license details.
 // AIn Variables
 
 // Local Variables
-static uint8_t ain_mask[AIN_MASK_SIZE];
-static uint8_t ain_ref[EXTAIN_MAXPORT_NR];
+static uint8_t  ain_mask[AIN_MASK_SIZE];
+static uint8_t  ain_ref[EXTAIN_MAXPORT_NR];
 static uint16_t ain_average;
-static int16_t ain_act_val[EXTAIN_MAXPORT_NR];
+static int16_t  ain_act_val[EXTAIN_MAXPORT_NR];
 
 // AIn local subroutines
 static uint8_t ainCheckBase(uint16_t base)
 {
-    if(base >= EXTAIN_MAXPORT_NR)
+    uint8_t apin = hal_ain_base2apin(base);
+    if(apin == 0xFF)
         return 2;
 
-    if(ain_ref[(uint8_t)(base & 0xFF)] != 0xFF)
+    if(ain_ref[apin] != 0xFF)
         return 1;
 
-    uint8_t pin = hal_ain_apin2dio(base);
+    uint8_t dpin = hal_ain_apin2dio(apin);
 
-    if(pin == 0xFE)         // Analog Inputs without digital functions
+    if(dpin == 0xFE)                            // Analog Inputs without digital functions
         return 0;
-    else if(pin == 0xFF)    // Index not exist
-        return 2;
 
-    return dioCheckBase(pin);
+    return dioCheckBase(dpin);
 }
 
 static uint8_t ainSubidx2Ref(subidx_t * pSubidx)
@@ -75,13 +74,8 @@ static uint8_t ainSubidx2Ref(subidx_t * pSubidx)
 
 static void ain_mask_rs(uint8_t apin, uint8_t set)
 {
-    uint8_t mask = 1;
-    uint8_t pos;
-
-    for(pos = (apin & 7); pos > 0; pos--)
-        mask <<= 1;
-        
-    pos = (apin >> 3);
+    uint8_t mask = 1 << (apin & 7);
+    uint8_t pos = (apin >> 3);
 
     if(set)
         ain_mask[pos] |= mask;
@@ -91,17 +85,11 @@ static void ain_mask_rs(uint8_t apin, uint8_t set)
 
 static uint8_t ain_check_mask(uint8_t apin)
 {
-    uint8_t mask = 1;
-    uint8_t pos;
-
-    for(pos = (apin & 7); pos > 0; pos--)
-        mask <<= 1;
-
-    pos = (apin >> 3);
+    uint8_t mask = 1 << (apin & 7);
+    uint8_t pos = (apin >> 3);
 
     return ((ain_mask[pos] & mask) != 0);
 }
-
 
 // AIn specific subroutine
 void ainLoadAverage(void)
@@ -138,7 +126,7 @@ bool ainCheckSubidx(subidx_t * pSubidx)
 // Read analog inputs
 static e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    uint8_t apin = (uint8_t)(pSubidx->Base & 0xFF);
+    uint8_t apin = hal_ain_base2apin(pSubidx->Base);
 
     ain_mask_rs(apin, 0);   // Reset change mask
 
@@ -151,24 +139,16 @@ static e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
 
 static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
 {
-    // Prevent hard fault on ARM
-    uint16_t val = pBuf[1];
-    val <<= 8;
-    val |= pBuf[0];
-    
-    uint8_t apin = (uint8_t)(pSubidx->Base & 0xFF);
-
+    uint8_t apin = hal_ain_base2apin(pSubidx->Base);
     ain_mask_rs(apin, 0);   // Reset change mask
-    
-    ain_act_val[apin] = val;
-
+    ain_act_val[apin] = (pBuf[1]<<8) | (pBuf[0]);
     return MQTTSN_RET_ACCEPTED;
 }
 
 // Poll Procedure
 static uint8_t ainPollOD(subidx_t * pSubidx)
 {
-    return ain_check_mask((uint8_t)(pSubidx->Base & 0xFF));
+    return ain_check_mask(hal_ain_base2apin(pSubidx->Base));
 }
 
 // Register analogue input
@@ -178,11 +158,11 @@ e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
     if(ainCheckBase(base) != 0)
         return MQTTSN_RET_REJ_INV_ID;
 
-    uint8_t apin = (uint8_t)(base & 0x00FF);
+    uint8_t apin = hal_ain_base2apin(base);
     ain_ref[apin] = ainSubidx2Ref(&pIdx->sidx);
 
     uint8_t dpin = hal_ain_apin2dio(apin);
-    if(dpin != 0xFE)
+    if(dpin < 0xFE)
         dioTake(dpin);
 
     // Configure PIN to Analog input
@@ -201,13 +181,13 @@ void ainDeleteOD(subidx_t * pSubidx)
     if(ainCheckBase(base) != 1)
         return;
     
-    uint8_t apin = (uint8_t)(base & 0x00FF);
+    uint8_t apin = hal_ain_base2apin(base);
     ain_ref[apin] = 0xFF;
 
     // Release PIN
     hal_ain_configure(apin, 0xFF);
     uint8_t dpin = hal_ain_apin2dio(apin);
-    if(dpin != 0xFE)
+    if(dpin < 0xFE)
         dioRelease(dpin);
 }
 
@@ -259,7 +239,7 @@ void ainProc(void)
 #ifdef EXTPLC_USED
 int16_t ainRead(subidx_t * pSubidx)
 {
-    uint16_t apin = pSubidx->Base;
+    uint16_t apin = hal_ain_base2apin(pSubidx->Base);
     if(apin < EXTAIN_MAXPORT_NR)
         return ain_act_val[apin];
     return 0;
