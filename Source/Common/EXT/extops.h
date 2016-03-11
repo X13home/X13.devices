@@ -17,7 +17,7 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-void opsInit();
+void opsInit(void);
 
 #ifdef __cplusplus
 }
