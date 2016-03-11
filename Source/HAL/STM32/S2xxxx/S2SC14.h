@@ -82,10 +82,6 @@ extern "C" {
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // End Analogue Inputs
 
-// TWI Section
-#define EXTTWI_USED                 1       // I2C On PB6, PB7
-// End TWI Section
-
 // UART Section
 #define HAL_UART_NUM_PORTS          2
 #define HAL_USE_USART1              1       // PA9, PA10 - PHY
@@ -99,6 +95,14 @@ extern "C" {
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section
 // End UART Section
+
+// User Extensions
+// Si1143
+#define HAL_TWI_BUS                 1       // I2C1 On PB6, PB7
+#define HAL_USE_EXTI                1
+#define EXT_OPS_USED                1
+#define EXT_OPS_IRQ_PIN             8
+// End User Extensions
 
 // CC11 Section
 #define HAL_USE_SPI1                1

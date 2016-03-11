@@ -12,9 +12,19 @@ See LICENSE file for license details.
 
 #include "config.h"
 
+#define EXT_MAX_PROC    8
+
+typedef void (*cbEXT_t)(void);
+
+static void * extProcCB[EXT_MAX_PROC];
+
 // Initialise extensions
 void extInit(void)
 {
+    uint8_t pos;
+    for(pos = 0; pos < EXT_MAX_PROC; pos++)
+        extProcCB[pos] = NULL;
+    
 #ifdef EXTDIO_USED
     dioInit();
 #ifdef EXTAIN_USED
@@ -29,6 +39,10 @@ void extInit(void)
 #ifdef EXTSER_USED
     serInit();
 #endif  //  EXTSER_USED
+
+#ifdef EXT_OPS_USED
+    opsInit();
+#endif  //  EXT_OPS_USED
 
 #ifdef EXTPLC_USED
     plcInit();
@@ -151,23 +165,39 @@ void extDeleteOD(subidx_t * pSubidx)
     }
 }
 
+
+void extRegProc(void * cb)
+{
+    uint8_t pos;
+    for(pos = 0; pos < EXT_MAX_PROC; pos++)
+    {
+        if(extProcCB[pos] == cb)
+        {
+            return;
+        }
+    }
+
+    for(pos = 0; pos < EXT_MAX_PROC; pos++)
+    {
+        if(extProcCB[pos] == NULL)
+        {
+            extProcCB[pos] = cb;
+            return;
+        }
+    }
+}
+
 void extProc(void)
 {
-#ifdef EXTDIO_USED
-    dioProc();
-#ifdef EXTAIN_USED
-    ainProc();
-#endif  //  EXTAIN_USED
-
-#endif  //  EXTDIO_USED
-
-#ifdef EXTSER_USED
-    serProc();
-#endif  //  EXTSER_USED
-
-#ifdef EXTPLC_USED
-    plcProc();
-#endif  // EXTPLC_USED
+    uint8_t pos;
+    for(pos = 0; pos < EXT_MAX_PROC; pos++)
+    {
+        cbEXT_t cb = extProcCB[pos];
+        if(cb != NULL)
+        {
+            cb();
+        }
+    }
 }
 
 #ifdef EXTPLC_USED

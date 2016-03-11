@@ -22,7 +22,6 @@ void    dioInit(void);
 bool    dioCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx);
 void    dioDeleteOD(subidx_t * pSubidx);
-void    dioProc(void);
 
 // Shared DIO subroutines
 uint8_t dioCheckBase(uint8_t base);

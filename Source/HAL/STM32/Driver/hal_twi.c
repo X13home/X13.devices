@@ -1,6 +1,6 @@
 #include "config.h"
 
-#if (defined EXTTWI_USED) && (defined STM32F0)
+#if (defined HAL_TWI_BUS) && (defined STM32F0)
 
 #include "EXT/exttwi.h"
 
@@ -10,7 +10,7 @@ static volatile uint8_t twi_pnt = 0;
 
 #define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)       // Alternative function, AF = 1, Open Drain
 
-#if (EXTTWI_USED == 1)
+#if (HAL_TWI_BUS == 1)
 // I2C1, PB6 - SCL, PB7 - SDA
 #define I2C_BUS         I2C1
 #define I2C_IRQn        I2C1_IRQn
@@ -57,7 +57,7 @@ bool hal_twi_configure(uint8_t enable)
         }
 
         hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_TWI);                 // Configure GPIO
-#if (EXTTWI_USED == 1)
+#if (HAL_TWI_BUS == 1)
         RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;     // Enable I2C clock
         RCC->CFGR3 |= RCC_CFGR3_I2C1SW;         // Use SysClk for I2C CLK
         // Reset I2C1
@@ -83,7 +83,7 @@ bool hal_twi_configure(uint8_t enable)
     else
     {
         NVIC_DisableIRQ(I2C_IRQn);
-#if (EXTTWI_USED == 1)
+#if (HAL_TWI_BUS == 1)
         // Reset I2C1
         RCC->APB1RSTR |= RCC_APB1RSTR_I2C1RST;
         RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C1RST;
@@ -166,7 +166,7 @@ void hal_twi_start(void)
     pTWI->frame.access |= TWI_BUSY;
 }
 
-#if (EXTTWI_USED == 1)
+#if (HAL_TWI_BUS == 1)
 void I2C1_IRQHandler(void)
 #else   // 
 void I2C2_IRQHandler(void)
@@ -243,4 +243,4 @@ void I2C2_IRQHandler(void)
     }
 }
 
-#endif  //  EXTTWI_USED
+#endif  //  HAL_TWI_BUS

@@ -22,7 +22,6 @@ void    ainInit(void);
 bool    ainCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx);
 void    ainDeleteOD(subidx_t * pSubidx);
-void    ainProc(void);
 
 void    ainLoadAverage(void);
 int16_t ainRead(subidx_t * pSubidx);

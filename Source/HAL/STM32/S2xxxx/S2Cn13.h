@@ -104,7 +104,8 @@ extern "C" {
 // End UART Section
 
 // TWI Section
-#define EXTTWI_USED                 2       // I2C_Bus 1 - I2C1, 2 - I2C2
+#define HAL_TWI_BUS                 2       // I2C_Bus 1 - I2C1, 2 - I2C2
+#define EXTTWI_USED                 1
 // End TWI Section
 
 // LEDs

@@ -26,12 +26,12 @@ See LICENSE file for license details.
 #include "A1xxxx/A1SR11.h"
 #elif   (defined CFG_A1Rn11)        // RFM12 vers. 1.1, node
 #include "A1xxxx/A1Rn11.h"
-// Arduino Nano/Uno
+// Arduino Nano/Uno ATMega328P + OSC 16MHz
 #elif   (defined CFG_A1Sn10)        // Arduino Nano/Uno + UART
 #include "A1xxxx/A1Sn10.h"
 #elif   (defined CFG_A1SC10)        // Arduino Nano/Uno + UART + CC1101
 #include "A1xxxx/A1SC10.h"
-// ATMega2560
+// Arduino Mega ATMega2560 + OSC 16 MHz
 #elif   (defined CFG_A4Sn10)
 #include "A4xxxx/A4Sn10.h"
 // Unknown

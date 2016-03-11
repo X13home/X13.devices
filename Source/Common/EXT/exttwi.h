@@ -27,7 +27,6 @@ extern "C" {
 #define TWI_SLANACK     0x40    // Slave Addr NACK received
 #define TWI_ERROR       0x80    // Unknown error
 
-
 typedef struct
 {
     uint8_t     address;

@@ -38,6 +38,10 @@ extern "C" {
 #include "EXT/extser.h"
 #endif  //  EXTSER_USED
 
+#ifdef EXT_OPS_USED
+#include "EXT/extops.h"
+#endif  //  EXT_OPS_USED
+
 #ifdef EXTPLC_USED
 #include "EXT/extplc.h"
 #endif  //  EXTPLC_USED
@@ -46,6 +50,7 @@ void extInit(void);                                         // Initialise extens
 bool extCheckSubidx(subidx_t * pSubidx);                    // Check Subindex , true -> Ok
 e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx);      // Register Object
 void extDeleteOD(subidx_t * pSubidx);                       // Delete Object
+void extRegProc(void * cb);                                 // register Proc Callback
 void extProc(void);                                         // Update IO's
 
 #ifdef EXTPLC_USED

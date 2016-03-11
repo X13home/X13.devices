@@ -24,7 +24,6 @@ void    serInit(void);
 bool    serCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx);
 void    serDeleteOD(subidx_t * pSubidx);
-void    serProc(void);
 
 #ifdef __cplusplus
 }
