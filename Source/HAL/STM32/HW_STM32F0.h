@@ -43,6 +43,8 @@ See LICENSE file for license details.
 // STM32F051R8
 #elif   (defined CFG_S2Sn10)
 #include "S2xxxx/S2Sn10.h"    // UART
+#elif   (defined CFG_S2SR10)
+#include "S2xxxx/S2SR10.h"    // UART + RFM12
 
 // STM32F091RC
 #elif   (defined CFG_S2Sn11)

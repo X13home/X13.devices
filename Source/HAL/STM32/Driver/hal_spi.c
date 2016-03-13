@@ -72,7 +72,7 @@ APB2 clk = SystemCoreClock
 
 extern uint32_t SystemCoreClock;
 
-static const SPI_TypeDef * hal_spi_port2spi[] = {SPI1, SPI2, SPI3};
+static const SPI_TypeDef * hal_spi_port2spi[4] = {NULL, SPI1, SPI2, SPI3};
 
 void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 {

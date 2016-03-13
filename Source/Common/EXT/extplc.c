@@ -575,28 +575,6 @@ bool plcCheckSubidx(subidx_t * pSubidx)
 // Register merker
 e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
 {
-    uint16_t base = pIdx->sidx.Base;
-    switch(pIdx->sidx.Type)
-    {
-        case objBool:
-            base >>= 5;
-            break;
-        case objInt8:
-        case objUInt8:
-            base >>= 2;
-            break;
-        case objInt16:
-        case objUInt16:
-            base >>= 1;
-            break;
-        case objInt32:
-            break;
-
-        // supressed warning -Wswitch;
-        default:
-            return MQTTSN_RET_REJ_NOT_SUPP;
-    }
-
     pIdx->cbRead    = &merkerReadOD;
     pIdx->cbPoll    = &merkerPollOD;
     pIdx->cbWrite   = &merkerWriteOD;

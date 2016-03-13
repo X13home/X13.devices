@@ -217,17 +217,16 @@ void hal_exti_config(uint8_t pin, uint8_t Trigger, void * pCallback)
 {
     // Enable SYSCFG clock
     RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;
-    
+
     uint8_t port = (pin >> 4);
     pin &= 0x0F;
     hal_exti_cb[pin] = pCallback;
-    
+
     // Connect EXTIx Line to IRQ PIN
-    uint32_t u32_tmp = ((uint32_t)0x0F) << (0x04 * (pin & (uint8_t)0x03));
-    SYSCFG->EXTICR[pin >> 0x02] &= ~u32_tmp;
+    SYSCFG->EXTICR[pin >> 0x02] &= ~(15UL << (0x04 * (pin & (uint8_t)0x03)));
     SYSCFG->EXTICR[pin >> 0x02] |= port << (0x04 * (pin & (uint8_t)0x03));
 
-    u32_tmp = (1UL << pin);
+    uint32_t u32_tmp = (1UL << pin);
     EXTI->IMR |= u32_tmp;               // Enable Interrupt
     EXTI->EMR &= ~u32_tmp;              // Disable Events
     EXTI->PR = (uint16_t)u32_tmp;       // Reset pending status
