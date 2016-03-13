@@ -112,8 +112,8 @@ extern "C" {
 #define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
 
 // ENC Section
-#define HAL_USE_SPI1                1   // SPI1
-#define ENC_USE_SPI                 11  // Config 2, PB3-PB5
+#define HAL_USE_SPI1                2   // SPI1, Config 2: PB3-PB5
+#define ENC_USE_SPI                 1
 #define ENC_NSS_PIN                 22  // PB6
 #define ENC_SELECT()                GPIOB->BRR = GPIO_Pin_6
 #define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); GPIOB->BSRR = GPIO_Pin_6;}

@@ -105,8 +105,8 @@ extern "C" {
 // End User Extensions
 
 // CC11 Section
-#define HAL_USE_SPI1                1
-#define CC11_USE_SPI                11                                  // SPI1, on PB3 - PB5
+#define HAL_USE_SPI1                2       // SPI1, Config 2: PB3-PB5
+#define CC11_USE_SPI                1
 #define CC11_NSS_PIN                15                                  // PA15
 #define CC11_WAIT_LOW_MISO()        while(GPIOB->IDR & GPIO_Pin_4)      // PB4
 #define CC11_SELECT()               GPIOA->BRR = GPIO_Pin_15
