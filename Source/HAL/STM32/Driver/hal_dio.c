@@ -204,7 +204,7 @@ void hal_dio_reset(uint8_t PortNr, uint16_t Mask)
 }
 #endif  //  EXTDIO_USED
 
-#if (defined HAL_USE_EXTI) && (defined STM32F0)
+#if ((defined HAL_USE_EXTI) && (defined STM32F0))
 typedef void (*cbEXTI_t)(void);
 
 void EXTI0_1_IRQHandler(void);
@@ -240,6 +240,31 @@ void hal_exti_config(uint8_t pin, uint8_t Trigger, void * pCallback)
         EXTI->RTSR |= u32_tmp;
     else
         EXTI->RTSR &= ~u32_tmp;
+    
+    // Enable IRQ
+    IRQn_Type IRQn;
+    
+    if(pin < 2)
+    {
+        IRQn = EXTI0_1_IRQn;
+    }
+    else if(pin < 4)
+    {
+        IRQn = EXTI2_3_IRQn;
+    }
+    else
+    {
+        IRQn = EXTI4_15_IRQn;
+    }
+    
+    NVIC_SetPriority(IRQn, 0);
+    NVIC_EnableIRQ(IRQn);
+}
+
+// generate IRQ on pin
+void hal_exti_trig(uint8_t pin)
+{
+    EXTI->SWIER |= (1UL << (pin & 0x0F));
 }
 
 void EXTI0_1_IRQHandler(void)

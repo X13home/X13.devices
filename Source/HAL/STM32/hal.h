@@ -85,6 +85,7 @@ void        hal_dio_reset(uint8_t PortNr, uint16_t Mask);
 #define HAL_EXTI_TRIGGER_BOTH       3
 
 void        hal_exti_config(uint8_t pin, uint8_t Trigger, void * pCallback);
+void        hal_exti_trig(uint8_t pin);
 
 // DIO Section
 //////////////////////////////////////////////////////////////
