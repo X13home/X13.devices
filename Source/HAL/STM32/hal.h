@@ -11,6 +11,8 @@ extern "C" {
 #include "stm32f0xx.h"
 #elif (defined STM32F1)
 #include "stm32f1xx.h"
+#elif (defined STM32F3)
+#include "stm32f3xx.h"
 #else
 #error hal.h Unknown uC Family
 #endif  // uC Family
@@ -170,6 +172,8 @@ void _delay_us(uint16_t us);
 #include "HW_STM32F0.h"
 #elif (defined STM32F1)
 #include "HW_STM32F1.h"
+#elif (defined STM32F3)
+#include "HW_STM32F3.h"
 #else
 #error Unknown Family
 #endif  // uC Family

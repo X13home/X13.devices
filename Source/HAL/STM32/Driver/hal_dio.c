@@ -1,7 +1,7 @@
 #include "config.h"
 
 // HAL GPIO Functions
-#if (defined STM32F0)
+#if ((defined STM32F0) || (defined STM32F3))
 void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
 {
     uint16_t pinpos;

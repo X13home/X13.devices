@@ -26,6 +26,10 @@
 #define HAL_USART2_AF           DIO_MODE_AF_PP
 #define HAL_USART3_AF           DIO_MODE_AF_PP
 
+#elif (defined STM32F3)
+// STM32F3
+#define HAL_USART1_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+
 #else
 #error hal_uart.c  Unknown uC Family
 #endif
@@ -69,7 +73,7 @@ static void hal_uart_irq_handler(uint8_t port, USART_TypeDef * USARTx)
     uint8_t data;
     uint32_t itstat;
 
-#if (defined STM32F0)
+#if ((defined STM32F0) || (defined STM32F3))
     itstat = USARTx->ISR;
     if(itstat & USART_ISR_ORE)
     {
