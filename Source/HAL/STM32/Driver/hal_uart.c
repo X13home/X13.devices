@@ -27,7 +27,7 @@
 #define HAL_USART3_AF           DIO_MODE_AF_PP
 
 #elif (defined STM32F3)
-// STM32F3
+// STM32F303
 #define HAL_USART1_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
 #else
@@ -47,6 +47,9 @@ APB2 clk = SystemCoreClock
 // STM32F1
 APB1 clk = SystemCoreClock/2
 APB2 clk = SystemCoreClock
+
+// STM32F303
+USART1, USART2 clk = SystemCoreClock/2
 */
 
 typedef struct
@@ -254,6 +257,9 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #if (defined HAL_USE_USART1)
         case HAL_USE_USART1:
             {
+#if (defined STM32F3)
+            uart_clock  /= 2;
+#endif
 #if ((defined STM32F1) && (defined HAL_USE_ALT_USART1))
             AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;                           // Remap USART1 from PA9/PA10 to PB6/PB7
 #endif
@@ -281,7 +287,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #if (defined HAL_USE_USART2)
         case HAL_USE_USART2:
             {
-#if (defined STM32F1)
+#if ((defined STM32F1) || (defined STM32F3))
             uart_clock  /= 2;
 #endif  //  STM32F1
             USARTx = USART2;

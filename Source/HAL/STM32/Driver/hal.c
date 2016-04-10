@@ -1,5 +1,7 @@
 #include "config.h"
 
+#define HSE_STARTUP_TIME            0x00005000UL
+
 static uint32_t CriticalNesting = 0;
 static volatile uint32_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;    // Max Uptime 136 Jr.
@@ -17,7 +19,7 @@ static void SetSysClock(void)
 #endif  //  HSE_CRYSTAL_BYPASS
 
     // Wait till HSE is ready and if Time out is reached exit
-    while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < 0x00005000))
+    while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < HSE_STARTUP_TIME))
         StartUpCounter++;
 
 #if (defined STM32F0)
@@ -28,7 +30,7 @@ static void SetSysClock(void)
                    RCC_CFGR_HPRE |                  // HCLK not divided
                    RCC_CFGR_PPRE);                  // SYSCLK not divided
 
-    if(StartUpCounter < 0x00005000)
+    if(StartUpCounter < HSE_STARTUP_TIME)
     {
         RCC->CFGR |= (RCC_CFGR_PLLMUL6 |            // PLL multiplication factor = 6
                       RCC_CFGR_PLLSRC_HSE_PREDIV);  // HSE/PREDIV clock selected as PLL entry clock source
@@ -56,7 +58,7 @@ static void SetSysClock(void)
     // ADC Prescaler = 6;
     RCC->CFGR |= RCC_CFGR_ADCPRE_DIV6;
 
-    if(StartUpCounter < 0x00005000)
+    if(StartUpCounter < HSE_STARTUP_TIME)
     {
         // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
         RCC->CFGR |= (RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL9);
@@ -85,7 +87,7 @@ static void SetSysClock(void)
     // APB1 Prescaler = 2, PCLK1 = HCLK/2
     RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
     
-    if(StartUpCounter < 0x00005000)
+    if(StartUpCounter < HSE_STARTUP_TIME)
     {
         // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
         RCC->CFGR |= (RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL9);

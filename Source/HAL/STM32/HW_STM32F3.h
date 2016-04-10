@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef HW_STM32F1_H
-#define HW_STM32F1_H
+#ifndef HW_STM32F3_H
+#define HW_STM32F3_H
 
 // EEPROM Emulation Section
 
@@ -19,6 +19,7 @@ See LICENSE file for license details.
 #define FEE_TRANSFER_PAGES      2                       // Reserved Pages for Transfer
 
 #if defined (__STM32F303x8_H)
+// 64k Version
 #define FEE_PAGE_SIZE           (uint32_t)0x00000800    // Size of FLASH Page - 2k
 #define FEE_BASE                (((uint32_t)0x08010000) - FEE_SIZE)
 #endif  //  uC
@@ -32,4 +33,4 @@ See LICENSE file for license details.
 #error Unknown configuration
 #endif  //  Configuration
 
-#endif  //  HW_STM32F1_H
+#endif  //  HW_STM32F3_H
