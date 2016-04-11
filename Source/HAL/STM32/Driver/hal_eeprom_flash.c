@@ -1,4 +1,4 @@
-// EEPROM emulation for STM32F0/STM32F1
+// EEPROM emulation for STM32F0/STM32F1/STM32F3
 
 /******************************************************************************************************************/
 // Data placed in the FLASH from address: FEE_BASE

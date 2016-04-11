@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -54,13 +54,11 @@ extern "C" {
 // End System Settings
 
 // DIO Section
-
-//#define EXTDIO_USED                 1
-//#define EXTDIO_MAXPORT_NR           2
-//#define HAL_DIO_MAPPING             {0xFF, 0xFF, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0,    /* PB11, PB10, PB2, PB0, PA7 - PA0 */ \
-//                                     47, 46, 45, 23, 22, 21, 20, 19,                /* PC13 - PC15, PB7 - PB3 */ \
-//                                     15, 0xFF, 0xFF, 12, 11, 10, 9, 8,              /* PA15 - PA8 */ \
-//                                     31, 30, 29, 28}                                /* PB15 - PB12 */
+#define EXTDIO_USED                 1
+#define EXTDIO_MAXPORT_NR           2
+#define HAL_DIO_MAPPING             {  0,   1,  3,  4,  5,  6,  7, 2,   /* PA0, PA1, PA3, PA4 - PA7, PA2 */         \
+                                     255, 255, 12, 16, 23, 22, 17,      /* *PA10, *PA9, PA12, PB0, PB7, PB6, PB1 */ \
+                                     255, 255,  8, 11, 21, 20, 19}      /* NC, NC, PA8, PA11, PB5, PB4, PB3 */
 // End DIO Section
 
 // UART PHY Section
