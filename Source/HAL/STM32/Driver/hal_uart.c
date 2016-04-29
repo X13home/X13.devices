@@ -27,8 +27,9 @@
 #define HAL_USART3_AF           DIO_MODE_AF_PP
 
 #elif (defined STM32F3)
-// STM32F303
+// STM32F303/STM32F334
 #define HAL_USART1_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+#define HAL_USART2_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
 #else
 #error hal_uart.c  Unknown uC Family

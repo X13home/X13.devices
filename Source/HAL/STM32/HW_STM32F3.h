@@ -29,6 +29,9 @@ See LICENSE file for license details.
 // STM32F303K8T6 - Modified Nucleo
 #if   (defined CFG_S4Sn10)
 #include "S4xxxx/S4Sn10.h"    // UART
+// UNodeV3, STM32F303K8 / STM32F334K8
+#elif   (defined CFG_S4Cn11)
+#include "S4xxxx/S4Cn11.h"    // CC1101
 #else
 #error Unknown configuration
 #endif  //  Configuration
