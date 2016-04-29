@@ -32,6 +32,8 @@ See LICENSE file for license details.
 // UNodeV3, STM32F303K8 / STM32F334K8
 #elif   (defined CFG_S4Cn11)
 #include "S4xxxx/S4Cn11.h"    // CC1101
+#elif   (defined CFG_S4SC11)
+#include "S4xxxx/S4SC11.h"    // UART + CC1101
 #else
 #error Unknown configuration
 #endif  //  Configuration
