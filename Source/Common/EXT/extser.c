@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2015 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -33,11 +33,6 @@ typedef struct
 }EXTSER_VAR_t;
 
 static EXTSER_VAR_t * extSerV[EXTSER_USED] = {NULL,};
-
-// Prototypes
-uint8_t serPollOD(subidx_t * pSubidx);
-e_MQTTSN_RETURNS_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);
-e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 
 void serInit()
 {
@@ -73,7 +68,7 @@ bool serCheckSubidx(subidx_t * pSubidx)
 }
 
 // Read data
-e_MQTTSN_RETURNS_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     uint8_t port = pSubidx->Base & 0x0F;
     
@@ -96,7 +91,7 @@ e_MQTTSN_RETURNS_t serReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 }
 
 // Write data
-e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 {
     uint8_t port = pSubidx->Base & 0x0F;
 
@@ -122,7 +117,7 @@ e_MQTTSN_RETURNS_t serWriteOD(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
 }
 
 // Poll Procedure
-uint8_t serPollOD(subidx_t * pSubidx)
+static uint8_t serPollOD(subidx_t * pSubidx)
 {
     uint8_t port = pSubidx->Base & 0x0F;
     
@@ -139,6 +134,54 @@ uint8_t serPollOD(subidx_t * pSubidx)
     }
     
     return 0;
+}
+
+static void serProc(void)
+{
+    uint8_t port;
+
+    for(port = 0; port < EXTSER_USED; port++)
+    {
+        if(extSerV[port] != NULL)
+        {
+            if(extSerV[port]->flags & EXTSER_FLAG_TXEN)
+            {
+                if((extSerV[port]->pTxBuf != NULL) && (hal_uart_free(port)))
+                {
+                    mqFree(extSerV[port]->pTxBuf);
+                    extSerV[port]->pTxBuf = NULL;
+                }
+            }
+            
+            if(extSerV[port]->flags & EXTSER_FLAG_RXEN)
+            {
+                if(hal_uart_datardy(port))
+                {
+                    uint8_t tmphead = extSerV[port]->RxHead + 1;
+                    if(tmphead >= sizeof(MQ_t))
+                        tmphead = 0;
+
+                    if(tmphead != extSerV[port]->RxTail)
+                    {
+                        extSerV[port]->pRxBuf[extSerV[port]->RxHead] = hal_uart_get(port);
+                        extSerV[port]->RxHead = tmphead;
+                        
+                        uint8_t size;
+                        
+                        if(tmphead > extSerV[port]->RxTail)
+                            size = tmphead - extSerV[port]->RxTail;
+                        else
+                            size = sizeof(MQ_t) - extSerV[port]->RxTail + tmphead;
+                            
+                        if(size < (sizeof(MQ_t)/2))
+                            extSerV[port]->flags &= ~EXTSER_FLAG_RXRDY;
+                        else
+                            extSerV[port]->flags |= EXTSER_FLAG_RXRDY;
+                    }
+                }
+            }
+        }
+    }
 }
 
 // Register Object
@@ -213,7 +256,8 @@ e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx)
         dioTake(RxPin);
         hal_uart_init_hw(port, nBaud, 1);
     }
-
+    
+    extRegProc(&serProc);
     return MQTTSN_RET_ACCEPTED;
 }
 
@@ -249,54 +293,6 @@ void serDeleteOD(subidx_t * pSubidx)
             
             dioRelease(TxPin);
             dioRelease(RxPin);
-        }
-    }
-}
-
-void serProc(void)
-{
-    uint8_t port;
-
-    for(port = 0; port < EXTSER_USED; port++)
-    {
-        if(extSerV[port] != NULL)
-        {
-            if(extSerV[port]->flags & EXTSER_FLAG_TXEN)
-            {
-                if((extSerV[port]->pTxBuf != NULL) && (hal_uart_free(port)))
-                {
-                    mqFree(extSerV[port]->pTxBuf);
-                    extSerV[port]->pTxBuf = NULL;
-                }
-            }
-            
-            if(extSerV[port]->flags & EXTSER_FLAG_RXEN)
-            {
-                if(hal_uart_datardy(port))
-                {
-                    uint8_t tmphead = extSerV[port]->RxHead + 1;
-                    if(tmphead >= sizeof(MQ_t))
-                        tmphead = 0;
-
-                    if(tmphead != extSerV[port]->RxTail)
-                    {
-                        extSerV[port]->pRxBuf[extSerV[port]->RxHead] = hal_uart_get(port);
-                        extSerV[port]->RxHead = tmphead;
-                        
-                        uint8_t size;
-                        
-                        if(tmphead > extSerV[port]->RxTail)
-                            size = tmphead - extSerV[port]->RxTail;
-                        else
-                            size = sizeof(MQ_t) - extSerV[port]->RxTail + tmphead;
-                            
-                        if(size < (sizeof(MQ_t)/2))
-                            extSerV[port]->flags &= ~EXTSER_FLAG_RXRDY;
-                        else
-                            extSerV[port]->flags |= EXTSER_FLAG_RXRDY;
-                    }
-                }
-            }
         }
     }
 }

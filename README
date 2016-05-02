@@ -12,6 +12,7 @@ Devices
   Board: Arduino Nano/Uno, uC: ATMega328P, Fosc = 16M
     A1Sn10      PHY1 - Serial Port
     A1SC10      PHY1 - Serial Port, PHY2 - CC1101
+    A1Cn10      PHY1 - CC1101
 
   Board: Arduino Mega, uC: ATMega2560
     A4Sn10      PHY1 - Serial Port
@@ -35,12 +36,20 @@ Devices
 
   Board: Discovery F0, uC: STM32F051R8 - ARM Cortex M0
     S2Sn10      PHY1 - UART
+    S2SR10      PHY1 - UART, PHY2 - RFM12
 
   Board: Nucleo, uC: STM32F091RC - ARM Cortex M0
     S2Sn11      PHY1 - UART
 
-  Board: / Board: Maple Mini, uC: STM32F103CB - ARM Cortex M3
+  Prototypes
+
+  Board: Maple Mini, uC: STM32F103CB - ARM Cortex M3
     S3Cn10      PHY1 - CC1101
     S3En10      PHY1 - ENC28J60
     S3SC10      PHY1 - UART, PHY2 - CC1101
     S3Sn10      PHY1 - UART
+    
+  Board: S4CX11, uC: STM32F303K8/STM32F334K8 - ARM Cortex M4
+    S4Cn11      PHY1 - CC1101
+    S4SC11      PHY1 - UART, PHY2 - CC1101
+    S4Sn10      PHY1 - UART

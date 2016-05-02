@@ -139,11 +139,8 @@ static void rfm12_tx_task(void)
 // IRQ subroutine
 void rfm12_irq(void)
 {
-    static uint16_t     rfm12v_RfCRC;       // Actual CRC
-
     uint16_t intstat = hal_rfm12_spiExch(0);
-    uint8_t ch;
-    
+
     if(intstat & (uint16_t)RFM12_STATUS_POR)        // Power-on reset
     {
         hal_rfm12_spiExch(RFM12_SLEEP_MODE);
@@ -153,8 +150,10 @@ void rfm12_irq(void)
     
     if(intstat & (uint16_t)RFM12_STATUS_RGIT)       // Rx/Tx FIFO events
     {
-        static uint8_t rfm12v_RfLen = 0;            // Packet Length
-        static uint8_t rfm12v_Pos = 0;              // Position
+        static uint16_t rfm12v_RfCRC;               // Actual CRC
+        static uint8_t  rfm12v_RfLen = 0;           // Packet Length
+        static uint8_t  rfm12v_Pos = 0;             // Position
+        uint8_t ch;
 
         switch(rfm12_state)
         {

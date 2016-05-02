@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <Project version="2G - 1.7.8" name="S2xxxx">
-  <Target name="S2Cn13" isCurrent="0">
+  <Target name="S2Cn13" isCurrent="1">
     <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
     <BuildOption>
       <Compile>
@@ -280,6 +280,77 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
+  <Target name="S2Sn11" isCurrent="0">
+    <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
+    <BuildOption>
+      <Compile>
+        <Option name="OptimizationLevel" value="1"/>
+        <Option name="UseFPU" value="0"/>
+        <Option name="UserEditCompiler" value=""/>
+        <Option name="SupportCPlusplus" value="0"/>
+        <Includepaths>
+          <Includepath path="."/>
+          <Includepath path="hal/arm/cmsis"/>
+          <Includepath path="common"/>
+          <Includepath path="hal"/>
+          <Includepath path="hal/cmsis/include"/>
+        </Includepaths>
+        <DefinedSymbols>
+          <Define name="STM32F0"/>
+          <Define name="CFG_S2Sn11"/>
+          <Define name="STM32F091xC"/>
+        </DefinedSymbols>
+      </Compile>
+      <Link useDefault="0">
+        <Option name="DiscardUnusedSection" value="0"/>
+        <Option name="UserEditLinkder" value=""/>
+        <Option name="UseMemoryLayout" value="0"/>
+        <Option name="nostartfiles" value="0"/>
+        <Option name="LTO" value="0"/>
+        <Option name="IsNewStartupCode" value="1"/>
+        <Option name="Library" value="Not use C Library"/>
+        <LinkedLibraries/>
+        <MemoryAreas debugInFlashNotRAM="1">
+          <Memory name="IROM1" type="ReadOnly" size="0x00010000" startValue="0x08000000"/>
+          <Memory name="IRAM1" type="ReadWrite" size="0x00002000" startValue="0x20000000"/>
+          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
+          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
+        </MemoryAreas>
+        <LocateLinkFile path="hal/stm32/ldscript/stm32f091rc_flash.ld" type="0"/>
+      </Link>
+      <Output>
+        <Option name="OutputFileType" value="0"/>
+        <Option name="Path" value="./"/>
+        <Option name="Name" value="S2En13"/>
+        <Option name="HEX" value="1"/>
+        <Option name="BIN" value="1"/>
+      </Output>
+      <User>
+        <UserRun name="Run#1" type="Before" checked="0" value=""/>
+        <UserRun name="Run#1" type="After" checked="0" value=""/>
+      </User>
+    </BuildOption>
+    <DebugOption>
+      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
+      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
+      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="./stm32f09x_256.elf"/>
+    </DebugOption>
+    <ExcludeFile/>
+  </Target>
   <Target name="S2Sn13" isCurrent="0">
     <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
     <BuildOption>
@@ -351,77 +422,6 @@
     </DebugOption>
     <ExcludeFile/>
   </Target>
-  <Target name="S2Sn11" isCurrent="1">
-    <Device manufacturerId="9" manufacturerName="ST" chipId="243" chipName="STM32F051C8" boardId="" boardName=""/>
-    <BuildOption>
-      <Compile>
-        <Option name="OptimizationLevel" value="1"/>
-        <Option name="UseFPU" value="0"/>
-        <Option name="UserEditCompiler" value=""/>
-        <Option name="SupportCPlusplus" value="0"/>
-        <Includepaths>
-          <Includepath path="."/>
-          <Includepath path="hal/arm/cmsis"/>
-          <Includepath path="common"/>
-          <Includepath path="hal"/>
-          <Includepath path="hal/cmsis/include"/>
-        </Includepaths>
-        <DefinedSymbols>
-          <Define name="STM32F0"/>
-          <Define name="CFG_S2Sn11"/>
-          <Define name="STM32F091xC"/>
-        </DefinedSymbols>
-      </Compile>
-      <Link useDefault="0">
-        <Option name="DiscardUnusedSection" value="0"/>
-        <Option name="UserEditLinkder" value=""/>
-        <Option name="UseMemoryLayout" value="0"/>
-        <Option name="nostartfiles" value="0"/>
-        <Option name="LTO" value="0"/>
-        <Option name="IsNewStartupCode" value="1"/>
-        <Option name="Library" value="Not use C Library"/>
-        <LinkedLibraries/>
-        <MemoryAreas debugInFlashNotRAM="1">
-          <Memory name="IROM1" type="ReadOnly" size="0x00010000" startValue="0x08000000"/>
-          <Memory name="IRAM1" type="ReadWrite" size="0x00002000" startValue="0x20000000"/>
-          <Memory name="IROM2" type="ReadOnly" size="" startValue=""/>
-          <Memory name="IRAM2" type="ReadWrite" size="" startValue=""/>
-        </MemoryAreas>
-        <LocateLinkFile path="hal/stm32/ldscript/stm32f091rc_flash.ld" type="0"/>
-      </Link>
-      <Output>
-        <Option name="OutputFileType" value="0"/>
-        <Option name="Path" value="./"/>
-        <Option name="Name" value="S2En13"/>
-        <Option name="HEX" value="1"/>
-        <Option name="BIN" value="1"/>
-      </Output>
-      <User>
-        <UserRun name="Run#1" type="Before" checked="0" value=""/>
-        <UserRun name="Run#1" type="After" checked="0" value=""/>
-      </User>
-    </BuildOption>
-    <DebugOption>
-      <Option name="org.coocox.codebugger.gdbjtag.core.adapter" value="ST-Link"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.debugMode" value="SWD"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.clockDiv" value="1M"/>
-      <Option name="org.coocox.codebugger.gdbjtag.corerunToMain" value="1"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkgdbserver" value=""/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.userDefineGDBScript" value=""/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.targetEndianess" value="0"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.jlinkResetMode" value="Type 0: Normal"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.resetMode" value="SYSRESETREQ"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.ifSemihost" value="0"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.ifCacheRom" value="1"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.ipAddress" value="127.0.0.1"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.portNumber" value="2009"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.autoDownload" value="1"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.verify" value="1"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.downloadFuction" value="Erase Effected"/>
-      <Option name="org.coocox.codebugger.gdbjtag.core.defaultAlgorithm" value="./stm32f09x_256.elf"/>
-    </DebugOption>
-    <ExcludeFile/>
-  </Target>
   <Components path="./"/>
   <Files>
     <File name="HAL/Device/source/gcc/startup_stm32f051x8.S" path="HAL/ARM/Device/ST/STM32F0xx/source/gcc/startup_stm32f051x8.S" type="1"/>
@@ -435,8 +435,8 @@
     <File name="Common/mqttsn.c" path="Common/mqttsn.c" type="1"/>
     <File name="Common/PHY" path="" type="2"/>
     <File name="Common/PHY/ENC28J60/enc28j60_net.c" path="Common/PHY/ENC28J60/enc28j60_net.c" type="1"/>
-    <File name="Common/PHY/UART" path="" type="2"/>
     <File name="HAL/Driver/hal_cc11.c" path="HAL/STM32/Driver/hal_cc11.c" type="1"/>
+    <File name="Common/PHY/UART" path="" type="2"/>
     <File name="Common/PHY/CC1101/cc11_phy.h" path="Common/PHY/CC1101/cc11_phy.h" type="1"/>
     <File name="Common/ObjDict.c" path="Common/ObjDict.c" type="1"/>
     <File name="Common/PHY/ENC28J60/enc28j60_phy.h" path="Common/PHY/ENC28J60/enc28j60_phy.h" type="1"/>
@@ -454,16 +454,16 @@
     <File name="HAL/Device/include/stm32f0xx.h" path="HAL/ARM/Device/ST/STM32F0xx/include/stm32f0xx.h" type="1"/>
     <File name="HAL/Driver/hal_twi.c" path="HAL/STM32/Driver/hal_twi.c" type="1"/>
     <File name="HAL/CMSIS/core_cm0.h" path="HAL/ARM/CMSIS/core_cm0.h" type="1"/>
-    <File name="HAL/HW_STM32F1.h" path="HAL/STM32/HW_STM32F1.h" type="1"/>
     <File name="Common/EXT/exttwi.h" path="Common/EXT/exttwi.h" type="1"/>
     <File name="Common/EXT/extdio.c" path="Common/EXT/extdio.c" type="1"/>
+    <File name="HAL/HW_STM32F1.h" path="HAL/STM32/HW_STM32F1.h" type="1"/>
     <File name="Common/ObjDict.h" path="Common/ObjDict.h" type="1"/>
     <File name="Common/config.h" path="Common/config.h" type="1"/>
     <File name="HAL/CMSIS/core_cmFunc.h" path="HAL/ARM/CMSIS/core_cmFunc.h" type="1"/>
     <File name="Common/EXT/extser.h" path="Common/EXT/extser.h" type="1"/>
-    <File name="HAL/Driver/hal_dio.c" path="HAL/STM32/Driver/hal_dio.c" type="1"/>
     <File name="HAL/CMSIS/core_cmInstr.h" path="HAL/ARM/CMSIS/core_cmInstr.h" type="1"/>
     <File name="HAL/Device/include/system_stm32f0xx.h" path="HAL/ARM/Device/ST/STM32F0xx/include/system_stm32f0xx.h" type="1"/>
+    <File name="HAL/Driver/hal_dio.c" path="HAL/STM32/Driver/hal_dio.c" type="1"/>
     <File name="Common/main.c" path="Common/main.c" type="1"/>
     <File name="Common/PHY/UART/uart_phy.c" path="Common/PHY/UART/uart_phy.c" type="1"/>
     <File name="HAL/Driver/hal.c" path="HAL/STM32/Driver/hal.c" type="1"/>
@@ -498,9 +498,9 @@
     <File name="Common/ext.c" path="Common/ext.c" type="1"/>
     <File name="Common/EXT/extplc.h" path="Common/EXT/extplc.h" type="1"/>
     <File name="HAL/Device" path="" type="2"/>
-    <File name="Common/PHY/ENC28J60/enc28j60_hw.h" path="Common/PHY/ENC28J60/enc28j60_hw.h" type="1"/>
     <File name="Common/mqMEM.h" path="Common/mqMEM.h" type="1"/>
     <File name="HAL/Device/source/system_stm32f0xx.c" path="HAL/ARM/Device/ST/STM32F0xx/source/system_stm32f0xx.c" type="1"/>
+    <File name="Common/PHY/ENC28J60/enc28j60_hw.h" path="Common/PHY/ENC28J60/enc28j60_hw.h" type="1"/>
     <File name="HAL/CMSIS" path="" type="2"/>
     <File name="Common/EXT/extdio.h" path="Common/EXT/extdio.h" type="1"/>
   </Files>

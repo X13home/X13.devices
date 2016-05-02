@@ -1,5 +1,7 @@
 #include "config.h"
 
+#define HSE_STARTUP_TIME            0x00005000UL
+
 static uint32_t CriticalNesting = 0;
 static volatile uint32_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;    // Max Uptime 136 Jr.
@@ -7,23 +9,28 @@ static volatile uint32_t hal_sec_counter = 0;    // Max Uptime 136 Jr.
 static void SetSysClock(void)
 {
     uint32_t StartUpCounter = 0;
-  
+
+    // Enable HSE
+    RCC->CR |= RCC_CR_HSEON;
+
+#if (defined HSE_CRYSTAL_BYPASS)
+    // HSE crystal oscillator bypassed with external clock
+    RCC->CR |= RCC_CR_HSEBYP;
+#endif  //  HSE_CRYSTAL_BYPASS
+
+    // Wait till HSE is ready and if Time out is reached exit
+    while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < HSE_STARTUP_TIME))
+        StartUpCounter++;
+
 #if (defined STM32F0)
     // Enable Prefetch Buffer and set Flash Latency
     FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY;
-
-    // Enable HSE
-    RCC->CR |= ((uint32_t)RCC_CR_HSEON);
-
-    // Wait till HSE is ready and if Time out is reached exit
-    while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < 0x00005000))
-        StartUpCounter++;
 
     RCC->CFGR &= ~(RCC_CFGR_PLLMUL |                // Reset PLL Multiplication factor
                    RCC_CFGR_HPRE |                  // HCLK not divided
                    RCC_CFGR_PPRE);                  // SYSCLK not divided
 
-    if(StartUpCounter < 0x00005000) 
+    if(StartUpCounter < HSE_STARTUP_TIME)
     {
         RCC->CFGR |= (RCC_CFGR_PLLMUL6 |            // PLL multiplication factor = 6
                       RCC_CFGR_PLLSRC_HSE_PREDIV);  // HSE/PREDIV clock selected as PLL entry clock source
@@ -35,14 +42,6 @@ static void SetSysClock(void)
         RCC->CFGR |= RCC_CFGR_PLLMUL12;             // PLL multiplication factor = 12
     }
 #elif (defined STM32F1)
-    // SYSCLK, HCLK, PCLK2 and PCLK1 configuration
-    // Enable HSE
-    RCC->CR |= RCC_CR_HSEON;
-
-    // Wait till HSE is ready and if Time out is reached exit
-    while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < 0x00005000))
-        StartUpCounter++;
-  
     // Enable Prefetch Buffer
     FLASH->ACR |= FLASH_ACR_PRFTBE;
 
@@ -59,7 +58,7 @@ static void SetSysClock(void)
     // ADC Prescaler = 6;
     RCC->CFGR |= RCC_CFGR_ADCPRE_DIV6;
 
-    if(StartUpCounter < 0x00005000)
+    if(StartUpCounter < HSE_STARTUP_TIME)
     {
         // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
         RCC->CFGR |= (RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL9);
@@ -68,9 +67,35 @@ static void SetSysClock(void)
     {
         // PLL configuration: PLLCLK = HSI * 16 = 64 MHz, Not acceptabel for USB
         // HSI clock divided by 2 selected as PLL entry clock source
-        // PLL multiplication factor = 12
+        // PLL multiplication factor = 16
         RCC->CR &= ~RCC_CR_HSEON;       // Disble HSE
         RCC->CFGR |= RCC_CFGR_PLLMULL16;
+    }
+#elif (defined STM32F3)
+    // Enable Prefetch Buffer and set Flash Latency
+    // Enable Prefetch Buffer
+    FLASH->ACR |= FLASH_ACR_PRFTBE;
+
+    // Flash 2 wait state
+    FLASH->ACR &= ~FLASH_ACR_LATENCY;
+    FLASH->ACR |= FLASH_ACR_LATENCY_1;
+    
+    // PLL->CFGR reset in SystemInit()
+    // SYSCLK = 72, on PLL
+    // AHB Prescaler = 1, HCLK = SYSCLK
+    // APB2 Prescaler = 1, PCLK2 = HCLK
+    // APB1 Prescaler = 2, PCLK1 = HCLK/2
+    RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
+    
+    if(StartUpCounter < HSE_STARTUP_TIME)
+    {
+        // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
+        RCC->CFGR |= (RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL9);
+    }
+    else
+    {
+        RCC->CR &= ~RCC_CR_HSEON;                   // Disble HSE
+        RCC->CFGR |= RCC_CFGR_PLLMUL16;
     }
 #else
 #error SetSysClock Unknown uC Family
@@ -118,7 +143,7 @@ void HAL_Init(void)
     // Set Core Clock
     SetSysClock();
     // Enable GPIO clock
-#if (defined STM32F0)
+#if ((defined STM32F0) || (defined STM32F3))
     RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN | RCC_AHBENR_GPIOFEN;
 #elif (defined STM32F1)
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN | RCC_APB2ENR_IOPEEN;

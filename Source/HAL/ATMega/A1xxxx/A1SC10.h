@@ -14,8 +14,9 @@ See LICENSE file for license details.
 #define _A1SC10_H
 
 // Board:   Arduino Nano/Uno
-// uc:      ATMega328p
-// Phy1:    UART
+// uC:      ATMega328p
+// PHY1:    UART
+// PHY2:    CC1101
 
 // 0 - 7    PORTA - not exist
 // PORTB
@@ -53,6 +54,8 @@ extern "C" {
 
 #define F_CPU                       16000000UL
 
+#include <util/delay.h>
+
 //#define ASLEEP                      1       // Enable ASleep mode
 //#define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
 
@@ -83,13 +86,23 @@ extern "C" {
 // End TWI Section
 
 // UART Section
-#define HAL_USE_USART0              0       // Logical Port Number 0,1,2,...
+#define HAL_USE_USART0              0
 #define HAL_UART_NUM_PORTS          1
-
-#define UART_PHY_PORT               0       // Logical Port Number 0,1,2,...
+#define UART_PHY_PORT               0
+#define UART_PHY                    1
+#include "PHY/UART/uart_phy.h"
 // End UART Section
 
-#define UART_PHY                    1
+// CC11 Section
+#define HAL_USE_SPI                 1
+#define CC11_USE_SPI                1
+#define CC11_NSS_PIN                10  // PB2
+#define CC11_WAIT_LOW_MISO()        while(PINB & (1<<PB4))
+#define CC11_SELECT()               PORTB &= ~(1<<PB2)
+#define CC11_RELEASE()              PORTB |= (1<<PB2)
+#define CC11_PHY                    2
+#include "PHY/CC1101/cc11_phy.h"
+//  End CC11 Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           21      // Size of identificators list, PC0-PC5 + ADC6/7 + Vbg + PD2-PD7 + PB0-PB4
@@ -99,8 +112,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'C'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '0'
-
-#include "PHY/UART/uart_phy.h"
 
 #ifdef __cplusplus
 }

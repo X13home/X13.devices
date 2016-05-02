@@ -331,6 +331,41 @@
             </item>            
         </item>
     </item>
+    <item name="A1Cn10" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0502">
+        <item name="_proto" value="A1SC10" saved="True" type="System.String" />
+        <item name="Digital Inputs">
+            <item name="Ip8" value="GzX8" saved="True" type="System.String">
+                <item name="_description" value="Digital input, D0 - PD0" saved="True" type="System.String" />
+            </item>
+            <item name="Ip9" value="HzX9" saved="True" type="System.String">
+                <item name="_description" value="Digital input, D1 - PD1" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="Digital Pull-Up inverted inputs">
+            <item name="In8" value="GzX8" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, D0 - PD0" saved="True" type="System.String" />
+            </item>
+            <item name="In9" value="HzX9" saved="True" type="System.String">
+                <item name="_description" value="Digital Pull-Up inverted input, D1 - PD1" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="Digital Outputs">
+            <item name="Op8" value="GzX8" saved="True" type="System.String">
+                <item name="_description" value="Digital output, D0 - PD0" saved="True" type="System.String" />
+            </item>
+            <item name="Op9" value="HzX9" saved="True" type="System.String">
+                <item name="_description" value="Digital output, D1 - PD1" saved="True" type="System.String" />
+            </item>        
+        </item>
+        <item name="Digital Inverted Outputs">
+            <item name="Op8" value="GzX8" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, D0 - PD0" saved="True" type="System.String" />
+            </item>
+            <item name="Op9" value="HzX9" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, D1 - PD1" saved="True" type="System.String" />
+            </item>        
+        </item>
+    </item>
     <item name="A4Sn10" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0131">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />

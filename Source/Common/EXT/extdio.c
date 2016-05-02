@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2015 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -91,6 +91,61 @@ static e_MQTTSN_RETURNS_t dioReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
     return MQTTSN_RET_ACCEPTED;
 }
 
+// Update DIO
+static void dioProc(void)
+{
+    uint8_t port, port_hal = EXTDIO_PORT_OFFSET;
+    DIO_PORT_TYPE state, mask;
+
+    for(port = 0; port < EXTDIO_MAXPORT_NR; port++)
+    {
+        mask = dio_read_mask[port] & ~dio_write_mask[port];
+        if(mask != 0)
+        {
+            state = hal_dio_read(port_hal) & mask;
+
+            DIO_PORT_TYPE maskp = 1;
+            while(maskp)
+            {
+                DIO_PORT_TYPE maski = mask & maskp;
+                if(maski)
+                {
+                    if((dio_state_flag[port] ^ state) & maski)
+                    {
+                        dio_state_flag[port] &= ~maski;
+                        dio_state_flag[port] |= state & maski;
+                    }
+                    else
+                    {
+                        DIO_PORT_TYPE staterd =  ((dio_status[port] ^ state) & maski);
+                        if(staterd)
+                        {
+                            dio_status[port] ^= staterd;
+                            dio_change_flag[port] |= staterd;
+                        }
+                    }
+                }
+                maskp <<= 1;
+            }
+        }
+
+        mask = dio_write_mask[port] & ~dio_read_mask[port];
+        if(mask != 0)
+        {
+            state = dio_status[port] & mask;
+            if(state)
+                hal_dio_set(port_hal, state);
+        
+            state = ~dio_status[port] & mask;
+            if(state)
+                hal_dio_reset(port_hal, state);
+        }
+
+        port_hal++;
+    }
+}
+
+
 ///////////////////////////////////////////////////////////////////////
 // DIO API
 
@@ -166,6 +221,7 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
         }
     }
 
+    extRegProc(&dioProc);
     return MQTTSN_RET_ACCEPTED;
 }
 
@@ -182,58 +238,6 @@ void dioDeleteOD(subidx_t * pSubidx)
     hal_dio_configure(pin, DIO_MODE_IN_FLOAT);
 }
 
-void dioProc(void)
-{
-    uint8_t port, port_hal = EXTDIO_PORT_OFFSET;
-    DIO_PORT_TYPE state, mask;
-
-    for(port = 0; port < EXTDIO_MAXPORT_NR; port++)
-    {
-        mask = dio_read_mask[port] & ~dio_write_mask[port];
-        if(mask != 0)
-        {
-            state = hal_dio_read(port_hal) & mask;
-
-            DIO_PORT_TYPE maskp = 1;
-            while(maskp)
-            {
-                DIO_PORT_TYPE maski = mask & maskp;
-                if(maski)
-                {
-                    if((dio_state_flag[port] ^ state) & maski)
-                    {
-                        dio_state_flag[port] &= ~maski;
-                        dio_state_flag[port] |= state & maski;
-                    }
-                    else
-                    {
-                        DIO_PORT_TYPE staterd =  ((dio_status[port] ^ state) & maski);
-                        if(staterd)
-                        {
-                            dio_status[port] ^= staterd;
-                            dio_change_flag[port] |= staterd;
-                        }
-                    }
-                }
-                maskp <<= 1;
-            }
-        }
-
-        mask = dio_write_mask[port] & ~dio_read_mask[port];
-        if(mask != 0)
-        {
-            state = dio_status[port] & mask;
-            if(state)
-                hal_dio_set(port_hal, state);
-        
-            state = ~dio_status[port] & mask;
-            if(state)
-                hal_dio_reset(port_hal, state);
-        }
-
-        port_hal++;
-    }
-}
 
 // Is Pin free
 uint8_t dioCheckBase(uint8_t pin)

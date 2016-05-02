@@ -83,6 +83,8 @@ uint16_t    hal_rfm12_spiExch(uint16_t data);
 bool        hal_rfm12_irq_stat(void);
 void        hal_rfm12_enable_irq(void);
 
+void        rfm12_irq(void);
+
 // API Section
 void        RFM12_Init(void);
 void        RFM12_Send(void *pBuf);

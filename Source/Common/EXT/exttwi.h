@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2015 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -26,7 +26,6 @@ extern "C" {
 #define TWI_WD          0x20    // Timeout
 #define TWI_SLANACK     0x40    // Slave Addr NACK received
 #define TWI_ERROR       0x80    // Unknown error
-
 
 typedef struct
 {

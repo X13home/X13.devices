@@ -1,4 +1,4 @@
-// EEPROM emulation for STM32F0/STM32F1
+// EEPROM emulation for STM32F0/STM32F1/STM32F3
 
 /******************************************************************************************************************/
 // Data placed in the FLASH from address: FEE_BASE
@@ -41,9 +41,16 @@
 #if (defined STM32F0)
 #define FEE_EraseTimeout        (uint32_t)0x000B0000
 #define FEE_ProgramTimeout      (uint32_t)0x000B0000
+
 #elif (defined STM32F1)
 #define FEE_EraseTimeout        (uint32_t)0x000B0000
 #define FEE_ProgramTimeout      (uint32_t)0x00002000
+
+#elif (defined STM32F3)
+#define FLASH_SR_WRPRTERR       FLASH_SR_WRPERR
+#define FEE_EraseTimeout        (uint32_t)0x000B0000
+#define FEE_ProgramTimeout      (uint32_t)0x00002000
+
 #endif
 
 #define FEE_AVAIL_PAGES (uint8_t)((FEE_SIZE/FEE_PAGE_SIZE) - FEE_TRANSFER_PAGES)

@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2015 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -22,7 +22,6 @@ void    ainInit(void);
 bool    ainCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx);
 void    ainDeleteOD(subidx_t * pSubidx);
-void    ainProc(void);
 
 void    ainLoadAverage(void);
 int16_t ainRead(subidx_t * pSubidx);

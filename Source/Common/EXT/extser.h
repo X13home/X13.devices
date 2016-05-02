@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2015 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -24,7 +24,6 @@ void    serInit(void);
 bool    serCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx);
 void    serDeleteOD(subidx_t * pSubidx);
-void    serProc(void);
 
 #ifdef __cplusplus
 }

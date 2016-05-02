@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2015 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -151,47 +151,7 @@ static uint8_t ainPollOD(subidx_t * pSubidx)
     return ain_check_mask(hal_ain_base2apin(pSubidx->Base));
 }
 
-// Register analogue input
-e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
-{
-    uint16_t base = pIdx->sidx.Base;
-    if(ainCheckBase(base) != 0)
-        return MQTTSN_RET_REJ_INV_ID;
-
-    uint8_t apin = hal_ain_base2apin(base);
-    ain_ref[apin] = ainSubidx2Ref(&pIdx->sidx);
-
-    uint8_t dpin = hal_ain_apin2dio(apin);
-    if(dpin < 0xFE)
-        dioTake(dpin);
-
-    // Configure PIN to Analog input
-    hal_ain_configure(apin, ain_ref[apin]);
-
-    pIdx->cbRead  = &ainReadOD;
-    pIdx->cbWrite = &ainWriteOD;
-    pIdx->cbPoll  = &ainPollOD;
-
-    return MQTTSN_RET_ACCEPTED;
-}
-
-void ainDeleteOD(subidx_t * pSubidx)
-{
-    uint16_t base = pSubidx->Base;
-    if(ainCheckBase(base) != 1)
-        return;
-    
-    uint8_t apin = hal_ain_base2apin(base);
-    ain_ref[apin] = 0xFF;
-
-    // Release PIN
-    hal_ain_configure(apin, 0xFF);
-    uint8_t dpin = hal_ain_apin2dio(apin);
-    if(dpin < 0xFE)
-        dioRelease(dpin);
-}
-
-void ainProc(void)
+static void ainProc(void)
 {
     static int32_t ain_val;
     static uint16_t ain_cnt = 0;
@@ -234,6 +194,48 @@ void ainProc(void)
         if(ain_pos == EXTAIN_MAXPORT_NR)
             ain_pos = 0;
     }
+}
+
+// Register analogue input
+e_MQTTSN_RETURNS_t ainRegisterOD(indextable_t *pIdx)
+{
+    uint16_t base = pIdx->sidx.Base;
+    if(ainCheckBase(base) != 0)
+        return MQTTSN_RET_REJ_INV_ID;
+
+    uint8_t apin = hal_ain_base2apin(base);
+    ain_ref[apin] = ainSubidx2Ref(&pIdx->sidx);
+
+    uint8_t dpin = hal_ain_apin2dio(apin);
+    if(dpin < 0xFE)
+        dioTake(dpin);
+
+    // Configure PIN to Analog input
+    hal_ain_configure(apin, ain_ref[apin]);
+
+    pIdx->cbRead  = &ainReadOD;
+    pIdx->cbWrite = &ainWriteOD;
+    pIdx->cbPoll  = &ainPollOD;
+    
+    extRegProc(&ainProc);
+
+    return MQTTSN_RET_ACCEPTED;
+}
+
+void ainDeleteOD(subidx_t * pSubidx)
+{
+    uint16_t base = pSubidx->Base;
+    if(ainCheckBase(base) != 1)
+        return;
+    
+    uint8_t apin = hal_ain_base2apin(base);
+    ain_ref[apin] = 0xFF;
+
+    // Release PIN
+    hal_ain_configure(apin, 0xFF);
+    uint8_t dpin = hal_ain_apin2dio(apin);
+    if(dpin < 0xFE)
+        dioRelease(dpin);
 }
 
 #ifdef EXTPLC_USED

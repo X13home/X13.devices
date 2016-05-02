@@ -11,6 +11,8 @@ extern "C" {
 #include "stm32f0xx.h"
 #elif (defined STM32F1)
 #include "stm32f1xx.h"
+#elif (defined STM32F3)
+#include "stm32f3xx.h"
 #else
 #error hal.h Unknown uC Family
 #endif  // uC Family
@@ -78,6 +80,14 @@ void        hal_dio_configure(uint8_t pin, uint16_t Mode);
 uint16_t    hal_dio_read(uint8_t PortNr);
 void        hal_dio_set(uint8_t PortNr, uint16_t Mask);
 void        hal_dio_reset(uint8_t PortNr, uint16_t Mask);
+
+// EXTI
+#define HAL_EXTI_TRIGGER_FALLING    1
+#define HAL_EXTI_TRIGGER_RISING     2
+#define HAL_EXTI_TRIGGER_BOTH       3
+
+void        hal_exti_config(uint8_t pin, uint8_t Trigger, void * pCallback);
+void        hal_exti_trig(uint8_t pin);
 
 // DIO Section
 //////////////////////////////////////////////////////////////
@@ -162,6 +172,8 @@ void _delay_us(uint16_t us);
 #include "HW_STM32F0.h"
 #elif (defined STM32F1)
 #include "HW_STM32F1.h"
+#elif (defined STM32F3)
+#include "HW_STM32F3.h"
 #else
 #error Unknown Family
 #endif  // uC Family

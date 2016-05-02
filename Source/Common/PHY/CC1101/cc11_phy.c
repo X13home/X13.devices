@@ -294,10 +294,16 @@ void CC11_Init(void)
     // verify that SPI is working and the correct radio is installed
 
     uint8_t pn = 0xFF, vers = 0xFF;
+    uint16_t cnt = 0;
+    
     while((pn != 0) && (vers < 3))
     {
-        pn = cc11_readReg(CC11_PARTNUM | CC11_STATUS_REGISTER);
-        vers = cc11_readReg(CC11_VERSION | CC11_STATUS_REGISTER);
+        if((cnt & 0xFF00) == 0)
+        {
+            pn = cc11_readReg(CC11_PARTNUM | CC11_STATUS_REGISTER);
+            vers = cc11_readReg(CC11_VERSION | CC11_STATUS_REGISTER);
+        }
+        cnt++;
     }
 
     // Configure CC1101

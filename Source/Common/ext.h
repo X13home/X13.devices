@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2015 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -46,6 +46,7 @@ void extInit(void);                                         // Initialise extens
 bool extCheckSubidx(subidx_t * pSubidx);                    // Check Subindex , true -> Ok
 e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx);      // Register Object
 void extDeleteOD(subidx_t * pSubidx);                       // Delete Object
+void extRegProc(void * cb);                                 // register Proc Callback
 void extProc(void);                                         // Update IO's
 
 #ifdef EXTPLC_USED

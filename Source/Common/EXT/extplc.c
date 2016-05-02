@@ -14,6 +14,30 @@ See LICENSE file for license details.
 
 #ifdef EXTPLC_USED
 
+// PLC Return status
+typedef enum
+{
+    PLC_ANSWER_OK               = 0,
+    PLC_ANSWER_RUN              = 1,        // PLC VM in Run State 
+    
+    PLC_ANSWER_ERROR_UNK_COP    = 0x80,     // Unknown operation
+    PLC_ANSWER_ERROR_OFR_PC     = 0x81,     // Out of Range PC
+    PLC_ANSWER_ERROR_OFR_RAM    = 0x82,     // Out of Range RAM pointer
+    PLC_ANSWER_ERROR_TEST       = 0x83,     // Test error
+    PLC_ANSWER_ERROR_WD         = 0x84,     // Watchdog
+    PLC_ANSWER_ERROR_OFR_SFP    = 0x85,     // Out of Range SFP
+    PLC_ANSWER_ERROR_DIV0       = 0x86,     // division to 0
+    PLC_ANSWER_ERROR_OFR_SP     = 0x87,     // Out of Range SP
+    PLC_ANSWER_ERROR_UNK_API    = 0x88,     // Unknown API function
+    
+    PLC_ANSWER_ERROR_WRS        = 0xFA,     // Wrong State
+    PLC_ANSWER_ERROR_CRC        = 0xFB,     // CRC Error
+    PLC_ANSWER_ERROR_OFR        = 0xFC,     // Out of range
+    PLC_ANSWER_ERROR_FMT        = 0xFD,     // Format Error
+    PLC_ANSWER_ERROR_CMD        = 0xFE,     // Unknown command
+    PLC_ANSWER_IDLE             = 0xFF
+}ePLC_ANSWER_t;
+
 // PLC Control, command and response
 // Response format: [cmd] [stat] [optional]
 typedef enum
@@ -423,91 +447,7 @@ static uint8_t merkerPollOD(subidx_t * pSubidx)
     return (plcvm_ram[base] & mask) != (plc_old[base] & mask);
 }
 
-// Check Merkers Index
-bool plcCheckSubidx(subidx_t * pSubidx)
-{
-    uint16_t base = pSubidx->Base;
-    switch(pSubidx->Type)
-    {
-        case objBool:
-            base >>= 5;
-            break;
-        case objInt8:
-        case objUInt8:
-            base >>= 2;
-            break;
-        case objInt16:
-        case objUInt16:
-            base >>= 1;
-            break;
-        case objInt32:
-            break;
-        default:
-            return false;
-    }
-
-    if(base >= EXTPLC_SIZEOF_RW)
-        return false;
-    return true;
-}
-
-// Register merker
-e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
-{
-    uint16_t base = pIdx->sidx.Base;
-    switch(pIdx->sidx.Type)
-    {
-        case objBool:
-            base >>= 5;
-            break;
-        case objInt8:
-        case objUInt8:
-            base >>= 2;
-            break;
-        case objInt16:
-        case objUInt16:
-            base >>= 1;
-            break;
-        case objInt32:
-            break;
-
-        // supressed warning -Wswitch;
-        default:
-            return MQTTSN_RET_REJ_NOT_SUPP;
-    }
-
-    pIdx->cbRead    = &merkerReadOD;
-    pIdx->cbPoll    = &merkerPollOD;
-    pIdx->cbWrite   = &merkerWriteOD;
-    return MQTTSN_RET_ACCEPTED;
-}
-
-void plcInit(void)
-{
-   // Register variable pa0
-    indextable_t * pIndex = getFreeIdxOD();
-    if(pIndex == NULL)
-        return;
-    
-    pIndex->cbRead     = &plcReadOD;
-    pIndex->cbWrite    = &plcWriteOD;
-    pIndex->cbPoll     = &plcPollOD;
-    pIndex->sidx.Place = objPLCctrl;    // PLC Control
-    pIndex->sidx.Type  = objArray;      // Variable Type - Byte Array
-    pIndex->sidx.Base  = 0;             // not used
-
-    // Init variables
-    plc_run     = true;
-    plc_answer  = false;
-    plc_exchg   = NULL;
-    
-    // Read Config
-    eeprom_read((uint8_t *)&plcvm_stack_bot, eePLCStackBot, 4);
-    if(plcvm_stack_bot == 0xFFFFFFFF)
-        plcvm_stack_bot = 0;
-}
-
-void plcProc(void)
+static void plcProc(void)
 {
     if(plc_run)
     {
@@ -604,4 +544,67 @@ void plcProc(void)
     }
 }
 
+// Check Merkers Index
+bool plcCheckSubidx(subidx_t * pSubidx)
+{
+    uint16_t base = pSubidx->Base;
+    switch(pSubidx->Type)
+    {
+        case objBool:
+            base >>= 5;
+            break;
+        case objInt8:
+        case objUInt8:
+            base >>= 2;
+            break;
+        case objInt16:
+        case objUInt16:
+            base >>= 1;
+            break;
+        case objInt32:
+            break;
+        default:
+            return false;
+    }
+
+    if(base >= EXTPLC_SIZEOF_RW)
+        return false;
+    return true;
+}
+
+// Register merker
+e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
+{
+    pIdx->cbRead    = &merkerReadOD;
+    pIdx->cbPoll    = &merkerPollOD;
+    pIdx->cbWrite   = &merkerWriteOD;
+    return MQTTSN_RET_ACCEPTED;
+}
+
+void plcInit(void)
+{
+   // Register variable pa0
+    indextable_t * pIndex = getFreeIdxOD();
+    if(pIndex == NULL)
+        return;
+    
+    pIndex->cbRead     = &plcReadOD;
+    pIndex->cbWrite    = &plcWriteOD;
+    pIndex->cbPoll     = &plcPollOD;
+    pIndex->sidx.Place = objPLCctrl;    // PLC Control
+    pIndex->sidx.Type  = objArray;      // Variable Type - Byte Array
+    pIndex->sidx.Base  = 0;             // not used
+
+    // Init variables
+    plc_run     = true;
+    plc_answer  = false;
+    plc_exchg   = NULL;
+    
+    // Read Config
+    eeprom_read((uint8_t *)&plcvm_stack_bot, eePLCStackBot, 4);
+    if(plcvm_stack_bot == 0xFFFFFFFF)
+        plcvm_stack_bot = 0;
+    
+    extRegProc(&plcProc);
+}
 #endif  //  EXTPLC_USED

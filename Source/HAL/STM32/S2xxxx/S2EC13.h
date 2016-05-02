@@ -104,7 +104,8 @@ extern "C" {
 // End UART Section
 
 // TWI Section
-#define EXTTWI_USED                 2       // I2C_Bus 1 - I2C1, 2 - I2C2
+#define HAL_TWI_BUS                 2       // I2C_Bus 1 - I2C1, 2 - I2C2
+#define EXTTWI_USED                 1
 // End TWI Section
 
 // LEDs
@@ -113,8 +114,8 @@ extern "C" {
 #define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
 
 // ENC Section
-#define HAL_USE_SPI1                1   // SPI1
-#define ENC_USE_SPI                 11  // Config 2, PB3-PB5
+#define HAL_USE_SPI1                2   // SPI1, Config 2: PB3-PB5
+#define ENC_USE_SPI                 1
 #define ENC_NSS_PIN                 22  // PB6
 #define ENC_SELECT()                GPIOB->BRR = GPIO_Pin_6
 #define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); GPIOB->BSRR = GPIO_Pin_6;}

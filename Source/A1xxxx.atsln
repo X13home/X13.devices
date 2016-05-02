@@ -7,6 +7,7 @@ Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "A1xxxx", "A1xxxx.cproj", "{
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		A1Cn10|AVR = A1Cn10|AVR
 		A1Cn12|AVR = A1Cn12|AVR
 		A1En12|AVR = A1En12|AVR
 		A1Rn11|AVR = A1Rn11|AVR
@@ -17,6 +18,8 @@ Global
 		A1SR11|AVR = A1SR11|AVR
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{27BFDAF4-794B-4FC0-A7AA-2ED642CA8986}.A1Cn10|AVR.ActiveCfg = A1Cn10|AVR
+		{27BFDAF4-794B-4FC0-A7AA-2ED642CA8986}.A1Cn10|AVR.Build.0 = A1Cn10|AVR
 		{27BFDAF4-794B-4FC0-A7AA-2ED642CA8986}.A1Cn12|AVR.ActiveCfg = A1Cn12|AVR
 		{27BFDAF4-794B-4FC0-A7AA-2ED642CA8986}.A1Cn12|AVR.Build.0 = A1Cn12|AVR
 		{27BFDAF4-794B-4FC0-A7AA-2ED642CA8986}.A1En12|AVR.ActiveCfg = A1En12|AVR
