@@ -1,7 +1,6 @@
 #include "config.h"
 
 #if ((defined HAL_USE_USART1)       || \
-     (defined HAL_USE_ALT_USART1)   || \
      (defined HAL_USE_USART2)       || \
      (defined HAL_USE_USART3))
 
@@ -227,7 +226,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #if (defined STM32F3)
             uart_clock  /= 2;
 #endif
-#if ((defined STM32F1) && (defined HAL_USE_ALT_USART1))
+#if ((defined STM32F1) && (defined HAL_USART1_ALT))
             AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;                           // Remap USART1 from PA9/PA10 to PB6/PB7
 #endif
             USARTx = USART1;

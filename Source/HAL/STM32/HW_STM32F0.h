@@ -106,8 +106,7 @@ See LICENSE file for license details.
 //////////////////////////////////////////////////////////////
 //  UART Section
 
-#if (defined HAL_USE_ALT_USART1)
-#define HAL_USE_USART1          HAL_USE_ALT_USART1
+#if (defined HAL_USART1_ALT)
 #define HAL_USART1_AF           DIO_MODE_AF_PP
 #define HAL_USART1_PIN_RX       23                      // GPIOB PIN7
 #define HAL_USART1_PIN_TX       22                      // GPIOB PIN6
@@ -117,7 +116,7 @@ See LICENSE file for license details.
 #define HAL_USART1_PIN_RX       10                      // GPIOA PIN10
 #define HAL_USART1_PIN_TX       9                       // GPIOA PIN9
 
-#endif  //  HAL_USE_ALT_USART1
+#endif  //  HAL_USART1_ALT
 
 #define HAL_USART2_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 #define HAL_USART2_PIN_RX       3                       // GPIOA PIN3

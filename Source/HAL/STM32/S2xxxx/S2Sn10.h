@@ -120,7 +120,8 @@ extern "C" {
 
 // UART PHY Section
 #define HAL_UART_NUM_PORTS          1
-#define HAL_USE_ALT_USART1          0   // USART1 on PB6/PB7
+#define HAL_USE_USART1              0
+#define HAL_USART1_ALT              1   // USART1 on PB6/PB7
 
 #define UART_PHY_PORT               0   // Logical port
 #define UART_PHY                    1

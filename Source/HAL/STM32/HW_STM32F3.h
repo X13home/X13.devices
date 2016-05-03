@@ -80,13 +80,41 @@ See LICENSE file for license details.
 
 // USART 1
 #define HAL_USART1_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
-#define HAL_USART1_PIN_RX       10                      // GPIOA PIN10
-#define HAL_USART1_PIN_TX       9                       // GPIOA PIN9
+
+#if   (defined HAL_USART1_ALT)
+#define HAL_USART1_PIN_TX       22                      // PB6
+#define HAL_USART1_PIN_RX       23                      // PB7
+
+#else   //  HAL_USART1_ALT - default
+#define HAL_USART1_PIN_TX       9                       // PA9
+#define HAL_USART1_PIN_RX       10                      // PA10
+
+#endif  //  HAL_USART1_ALT
 
 // USART 2
 #define HAL_USART2_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
-#define HAL_USART2_PIN_RX       3                       // GPIOA PIN3
-#define HAL_USART2_PIN_TX       2                       // GPIOA PIN2
+
+#ifndef HAL_USART2_ALT
+#define HAL_USART2_ALT          1
+#endif  //  HAL_USART2_ALT
+
+#if   (HAL_USART2_ALT == 2)
+#define HAL_USART2_PIN_TX       19                      // PB3
+#define HAL_USART2_PIN_RX       20                      // PB4
+
+#elif (HAL_USART2_ALT == 3)
+#define HAL_USART2_PIN_TX       14                      // PA14
+#define HAL_USART2_PIN_RX       15                      // PA15
+
+#elif (HAL_USART2_ALT == 13)
+#define HAL_USART2_PIN_TX       2                       // PA2
+#define HAL_USART2_PIN_RX       15                      // PA15
+
+#else   //  HAL_USART2_ALT - default
+#define HAL_USART2_PIN_TX       2                       // PA2
+#define HAL_USART2_PIN_RX       3                       // PA3
+
+#endif  //  HAL_USART2_ALT
 
 //  End UART Section
 //////////////////////////////////////////////////////////////

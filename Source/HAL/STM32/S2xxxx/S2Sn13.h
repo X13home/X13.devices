@@ -98,7 +98,9 @@ extern "C" {
 // UART Section
 #define HAL_UART_NUM_PORTS          2
 #define HAL_USE_USART2              0       // Mapping to logical port
-#define HAL_USE_ALT_USART1          1       // USART1 on PB6/PB7
+
+#define HAL_USE_USART1              1
+#define HAL_USART1_ALT              1       // USART1 on PB6/PB7
 
 #define EXTSER_USED                 1
 // End UART Section
