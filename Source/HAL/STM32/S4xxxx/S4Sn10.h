@@ -57,7 +57,7 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
 #define HAL_DIO_MAPPING             {  0,   1,  3,  4,  5,  6,  7, 2,   /* PA0, PA1, PA3, PA4 - PA7, PA2 */         \
-                                     255, 255, 12, 16, 23, 22, 17,      /* *PA10, *PA9, PA12, PB0, PB7, PB6, PB1 */ \
+                                     255, 255, 12, 16, 255, 255, 17,    /* *PA10, *PA9, PA12, PB0, PB7, PB6, PB1 */ \
                                      255, 255,  8, 11, 21, 20, 19}      /* PF0, PF1, PA8, PA11, PB5, PB4, PB3 */
 // End DIO Section
 
@@ -69,6 +69,11 @@ extern "C" {
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section
+
+// TWI Section
+#define HAL_TWI_BUS                 1       // I2C_Bus 1 - I2C1, 2 - I2C2
+#define EXTTWI_USED                 1
+// End TWI Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           32

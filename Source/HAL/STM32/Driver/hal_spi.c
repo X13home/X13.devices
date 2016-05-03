@@ -19,62 +19,6 @@ APB1 clk = SystemCoreClock/2
 APB2 clk = SystemCoreClock
 */
 
-#if (defined HAL_USE_SPI1)
-#if (HAL_USE_SPI1 == 1)         // Config 1
-#define SPI1_PORT                   GPIOA
-#define SPI1_SCK_PIN                GPIO_Pin_5
-#define SPI1_MISO_PIN               GPIO_Pin_6
-#define SPI1_MOSI_PIN               GPIO_Pin_7
-#elif (HAL_USE_SPI1 == 2)
-#define SPI1_PORT                   GPIOB
-#define SPI1_SCK_PIN                GPIO_Pin_3
-#define SPI1_MISO_PIN               GPIO_Pin_4
-#define SPI1_MOSI_PIN               GPIO_Pin_5
-#else
-#error Unknown HAL_USE_SPI1 config
-#endif  //  HAL_USE_SPI1 - config
-#if (defined STM32F3)
-#define DIO_MODE_SPI1               ((5<<DIO_AF_OFFS) | DIO_MODE_AF_PP_HS)
-#else
-#define DIO_MODE_SPI1               DIO_MODE_AF_PP_HS
-#endif  //  STM32F3
-#endif  //  HAL_USE_SPI1
-
-#if (defined HAL_USE_SPI2)
-#ifndef SPI2
-#error SPI2 not exist
-#undef HAL_USE_SPI2
-#else   //  SPI2 Exist
-#define SPI2_PORT                   GPIOB
-#define SPI2_SCK_PIN                GPIO_Pin_13
-#define SPI2_MISO_PIN               GPIO_Pin_14
-#define SPI2_MOSI_PIN               GPIO_Pin_15
-#endif  //  SPI2
-#define DIO_MODE_SPI2               DIO_MODE_AF_PP_HS
-#endif  //  HAL_USE_SPI2
-
-#if (defined HAL_USE_SPI3)
-#ifndef SPI3
-#error SPI3 not exist
-#undef HAL_USE_SPI3
-#else   //  SPI3 Exist
-#if (HAL_USE_SPI3 == 1)
-#define SPI3_PORT                   GPIOB
-#define SPI3_SCK_PIN                GPIO_Pin_3
-#define SPI3_MISO_PIN               GPIO_Pin_4
-#define SPI3_MOSI_PIN               GPIO_Pin_5
-#elif (HAL_USE_SPI3 == 2)
-#define SPI3_PORT                   GPIOC
-#define SPI3_SCK_PIN                GPIO_Pin_10
-#define SPI3_MISO_PIN               GPIO_Pin_11
-#define SPI3_MOSI_PIN               GPIO_Pin_12
-#else
-#error Unknown HAL_USE_SPI3 config
-#endif  //  HAL_USE_SPI3 - config
-#endif  //  SPI3
-#define DIO_MODE_SPI3               DIO_MODE_AF_PP_HS
-#endif  //  HAL_USE_SPI3
-
 #ifndef SPI2
 #define SPI2    NULL
 #endif  //  SPI2

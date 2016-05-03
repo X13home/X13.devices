@@ -1,37 +1,12 @@
 #include "config.h"
 
-#if (defined HAL_TWI_BUS) && (defined STM32F0)
+#if (defined HAL_TWI_BUS)
 
 #include "EXT/exttwi.h"
 
 // Global variable defined in exttwi.c
 extern volatile TWI_QUEUE_t * pTWI;
 static volatile uint8_t twi_pnt = 0;
-
-#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)       // Alternative function, AF = 1, Open Drain
-
-#if (HAL_TWI_BUS == 1)
-// I2C1, PB6 - SCL, PB7 - SDA
-#define I2C_BUS         I2C1
-#define I2C_IRQn        I2C1_IRQn
-#define I2C_PIN_SCL     GPIO_Pin_6
-#define I2C_PIN_SDA     GPIO_Pin_7
-
-#define I2C_DIO_SCL     22
-#define I2C_DIO_SDA     23
-
-void I2C1_IRQHandler(void);
-#else
-// I2C2, PB10 - SCL, PB11 - SDA
-#define I2C_BUS         I2C2
-#define I2C_IRQn        I2C2_IRQn
-#define I2C_PIN_SCL     GPIO_Pin_10
-#define I2C_PIN_SDA     GPIO_Pin_11
-
-#define I2C_DIO_SCL     26
-#define I2C_DIO_SDA     27
-void I2C2_IRQHandler(void);
-#endif
 
 void hal_twi_get_pins(uint8_t * pSCL, uint8_t * pSDA)
 {
@@ -44,22 +19,37 @@ bool hal_twi_configure(uint8_t enable)
     if(enable)
     {
         // Check GPIO
-        hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_PD);               // Configure GPIO as inputs with pull down
+        hal_gpio_cfg(I2C_GPIO, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_PD);                // Configure GPIO as inputs with pull down
 
-        uint16_t timeout = 0xFFFF;
-        while(--timeout > 0)
+        uint16_t timeout = 0x8000;
+        while(timeout != 0)
         {
-            if((GPIOB->IDR & (I2C_PIN_SCL | I2C_PIN_SDA)) != (I2C_PIN_SCL | I2C_PIN_SDA))
+            if((I2C_GPIO->IDR & (I2C_PIN_SCL | I2C_PIN_SDA)) != (I2C_PIN_SCL | I2C_PIN_SDA))
             {
-                hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);    // Release GPIO
-                return false;
+                timeout++;
+                if(timeout == 0)
+                {
+                    hal_gpio_cfg(I2C_GPIO, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);     // Release GPIO
+                    return false;
+                }
+            }
+            else
+            {
+                if(timeout > 0x8000)
+                {
+                    timeout = 0x8000;
+                }
+                else
+                {
+                    timeout--;
+                }
             }
         }
 
-        hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_TWI);                 // Configure GPIO
+        hal_gpio_cfg(I2C_GPIO, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_TWI);                  // Configure GPIO
+
 #if (HAL_TWI_BUS == 1)
         RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;     // Enable I2C clock
-        RCC->CFGR3 |= RCC_CFGR3_I2C1SW;         // Use SysClk for I2C CLK
         // Reset I2C1
         RCC->APB1RSTR |= RCC_APB1RSTR_I2C1RST;
         RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C1RST;
@@ -69,10 +59,10 @@ bool hal_twi_configure(uint8_t enable)
         RCC->APB1RSTR |= RCC_APB1RSTR_I2C2RST;
         RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C2RST;
 #endif
-        // Set Timings, RM0091, page 542
-        // I2C Clock = 48MHz
+        // Set Timings
+        // I2C Clock = 8MHz
         // I2C Bus = 100 KHz
-        I2C_BUS->TIMINGR |= 0xB0420F13;
+        I2C_BUS->TIMINGR |= 0x2000090E;
 
         // Enable I2C
         I2C_BUS->CR1 = I2C_CR1_PE;
@@ -96,7 +86,7 @@ bool hal_twi_configure(uint8_t enable)
         // Disable clock
         RCC->APB1ENR &= ~RCC_APB1ENR_I2C2EN;    
 #endif
-        hal_gpio_cfg(GPIOB, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);            // Release GPIO
+        hal_gpio_cfg(I2C_GPIO, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);            // Release GPIO
     }
 
     return true;
@@ -166,11 +156,7 @@ void hal_twi_start(void)
     pTWI->frame.access |= TWI_BUSY;
 }
 
-#if (HAL_TWI_BUS == 1)
-void I2C1_IRQHandler(void)
-#else   // 
-void I2C2_IRQHandler(void)
-#endif
+void ISR_TWI_HANDLER()
 {
     uint32_t isr = I2C_BUS->ISR;
 

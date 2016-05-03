@@ -13,6 +13,21 @@ See LICENSE file for license details.
 #ifndef HW_STM32F1_H
 #define HW_STM32F1_H
 
+// STM32F103CBT6, Maple Mini
+#if   (defined CFG_S3Sn10)
+#include "S3xxxx/S3Sn10.h"    // UART
+#elif (defined CFG_S3SC10)
+#include "S3xxxx/S3SC10.h"    // UART + CC1101
+#elif (defined CFG_S3En10)
+#include "S3xxxx/S3En10.h"    // ENC28J60
+#elif (defined CFG_S3Cn10)
+#include "S3xxxx/S3Cn10.h"    // CC1101
+#else
+#error Unknown configuration
+#endif  //  Configuration
+
+
+//////////////////////////////////////////////////////////////
 // EEPROM Emulation Section
 // HD + CL Devices
 #if defined(STM32F100xE) ||                         \
@@ -33,19 +48,79 @@ See LICENSE file for license details.
 #else   //  FLASH_BANK2_END
 #define FEE_BASE ((FLASH_BANK2_END + 1) - FEE_SIZE)
 #endif  //  FLASH_BANK2_END
-// End EEPROM Emulation Section
 
-// STM32F103CBT6, Maple Mini
-#if   (defined CFG_S3Sn10)
-#include "S3xxxx/S3Sn10.h"    // UART
-#elif (defined CFG_S3SC10)
-#include "S3xxxx/S3SC10.h"    // UART + CC1101
-#elif (defined CFG_S3En10)
-#include "S3xxxx/S3En10.h"    // ENC28J60
-#elif (defined CFG_S3Cn10)
-#include "S3xxxx/S3Cn10.h"    // CC1101
+#define FEE_EraseTimeout        (uint32_t)0x000B0000
+#define FEE_ProgramTimeout      (uint32_t)0x00002000
+// End EEPROM Emulation Section
+//////////////////////////////////////////////////////////////
+
+
+//////////////////////////////////////////////////////////////
+// SPI Section
+
+#if (defined HAL_USE_SPI1)
+
+#define DIO_MODE_SPI1               DIO_MODE_AF_PP_HS
+
+#if (HAL_USE_SPI1 == 1)         // Config 1, GPIOA PA5, PA6, PA7
+#define SPI1_PORT                   GPIOA
+#define SPI1_SCK_PIN                GPIO_Pin_5
+#define SPI1_MISO_PIN               GPIO_Pin_6
+#define SPI1_MOSI_PIN               GPIO_Pin_7
+
+#elif (HAL_USE_SPI1 == 2)       // Config 2, GPIOB PB3, PB4, PB5
+#define SPI1_PORT                   GPIOB
+#define SPI1_SCK_PIN                GPIO_Pin_3
+#define SPI1_MISO_PIN               GPIO_Pin_4
+#define SPI1_MOSI_PIN               GPIO_Pin_5
+
 #else
-#error Unknown configuration
-#endif  //  Configuration
+#error Unknown HAL_USE_SPI1 config
+#endif  //  HAL_USE_SPI1 - config
+#endif  //  HAL_USE_SPI1
+
+#if (defined HAL_USE_SPI2)
+
+#define DIO_MODE_SPI2               DIO_MODE_AF_PP_HS
+
+#define SPI2_PORT                   GPIOB
+#define SPI2_SCK_PIN                GPIO_Pin_13
+#define SPI2_MISO_PIN               GPIO_Pin_14
+#define SPI2_MOSI_PIN               GPIO_Pin_15
+
+#endif  //  HAL_USE_SPI2
+
+// End SPI Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+//  UART Section
+
+#define RDR     DR
+#define TDR     DR
+
+// USART 1
+#define HAL_USART1_AF           DIO_MODE_AF_PP
+#if (defined HAL_USE_ALT_USART1)
+#define HAL_USART1_PIN_RX       23                      // GPIOB PIN7
+#define HAL_USART1_PIN_TX       22                      // GPIOB PIN6
+
+#else
+#define HAL_USART1_PIN_RX       10                      // GPIOA PIN10
+#define HAL_USART1_PIN_TX       9                       // GPIOA PIN9
+#endif  //  HAL_USE_ALT_USART1
+
+// USART 2
+#define HAL_USART2_AF           DIO_MODE_AF_PP
+#define HAL_USART2_PIN_RX       3                       // GPIOA PIN3
+#define HAL_USART2_PIN_TX       2                       // GPIOA PIN2
+
+// USART 3
+#define HAL_USART3_AF           DIO_MODE_AF_PP
+#define HAL_USART3_PIN_RX       27                      // GPIOB PIN11
+#define HAL_USART3_PIN_TX       26                      // GPIOB PIN10
+
+//  End UART Section
+//////////////////////////////////////////////////////////////
 
 #endif  //  HW_STM32F1_H
