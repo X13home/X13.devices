@@ -15,27 +15,33 @@ See LICENSE file for license details.
 
 // STM32F051C8
 #if   (defined CFG_S2EC13)
-#include "S2xxxx/S2EC13.h"    // ENC28J60 + CC1101
+#include "S2xxxx/S2EC13.h"      // ENC28J60 + CC1101
 #elif   (defined CFG_S2En13)
-#include "S2xxxx/S2En13.h"    // ENC28J60
+#include "S2xxxx/S2En13.h"      // ENC28J60
 #elif   (defined CFG_S2Cn13)
-#include "S2xxxx/S2Cn13.h"    // CC1101
+#include "S2xxxx/S2Cn13.h"      // CC1101
 #elif   (defined CFG_S2Sn13)
-#include "S2xxxx/S2Sn13.h"    // UART_ALT
+#include "S2xxxx/S2Sn13.h"      // UART_ALT
 
 // STM32F051R8
 #elif   (defined CFG_S2Sn10)
-#include "S2xxxx/S2Sn10.h"    // UART
+#include "S2xxxx/S2Sn10.h"      // UART
 #elif   (defined CFG_S2SR10)
-#include "S2xxxx/S2SR10.h"    // UART + RFM12
+#include "S2xxxx/S2SR10.h"      // UART + RFM12
 
 // STM32F091RC
 #elif   (defined CFG_S2Sn11)
-#include "S2xxxx/S2Sn11.h"    // UART
+#include "S2xxxx/S2Sn11.h"      // UART
 
 // STM32F051K8
 #elif   (defined CFG_S2SC14)
-#include "S2xxxx/S2SC14.h"    // UART + CC1101
+#include "S2xxxx/S2SC14.h"      // UART + CC1101
+
+// UNode V3.0 - STM32F051K8
+#elif   (defined CFG_S2SC15)    
+#include "S2xxxx/S2SC15.h"      // UART + CC1101
+#elif   (defined CFG_S2Cn15)    
+#include "S2xxxx/S2Cn15.h"      // UART + CC1101
 
 #else
 #error Unknown configuration

@@ -598,4 +598,10 @@
             </item>
         </item>
     </item>
+    <item name="S2SC15" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0506">
+        <item name="_proto" value="S4SC11" saved="True" type="System.String" />
+    </item>
+    <item name="S2Cn15" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0506">
+        <item name="_proto" value="S4Cn11" saved="True" type="System.String" />
+    </item>
 </root>
