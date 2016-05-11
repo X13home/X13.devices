@@ -59,8 +59,14 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
 #define HAL_DIO_MAPPING             { 0,  1,  2,  3,  4,  5, 6, 7,  /* PA0 - PA7 */     \
-                                     22, 23, 14, 13, 11, 10, 9}     /* PB7, PB6, PA14, PA13, PA11, PA10, PA9 */ \
+                                     22, 23, 14, 13, 11, 10, 9}     /* PB7, PB6, PA14, PA13, PA11, PA10, PA9 */
 // End DIO Section
+
+// Analogue Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           8
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}                   /* PA0 - PA7 */
+// End Analogue Inputs
 
 // UART Section
 #define HAL_UART_NUM_PORTS          2

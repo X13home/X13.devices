@@ -156,6 +156,32 @@
             </item>
             <!-- PA10, PA9 - RX1, TX1 -->
         </item>
+        <item name="Analog Inputs">
+            <item name="Av0" value="AiX0" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA0" saved="True" type="System.String" />
+            </item>
+            <item name="Av1" value="BiX1" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA1" saved="True" type="System.String" />
+            </item>
+            <item name="Av2" value="CiX2" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA2" saved="True" type="System.String" />
+            </item>
+            <item name="Av3" value="DiX3" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA3" saved="True" type="System.String" />
+            </item>
+            <item name="Av4" value="EiX4" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA4" saved="True" type="System.String" />
+            </item>
+            <item name="Av5" value="FiX5" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA5" saved="True" type="System.String" />
+            </item>
+            <item name="Av6" value="GiX6" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA6" saved="True" type="System.String" />
+            </item>
+            <item name="Av7" value="HiX7" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA7" saved="True" type="System.String" />
+            </item>
+        </item>
     </item>
     <item name="S4Cn11" value="pack://application:,,/CC;component/Images/ty_unode.png"  saved="True" type="System.String" ver="3.16.0503">
         <item name="_proto" value="S4SC11" saved="True" type="System.String" />

@@ -164,4 +164,27 @@ void I2C1_EV_IRQHandler(void);
 // TWI Section
 //////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////
+// HAL AIn Section
+#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+
+#if defined(STM32F303x8)
+
+// PA0 - PA7, PB0 - PB1, Temp
+#define HAL_AIN_AIN2DPIN    {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x10, 0x11, 0xFE}
+
+// apin to configuration conversion
+// bits 7,6 : ADC1 - ADC3, bits 4-0 : Channel 1 - 18
+// PA0 - PA3 : ADC1, In1 - In4
+// PA4 - PA7 : ADC2, In1 - In4
+// PB0 - PB1 : ADC1, In11 - In12
+// Temperature, ADC1, in16
+#define HAL_AIN_AIN2CFG     {0x01, 0x02, 0x03, 0x04, 0x41, 0x42, 0x43, 0x44, 0x0B, 0x0C, 0x10}
+
+#endif  //  STM32F303x8
+
+// HAL AIn Section
+//////////////////////////////////////////////////////////////
+
+
 #endif  //  HW_STM32F3_H

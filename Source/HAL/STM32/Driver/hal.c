@@ -86,7 +86,7 @@ static void SetSysClock(void)
     // APB2 Prescaler = 1, PCLK2 = HCLK
     // APB1 Prescaler = 2, PCLK1 = HCLK/2
     RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
-    
+
     if(StartUpCounter < HSE_STARTUP_TIME)
     {
         // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
@@ -158,6 +158,13 @@ void HAL_Init(void)
     RCC->AHBENR |= RCC_AHBENR_CRCEN;
     CRC->CR = CRC_CR_RESET;
 
+#if (__CORTEX_M >= 0x03U)   // core_cm3, core_cm4
+    // delay
+    CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;     // Enable DWT
+    DWT->CYCCNT = 0;
+    DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;                // Start counter
+#endif  // core_cm?
+
     CriticalNesting = 0;
 }
 
@@ -213,23 +220,19 @@ uint32_t HAL_get_sec(void)
 
 void _delay_us(uint16_t us)
 {
-/*
-    TIM4->CR1 = TIM_CR1_OPM;
-    
-    TIM4->PSC = (const uint16_t)((SystemCoreClock / 1000000) - 1);
-    TIM4->CNT = 0;
-    TIM4->ARR = us;
+#if (__CORTEX_M >= 0x03U)   // core_cm3, core_cm4
+    uint32_t timestamp = DWT->CYCCNT;
+    uint32_t ticks = (const uint32_t)(SystemCoreClock / 1000000UL);
+    ticks *= us;
 
-    TIM4->EGR = TIM_EGR_UG;
-    TIM4->CR1 |= TIM_CR1_CEN;
-    
-    while((TIM4->CR1 & TIM_CR1_CEN) != 0);
-*/
+    while(ticks > (DWT->CYCCNT - timestamp));
+#else                       // core_cm0
     uint32_t ticks = (const uint32_t)(SystemCoreClock / 12000000UL);
     ticks *= us;
 
     while(ticks > 0)
         ticks--;
+#endif  //  core_cm?
 }
 
 #ifdef ASLEEP

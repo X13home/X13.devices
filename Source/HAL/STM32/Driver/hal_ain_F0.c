@@ -1,6 +1,6 @@
 #include "config.h"
 
-#if (defined EXTAIN_USED)
+#if (defined EXTAIN_USED) && (defined STM32F0)
 
 static const __attribute__ ((aligned (4))) uint8_t hal_ainBase2Apin[] = EXTAIN_BASE_2_APIN;
 static const __attribute__ ((aligned (4))) uint8_t hal_ain2dpin[] = {0,1,2,3,4,5,6,7,       // PA0 - PA7
@@ -37,7 +37,7 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
     if((RCC->APB2ENR & RCC_APB2ENR_ADC1EN) == 0)
     {
         RCC->APB2ENR |= RCC_APB2ENR_ADC1EN; // Enable ADC Clock
-#if (defined STM32F0)
+
         ADC1->CR |= ADC_CR_ADCAL;           // ADC calibration
         while(ADC1->CR & ADC_CR_ADCAL);
         
@@ -53,57 +53,20 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
         ADC1->SMPR = ADC_SMPR1_SMPR;        // Sampling 239,5 ADC Clock cycles
 
         ADC1->CR |= ADC_CR_ADEN;            // ADC enabled
-#elif (defined STM32F1)
-        ADC1->CR1 = 0;
-        ADC1->CR2 = ADC_CR2_EXTTRIG |       // Enable conversion on external trigger
-                    ADC_CR2_EXTSEL |        // external trigger on SWSTART.
-                    ADC_CR2_ALIGN;          // Left Aligned
-        // Sampling 239,5 ADC Clock cycles
-        ADC1->SMPR1 = ADC_SMPR1_SMP10 | ADC_SMPR1_SMP11 | ADC_SMPR1_SMP12 | 
-                      ADC_SMPR1_SMP13 | ADC_SMPR1_SMP14 | ADC_SMPR1_SMP15 |
-                      ADC_SMPR1_SMP16 | ADC_SMPR1_SMP17;
-        ADC1->SMPR2 = ADC_SMPR2_SMP0 | ADC_SMPR2_SMP1 | ADC_SMPR2_SMP2 |
-                      ADC_SMPR2_SMP3 | ADC_SMPR2_SMP4 | ADC_SMPR2_SMP5 |
-                      ADC_SMPR2_SMP6 | ADC_SMPR2_SMP7 | ADC_SMPR2_SMP8 |
-                      ADC_SMPR2_SMP9;
-
-        ADC1->SQR1 = 0;                     // 1 Conversion
-
-        ADC1->CR2 |= ADC_CR2_ADON;          // ADC enabled
-
-        ADC1->CR2 |= ADC_CR2_CAL;           // ADC calibration
-        while (ADC1->CR2 & ADC_CR2_CAL);
-#else
-    #error hal_ain_configure unknown uC Family
-#endif
     }
 }
 
 void hal_ain_select(uint8_t apin, uint8_t aref __attribute__ ((unused)))
 {
-#if (defined STM32F0)
     ADC1->CHSELR = (1<<apin);
-#elif (defined STM32F1)
-    ADC1->SQR3 = apin;
-#else
-    #error hal_ain_select unknown uC Family
-#endif
 }
 
 int16_t hal_ain_get(void)
 {
     int16_t retval;
-#if (defined STM32F0)
     retval = (ADC1->DR) >> 1;
     // Start Conversion
     ADC1->CR |= ADC_CR_ADSTART;
-#elif (defined STM32F1)
-    retval = ((ADC1->DR) & 0x0000FFFF) >> 1;
-    // Start Conversion
-    ADC1->CR2 |= ADC_CR2_SWSTART;
-#else
-    #error hal_ain_get unknown uC Family
-#endif
     return retval;
 }
 #endif  //EXTAIN_USED
