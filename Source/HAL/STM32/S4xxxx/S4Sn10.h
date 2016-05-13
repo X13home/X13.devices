@@ -20,28 +20,28 @@ See LICENSE file for license details.
 
 // GPIOA
 // Pin  Port    Nucleo  Func
-//   0  PA0     A0      AIN0
-//   1  PA1     A1      AIN1
+//   0  PA0     A0      AIN0               #TIM2_CH1
+//   1  PA1     A1      AIN1                TIM2_CH2
 //   2  PA2     A7            * USART2_TX
-//   3  PA3     A2      AIN3
-//   4  PA4     A3      AIN4
-//   5  PA5     A4      AIN5
-//   6  PA6     A5      AIN6
-//   7  PA7     A6      AIN7
-//   8  PA8     D9
-//   9  PA9     D1              USART1_TX
-//  10  PA10    D0              USART1_RX
-//  11  PA11    D10
-//  12  PA12    D2
+//   3  PA3     A2      AIN3                TIM2_CH4
+//   4  PA4     A3      AIN4                TIM3_CH2
+//   5  PA5     A4      AIN5               #TIM2_CH1
+//   6  PA6     A5      AIN6                TIM3_CH1
+//   7  PA7     A6      AIN7                TIM17_CH1
+//   8  PA8     D9                          TIM1_CH1
+//   9  PA9     D1              USART1_TX   TIM1_CH2
+//  10  PA10    D0              USART1_RX   TIM1_CH3
+//  11  PA11    D10                         TIM1_CH4
+//  12  PA12    D2                          TIM16_CH1
 //  13  PA13          * SWDIO
 //  14  PA14          * SWCLK
 //  15  PA15                  * USART2_RX
 // GPIOB
-//  16  PB0     D3      AIN8
-//  17  PB1     D6      AIN9
-//  19  PB3     D13
-//  20  PB4     D12
-//  21  PB5     D11
+//  16  PB0     D3      AIN8                TIM3_CH3
+//  17  PB1     D6      AIN9                TIM3_CH4
+//  19  PB3     D13                         TIM2_CH2    TIM3_CH1
+//  20  PB4     D12                         TIM16_CH1   TIM3_CH2
+//  21  PB5     D11                         TIM17_CH1
 //  22  PB6     D5    * SCL1
 //  23  PB7     D4    * SDA1
 
@@ -60,6 +60,30 @@ extern "C" {
                                       10,   9, 12, 16, 255, 255, 17,        /* PA10, PA9, PA12, PB0, *PB7, *PB6, PB1 */ \
                                      255, 255,  8, 11, 21, 20, 19}          /* PF0, PF1, PA8, PA11, PB5, PB4, PB3 */
 // End DIO Section
+
+// PWM Section
+#define EXTPWM_USED                 1
+#define HAL_PWM_PORT2CFG            {((1<<8)  |  (2<<3) | 0),   /* PA0:  AF1, TIM2_CH1  */ \
+                                     ((1<<8)  |  (2<<3) | 1),   /* PA1:  AF1, TIM2_CH2  */ \
+                                     ((1<<8)  |  (2<<3) | 3),   /* PA3:  AF1, TIM2_CH4  */ \
+                                     ((2<<8)  |  (3<<3) | 1),   /* PA4:  AF2, TIM3_CH2  */ \
+                                     ((1<<8)  |  (2<<3) | 0),   /* PA5:  AF1, TIM2_CH1  */ \
+                                     ((2<<8)  |  (3<<3) | 0),   /* PA6:  AF2, TIM3_CH1  */ \
+                                     ((1<<8)  | (17<<3) | 0),   /* PA7:  AF1, TIM17_CH1 */ \
+                                     255,                       /* PA1                  */ \
+                                     ((6<<8)  |  (1<<3) | 2),   /* PA10: AF6, TIM1_CH3  */ \
+                                     ((6<<8)  |  (1<<3) | 1),   /* PA9:  AF6, TIM1_CH2  */ \
+                                     ((1<<8)  | (16<<3) | 0),   /* PA12: AF1, TIM16_CH1 */ \
+                                     ((2<<8)  |  (3<<3) | 2),   /* PB0:  AF2, TIM3_CH3  */ \
+                                     255,255,                                              \
+                                     ((2<<8)  |  (3<<3) | 3),   /* PB1:  AF2, TIM3_CH4  */ \
+                                     255,255,                                              \
+                                     ((6<<8)  |  (1<<3) | 0),   /* PA8:  AF6, TIM1_CH1  */ \
+                                     ((11<<8) |  (1<<3) | 3),   /* PA11: AF11, TIM1_CH4 */ \
+                                     ((10<<8) | (17<<3) | 0),   /* PB5:  AF10, TIM17_CH1 */ \
+                                     ((2<<8)  |  (3<<3) | 1),   /* PB4:  AF2, TIM3_CH2  */ \
+                                     ((2<<8)  |  (3<<3) | 0)}   /* PB3:  AF2, TIM3_CH1  */
+// End PWM Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1

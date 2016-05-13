@@ -58,13 +58,13 @@ See LICENSE file for license details.
 #define SPI1_SCK_PIN                GPIO_Pin_5
 #define SPI1_MISO_PIN               GPIO_Pin_6
 #define SPI1_MOSI_PIN               GPIO_Pin_7
-
+/*
 #elif (HAL_USE_SPI1 == 2)       // Config 2, GPIOB PB3, PB4, PB5
 #define SPI1_PORT                   GPIOB
 #define SPI1_SCK_PIN                GPIO_Pin_3
 #define SPI1_MISO_PIN               GPIO_Pin_4
 #define SPI1_MOSI_PIN               GPIO_Pin_5
-
+*/
 #else
 #error Unknown HAL_USE_SPI1 config
 #endif  //  HAL_USE_SPI1 - config
@@ -169,21 +169,30 @@ void I2C1_EV_IRQHandler(void);
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 
 #if defined(STM32F303x8)
-
 // PA0 - PA7, PB0 - PB1, Temp
-#define HAL_AIN_AIN2DPIN    {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x10, 0x11, 0xFE}
+#define HAL_AIN_AIN2DPIN    {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x10, 0x11}
 
 // apin to configuration conversion
 // bits 7,6 : ADC1 - ADC3, bits 4-0 : Channel 1 - 18
 // PA0 - PA3 : ADC1, In1 - In4
 // PA4 - PA7 : ADC2, In1 - In4
 // PB0 - PB1 : ADC1, In11 - In12
-// Temperature, ADC1, in16
-#define HAL_AIN_AIN2CFG     {0x01, 0x02, 0x03, 0x04, 0x41, 0x42, 0x43, 0x44, 0x0B, 0x0C, 0x10}
-
+#define HAL_AIN_AIN2CFG     {0x01, 0x02, 0x03, 0x04, 0x41, 0x42, 0x43, 0x44, 0x0B, 0x0C}
 #endif  //  STM32F303x8
 
 // HAL AIn Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// PWM Section
+
+#if defined(STM32F303x8)
+#define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3,  NULL,  NULL,  \
+                             NULL, NULL, NULL, NULL,  NULL,  NULL,  \
+                             NULL, NULL, NULL, TIM15, TIM16, TIM17}
+#endif
+
+// PWM Section
 //////////////////////////////////////////////////////////////
 
 

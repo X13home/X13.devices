@@ -4,37 +4,8 @@
 
 // Mapping physical DIO channel to configuration
 // bits 11-8 - AF Number, bits 7-3 Timer, bits 2-0 Channel
-static const uint16_t hal_pwm_port2cfg[] = HAL_PWM_PORT2CFG;
-
-static const TIM_TypeDef * hal_pwm_timers[] = {
-    NULL, TIM1, TIM2, TIM3,
-#ifdef TIM4
-    TIM4,
-#else
-    NULL,
-#endif  // TIM4 
-    NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,   // TIM5 - TIM13
-#ifdef TIM14
-    TIM14,
-#else
-    NULL,
-#endif  //  TIM14
-#ifdef TIM15
-    TIM15,
-#else
-    NULL,
-#endif  //  TIM15
-#ifdef  TIM16
-    TIM16,
-#else
-    NULL,
-#endif  //  TIM16
-#ifdef  TIM17
-    TIM17
-#else
-    NULL
-#endif  //  TIM17
-};
+static const uint16_t       hal_pwm_port2cfg[]  = HAL_PWM_PORT2CFG;
+static const TIM_TypeDef *  hal_pwm_timers[]    = HAL_PWM_TIMERS;
 
 bool hal_pwm_checkbase(uint16_t base)
 {
