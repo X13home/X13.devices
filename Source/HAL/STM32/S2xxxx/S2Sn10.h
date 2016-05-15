@@ -87,8 +87,7 @@ extern "C" {
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           16
-#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
-#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
 // End Analogue Inputs
 
 // PWM Section
@@ -118,15 +117,24 @@ extern "C" {
                                     }
 // End PWM Section
 
-// UART PHY Section
-#define HAL_UART_NUM_PORTS          1
-#define HAL_USE_USART1              0
-#define HAL_USART1_ALT              1   // USART1 on PB6/PB7
+// TWI Section
+#define HAL_TWI_BUS                 2
+#define EXTTWI_USED                 1
+// End TWI Section
 
+// UART Section
+#define HAL_UART_NUM_PORTS          2
+#define HAL_USE_USART2              0
+#define EXTSER_USED                 1
+
+// UART PHY Section
+#define HAL_USE_USART1              1
+#define HAL_USART1_ALT              1   // USART1 on PB6/PB7
 #define UART_PHY_PORT               0   // Logical port
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section
+// End UART Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           40

@@ -72,7 +72,13 @@ extern "C" {
 #define HAL_UART_NUM_PORTS          2
 #define HAL_USE_USART1              0
 #define HAL_USE_USART2              1
+#define EXTSER_USED                 2
 // End UART Section
+
+// TWI Section
+#define HAL_TWI_BUS                 1       // I2C_Bus 1 - I2C1, 2 - I2C2
+#define EXTTWI_USED                 1
+// End TWI Section
 
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_0

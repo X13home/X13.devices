@@ -49,6 +49,7 @@ See LICENSE file for license details.
 // DIO
 #define HAL_DIO_PORTNUM2PORT        {0xFFFF, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
 // AIn
+#define EXTAIN_REF                  0x06                                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 #define HAL_AIN_APIN2DIO            {16,   17,   18,   19,   20,   21,   0xFE, 0xFE,    /* PC0 - PC5, Ain6, Ain7 */ \
                                      0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE}    // TempSens, Vbg, GND}
 // TWI
@@ -75,6 +76,7 @@ See LICENSE file for license details.
                                      (uint16_t)&PORTE, (uint16_t)&PORTF, (uint16_t)&PORTG, (uint16_t)&PORTH,    \
                                      (uint16_t)&PORTJ, (uint16_t)&PORTK, (uint16_t)&PORTL}
 // AIN
+#define EXTAIN_REF                  0x0F                                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 #define HAL_AIN_APIN2DIO            {40, 41, 42, 43, 44, 45, 46, 47,                    /* PF0 - PF7 */ \
                                      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,                    \
                                      0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,                    \

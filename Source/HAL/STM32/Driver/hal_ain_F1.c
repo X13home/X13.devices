@@ -2,7 +2,7 @@
 
 #if (defined EXTAIN_USED) && (defined STM32F1)
 
-static const __attribute__ ((aligned (4))) uint8_t hal_ainBase2Apin[] = EXTAIN_BASE_2_APIN;
+static const __attribute__ ((aligned (4))) uint8_t hal_ainBase2Apin[] = HAL_AIN_BASE2APIN;
 static const __attribute__ ((aligned (4))) uint8_t hal_ain2dpin[] = {0,1,2,3,4,5,6,7,       // PA0 - PA7
                                                                      16,17,                 // PB0 - PB1
                                                                      32,33,34,35,36,37};    // PC0 - PC5

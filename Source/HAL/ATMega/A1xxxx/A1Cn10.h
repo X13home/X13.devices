@@ -10,13 +10,13 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _A1SC10_H
-#define _A1SC10_H
+#ifndef _A1CN10_H
+#define _A1CN10_H
 
 // Board:   Arduino Nano/Uno
 // uC:      ATMega328p
 // PHY1:    CC1101
-
+// PHY2:    --
 
 // 0 - 7    PORTA - not exist
 // PORTB
@@ -77,8 +77,7 @@ extern "C" {
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           8                                   // ADC0-ADC7
-#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7}
-#define EXTAIN_REF                  0x06                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}
 // End Analogue Inputs
 
 // TWI Section
@@ -86,8 +85,8 @@ extern "C" {
 // End TWI Section
 
 // UART Section
-#define HAL_USE_USART0              0
 #define HAL_UART_NUM_PORTS          1
+#define HAL_USE_USART0              0
 
 #define EXTSER_USED                 1
 // End UART Section
@@ -116,4 +115,4 @@ extern "C" {
 }
 #endif
 
-#endif // _A1SN10_H
+#endif // _A1CN10_H

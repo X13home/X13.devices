@@ -65,10 +65,18 @@ extern "C" {
                                      255, 255, 14, 13, 11}              /* PB7, PB6, PA14, PA13, PA11*/
 // End DIO Section
 
+// Analogue Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           8
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}            // PA0-PA7: 0 - 7
+// End Analogue Inputs
+
 // UART Section
 #define HAL_UART_NUM_PORTS          2
 #define HAL_USE_USART1              1
 #define HAL_USE_USART2              0
+
+#define EXTSER_USED                 1
 // End UART Section
 
 // LEDs

@@ -126,9 +126,9 @@ extern "C" {
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           17                                  // ADC0 - ADC15, Vbg
-#define EXTAIN_BASE_2_APIN          {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x1E}
-#define EXTAIN_REF                  0x0F                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define EXTAIN_MAXPORT_NR           0x28                                  // ADC0 - ADC15, Vbg
+#define HAL_AIN_BASE2APIN           {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x1E}
+
 // End Analogue Inputs
 
 // TWI Section
@@ -136,14 +136,12 @@ extern "C" {
 // End TWI Section
 
 // UART Section
+#define HAL_UART_NUM_PORTS          4
 #define HAL_USE_USART0              3
 #define HAL_USE_USART1              0
 #define HAL_USE_USART2              1
 #define HAL_USE_USART3              2
-
-#define HAL_UART_NUM_PORTS          4
-
-#define EXTSER_USED                 1
+#define EXTSER_USED                 3
 // End UART Section
 
 // End Extensions configuration

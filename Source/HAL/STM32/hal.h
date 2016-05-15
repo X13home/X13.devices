@@ -10,7 +10,7 @@ extern "C" {
 #if (defined STM32F0)
 #include "stm32f0xx.h"
 #elif (defined STM32F1)
-#include "stm32f1xx.h"
+#include "../ARM/Device/ST/STM32F1xx/include/stm32f1xx.h"
 #elif (defined STM32F3)
 #include "stm32f3xx.h"
 #else

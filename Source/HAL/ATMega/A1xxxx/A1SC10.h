@@ -77,8 +77,7 @@ extern "C" {
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           8                                   // ADC0-ADC7
-#define EXTAIN_BASE_2_APIN          {0, 1, 2, 3, 4, 5, 6, 7}
-#define EXTAIN_REF                  0x06                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}
 // End Analogue Inputs
 
 // TWI Section
@@ -117,4 +116,4 @@ extern "C" {
 }
 #endif
 
-#endif // _A1SN10_H
+#endif // _A1SC10_H

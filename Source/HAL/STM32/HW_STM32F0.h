@@ -135,7 +135,6 @@ See LICENSE file for license details.
 //////////////////////////////////////////////////////////////
 // TWI Section
 #if (defined HAL_TWI_BUS)
-// STM32F303K8 / STM32F334K8
 
 #ifndef HAL_TWI_CONFIG
 #define HAL_TWI_CONFIG  1
@@ -196,10 +195,16 @@ void I2C2_IRQHandler(void);
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
+// HAL AIn Section
+#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+// HAL AIn Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
 // PWM Section
 
 #if defined(STM32F051x8) || defined(STM32F091xC)
-#define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3, TIM4,  \
+#define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3, NULL,  \
                              NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,   /* TIM5 - TIM13 */ \
                              TIM14, TIM15, TIM16, TIM17}
 #else

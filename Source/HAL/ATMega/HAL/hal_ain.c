@@ -3,7 +3,7 @@
 #ifdef EXTAIN_USED
 
 #include <avr/pgmspace.h>
-static const PROGMEM uint8_t hal_ainBase2Apin[] = EXTAIN_BASE_2_APIN;
+static const PROGMEM uint8_t hal_ainBase2Apin[] = HAL_AIN_BASE2APIN;
 static const PROGMEM uint8_t hal_ainApin2Dio[] = HAL_AIN_APIN2DIO;
 
 

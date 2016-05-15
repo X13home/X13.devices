@@ -58,13 +58,11 @@ See LICENSE file for license details.
 #define SPI1_SCK_PIN                GPIO_Pin_5
 #define SPI1_MISO_PIN               GPIO_Pin_6
 #define SPI1_MOSI_PIN               GPIO_Pin_7
-/*
 #elif (HAL_USE_SPI1 == 2)       // Config 2, GPIOB PB3, PB4, PB5
 #define SPI1_PORT                   GPIOB
 #define SPI1_SCK_PIN                GPIO_Pin_3
 #define SPI1_MISO_PIN               GPIO_Pin_4
 #define SPI1_MOSI_PIN               GPIO_Pin_5
-*/
 #else
 #error Unknown HAL_USE_SPI1 config
 #endif  //  HAL_USE_SPI1 - config

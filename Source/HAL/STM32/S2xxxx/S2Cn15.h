@@ -42,8 +42,8 @@ See LICENSE file for license details.
 //  19  PB3     --      CC11_SCK
 //  20  PB4     --      CC11_MISO
 //  21  PB5     --      CC11_MOSI
-//  22  PB6     P2.3    SCL1
-//  23  PB7     P2.4    SDA1
+//  22  PB6     P2.3  * SCL1
+//  23  PB7     P2.4  * SDA1
 // System
 //      3.3V    P1.1
 //      3.3V    P2.1
@@ -57,16 +57,29 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define EXTDIO_MAXPORT_NR           2
+#define EXTDIO_MAXPORT_NR           1
 #define HAL_DIO_MAPPING             { 0,  1,  2,  3,  4,  5, 6, 7,  /* PA0 - PA7 */     \
-                                     22, 23, 14, 13, 11, 10, 9}     /* PB7, PB6, PA14, PA13, PA11, PA10, PA9 */ \
+                                     255, 255, 14, 13, 11, 10, 9}   /* PB7, PB6, PA14, PA13, PA11, PA10, PA9 */
 // End DIO Section
+
+// Analogue Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           8
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}        // PA0-PA7: 0 - 7
+// End Analogue Inputs
 
 // UART Section
 #define HAL_UART_NUM_PORTS          2
 #define HAL_USE_USART1              0
 #define HAL_USE_USART2              1
+
+#define EXTSER_USED                 2
 // End UART Section
+
+// TWI Section
+#define HAL_TWI_BUS                 1
+#define EXTTWI_USED                 1
+// End TWI Section
 
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_0

@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _S3SC10_H
-#define _S3SC10_H
+#ifndef _S3CN10_H
+#define _S3CN10_H
 
 // Board: Maple Mini
 // uC: STM32F103CBT6
@@ -76,8 +76,7 @@ extern "C" {
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           9
-#define EXTAIN_BASE_2_APIN          {0xFF, 0xFF, 0xFF, 8, 7, 6, 5, 4, 3, 2, 1, 0}   /* PB11, PB10, PB2, PB0, PA7 - PA0 */
-#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define HAL_AIN_BASE2APIN           {0xFF, 0xFF, 0xFF, 8, 7, 6, 5, 4, 3, 2, 1, 0}   /* PB11, PB10, PB2, PB0, PA7 - PA0 */
 // End Analogue Inputs
 
 // PWM Section
@@ -99,7 +98,7 @@ extern "C" {
                                      ((1<<3) | 3),              /* PA11: TIM1_CH4   */ \
                                      ((1<<3) | 2),              /* PA10: TIM1_CH3   */ \
                                      ((1<<3) | 1),              /* PA9:  TIM1_CH2   */ \
-                                     ((1<<3) | 0)}              /* PA8:  TIM1_CH2   */
+                                     ((1<<3) | 0)}              /* PA8:  TIM1_CH1   */
 // End PWM Section
 
 // LEDs
@@ -132,4 +131,4 @@ extern "C" {
 }
 #endif
 
-#endif // _S3SC10_H
+#endif // _S3CN10_H

@@ -74,7 +74,7 @@
   * @{
   */
 
-#include "stm32f1xx.h"
+#include "../include/stm32f1xx.h"
 
 /**
   * @}
