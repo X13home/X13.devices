@@ -65,6 +65,20 @@ extern "C" {
                                      255, 255, 14, 13, 11}              /* PB7, PB6, PA14, PA13, PA11*/
 // End DIO Section
 
+// PWM Section
+#define EXTPWM_USED                 1
+#define HAL_PWM_PORT2CFG            {((2<<8) |  (2<<3) | 0),    /* !PA0:  AF2, TIM2_CH1  */ \
+                                     ((2<<8) |  (2<<3) | 1),    /* PA1:  AF2, TIM2_CH2  */ \
+                                     ((0<<8) | (15<<3) | 0),    /* PA2:  AF0, TIM15_CH1 */ \
+                                     ((0<<8) | (15<<3) | 1),    /* PA3:  AF0, TIM15_CH2 */ \
+                                     ((4<<8) | (14<<3) | 0),    /* PA4:  AF4, TIM14_CH1 */ \
+                                     ((2<<8) |  (2<<3) | 0),    /* !PA5:  AF2, TIM2_CH1  */ \
+                                     ((1<<8) |  (3<<3) | 0),    /* PA6:  AF1, TIM3_CH1  */ \
+                                     ((1<<8) |  (3<<3) | 1),    /* PA7:  AF1, TIM3_CH2  */ \
+                                     255, 255, 255, 255,        /* PB7, PB6, PA14, PA13 */ \
+                                     ((2<<8) |  (1<<3) | 3)}    /* PA11: AF2, TIM1_CH4  */
+// End PWM Section
+
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           8
