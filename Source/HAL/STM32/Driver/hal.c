@@ -179,34 +179,22 @@ void HAL_StartSystemTick(void)
 
 uint32_t HAL_RNG32(void)
 {
+#if (__CORTEX_M >= 0x03U)   // core_cm3, core_cm4
+    CRC->DR = DWT->CYCCNT;
+#else                       // core_cm0
     CRC->DR = SysTick->VAL;
+#endif
     return CRC->DR;
 }
 uint16_t HAL_RNG(void)
 {
+#if (__CORTEX_M >= 0x03U)   // core_cm3, core_cm4
+    CRC->DR = DWT->CYCCNT;
+#else                       // core_cm0
     CRC->DR = SysTick->VAL;
+#endif
     return (CRC->DR & 0x0000FFFF);
 }
-
-/*
-// Generate pseudo random uint16
-uint16_t HAL_RNG(void)
-{
-    static uint16_t rand16 = 0xA15E;
-
-    // Galois LFSRs
-    if(rand16 & 1)
-    {
-        rand16 >>= 1;
-        rand16 ^= 0xB400;
-    }
-    else
-        rand16 >>= 1;
-  
-    return rand16;
-}
-*/
-
 
 uint32_t HAL_get_ms(void)
 {
