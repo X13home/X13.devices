@@ -13,6 +13,8 @@ See LICENSE file for license details.
 #ifndef HW_STM32F0_H
 #define HW_STM32F0_H
 
+#include "stm32f0xx.h"
+
 // STM32F051C8
 #if   (defined CFG_S2EC13)
 #include "S2xxxx/S2EC13.h"      // ENC28J60 + CC1101
@@ -21,7 +23,7 @@ See LICENSE file for license details.
 #elif   (defined CFG_S2Cn13)
 #include "S2xxxx/S2Cn13.h"      // CC1101
 #elif   (defined CFG_S2Sn13)
-#include "S2xxxx/S2Sn13.h"      // UART_ALT
+#include "S2xxxx/S2Sn13.h"      // UART ALT
 
 // STM32F051R8
 #elif   (defined CFG_S2Sn10)
@@ -112,7 +114,7 @@ See LICENSE file for license details.
 //////////////////////////////////////////////////////////////
 //  UART Section
 
-#if (defined HAL_USART1_ALT)
+#if (defined HAL_USART1_REMAP)
 #define HAL_USART1_AF           DIO_MODE_AF_PP
 #define HAL_USART1_PIN_RX       23                      // GPIOB PIN7
 #define HAL_USART1_PIN_TX       22                      // GPIOB PIN6
@@ -122,7 +124,7 @@ See LICENSE file for license details.
 #define HAL_USART1_PIN_RX       10                      // GPIOA PIN10
 #define HAL_USART1_PIN_TX       9                       // GPIOA PIN9
 
-#endif  //  HAL_USART1_ALT
+#endif  //  HAL_USART1_REMAP
 
 #define HAL_USART2_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 #define HAL_USART2_PIN_RX       3                       // GPIOA PIN3
@@ -136,55 +138,46 @@ See LICENSE file for license details.
 // TWI Section
 #if (defined HAL_TWI_BUS)
 
-#ifndef HAL_TWI_CONFIG
-#define HAL_TWI_CONFIG  1
-#endif  //  HAL_TWI_CONFIG
-
 #define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)       // Alternative function, AF = 1, Open Drain
+#define I2C_GPIO        GPIOB
 
 #if (HAL_TWI_BUS == 1)
 
 void I2C1_IRQHandler(void);
 #define ISR_TWI_HANDLER() I2C1_IRQHandler(void)
 
+#define I2C_TIMING      0x2000090E
 #define I2C_BUS         I2C1
 #define I2C_IRQn        I2C1_IRQn
 
-#if (HAL_TWI_CONFIG == 1)
-// I2C1, PB6 - SCL, PB7 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_6
-#define I2C_PIN_SDA     GPIO_Pin_7
-#define I2C_GPIO        GPIOB
-
-#define I2C_DIO_SCL     22
-#define I2C_DIO_SDA     23
-
-#elif (HAL_TWI_CONFIG == 2)
+#if (defined HAL_TWI1_REMAP)
 // I2C1, PB8 - SCL, PB9 - SDA
 #define I2C_PIN_SCL     GPIO_Pin_8
 #define I2C_PIN_SDA     GPIO_Pin_9
-#define I2C_GPIO        GPIOA
-
 #define I2C_DIO_SCL     24
 #define I2C_DIO_SDA     25
 
 #else
-#error Unknown HAL_TWI_CONFIG
-#endif  //  HAL_TWI_CONFIG
+// I2C1, PB6 - SCL, PB7 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_6
+#define I2C_PIN_SDA     GPIO_Pin_7
+#define I2C_DIO_SCL     22
+#define I2C_DIO_SDA     23
+
+#endif  //  HAL_TWI1_REMAP
 
 #elif (HAL_TWI_BUS == 2)
 
 void I2C2_IRQHandler(void);
 #define ISR_TWI_HANDLER() I2C2_IRQHandler(void)
 
+#define I2C_TIMING      0x20303E5D
 #define I2C_BUS         I2C2
 #define I2C_IRQn        I2C2_IRQn
 
 // I2C2, PB10 - SCL, PB11 - SDA
 #define I2C_PIN_SCL     GPIO_Pin_10
 #define I2C_PIN_SDA     GPIO_Pin_11
-#define I2C_GPIO        GPIOB
-
 #define I2C_DIO_SCL     26
 #define I2C_DIO_SDA     27
 

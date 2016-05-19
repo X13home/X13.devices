@@ -9,14 +9,6 @@ SPIx    MOSI    MISO    SCK     MOSI    MISO    SCK     APB
 SPI1    PA7     PA6     PA5     PB5     PB4     PB3     2
 SPI2    PB15    PB14    PB13                            1
 SPI3    PB5     PB4     PB3     PC12    PC11    PC10    1
-
-STM32F0
-APB1 clk = SystemCoreClock
-APB2 clk = SystemCoreClock
-
-STM32F1/STM32F3
-APB1 clk = SystemCoreClock/2
-APB2 clk = SystemCoreClock
 */
 
 #ifndef SPI2
@@ -26,8 +18,6 @@ APB2 clk = SystemCoreClock
 #ifndef SPI3
 #define SPI3    NULL
 #endif  //  SPI3
-
-extern uint32_t SystemCoreClock;
 
 static const SPI_TypeDef * hal_spi_port2spi[4] = {NULL, SPI1, SPI2, SPI3};
 
@@ -46,6 +36,7 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
             RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
             hal_gpio_cfg(SPI1_PORT, (SPI1_SCK_PIN | SPI1_MISO_PIN | SPI1_MOSI_PIN), DIO_MODE_SPI1);
             SPIx = SPI1;
+            spi_clock = hal_pclk2/2;
             break;
 #endif  //  HAL_USE_SPI1
 
@@ -54,6 +45,7 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
             hal_gpio_cfg(SPI2_PORT, (SPI2_SCK_PIN | SPI2_MISO_PIN | SPI2_MOSI_PIN), DIO_MODE_SPI2);
             SPIx = SPI2;
+            spi_clock = hal_pclk1/2;
             break;
 #endif  //  DIO_MODE_SPI2
 
@@ -62,25 +54,17 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
             RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
             hal_gpio_cfg(SPI3_PORT, (SPI3_SCK_PIN | SPI3_MISO_PIN | SPI3_MOSI_PIN), DIO_MODE_SPI3);
             SPIx = SPI3;
+            spi_clock = hal_pclk1/2;
             break;
 #endif  //  HAL_USE_SPI3
         default:
             while(1);      // Unknown SPI port
     }
-    
-    // Calculate pre-scaler
-#if (defined STM32F0)
-    spi_clock = SystemCoreClock;
-#elif (defined STM32F1) || (defined STM32F3)
-    if(port == 1)
-        spi_clock = SystemCoreClock;
-    else
-        spi_clock = SystemCoreClock/2;
-#else
-    #error hal_spi_cfg unknown uC Family
-#endif  //CPU
 
-    spi_clock /= 2;
+    if(speed > 18000000UL)
+    {
+        speed = 18000000UL;
+    }
 
     uint16_t div = 0;
     while((spi_clock > speed) && (div < 7))

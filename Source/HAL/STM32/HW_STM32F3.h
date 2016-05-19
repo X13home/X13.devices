@@ -13,6 +13,8 @@ See LICENSE file for license details.
 #ifndef HW_STM32F3_H
 #define HW_STM32F3_H
 
+#include "stm32f3xx.h"
+
 // STM32F303K8T6 - Modified Nucleo
 #if   (defined CFG_S4Sn10)
 #include "S4xxxx/S4Sn10.h"    // UART
@@ -79,40 +81,40 @@ See LICENSE file for license details.
 // USART 1
 #define HAL_USART1_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
-#if   (defined HAL_USART1_ALT)
+#if   (defined HAL_USART1_REMAP)
 #define HAL_USART1_PIN_TX       22                      // PB6
 #define HAL_USART1_PIN_RX       23                      // PB7
 
-#else   //  HAL_USART1_ALT - default
+#else   //  HAL_USART1_REMAP - default
 #define HAL_USART1_PIN_TX       9                       // PA9
 #define HAL_USART1_PIN_RX       10                      // PA10
 
-#endif  //  HAL_USART1_ALT
+#endif  //  HAL_USART1_REMAP
 
 // USART 2
 #define HAL_USART2_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
-#ifndef HAL_USART2_ALT
-#define HAL_USART2_ALT          1
-#endif  //  HAL_USART2_ALT
+#ifndef HAL_USART2_REMAP
+#define HAL_USART2_REMAP          1
+#endif  //  HAL_USART2_REMAP
 
-#if   (HAL_USART2_ALT == 2)
+#if   (HAL_USART2_REMAP == 2)
 #define HAL_USART2_PIN_TX       19                      // PB3
 #define HAL_USART2_PIN_RX       20                      // PB4
 
-#elif (HAL_USART2_ALT == 3)
+#elif (HAL_USART2_REMAP == 3)
 #define HAL_USART2_PIN_TX       14                      // PA14
 #define HAL_USART2_PIN_RX       15                      // PA15
 
-#elif (HAL_USART2_ALT == 13)
+#elif (HAL_USART2_REMAP == 13)
 #define HAL_USART2_PIN_TX       2                       // PA2
 #define HAL_USART2_PIN_RX       15                      // PA15
 
-#else   //  HAL_USART2_ALT - default
+#else   //  HAL_USART2_REMAP - default
 #define HAL_USART2_PIN_TX       2                       // PA2
 #define HAL_USART2_PIN_RX       3                       // PA3
 
-#endif  //  HAL_USART2_ALT
+#endif  //  HAL_USART2_REMAP
 
 //  End UART Section
 //////////////////////////////////////////////////////////////
@@ -123,28 +125,16 @@ See LICENSE file for license details.
 // STM32F303K8 / STM32F334K8
 #if (defined HAL_TWI_BUS) && (HAL_TWI_BUS == 1)
 
-#ifndef HAL_TWI_CONFIG
-#define HAL_TWI_CONFIG  1
-#endif  //  HAL_TWI_CONFIG
-
 void I2C1_EV_IRQHandler(void);
 #define ISR_TWI_HANDLER() I2C1_EV_IRQHandler(void)
 
 #define DIO_MODE_TWI    ((4<<DIO_AF_OFFS) | DIO_MODE_AF_OD)       // Alternative function, AF = 4, Open Drain
 
+#define I2C_TIMING      0x2000090E
 #define I2C_BUS         I2C1
 #define I2C_IRQn        I2C1_EV_IRQn
 
-#if (HAL_TWI_CONFIG == 1)
-// I2C1, PB6 - SCL, PB7 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_6
-#define I2C_PIN_SDA     GPIO_Pin_7
-#define I2C_GPIO        GPIOB
-
-#define I2C_DIO_SCL     22
-#define I2C_DIO_SDA     23
-
-#elif (HAL_TWI_CONFIG == 2)
+#if (defined HAL_TWI1_REMAP)
 // I2C1, PA15 - SCL, PA14 - SDA
 #define I2C_PIN_SCL     GPIO_Pin_15
 #define I2C_PIN_SDA     GPIO_Pin_14
@@ -153,9 +143,16 @@ void I2C1_EV_IRQHandler(void);
 #define I2C_DIO_SCL     15
 #define I2C_DIO_SDA     14
 
-#else
-#error Unknown HAL_TWI_CONFIG
-#endif  //  HAL_TWI_CONFIG
+#else   //  !Remap
+// I2C1, PB6 - SCL, PB7 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_6
+#define I2C_PIN_SDA     GPIO_Pin_7
+#define I2C_GPIO        GPIOB
+
+#define I2C_DIO_SCL     22
+#define I2C_DIO_SDA     23
+
+#endif  //  HAL_TWI1_REMAP
 
 #endif  //  HAL_TWI_BUS
 
@@ -167,7 +164,7 @@ void I2C1_EV_IRQHandler(void);
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 
 #if defined(STM32F303x8)
-// PA0 - PA7, PB0 - PB1, Temp
+// PA0 - PA7, PB0 - PB1
 #define HAL_AIN_AIN2DPIN    {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x10, 0x11}
 
 // apin to configuration conversion

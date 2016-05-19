@@ -102,6 +102,11 @@ extern "C" {
                                      ((1<<3) | 0)}              /* PA8:  TIM1_CH1   */
 // End PWM Section
 
+// TWI Section
+//#define HAL_TWI_BUS                 1
+//#define EXTTWI_USED                 1
+// End TWI Section
+
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS1
 #define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR1

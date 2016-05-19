@@ -13,6 +13,8 @@ See LICENSE file for license details.
 #ifndef HW_STM32F1_H
 #define HW_STM32F1_H
 
+#include "stm32f1xx.h"
+
 // STM32F103CBT6, Maple Mini
 #if   (defined CFG_S3Sn10)
 #include "S3xxxx/S3Sn10.h"    // UART
@@ -101,14 +103,14 @@ See LICENSE file for license details.
 
 // USART 1
 #define HAL_USART1_AF           DIO_MODE_AF_PP
-#if (defined HAL_USART1_ALT)
+#if (defined HAL_USART1_REMAP)
 #define HAL_USART1_PIN_RX       23                      // GPIOB PIN7
 #define HAL_USART1_PIN_TX       22                      // GPIOB PIN6
 
 #else
 #define HAL_USART1_PIN_RX       10                      // GPIOA PIN10
 #define HAL_USART1_PIN_TX       9                       // GPIOA PIN9
-#endif  //  HAL_USART1_ALT
+#endif  //  HAL_USART1_REMAP
 
 // USART 2
 #define HAL_USART2_AF           DIO_MODE_AF_PP
@@ -139,6 +141,56 @@ See LICENSE file for license details.
 #endif
 
 // PWM Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// TWI Section
+#if (defined HAL_TWI_BUS)
+
+#define DIO_MODE_TWI    DIO_MODE_AF_OD          // Alternative function, Open Drain
+#define I2C_GPIO        GPIOB
+
+#if (HAL_TWI_BUS == 1)
+    
+void I2C1_EV_IRQHandler(void);
+#define ISR_TWI_HANDLER()   I2C1_EV_IRQHandler()
+    
+#define I2C_BUS         I2C1
+#define I2C_IRQn        I2C1_EV_IRQn
+
+#if (defined HAL_TWI1_REMAP)
+// I2C1, PB8 - SCL, PB9 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_8
+#define I2C_PIN_SDA     GPIO_Pin_9
+#define I2C_DIO_SCL     24
+#define I2C_DIO_SDA     25
+
+#else
+// I2C1, PB6 - SCL, PB7 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_6
+#define I2C_PIN_SDA     GPIO_Pin_7
+#define I2C_DIO_SCL     22
+#define I2C_DIO_SDA     23
+
+#endif  //  HAL_TWI1_REMAP
+
+#else   //  BUS 2
+
+void I2C2_EV_IRQHandler(void);
+#define ISR_TWI_HANDLER()   I2C2_EV_IRQHandler()
+
+#define I2C_BUS         I2C2
+#define I2C_IRQn        I2C2_EV_IRQn
+
+// I2C2, PB10 - SCL, PB11 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_10
+#define I2C_PIN_SDA     GPIO_Pin_11
+#define I2C_DIO_SCL     26
+#define I2C_DIO_SDA     27
+
+#endif  //  HAL_TWI_BUS
+#endif  //  HAL_TWI_BUS
+// TWI Section
 //////////////////////////////////////////////////////////////
 
 #endif  //  HW_STM32F1_H

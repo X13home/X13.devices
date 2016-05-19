@@ -94,7 +94,7 @@ extern "C" {
 // UART PHY Section
 #define HAL_UART_NUM_PORTS          1
 #define HAL_USE_USART2              0
-#define HAL_USART2_ALT              13  // PA2/PA15
+#define HAL_USART2_REMAP            13  // PA2/PA15
 
 #define UART_PHY_PORT               0   // Logical port
 #define UART_PHY                    1

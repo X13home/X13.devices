@@ -6,6 +6,10 @@ static uint32_t CriticalNesting = 0;
 static volatile uint32_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;    // Max Uptime 136 Jr.
 
+uint32_t    hal_hclk  = 8000000UL;
+uint32_t    hal_pclk1 = 8000000UL;
+uint32_t    hal_pclk2 = 8000000UL;
+
 static void SetSysClock(void)
 {
     uint32_t StartUpCounter = 0;
@@ -41,6 +45,10 @@ static void SetSysClock(void)
         RCC->CFGR &= ~RCC_CFGR_PLLSRC_HSE_PREDIV;   // HSI clock divided by 2 selected as PLL entry clock source
         RCC->CFGR |= RCC_CFGR_PLLMUL12;             // PLL multiplication factor = 12
     }
+
+    hal_hclk  = 48000000UL;
+    hal_pclk1 = 48000000UL;
+    hal_pclk2 = 48000000UL;
 #elif (defined STM32F1)
     // Enable Prefetch Buffer
     FLASH->ACR |= FLASH_ACR_PRFTBE;
@@ -62,6 +70,7 @@ static void SetSysClock(void)
     {
         // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
         RCC->CFGR |= (RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL9);
+        hal_hclk  = 72000000UL;
     }
     else
     {
@@ -70,7 +79,11 @@ static void SetSysClock(void)
         // PLL multiplication factor = 16
         RCC->CR &= ~RCC_CR_HSEON;       // Disble HSE
         RCC->CFGR |= RCC_CFGR_PLLMULL16;
+        hal_hclk  = 64000000UL;
     }
+
+    hal_pclk2 = hal_hclk;
+    hal_pclk1 = hal_hclk/2;
 #elif (defined STM32F3)
     // Enable Prefetch Buffer and set Flash Latency
     // Enable Prefetch Buffer
@@ -91,12 +104,17 @@ static void SetSysClock(void)
     {
         // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
         RCC->CFGR |= (RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL9);
+        hal_hclk  = 72000000UL;
     }
     else
     {
         RCC->CR &= ~RCC_CR_HSEON;                   // Disble HSE
         RCC->CFGR |= RCC_CFGR_PLLMUL16;
+        hal_hclk  = 64000000UL;
     }
+
+    hal_pclk2 = hal_hclk;
+    hal_pclk1 = hal_hclk/2;
 #else
 #error SetSysClock Unknown uC Family
 #endif
@@ -113,9 +131,6 @@ static void SetSysClock(void)
 
     // Wait till PLL is used as system clock source
     while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
-
-    // Update SystemCoreClock variable according to Clock Register Values
-    SystemCoreClockUpdate();
 }
 
 void halEnterCritical(void)

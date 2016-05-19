@@ -129,7 +129,7 @@ extern "C" {
 
 // UART PHY Section
 #define HAL_USE_USART1              1
-#define HAL_USART1_ALT              1   // USART1 on PB6/PB7
+#define HAL_USART1_REMAP            1   // USART1 on PB6/PB7
 #define UART_PHY_PORT               0   // Logical port
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"

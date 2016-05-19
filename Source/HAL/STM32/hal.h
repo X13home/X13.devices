@@ -8,13 +8,13 @@ extern "C" {
 #include <stdbool.h>
 
 #if (defined STM32F0)
-#include "stm32f0xx.h"
+#include "HW_STM32F0.h"
 #elif (defined STM32F1)
-#include "stm32f1xx.h"
+#include "HW_STM32F1.h"
 #elif (defined STM32F3)
-#include "stm32f3xx.h"
+#include "HW_STM32F3.h"
 #else
-#error hal.h Unknown uC Family
+#error Unknown Family
 #endif  // uC Family
 
 void halEnterCritical(void);
@@ -166,17 +166,9 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 
 void _delay_us(uint16_t us);
 
-#define  HAL_Reboot     NVIC_SystemReset
+extern uint32_t hal_pclk1, hal_pclk2;
 
-#if (defined STM32F0)
-#include "HW_STM32F0.h"
-#elif (defined STM32F1)
-#include "HW_STM32F1.h"
-#elif (defined STM32F3)
-#include "HW_STM32F3.h"
-#else
-#error Unknown Family
-#endif  // uC Family
+#define  HAL_Reboot     NVIC_SystemReset
 
 #ifdef __cplusplus
 }

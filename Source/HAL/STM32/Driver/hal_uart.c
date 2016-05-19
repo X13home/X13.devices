@@ -11,17 +11,6 @@ U[S]ARTx    RX      TX      RX      TX      APB
 USART1      PA10    PA9     PB7     PB6     2
 USART2      PA3     PA2                     1
 USART3      PB11    PB10    PC11    PC10    1
-
-// STM32F0
-APB1 clk = SystemCoreClock
-APB2 clk = SystemCoreClock
-
-// STM32F1
-APB1 clk = SystemCoreClock/2
-APB2 clk = SystemCoreClock
-
-// STM32F303
-USART1, USART2 clk = SystemCoreClock/2
 */
 
 typedef struct
@@ -37,8 +26,6 @@ typedef struct
 
 static const uint16_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400};
 static HAL_UART_t * hal_UARTv[HAL_UART_NUM_PORTS] = {NULL, };
-
-extern uint32_t     SystemCoreClock;            // defined in system_stm32f0xx.c
 
 // IRQ handlers
 static void hal_uart_irq_handler(uint8_t port, USART_TypeDef * USARTx)
@@ -215,7 +202,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
     USART_TypeDef     * USARTx;
     IRQn_Type           UARTx_IRQn;
 
-    uint32_t            uart_clock = SystemCoreClock;
+    uint32_t            uart_clock;
     uint16_t            baud = hal_baud_list[nBaud];
 
     switch(port)
@@ -224,9 +211,11 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
         case HAL_USE_USART1:
             {
 #if (defined STM32F3)
-            uart_clock  /= 2;
+            uart_clock = hal_pclk1;
+#else
+            uart_clock = hal_pclk2;
 #endif
-#if ((defined STM32F1) && (defined HAL_USART1_ALT))
+#if ((defined STM32F1) && (defined HAL_USART1_REMAP))
             AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;                           // Remap USART1 from PA9/PA10 to PB6/PB7
 #endif
             USARTx = USART1;
@@ -249,9 +238,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #if (defined HAL_USE_USART2)
         case HAL_USE_USART2:
             {
-#if ((defined STM32F1) || (defined STM32F3))
-            uart_clock  /= 2;
-#endif  //  STM32F1
+            uart_clock = hal_pclk1;
             USARTx = USART2;
             UARTx_IRQn = USART2_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                         // Enable UART2 Clock
@@ -272,9 +259,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #if (defined HAL_USE_USART3)
         case HAL_USE_USART3:
             {
-#if ((defined STM32F1) || (defined STM32F3))
-            uart_clock  /= 2;
-#endif  //  STM32F1
+            uart_clock = hal_pclk1;
             USARTx = USART3;
             UARTx_IRQn = USART3_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                         // Enable UART3 Clock
