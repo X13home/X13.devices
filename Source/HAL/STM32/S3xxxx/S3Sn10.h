@@ -103,8 +103,8 @@ extern "C" {
 // End PWM Section
 
 // TWI Section
-//#define HAL_TWI_BUS                 1
-//#define EXTTWI_USED                 1
+#define HAL_TWI_BUS                 1
+#define EXTTWI_USED                 1
 // End TWI Section
 
 // LEDs

@@ -43,10 +43,10 @@ See LICENSE file for license details.
 //  19  PB3     P2.11   ?               SWO
 //  20  PB4     P2.10                                   TIM3_CH1
 //  21  PB5     P2.9                                    TIM3_CH2
-//  22  PB6     P2.8    *               /USART1_TX
-//  23  PB7     P2.7    *               /USART1_RX
-//  24  PB8     P2.4
-//  25  PB9     P2.3
+//  22  PB6     P2.8    *               USART1_TX/SCL1
+//  23  PB7     P2.7    *               USART1_RX/SDA1
+//  24  PB8     P2.4                    SCL1
+//  25  PB9     P2.3                    SDA1
 //  26  PB10    P1.30                   SCL2
 //  27  PB11    P1.31                   SDA2
 //  28  PB12    P1.32
@@ -118,19 +118,21 @@ extern "C" {
 // End PWM Section
 
 // TWI Section
-#define HAL_TWI_BUS                 2
+#define HAL_TWI_BUS                 1
+#define HAL_TWI1_REMAP              1
 #define EXTTWI_USED                 1
 // End TWI Section
 
 // UART Section
 #define HAL_UART_NUM_PORTS          2
+#define HAL_USE_USART1              1
+#define HAL_USART1_REMAP            1   // USART1 on PB6/PB7
+
 #define HAL_USE_USART2              0
 #define EXTSER_USED                 1
 
 // UART PHY Section
-#define HAL_USE_USART1              1
-#define HAL_USART1_REMAP            1   // USART1 on PB6/PB7
-#define UART_PHY_PORT               0   // Logical port
+#define UART_PHY_PORT               1   // Logical port
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section

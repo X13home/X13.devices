@@ -1,6 +1,6 @@
 #include "config.h"
 
-#if (defined HAL_TWI_BUS)
+#if (defined HAL_TWI_BUS) && ((defined STM32F0) || (defined STM32F3))
 
 #include "EXT/exttwi.h"
 
@@ -48,10 +48,6 @@ bool hal_twi_configure(uint8_t enable)
 
         hal_gpio_cfg(I2C_GPIO, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_TWI);                  // Configure GPIO
         
-#if (defined STM32F1) && (defined HAL_TWI1_REMAP)
-        AFIO->MAPR |= AFIO_MAPR_I2C1_REMAP;
-#endif  //  STM32F1 && HAL_TWI1_REMAP
-
 #if (HAL_TWI_BUS == 1)
         RCC->APB1ENR |= RCC_APB1ENR_I2C1EN;     // Enable I2C clock
         // Reset I2C1
@@ -64,14 +60,11 @@ bool hal_twi_configure(uint8_t enable)
         RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C2RST;
 #endif
 
-#if (defined STM32F0) || (defined STM32F3)
-        // Set Timings
+        // Set Timings    
         // I2C Clock = 8MHz
         // I2C Bus = 100 KHz
         I2C_BUS->TIMINGR = I2C_TIMING;
-#else
-#warning STM32F1 TWI Timing
-#endif
+
         // Enable I2C
         I2C_BUS->CR1 = I2C_CR1_PE;
 
