@@ -1,6 +1,6 @@
 #include "config.h"
 
-#if (defined HAL_TWI_BUS) && ((defined STM32F0) || (defined STM32F3))
+#if (defined HAL_TWI_BUS) && (defined STM32F3)
 
 #include "EXT/exttwi.h"
 

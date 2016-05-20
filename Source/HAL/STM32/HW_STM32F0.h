@@ -147,63 +147,11 @@ See LICENSE file for license details.
 
 
 //////////////////////////////////////////////////////////////
-// TWI Section
-#if (defined HAL_TWI_BUS)
-
-#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)       // Alternative function, AF = 1, Open Drain
-#define I2C_GPIO        GPIOB
-
-#if (HAL_TWI_BUS == 1)
-
-void I2C1_IRQHandler(void);
-#define ISR_TWI_HANDLER() I2C1_IRQHandler(void)
-
-#define I2C_TIMING      0x2000090E
-#define I2C_BUS         I2C1
-#define I2C_IRQn        I2C1_IRQn
-
-#if (defined HAL_TWI1_REMAP)
-// I2C1, PB8 - SCL, PB9 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_8
-#define I2C_PIN_SDA     GPIO_Pin_9
-#define I2C_DIO_SCL     24
-#define I2C_DIO_SDA     25
-
-#else
-// I2C1, PB6 - SCL, PB7 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_6
-#define I2C_PIN_SDA     GPIO_Pin_7
-#define I2C_DIO_SCL     22
-#define I2C_DIO_SDA     23
-
-#endif  //  HAL_TWI1_REMAP
-
-#elif (HAL_TWI_BUS == 2)
-
-void I2C2_IRQHandler(void);
-#define ISR_TWI_HANDLER() I2C2_IRQHandler(void)
-
-#define I2C_TIMING      0x20303E5D
-#define I2C_BUS         I2C2
-#define I2C_IRQn        I2C2_IRQn
-
-// I2C2, PB10 - SCL, PB11 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_10
-#define I2C_PIN_SDA     GPIO_Pin_11
-#define I2C_DIO_SCL     26
-#define I2C_DIO_SDA     27
-
-#endif  //  HAL_TWI_BUS - config
-#endif  //  HAL_TWI_BUS
-
-// TWI Section
-//////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////
 // HAL AIn Section
 #define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 // HAL AIn Section
 //////////////////////////////////////////////////////////////
+
 
 //////////////////////////////////////////////////////////////
 // PWM Section

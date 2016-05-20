@@ -14,13 +14,13 @@ static void SetSysClock(void)
 {
     uint32_t StartUpCounter = 0;
 
-    // Enable HSE
-    RCC->CR |= RCC_CR_HSEON;
-
 #if (defined HSE_CRYSTAL_BYPASS)
     // HSE crystal oscillator bypassed with external clock
     RCC->CR |= RCC_CR_HSEBYP;
 #endif  //  HSE_CRYSTAL_BYPASS
+
+    // Enable HSE
+    RCC->CR |= RCC_CR_HSEON;
 
     // Wait till HSE is ready and if Time out is reached exit
     while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < HSE_STARTUP_TIME))
@@ -159,7 +159,11 @@ void HAL_Init(void)
     SetSysClock();
     // Enable GPIO clock
 #if ((defined STM32F0) || (defined STM32F3))
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN | RCC_AHBENR_GPIOFEN;
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN |
+#if defined RCC_AHBENR_GPIOEEN
+                    RCC_AHBENR_GPIOEEN |
+#endif
+                    RCC_AHBENR_GPIOFEN;
 #elif (defined STM32F1)
     RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN | RCC_APB2ENR_IOPEEN;
      // disable JTAG
