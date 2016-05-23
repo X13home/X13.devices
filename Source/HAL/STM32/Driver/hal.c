@@ -189,7 +189,7 @@ void HAL_Init(void)
 
 void HAL_StartSystemTick(void)
 {
-    if(SysTick_Config((SystemCoreClock / 1000) - 1UL))
+    if(SysTick_Config((hal_hclk / 1000) - 1UL))
         while(1);
 
     // Enable Global interrupts
@@ -229,12 +229,12 @@ void _delay_us(uint16_t us)
 {
 #if (__CORTEX_M >= 0x03U)   // core_cm3, core_cm4
     uint32_t timestamp = DWT->CYCCNT;
-    uint32_t ticks = (const uint32_t)(SystemCoreClock / 1000000UL);
+    uint32_t ticks = (const uint32_t)(hal_hclk / 1000000UL);
     ticks *= us;
 
     while(ticks > (DWT->CYCCNT - timestamp));
 #else                       // core_cm0
-    uint32_t ticks = (const uint32_t)(SystemCoreClock / 12000000UL);
+    uint32_t ticks = (const uint32_t)(hal_hclk / 12000000UL);
     ticks *= us;
 
     while(ticks > 0)
