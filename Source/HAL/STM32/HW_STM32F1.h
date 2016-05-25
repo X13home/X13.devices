@@ -119,8 +119,14 @@ See LICENSE file for license details.
 
 // USART 3
 #define HAL_USART3_AF           DIO_MODE_AF_PP
+
+#if (defined HAL_USART3_REMAP)
+#define HAL_USART3_PIN_RX       43                      // GPIOC PIN11
+#define HAL_USART3_PIN_TX       42                      // GPIOC PIN10
+#else
 #define HAL_USART3_PIN_RX       27                      // GPIOB PIN11
 #define HAL_USART3_PIN_TX       26                      // GPIOB PIN10
+#endif  //  HAL_USART3_REMAP
 
 //  End UART Section
 //////////////////////////////////////////////////////////////

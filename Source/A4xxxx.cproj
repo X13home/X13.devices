@@ -28,15 +28,15 @@
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfFrameworkConfig>
       <framework-data>
-  <options />
-  <configurations />
-  <files />
-  <documentation help="" />
-  <offline-documentation help="" />
-  <dependencies>
-    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.21.0" />
-  </dependencies>
-</framework-data>
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.21.0" />
+        </dependencies>
+      </framework-data>
     </AsfFrameworkConfig>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'A4Sn10' ">
@@ -149,6 +149,15 @@
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Common\EXT\extdio.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extplc.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extplc.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extplc_vm.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Common\EXT\extpwm.c">

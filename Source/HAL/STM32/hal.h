@@ -17,6 +17,11 @@ extern "C" {
 #error Unknown Family
 #endif  // uC Family
 
+//////////////////////////////////////////////////////////////
+// HAL System Section
+void hal_SetSysClock(void);
+void hal_prepare_gpio(void);
+
 void halEnterCritical(void);
 void halLeaveCritical(void);
 #define ENTER_CRITICAL_SECTION      halEnterCritical
@@ -26,6 +31,9 @@ void halLeaveCritical(void);
 #define portBYTE_ALIGNMENT          8
 #define portPOINTER_SIZE_TYPE       uint32_t
 #define configTOTAL_HEAP_SIZE       2048
+
+// End HAL System Section
+//////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
 // DIO/GPIO Section
@@ -166,7 +174,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 
 void _delay_us(uint16_t us);
 
-extern uint32_t hal_pclk1, hal_pclk2;
+extern uint32_t hal_hclk, hal_pclk1, hal_pclk2;
 
 #define  HAL_Reboot     NVIC_SystemReset
 

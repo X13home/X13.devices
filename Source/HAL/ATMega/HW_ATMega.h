@@ -35,7 +35,7 @@ See LICENSE file for license details.
 #include "A1xxxx/A1Cn10.h"
 // Arduino Mega ATMega2560 + OSC 16 MHz
 #elif   (defined CFG_A4Sn10)
-#include "A4xxxx/A4Sn10.h"
+#include "A4xxxx/A4Sn10.h"          // Arduino Mega2560 + UART on PE0/PE1
 // Unknown
 #else
 #error Unknown configuration

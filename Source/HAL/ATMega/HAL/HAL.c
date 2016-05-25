@@ -65,6 +65,47 @@ uint16_t HAL_RNG(void)
     return rand16;
 }
 
+#if (defined EXTPLC_USED)
+/*
+static uint32_t deadbeef_seed;
+static uint32_t deadbeef_beef = 0xdeadbeef;
+
+uint32_t deadbeef_rand()
+{
+	deadbeef_seed = (deadbeef_seed << 7) ^ ((deadbeef_seed >> 25) + deadbeef_beef);
+	deadbeef_beef = (deadbeef_beef << 7) ^ ((deadbeef_beef >> 25) + 0xdeadbeef);
+	return deadbeef_seed;
+}
+
+void deadbeef_srand(uint32_t x) {
+	deadbeef_seed = x;
+	deadbeef_beef = 0xdeadbeef;
+}
+*/
+uint32_t HAL_RNG32(void)
+{
+    // LFSR32, tap: 1,5,6,31
+
+    static uint32_t lfsr = 0xAD1AE5EF;
+    uint8_t i;
+    for(i = 0; i <= 8; i++)
+    {
+        uint8_t new_bit = 0;
+
+        // xor the tap values together
+        if(lfsr & 0x40000000){  new_bit  = 1;}
+        if(lfsr & 0x04000000){  new_bit ^= 1;}
+        if(lfsr & 0x02000000){  new_bit ^= 1;}
+        if(lfsr & 0x00000002){  new_bit ^= 1;}
+
+        lfsr <<= 1;
+        lfsr |= new_bit;
+    }
+
+    return lfsr;
+}
+#endif  //  EXTPLC_USED
+
 static volatile uint32_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;        // Max Uptime 136 Jr.
 

@@ -130,7 +130,7 @@ static uint32_t plcvm_lpm_u32(void){
         plcvm_page += EXTPLC_SIZEOF_PRG_CACHE;
         eeprom_read(plcvm_cache, eePLCprogram + plcvm_page, EXTPLC_SIZEOF_PRG_CACHE);
     }
-    retval |= plcvm_cache[offset] << 16;
+    retval |= (uint32_t)plcvm_cache[offset] << 16;
 
     offset++;
     if(offset == EXTPLC_SIZEOF_PRG_CACHE)
@@ -144,7 +144,7 @@ static uint32_t plcvm_lpm_u32(void){
         plcvm_page += EXTPLC_SIZEOF_PRG_CACHE;
         eeprom_read(plcvm_cache, eePLCprogram + plcvm_page, EXTPLC_SIZEOF_PRG_CACHE);
     }
-    retval |= plcvm_cache[offset] << 24;
+    retval |= (uint32_t)plcvm_cache[offset] << 24;
 
     return retval;
 }

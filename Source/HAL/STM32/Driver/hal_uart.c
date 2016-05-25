@@ -260,6 +260,11 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
         case HAL_USE_USART3:
             {
             uart_clock = hal_pclk1;
+            
+#if ((defined STM32F1) && (defined HAL_USART3_REMAP))
+            AFIO->MAPR |= AFIO_MAPR_USART3_REMAP;                           // Remap USART1 from PB10/PB11 to PC10/PC11
+#endif
+            
             USARTx = USART3;
             UARTx_IRQn = USART3_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                         // Enable UART3 Clock

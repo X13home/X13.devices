@@ -1,137 +1,8 @@
 #include "config.h"
 
-#define HSE_STARTUP_TIME            0x00005000UL
-
 static uint32_t CriticalNesting = 0;
 static volatile uint32_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;    // Max Uptime 136 Jr.
-
-uint32_t    hal_hclk  = 8000000UL;
-uint32_t    hal_pclk1 = 8000000UL;
-uint32_t    hal_pclk2 = 8000000UL;
-
-static void SetSysClock(void)
-{
-    uint32_t StartUpCounter = 0;
-
-#if (defined HSE_CRYSTAL_BYPASS)
-    // HSE crystal oscillator bypassed with external clock
-    RCC->CR |= RCC_CR_HSEBYP;
-#endif  //  HSE_CRYSTAL_BYPASS
-
-    // Enable HSE
-    RCC->CR |= RCC_CR_HSEON;
-
-    // Wait till HSE is ready and if Time out is reached exit
-    while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < HSE_STARTUP_TIME))
-        StartUpCounter++;
-
-#if (defined STM32F0)
-    // Enable Prefetch Buffer and set Flash Latency
-    FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY;
-
-    RCC->CFGR &= ~(RCC_CFGR_PLLMUL |                // Reset PLL Multiplication factor
-                   RCC_CFGR_HPRE |                  // HCLK not divided
-                   RCC_CFGR_PPRE);                  // SYSCLK not divided
-
-    if(StartUpCounter < HSE_STARTUP_TIME)
-    {
-        RCC->CFGR |= (RCC_CFGR_PLLMUL6 |            // PLL multiplication factor = 6
-                      RCC_CFGR_PLLSRC_HSE_PREDIV);  // HSE/PREDIV clock selected as PLL entry clock source
-    }
-    else
-    {
-        RCC->CR &= ~RCC_CR_HSEON;                   // Disble HSE
-        RCC->CFGR &= ~RCC_CFGR_PLLSRC_HSE_PREDIV;   // HSI clock divided by 2 selected as PLL entry clock source
-        RCC->CFGR |= RCC_CFGR_PLLMUL12;             // PLL multiplication factor = 12
-    }
-
-    hal_hclk  = 48000000UL;
-    hal_pclk1 = 48000000UL;
-    hal_pclk2 = 48000000UL;
-#elif (defined STM32F1)
-    // Enable Prefetch Buffer
-    FLASH->ACR |= FLASH_ACR_PRFTBE;
-
-    // Flash 2 wait state
-    FLASH->ACR &= ~FLASH_ACR_LATENCY;
-    FLASH->ACR |= FLASH_ACR_LATENCY_2;
-
-    // PLL->CFGR reset in SystemInit()
-    // SYSCLK = 72, on PLL
-    // AHB Prescaler = 1, HCLK = SYSCLK
-    // APB2 Prescaler = 1, PCLK2 = HCLK
-    // APB1 Prescaler = 2, PCLK1 = HCLK/2
-    RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
-    // ADC Prescaler = 6;
-    RCC->CFGR |= RCC_CFGR_ADCPRE_DIV6;
-
-    if(StartUpCounter < HSE_STARTUP_TIME)
-    {
-        // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
-        RCC->CFGR |= (RCC_CFGR_PLLSRC | RCC_CFGR_PLLMULL9);
-        hal_hclk  = 72000000UL;
-    }
-    else
-    {
-        // PLL configuration: PLLCLK = HSI * 16 = 64 MHz, Not acceptabel for USB
-        // HSI clock divided by 2 selected as PLL entry clock source
-        // PLL multiplication factor = 16
-        RCC->CR &= ~RCC_CR_HSEON;       // Disble HSE
-        RCC->CFGR |= RCC_CFGR_PLLMULL16;
-        hal_hclk  = 64000000UL;
-    }
-
-    hal_pclk2 = hal_hclk;
-    hal_pclk1 = hal_hclk/2;
-#elif (defined STM32F3)
-    // Enable Prefetch Buffer and set Flash Latency
-    // Enable Prefetch Buffer
-    FLASH->ACR |= FLASH_ACR_PRFTBE;
-
-    // Flash 2 wait state
-    FLASH->ACR &= ~FLASH_ACR_LATENCY;
-    FLASH->ACR |= FLASH_ACR_LATENCY_1;
-    
-    // PLL->CFGR reset in SystemInit()
-    // SYSCLK = 72, on PLL
-    // AHB Prescaler = 1, HCLK = SYSCLK
-    // APB2 Prescaler = 1, PCLK2 = HCLK
-    // APB1 Prescaler = 2, PCLK1 = HCLK/2
-    RCC->CFGR |= RCC_CFGR_PPRE1_DIV2;
-
-    if(StartUpCounter < HSE_STARTUP_TIME)
-    {
-        // PLL configuration: PLLCLK = HSE * 9 = 72 MHz
-        RCC->CFGR |= (RCC_CFGR_PLLSRC | RCC_CFGR_PLLMUL9);
-        hal_hclk  = 72000000UL;
-    }
-    else
-    {
-        RCC->CR &= ~RCC_CR_HSEON;                   // Disble HSE
-        RCC->CFGR |= RCC_CFGR_PLLMUL16;
-        hal_hclk  = 64000000UL;
-    }
-
-    hal_pclk2 = hal_hclk;
-    hal_pclk1 = hal_hclk/2;
-#else
-#error SetSysClock Unknown uC Family
-#endif
-
-    // Enable PLL
-    RCC->CR |= RCC_CR_PLLON;
-
-    // Wait till PLL is ready
-    while((RCC->CR & RCC_CR_PLLRDY) == 0);
-
-    // Select PLL as system clock source
-    RCC->CFGR &= ~RCC_CFGR_SW;
-    RCC->CFGR |= RCC_CFGR_SW_PLL;
-
-    // Wait till PLL is used as system clock source
-    while ((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
-}
 
 void halEnterCritical(void)
 {
@@ -156,23 +27,9 @@ void halLeaveCritical(void)
 void HAL_Init(void)
 {
     // Set Core Clock
-    SetSysClock();
+    hal_SetSysClock();
     // Enable GPIO clock
-#if ((defined STM32F0) || (defined STM32F3))
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN |
-#if defined RCC_AHBENR_GPIOEEN
-                    RCC_AHBENR_GPIOEEN |
-#endif
-                    RCC_AHBENR_GPIOFEN;
-#elif (defined STM32F1)
-    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN | RCC_APB2ENR_IOPEEN;
-     // disable JTAG
-    RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
-    AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
-#else
-#error HAL_Init Unknown uC Family
-#endif
-
+    hal_prepare_gpio();
     // Enable CRC, Used for RNG
     RCC->AHBENR |= RCC_AHBENR_CRCEN;
     CRC->CR = CRC_CR_RESET;
@@ -282,37 +139,3 @@ void SysTick_Handler(void)
     
 //    __set_PRIMASK(PreviousMask);
 }
-
-
-void HardFault_Handler(void) __attribute__((naked));
-#ifdef STM32F0
-void HardFault_Handler(void)
-{
-    asm volatile(
-        " movs r0,#4    \n"
-        " mov r1,lr     \n"
-        " tst r0,r1     \n"
-        " beq 1f        \n"
-        " mrs r0,psp    \n"
-        " b   2f        \n"
-        "1:             \n"
-        " mrs r0,msp    \n"
-        "2:"
-        " mov r1,lr     \n"
-
-        : /* Outputs */
-        : /* Inputs */
-        : /* Clobbers */
-    );
-#if defined(DEBUG)
-    __DEBUG_BKPT();
-#endif
-    while(1);
-}
-#else
-void HardFault_Handler(void)
-{
-    __disable_irq();
-    while(1);
-}
-#endif  //STM32F0
