@@ -199,19 +199,58 @@ void I2C1_EV_IRQHandler(void)
 void I2C2_EV_IRQHandler(void)
 #endif
 {
-
     uint32_t isr = I2C_BUS->SR1;
-    
-    if(isr & I2C_SR1_SB)        // Start Bit Send
-    {
-        I2C_BUS->DR = pTWI->frame.address << 1;
-    }
-    else if(isr & I2C_SR1_ADDR)
-    {
-        isr = I2C_BUS->SR2;     // Clear Addr Flag
+    uint8_t access = pTWI->frame.access;
 
+    if(isr & I2C_SR1_SB)                        // Start Bit Sent
+    {
+        if(access & TWI_WRITE)                  // Write Request
+        {
+            I2C_BUS->DR = pTWI->frame.address << 1;
+        }
+        else if(access & TWI_READ)              // Read Request
+        {
+            I2C_BUS->DR = (pTWI->frame.address << 1) | 1;
+        }
+        // else WTF ?
+    }
+    else if(isr & I2C_SR1_ADDR)                 // Address Sent
+    {
+        isr = I2C_BUS->SR2;                     // Clear Addr Flag
+
+        if(access & TWI_WRITE)                  // Write Request
+        {
+            if(pTWI->frame.write != 0)
+            {
+                I2C_BUS->DR = pTWI->frame.data[0];
+                I2C_BUS->CR2 |= I2C_CR2_ITBUFEN;        // Buffer Interrupt Enable
+                twi_pnt = 1;
+            }
+            //else if(access & TWI_READ)
+            //{
+            //
+            //}
+            else
+            {
+                I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);    // Event & Error Interrupt Enable
+                I2C_BUS->CR1 |= I2C_CR1_STOP;
+                pTWI->frame.access = TWI_RDY;
+            }
+        }
+        else
+        {
+            // ToDo Dummy Function
+            I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);    // Event & Error Interrupt Enable
+            I2C_BUS->CR1 |= I2C_CR1_STOP;
+            pTWI->frame.access = TWI_RDY;
+        }
+    }
+    else
+    {
+        // ToDo Dummy Function
         I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);    // Event & Error Interrupt Enable
         I2C_BUS->CR1 |= I2C_CR1_STOP;
+        pTWI->frame.access = TWI_RDY;
     }
 
 
@@ -224,6 +263,11 @@ void I2C1_ER_IRQHandler(void)
 void I2C2_ER_IRQHandler(void)
 #endif
 {
+    I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);    // Event & Error Interrupt Enable
+    I2C_BUS->CR1 |= I2C_CR1_STOP;
+
+    pTWI->frame.access |= TWI_ERROR;
+    
     #warning ISR_TWI_ER_HANDLER
 }
 
