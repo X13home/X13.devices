@@ -12,6 +12,9 @@
 void I2C1_EV_IRQHandler(void);
 void I2C1_ER_IRQHandler(void);
 
+#define I2C_Event_Handler()     I2C1_EV_IRQHandler(void)
+#define I2C_Error_Handler()     I2C1_ER_IRQHandler(void)
+
 #define I2C_BUS         I2C1
 #define I2C_EV_IRQ      I2C1_EV_IRQn
 #define I2C_ER_IRQ      I2C1_ER_IRQn
@@ -36,6 +39,9 @@ void I2C1_ER_IRQHandler(void);
 
 void I2C2_EV_IRQHandler(void);
 void I2C2_ER_IRQHandler(void);
+
+#define I2C_Event_Handler()     I2C2_EV_IRQHandler(void)
+#define I2C_Error_Handler()     I2C2_ER_IRQHandler(void)
 
 #define I2C_BUS         I2C2
 #define I2C_EV_IRQ      I2C2_EV_IRQn
@@ -108,13 +114,13 @@ bool hal_twi_configure(uint8_t enable)
         RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C2RST;
 #endif
         // Set Timings
-        // I2C Bus = 100 KHz, Standard Mode
-        uint32_t freqrange = hal_pclk1 / 1000000UL;
+        // I2C Bus = 88 KHz, Standard Mode. Don't use 100 kHz, show uC errata.
+        uint32_t freqrange = hal_pclk1 / 88000UL;
 
         I2C_BUS->CR2 = freqrange;
         I2C_BUS->TRISE = freqrange + 1;
 
-        uint32_t tmp = hal_pclk1 / 200000UL;    // i2c clock = 100kHz
+        uint32_t tmp = freqrange / 2;
         tmp &= 0x0FFF;
         if(tmp < 4)
         {
@@ -167,9 +173,8 @@ void hal_twi_start(void)
     if((I2C_BUS->CR1 & I2C_CR1_PE) == 0)
     {
         I2C_BUS->CR1 = I2C_CR1_PE;                              // Enable I2C
-        return;
     }
-    
+
     if(I2C_BUS->SR2 & I2C_SR2_BUSY)                             // Bus Busy
     {
         return;
@@ -183,91 +188,120 @@ void hal_twi_start(void)
         return;
     }
 
-    I2C_BUS->CR1 &= ~I2C_CR1_POS;
-
     twi_pnt = 0;
 
-    I2C_BUS->CR1 |= I2C_CR1_START;                          // Start Generation
-    I2C_BUS->CR2 |= (I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);    // Event & Error Interrupt Enable
+    I2C_BUS->CR1 |= I2C_CR1_START;                              // Start Generation
+    I2C_BUS->CR2 |= (I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);        // Event & Error Interrupt Enable
 
     pTWI->frame.access |= TWI_BUSY;
 }
 
-#if (HAL_TWI_BUS == 1)
-void I2C1_EV_IRQHandler(void)
-#else
-void I2C2_EV_IRQHandler(void)
-#endif
+void I2C_Event_Handler()
 {
-    uint32_t isr = I2C_BUS->SR1;
+    uint32_t SR1 = I2C_BUS->SR1;
+    uint32_t SR2 = I2C_BUS->SR2;
     uint8_t access = pTWI->frame.access;
 
-    if(isr & I2C_SR1_SB)                        // Start Bit Sent
+    if(access & TWI_WRITE)                                      // Write Request
     {
-        if(access & TWI_WRITE)                  // Write Request
+        if(SR1 & I2C_SR1_SB)                                    // Start Bit Sent in Master Mode
         {
             I2C_BUS->DR = pTWI->frame.address << 1;
         }
-        else if(access & TWI_READ)              // Read Request
-        {
-            I2C_BUS->DR = (pTWI->frame.address << 1) | 1;
-        }
-        // else WTF ?
-    }
-    else if(isr & I2C_SR1_ADDR)                 // Address Sent
-    {
-        isr = I2C_BUS->SR2;                     // Clear Addr Flag
-
-        if(access & TWI_WRITE)                  // Write Request
+        else if(SR1 & I2C_SR1_ADDR)                             // Address Sent
         {
             if(pTWI->frame.write != 0)
             {
                 I2C_BUS->DR = pTWI->frame.data[0];
-                I2C_BUS->CR2 |= I2C_CR2_ITBUFEN;        // Buffer Interrupt Enable
                 twi_pnt = 1;
             }
-            //else if(access & TWI_READ)
-            //{
-            //
-            //}
+//            else if(access & TWI_READ)
+//            {
+//                I2C_BUS->CR1 |= I2C_CR1_START;                  // Start Generation
+//                pTWI->frame.access &= ~TWI_WRITE;
+//            }
             else
             {
-                I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);    // Event & Error Interrupt Enable
+                // Event & Error Interrupt Disable
+                I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN | I2C_CR2_ITBUFEN);
+                I2C_BUS->CR1 |= I2C_CR1_STOP;                   // Send Stop
+                pTWI->frame.access = TWI_RDY;
+            }
+        }
+        else if(SR1 & I2C_SR1_BTF)
+        {
+            if(twi_pnt < pTWI->frame.write)
+            {
+                I2C_BUS->DR = pTWI->frame.data[twi_pnt];
+                twi_pnt++;
+            }
+//            else if(access & TWI_READ)
+//            {
+//                I2C_BUS->CR1 |= I2C_CR1_START;              // Start Generation
+//                twi_pnt = 0;
+//                pTWI->frame.access &= ~TWI_WRITE;
+//            }
+            else
+            {
+                // Event & Error Interrupt Disable
+                I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN | I2C_CR2_ITBUFEN);
+                I2C_BUS->CR1 |= I2C_CR1_STOP;                               // Send Stop
+                pTWI->frame.access = TWI_RDY;
+            }
+        }
+        //else    // WTF ?
+    }
+/*
+    else if(access & TWI_READ)                                  // Read Request
+    {
+        if(SR1 & I2C_SR1_SB)                                    // Start Bit Sent in Master Mode
+        {
+            I2C_BUS->DR = (pTWI->frame.address << 1) | 1;
+        }
+        else if(SR1 & I2C_SR1_ADDR)                             // Address Sent
+        {
+            if(pTWI->frame.read == 0)
+            {
+                // Event & Error Interrupt Disable
+                I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);
                 I2C_BUS->CR1 |= I2C_CR1_STOP;
                 pTWI->frame.access = TWI_RDY;
             }
         }
-        else
+        else if(I2C_BUS->SR1 & I2C_SR1_BTF)
         {
-            // ToDo Dummy Function
-            I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);    // Event & Error Interrupt Enable
+            // Event & Error Interrupt Disable
+            I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);
             I2C_BUS->CR1 |= I2C_CR1_STOP;
             pTWI->frame.access = TWI_RDY;
         }
+        // else WTF ?
     }
-    else
-    {
-        // ToDo Dummy Function
-        I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);    // Event & Error Interrupt Enable
-        I2C_BUS->CR1 |= I2C_CR1_STOP;
-        pTWI->frame.access = TWI_RDY;
-    }
-
-
-    #warning ISR_TWI_EV_HANDLER
+    // else WTF ?
+*/
 }
 
-#if (HAL_TWI_BUS == 1)
-void I2C1_ER_IRQHandler(void)
-#else
-void I2C2_ER_IRQHandler(void)
-#endif
+void I2C_Error_Handler()
 {
-    I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);    // Event & Error Interrupt Enable
+    if(I2C_BUS->SR1 & I2C_SR1_AF)                                   // NACK received
+    {
+        I2C_BUS->SR1 &= ~I2C_SR1_AF;                                // Clear Flag AF
+        if(twi_pnt == 0)
+        {
+            // Event & Error Interrupt Enable
+            I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN | I2C_CR2_ITBUFEN);
+            I2C_BUS->CR1 |= I2C_CR1_STOP;                           // Send Stop
+
+            pTWI->frame.access |= TWI_SLANACK;
+            return;
+        }
+    }
+
+    I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN | I2C_CR2_ITBUFEN); // Event & Error Interrupt Enable
     I2C_BUS->CR1 |= I2C_CR1_STOP;
 
     pTWI->frame.access |= TWI_ERROR;
-    
+
     #warning ISR_TWI_ER_HANDLER
 }
 
