@@ -356,134 +356,138 @@
             <item name="Pp27" value="JiX27" saved="True" type="System.String">
                 <item name="_description" value="PWM Output, PA8" saved="True" type="System.String" />
             </item>
-            <item name="Pn3" value="IiX3" saved="True" type="System.String">
+        </item>
+        <item name="PWM Inverted">
+            <item name="Pn3" value="KiX3" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PB0" saved="True" type="System.String" />
             </item>
-            <item name="Pn4" value="IiX4" saved="True" type="System.String">
+            <item name="Pn4" value="KiX4" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA7" saved="True" type="System.String" />
             </item>
-            <item name="Pn5" value="IiX5" saved="True" type="System.String">
+            <item name="Pn5" value="KiX5" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA6" saved="True" type="System.String" />
             </item>
-            <item name="Pn8" value="IiX8" saved="True" type="System.String">
+            <item name="Pn8" value="KiX8" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA3" saved="True" type="System.String" />
             </item>
-            <item name="Pn9" value="IiX9" saved="True" type="System.String">
+            <item name="Pn9" value="KiX9" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA2" saved="True" type="System.String" />
             </item>
-            <item name="Pn10" value="JiX10" saved="True" type="System.String">
+            <item name="Pn10" value="LiX10" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA1" saved="True" type="System.String" />
             </item>
-            <item name="Pn11" value="JiX11" saved="True" type="System.String">
+            <item name="Pn11" value="LiX11" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA0" saved="True" type="System.String" />
             </item>
-            <item name="Pn15" value="JiX15" saved="True" type="System.String">
+            <item name="Pn15" value="LiX15" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PB7" saved="True" type="System.String" />
             </item>
-            <item name="Pn16" value="JiX16" saved="True" type="System.String">
+            <item name="Pn16" value="LiX16" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PB6" saved="True" type="System.String" />
             </item>
-            <item name="Pn24" value="JiX24" saved="True" type="System.String">
+            <item name="Pn24" value="LiX24" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA11" saved="True" type="System.String" />
             </item>
-            <item name="Pn25" value="JiX25" saved="True" type="System.String">
+            <item name="Pn25" value="LiX25" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA10" saved="True" type="System.String" />
             </item>
-            <item name="Pn26" value="JiX26" saved="True" type="System.String">
+            <item name="Pn26" value="LiX26" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA9" saved="True" type="System.String" />
             </item>
-            <item name="Pn27" value="JiX27" saved="True" type="System.String">
+            <item name="Pn27" value="LiX27" saved="True" type="System.String">
                 <item name="_description" value="Inverted PWM Output, PA8" saved="True" type="System.String" />
             </item>
         </item>
         <item name="Analog Inputs">
-            <item name="Av3" value="KiX3" saved="True" type="System.String">
+            <item name="Av3" value="MiX3" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PB0" saved="True" type="System.String" />
             </item>
-            <item name="Av4" value="KiX4" saved="True" type="System.String">
+            <item name="Av4" value="MiX4" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA7" saved="True" type="System.String" />
             </item>
-            <item name="Av5" value="KiX5" saved="True" type="System.String">
+            <item name="Av5" value="MiX5" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA6" saved="True" type="System.String" />
             </item>
-            <item name="Av6" value="KiX6" saved="True" type="System.String">
+            <item name="Av6" value="MiX6" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA5" saved="True" type="System.String" />
             </item>
-            <item name="Av7" value="KiX7" saved="True" type="System.String">
+            <item name="Av7" value="MiX7" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA4" saved="True" type="System.String" />
             </item>
-            <item name="Av8" value="KiX8" saved="True" type="System.String">
+            <item name="Av8" value="MiX8" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA3" saved="True" type="System.String" />
             </item>
-            <item name="Av9" value="KiX9" saved="True" type="System.String">
+            <item name="Av9" value="MiX9" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA2" saved="True" type="System.String" />
             </item>
-            <item name="Av10" value="LiX10" saved="True" type="System.String">
+            <item name="Av10" value="NiX10" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA1" saved="True" type="System.String" />
             </item>
-            <item name="Av11" value="LiX11" saved="True" type="System.String">
+            <item name="Av11" value="NiX11" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA0" saved="True" type="System.String" />
             </item>
         </item>
-        <item name="Serial">
-            <item name="St0" value="NbX26,S60,B61,B62,B63,B64" saved="True" type="System.String">
+        <item name="Serial1">
+            <item name="St0" value="ObX26,S60,B61,B62,B63,B64" saved="True" type="System.String">
                 <item name="_description" value="TxD 2400, TX1" saved="True" type="System.String" />
             </item>
-            <item name="St16" value="NbX26,B60,S61,B62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 4800, TX1" saved="True" type="System.String" />
-            </item>
-            <item name="St32" value="NbX26,B60,B61,S62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 9600, TX1" saved="True" type="System.String" />
-            </item>
-            <item name="St48" value="NbX26,B60,B61,B62,S63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 19200, TX1" saved="True" type="System.String" />
-            </item>
-            <item name="St64" value="NbX26,B60,B61,B62,B63,S64" saved="True" type="System.String">
-                <item name="_description" value="TxD 38400, TX1" saved="True" type="System.String" />
-            </item>
-            <item name="Sr0" value="NbX25,S60,B61,B62,B63,B64" saved="True" type="System.String">
+            <item name="Sr0" value="ObX25,S60,B61,B62,B63,B64" saved="True" type="System.String">
                 <item name="_description" value="RxD 2400, RX1" saved="True" type="System.String" />
             </item>
-            <item name="Sr16" value="NbX25,B60,S61,B62,B63,B64" saved="True" type="System.String">
+            <item name="St16" value="ObX26,B60,S61,B62,B63,B64" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX1" saved="True" type="System.String" />
+            </item>
+            <item name="Sr16" value="ObX25,B60,S61,B62,B63,B64" saved="True" type="System.String">
                 <item name="_description" value="RxD 4800, RX1" saved="True" type="System.String" />
             </item>
-            <item name="Sr32" value="NbX25,B60,B61,S62,B63,B64" saved="True" type="System.String">
+            <item name="St32" value="ObX26,B60,B61,S62,B63,B64" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX1" saved="True" type="System.String" />
+            </item>
+            <item name="Sr32" value="ObX25,B60,B61,S62,B63,B64" saved="True" type="System.String">
                 <item name="_description" value="RxD 9600, RX1" saved="True" type="System.String" />
             </item>
-            <item name="Sr48" value="NbX25,B60,B61,B62,S63,B64" saved="True" type="System.String">
-                <item name="_description" value="RxD 19200, RX1" saved="True" type="System.String" />
+            <item name="St48" value="ObX26,B60,B61,B62,S63,B64" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX1" saved="True" type="System.String" />
             </item>
-            <item name="Sr64" value="NbX25,B60,B61,B62,B63,S64" saved="True" type="System.String">
+            <item name="Sr48" value="ObX25,B60,B61,B62,S63,B64" saved="True" type="System.String">
+                <item name="_description" value="RxD 19200, RX1" saved="True" type="System.String" />
+            </item>            
+            <item name="St64" value="ObX26,B60,B61,B62,B63,S64" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX1" saved="True" type="System.String" />
+            </item>
+            <item name="Sr64" value="ObX25,B60,B61,B62,B63,S64" saved="True" type="System.String">
                 <item name="_description" value="RxD 38400, RX1" saved="True" type="System.String" />
             </item>
-            <item name="St1" value="NbX9,S60,B61,B62,B63,B64" saved="True" type="System.String">
+        </item>
+        <item name="Serial2">
+            <item name="St1" value="PbX9,S70,B71,B72,B73,B74" saved="True" type="System.String">
                 <item name="_description" value="TxD 2400, TX2" saved="True" type="System.String" />
             </item>
-            <item name="St17" value="NbX9,B60,S61,B62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 4800, TX2" saved="True" type="System.String" />
-            </item>
-            <item name="St33" value="NbX9,B60,B61,S62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 9600, TX2" saved="True" type="System.String" />
-            </item>
-            <item name="St49" value="NbX9,B60,B61,B62,S63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 19200, TX2" saved="True" type="System.String" />
-            </item>
-            <item name="St65" value="NbX9,B60,B61,B62,B63,S64" saved="True" type="System.String">
-                <item name="_description" value="TxD 38400, TX2" saved="True" type="System.String" />
-            </item>
-            <item name="Sr1" value="NbX8,S60,B61,B62,B63,B64" saved="True" type="System.String">
+            <item name="Sr1" value="PbX8,S70,B71,B72,B73,B74" saved="True" type="System.String">
                 <item name="_description" value="RxD 2400, RX2" saved="True" type="System.String" />
             </item>
-            <item name="Sr17" value="NbX8,B60,S61,B62,B63,B64" saved="True" type="System.String">
+            <item name="St17" value="PbX9,B70,S71,B72,B73,B74" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX2" saved="True" type="System.String" />
+            </item>
+            <item name="Sr17" value="PbX8,B70,S71,B72,B73,B74" saved="True" type="System.String">
                 <item name="_description" value="RxD 4800, RX2" saved="True" type="System.String" />
             </item>
-            <item name="Sr33" value="NbX8,B60,B61,S62,B63,B64" saved="True" type="System.String">
+            <item name="St33" value="PbX9,B70,B71,S72,B73,B74" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX2" saved="True" type="System.String" />
+            </item>
+            <item name="Sr33" value="PbX8,B70,B71,S72,B73,B74" saved="True" type="System.String">
                 <item name="_description" value="RxD 9600, RX2" saved="True" type="System.String" />
             </item>
-            <item name="Sr49" value="NbX8,B60,B61,B62,S63,B64" saved="True" type="System.String">
+            <item name="Sr49" value="PbX8,B70,B71,B72,S73,B74" saved="True" type="System.String">
                 <item name="_description" value="RxD 19200, RX2" saved="True" type="System.String" />
             </item>
-            <item name="Sr65" value="NbX8,B60,B61,B62,B63,S64" saved="True" type="System.String">
+            <item name="St49" value="PbX9,B70,B71,B72,S73,B74" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX2" saved="True" type="System.String" />
+            </item>
+            <item name="St65" value="PbX9,B70,B71,B72,B73,S74" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX2" saved="True" type="System.String" />
+            </item>
+            <item name="Sr65" value="PbX8,B70,B71,B72,B73,S74" saved="True" type="System.String">
                 <item name="_description" value="RxD 38400, RX2" saved="True" type="System.String" />
             </item>
         </item>
@@ -581,35 +585,35 @@
                 <item name="_description" value="Digital inverted output, PB10" saved="True" type="System.String" />
             </item>
         </item>
-        <item name="Serial">
-            <item name="St2" value="NbX1,S60,B61,B62,B63,B64" saved="True" type="System.String">
+        <item name="Serial3">
+            <item name="St2" value="QbX1,S80,B81,B82,B83,B84" saved="True" type="System.String">
                 <item name="_description" value="TxD 2400, TX3" saved="True" type="System.String" />
             </item>
-            <item name="St18" value="NbX1,B60,S61,B62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 4800, TX3" saved="True" type="System.String" />
-            </item>
-            <item name="St34" value="NbX1,B60,B61,S62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 9600, TX3" saved="True" type="System.String" />
-            </item>
-            <item name="St50" value="NbX1,B60,B61,B62,S63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 19200, TX3" saved="True" type="System.String" />
-            </item>
-            <item name="St66" value="NbX1,B60,B61,B62,B63,S64" saved="True" type="System.String">
-                <item name="_description" value="TxD 38400, TX3" saved="True" type="System.String" />
-            </item>
-            <item name="Sr2" value="NbX0,S60,B61,B62,B63,B64" saved="True" type="System.String">
+            <item name="Sr2" value="QbX0,S80,B81,B82,B83,B84" saved="True" type="System.String">
                 <item name="_description" value="RxD 2400, RX3" saved="True" type="System.String" />
             </item>
-            <item name="Sr18" value="NbX0,B60,S61,B62,B63,B64" saved="True" type="System.String">
+            <item name="St18" value="QbX1,B80,S81,B82,B83,B84" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX3" saved="True" type="System.String" />
+            </item>
+            <item name="Sr18" value="QbX0,B80,S81,B82,B83,B84" saved="True" type="System.String">
                 <item name="_description" value="RxD 4800, RX3" saved="True" type="System.String" />
             </item>
-            <item name="Sr34" value="NbX0,B60,B61,S62,B63,B64" saved="True" type="System.String">
+            <item name="St34" value="QbX1,B80,B81,S82,B83,B84" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX3" saved="True" type="System.String" />
+            </item>
+            <item name="Sr34" value="QbX0,B80,B81,S82,B83,B84" saved="True" type="System.String">
                 <item name="_description" value="RxD 9600, RX3" saved="True" type="System.String" />
             </item>
-            <item name="Sr50" value="NbX0,B60,B61,B62,S63,B64" saved="True" type="System.String">
+            <item name="St50" value="QbX1,B80,B81,B82,S83,B84" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX3" saved="True" type="System.String" />
+            </item>
+            <item name="Sr50" value="QbX0,B80,B81,B82,S83,B84" saved="True" type="System.String">
                 <item name="_description" value="RxD 19200, RX3" saved="True" type="System.String" />
             </item>
-            <item name="Sr66" value="NbX0,B60,B61,B62,B63,S64" saved="True" type="System.String">
+            <item name="St66" value="QbX1,B80,B81,B82,B83,S84" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX3" saved="True" type="System.String" />
+            </item>
+            <item name="Sr66" value="QbX0,B80,B81,B82,B83,S84" saved="True" type="System.String">
                 <item name="_description" value="RxD 38400, RX3" saved="True" type="System.String" />
             </item>
         </item>
