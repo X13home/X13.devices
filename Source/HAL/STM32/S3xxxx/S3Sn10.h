@@ -70,7 +70,7 @@ extern "C" {
 #define EXTDIO_MAXPORT_NR           3
 #define HAL_DIO_MAPPING             {0xFF, 0xFF, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0,    /* PB11, PB10, PB2, PB0, PA7 - PA0 */ \
                                      47, 46, 45, 23, 22, 21, 20, 19,                /* PC13 - PC15, PB7 - PB3 */ \
-                                     15, 0xFF, 0xFF, 12, 11, 10, 9, 8,              /* PA15 - PA8 */ \
+                                     15, 255, 255, 12, 11, 10, 9, 8,                /* PA15 - PA8 */ \
                                      31, 30, 29, 28}                                /* PB15 - PB12 */
 // End DIO Section
 
@@ -107,19 +107,25 @@ extern "C" {
 #define EXTTWI_USED                 1
 // End TWI Section
 
+// UART Section
+#define HAL_UART_NUM_PORTS          3
+#define HAL_USE_USART1              0           // Mapping to logical port
+#define HAL_USE_USART2              1
+#define HAL_USE_USART3              2
+
+#define EXTSER_USED                 2
+// End UART Section
+
+// UART PHY Section
+#define UART_PHY_PORT               2   // Logical port
+#define UART_PHY                    1
+#include "PHY/UART/uart_phy.h"
+// End UART PHY Section
+
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS1
 #define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR1
 #define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_1, DIO_MODE_OUT_PP)
-
-// UART PHY Section
-#define HAL_UART_NUM_PORTS          1
-#define HAL_USE_USART3              0
-
-#define UART_PHY_PORT               0   // Logical port
-#define UART_PHY                    1
-#include "PHY/UART/uart_phy.h"
-// End UART PHY Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           64

@@ -46,7 +46,7 @@ static const uint8_t ops_initSeq[] = {
           0x10,             // turn on interrupt on PS3
           0x00,
           0x01,             // interrupt on ps3 measurement
-          0x17,             //HW_KEY - The system must write the value 0x17 to this register for proper Si114x operation.
+          0x17,             // HW_KEY - The system must write the value 0x17 to this register for proper Si114x operation.
           0x6B,             // The device wakes up every 3 1/3 ms (0x6C x 31.25 µs)
           0x32,             // ALS Measurements made every 10 times the device wakes up.
           0x08,             // PS Measurements made every time the device wakes up

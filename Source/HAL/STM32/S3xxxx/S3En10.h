@@ -70,7 +70,7 @@ extern "C" {
 #define EXTDIO_MAXPORT_NR           3
 #define HAL_DIO_MAPPING             {27, 26, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0,        /* PB11, PB10, PB2, PB0, PA7 - PA0 */ \
                                      47, 46, 45, 23, 22, 21, 20, 19,                /* PC13 - PC15, PB7 - PB3 */ \
-                                     15, 0xFF, 0xFF, 12, 11, 10, 9, 8}              /* PA15 - PA8 */ \
+                                     15, 255, 255, 12, 11, 10, 9, 8}                /* PA15 - PA8 */ \
 
 // End DIO Section
 
@@ -99,8 +99,22 @@ extern "C" {
                                      ((1<<3) | 3),              /* PA11: TIM1_CH4   */ \
                                      ((1<<3) | 2),              /* PA10: TIM1_CH3   */ \
                                      ((1<<3) | 1),              /* PA9:  TIM1_CH2   */ \
-                                     ((1<<3) | 0)}              /* PA8:  TIM1_CH2   */
+                                     ((1<<3) | 0)}              /* PA8:  TIM1_CH1   */
 // End PWM Section
+
+// TWI Section
+#define HAL_TWI_BUS                 1
+#define EXTTWI_USED                 1
+// End TWI Section
+
+// UART Section
+#define HAL_UART_NUM_PORTS          3
+#define HAL_USE_USART1              0           // Mapping to logical port
+#define HAL_USE_USART2              1
+#define HAL_USE_USART3              2
+
+#define EXTSER_USED                 3
+// End UART Section
 
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS1
