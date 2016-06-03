@@ -41,14 +41,6 @@
 #ifndef __CORE_CM4_H_GENERIC
 #define __CORE_CM4_H_GENERIC
 
-// [ILG]
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wsign-conversion"
-#pragma GCC diagnostic ignored "-Wconversion"
-#pragma GCC diagnostic ignored "-Wunused-parameter"
-#endif
-
 #include <stdint.h>
 
 #ifdef __cplusplus
@@ -1941,10 +1933,5 @@ __STATIC_INLINE int32_t ITM_CheckChar (void)
 #endif
 
 #endif /* __CORE_CM4_H_DEPENDANT */
-
-// [ILG]
-#if defined ( __GNUC__ )
-#pragma GCC diagnostic pop
-#endif
 
 #endif /* __CMSIS_GENERIC */

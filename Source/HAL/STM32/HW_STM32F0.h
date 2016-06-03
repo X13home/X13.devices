@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2015 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -43,7 +43,7 @@ See LICENSE file for license details.
 #elif   (defined CFG_S2SC15)    
 #include "S2xxxx/S2SC15.h"      // UART + CC1101
 #elif   (defined CFG_S2Cn15)    
-#include "S2xxxx/S2Cn15.h"      // UART + CC1101
+#include "S2xxxx/S2Cn15.h"      // CC1101
 
 #else
 #error Unknown configuration

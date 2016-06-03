@@ -13,6 +13,8 @@ extern "C" {
 #include "HW_STM32F1.h"
 #elif (defined STM32F3)
 #include "HW_STM32F3.h"
+#elif (defined STM32L0)
+#include "HW_STM32L0.h"
 #else
 #error Unknown Family
 #endif  // uC Family
