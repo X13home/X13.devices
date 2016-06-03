@@ -20,7 +20,6 @@ extern "C" {
 // TWI Access Flags
 #define TWI_WRITE       0x01    // Write access
 #define TWI_READ        0x02    // Read access
-#define TWI_WD_ARMED    0x04    // Watchdog started
 #define TWI_BUSY        0x08    // Bus busy
 #define TWI_RDY         0x10    // Access complete
 #define TWI_WD          0x20    // Timeout
