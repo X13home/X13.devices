@@ -16,8 +16,8 @@ void I2C1_ER_IRQHandler(void);
 #define I2C_Error_Handler()     I2C1_ER_IRQHandler(void)
 
 #define I2C_BUS         I2C1
-#define I2C_EV_IRQ      I2C1_EV_IRQn
-#define I2C_ER_IRQ      I2C1_ER_IRQn
+#define I2C_EV_IRQn     I2C1_EV_IRQn
+#define I2C_ER_IRQn     I2C1_ER_IRQn
 
 #if (defined HAL_TWI1_REMAP)
 // I2C1, PB8 - SCL, PB9 - SDA
@@ -44,8 +44,8 @@ void I2C2_ER_IRQHandler(void);
 #define I2C_Error_Handler()     I2C2_ER_IRQHandler(void)
 
 #define I2C_BUS         I2C2
-#define I2C_EV_IRQ      I2C2_EV_IRQn
-#define I2C_ER_IRQ      I2C2_ER_IRQn
+#define I2C_EV_IRQn     I2C2_EV_IRQn
+#define I2C_ER_IRQn     I2C2_ER_IRQn
 
 // I2C2, PB10 - SCL, PB11 - SDA
 #define I2C_PIN_SCL     GPIO_Pin_10
@@ -138,16 +138,15 @@ bool hal_twi_configure(uint8_t enable)
         // Enable I2C
         I2C_BUS->CR1 = I2C_CR1_PE;
 
-        NVIC_SetPriority(I2C_EV_IRQ, 3);
-        NVIC_SetPriority(I2C_ER_IRQ, 3);
-        NVIC_EnableIRQ(I2C_EV_IRQ);
-        NVIC_EnableIRQ(I2C_ER_IRQ);
+        NVIC_SetPriority(I2C_EV_IRQn, 0);
+        NVIC_EnableIRQ(I2C_EV_IRQn);
+        NVIC_SetPriority(I2C_ER_IRQn, 0);
+        NVIC_EnableIRQ(I2C_ER_IRQn);
     }
     else
     {
-        NVIC_DisableIRQ(I2C_ER_IRQ);
-        NVIC_DisableIRQ(I2C_EV_IRQ);
-
+        NVIC_DisableIRQ(I2C_EV_IRQn);
+        NVIC_DisableIRQ(I2C_ER_IRQn);
 #if (HAL_TWI_BUS == 1)
         // Reset I2C1
         RCC->APB1RSTR |= RCC_APB1RSTR_I2C1RST;
@@ -170,12 +169,13 @@ bool hal_twi_configure(uint8_t enable)
 
 void hal_twi_stop(void)
 {
+    I2C_BUS->CR1 = I2C_CR1_SWRST;                               // Reset I2C
     I2C_BUS->CR1 &= ~I2C_CR1_PE;                                // Disable I2C
 }
 
 void hal_twi_start(void)
 {
-    if((I2C_BUS->CR1 & I2C_CR1_PE) == 0)
+    if(((I2C_BUS->CR1 & I2C_CR1_PE) == 0) || (I2C_BUS->CR1 & I2C_CR1_SWRST))
     {
         I2C_BUS->CR1 = I2C_CR1_PE;                              // Enable I2C
     }
@@ -183,6 +183,7 @@ void hal_twi_start(void)
     // Bus Error ?
     if(I2C_BUS->SR1 & (I2C_SR1_TIMEOUT | I2C_SR1_OVR | I2C_SR1_ARLO | I2C_SR1_BERR))
     {
+        I2C_BUS->CR1 = I2C_CR1_SWRST;                           // Reset I2C
         I2C_BUS->CR1 &= ~I2C_CR1_PE;                            // Disable I2C
         pTWI->frame.access |= TWI_ERROR;
         return;
@@ -194,11 +195,10 @@ void hal_twi_start(void)
     }
 
     twi_pnt = 0;
-
-    I2C_BUS->CR1 |= I2C_CR1_START;                              // Start Generation
-    I2C_BUS->CR2 |= (I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);        // Event & Error Interrupt Enable
-
     pTWI->frame.access |= TWI_BUSY;
+
+    I2C_BUS->CR2 |= (I2C_CR2_ITERREN | I2C_CR2_ITEVTEN);        // Event & Error Interrupt Enable
+    I2C_BUS->CR1 |= I2C_CR1_START;                              // Start Generation
 }
 
 void I2C_Event_Handler()
