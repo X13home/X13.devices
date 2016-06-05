@@ -75,12 +75,12 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 
     // Configure SPI
     SPIx->CR1 = (uint16_t)(SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR) | (div<<3);
-#if (defined STM32F0)  || (defined STM32F3)
+#if (defined STM32F0) || (defined STM32F3)
     if(mode & HAL_SPI_16B)
         SPIx->CR2 = (uint16_t)(SPI_CR2_DS_3 | SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0); // 16 bit
     else
         SPIx->CR2 = (uint16_t)(SPI_CR2_FRXTH | SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0); // 8 bit
-#elif (defined STM32F1)
+#elif (defined STM32F1) || (defined STM32L0)
     if(mode & HAL_SPI_16B)
         SPIx->CR1 |= SPI_CR1_DFF;
 #else
@@ -95,7 +95,7 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
         SPIx->CR1 |= SPI_CR1_CPOL;
 
     SPIx->CRCPR =  7;
-    
+
 #ifndef STM32F3
     SPIx->I2SCFGR &= (uint16_t)~((uint16_t)SPI_I2SCFGR_I2SMOD);
 #endif  //  STM32F3
@@ -106,13 +106,13 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 uint8_t hal_spi_exch8(uint8_t port, uint8_t data)
 {
     SPI_TypeDef * SPIx = (SPI_TypeDef *)hal_spi_port2spi[port];
-#if (defined STM32F0)  || (defined STM32F3)
+#if (defined STM32F0) || (defined STM32F3)
     uint32_t spixbase = (uint32_t)SPIx + 0x0C;
     *(__IO uint8_t *)spixbase = data;
     while((SPIx->SR & SPI_SR_RXNE) == 0);
     data = *(__IO uint8_t *)spixbase;
     return data;
-#elif (defined STM32F1)
+#elif (defined STM32F1) || (defined STM32L0)
     SPIx->DR = data;
     while((SPIx->SR & SPI_SR_RXNE) == 0);
     return (SPIx->DR & 0xFF);

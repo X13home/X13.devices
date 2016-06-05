@@ -28,6 +28,15 @@ See LICENSE file for license details.
 #error Unknown configuration
 #endif  //  Configuration
 
+//////////////////////////////////////////////////////////////
+// PLC Section
+#define EXTPLC_USED                     1
+#define EXTPLC_SIZEOF_PRG               4096
+#define EXTPLC_SIZEOF_PRG_CACHE         32      // Must be 2^n, bytes
+#define EXTPLC_SIZEOF_RAM               256     // size in uint32_t
+#define EXTPLC_SIZEOF_RW                16      // size in uint32_t
+// PLC Section
+//////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
 // EEPROM Emulation Section
@@ -55,7 +64,6 @@ See LICENSE file for license details.
 #define FEE_ProgramTimeout      (uint32_t)0x00002000
 // End EEPROM Emulation Section
 //////////////////////////////////////////////////////////////
-
 
 //////////////////////////////////////////////////////////////
 // SPI Section
