@@ -9,8 +9,8 @@ uint32_t    hal_pclk2 = 2097000UL;
 void hal_SetSysClock(void)
 {
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-    PWR->CR &= ~PWR_CR_VOS;
-    PWR->CR |= PWR_CR_VOS_0;
+    PWR->CR |= PWR_CR_VOS_0;        // Set Voltage Range 1
+    PWR->CR &= ~PWR_CR_VOS_1;
     
     // Clock Source HSI - 16M, prediv = 1
     RCC->CR |= RCC_CR_HSION;
@@ -120,6 +120,15 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
 // Initialise EEPROM hardware
 void eeprom_init_hw(void)
 {
+    // Wait till no operation is on going
+    while (FLASH->SR & FLASH_SR_BSY);
+
+    // Unlocking FLASH_PECR register access
+    if(FLASH->PECR & FLASH_PECR_PELOCK)         // Check if the PELOCK is unlocked
+    {
+        FLASH->PEKEYR = 0x89ABCDEF;             // Perform unlock sequence
+        FLASH->PEKEYR = 0x02030405;
+    }
 }
 
 // Read data from EEPROM
@@ -143,16 +152,6 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
     if((eep_addr + Len) > DATA_EEPROM_END)      // Invalid Address or Length
     {
         return;
-    }
-
-    // Wait till no operation is on going
-    //while (FLASH->SR & FLASH_SR_BSY);
-
-    // Unlocking FLASH_PECR register access
-    if(FLASH->PECR & FLASH_PECR_PELOCK)         // Check if the PELOCK is unlocked
-    {
-        FLASH->PEKEYR = 0x8C9DAEBFU;            // Perform unlock sequence
-        FLASH->PEKEYR = 0x13141516U;
     }
 
     //if(FLASH->PECR & FLASH_PECR_ERASE)

@@ -385,12 +385,18 @@ void InitOD(void)
     eeprom_init_hw();
 
     // Check Settings
-    uint8_t     Len = 1;
     uint8_t     ucTmp = 0;
     uint16_t    uiTmp;
+    
+    eeprom_read((uint8_t *)&uiTmp, 0, 2);      // read Flag;
+    
+    uint16_t Flag = 0;
+    for(ucTmp = 0; ucTmp < sizeof(psDeviceTyp); ucTmp++)
+    {
+        Flag += psDeviceTyp[ucTmp];
+    }
 
-    ReadOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, &Len, &ucTmp);
-    if(ucTmp == 0xFF)                                                                       // Not Configured
+    if(uiTmp != Flag)                                                              // Not Configured
     {
         // Load Default Settings
 #ifdef RF_ADDR_t
@@ -398,16 +404,16 @@ void InitOD(void)
 #define ADDR_DEFAULT_RF ADDR_UNDEF_RF    // DHCP
 #endif  //  ADDR_DEFAULT_RF
         RF_ADDR_t rfAddr = ADDR_DEFAULT_RF;
-        WriteOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfAddr);         // Node address
+        WriteOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfAddr);  // Node address
         RF_ADDR_t rfGw = ADDR_UNDEF_RF;
-        WriteOD(objRFGateId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfGw);             // Gateway address
+        WriteOD(objRFGateId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfGw); // Gateway address
 #ifdef OD_DEFAULT_GROUP
         uiTmp = OD_DEFAULT_GROUP;
-        WriteOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Group Id
+        WriteOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); // Group Id
 #endif  //  OD_DEFAULT_GROUP
 #ifdef OD_DEFAULT_CHANNEL
         ucTmp = OD_DEFAULT_CHANNEL;
-        WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);             // Channel
+        WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);           // Channel
 #endif  //  OD_DEFAULT_CHANNEL
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
@@ -436,14 +442,18 @@ void InitOD(void)
 #endif  //  LAN_NODE
 #ifdef EXTAIN_USED
         uiTmp = OD_DEF_ADC_AVERAGE;
-        WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);   // ADC conversion delay
+        // ADC conversion delay
+        WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); 
 #endif  //  EXTAIN_USED
 #ifdef ASLEEP
         uiTmp = OD_DEFAULT_TASLEEP;
-        WriteOD(objTASleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Sleep Time
+        // Sleep Time
+        WriteOD(objTASleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    
 #endif  //  ASLEEP
         ucTmp = 0;
-        WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                          // Device Name
+        WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);      // Device Name
+        
+        eeprom_write((uint8_t *)&Flag, 0, 2);                     // Write Device Flag
     }
 
     // Clear listOD

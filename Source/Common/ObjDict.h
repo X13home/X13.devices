@@ -127,7 +127,9 @@ typedef struct
 enum
 {
 // Global
-    eeNodeName = 2,
+    eeFlag = 0,
+    eeFlagbody,
+    eeNodeName,
     eeNodeNamebody = eeNodeName + MQTTSN_SIZEOF_CLIENTID - 2,
 // ASLEEP
     eeTASleep,
