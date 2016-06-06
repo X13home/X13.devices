@@ -208,29 +208,75 @@
                 <item name="_description" value="Digital inverted output, CN-3" saved="True" type="System.String" />
             </item>
         </item>
+        <item name="PWM">
+            <item name="Pp0" value="IiX0 ,X221" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA0" saved="True" type="System.String" />
+            </item>
+            <item name="Pp1" value="IiX1" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA1" saved="True" type="System.String" />
+            </item>
+            <item name="Pp2" value="IiX2" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA2" saved="True" type="System.String" />
+            </item>
+            <item name="Pp3" value="IiX3" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA3" saved="True" type="System.String" />
+            </item>
+            <item name="Pp5" value="IiX5,X221" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA5" saved="True" type="System.String" />
+            </item>
+            <item name="Pp6" value="IiX6" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA6" saved="True" type="System.String" />
+            </item>
+            <item name="Pp7" value="IiX7" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA7" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PWM Inverted">
+            <item name="Pn0" value="KiX0 ,X221" saved="True" type="System.String">
+                <item name="_description" value="PWM inverted Output, PA0" saved="True" type="System.String" />
+            </item>
+            <item name="Pn1" value="KiX1" saved="True" type="System.String">
+                <item name="_description" value="PWM inverted Output, PA1" saved="True" type="System.String" />
+            </item>
+            <item name="Pn2" value="KiX2" saved="True" type="System.String">
+                <item name="_description" value="PWM inverted Output, PA2" saved="True" type="System.String" />
+            </item>
+            <item name="Pn3" value="KiX3" saved="True" type="System.String">
+                <item name="_description" value="PWM inverted Output, PA3" saved="True" type="System.String" />
+            </item>
+            <item name="Pn5" value="KiX5,X221" saved="True" type="System.String">
+                <item name="_description" value="PWM inverted Output, PA5" saved="True" type="System.String" />
+            </item>
+            <item name="Pn6" value="KiX6" saved="True" type="System.String">
+                <item name="_description" value="PWM inverted Output, PA6" saved="True" type="System.String" />
+            </item>
+            <item name="Pn7" value="KiX7" saved="True" type="System.String">
+                <item name="_description" value="PWM inverted Output, PA7" saved="True" type="System.String" />
+            </item>
+        </item>
         <item name="Analog Inputs">
-            <item name="Av0" value="KiX0" saved="True" type="System.String">
+            <item name="Av0" value="MiX0" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA0" saved="True" type="System.String" />
             </item>
-            <item name="Av1" value="KiX1" saved="True" type="System.String">
+            <item name="Av1" value="MiX1" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA1" saved="True" type="System.String" />
             </item>
-            <item name="Av2" value="KiX2" saved="True" type="System.String">
+            <item name="Av2" value="MiX2" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA2" saved="True" type="System.String" />
             </item>
-            <item name="Av3" value="KiX3" saved="True" type="System.String">
+            <item name="Av3" value="MiX3" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA3" saved="True" type="System.String" />
             </item>
-            <item name="Av4" value="KiX4" saved="True" type="System.String">
+            <item name="Av4" value="MiX4" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA4" saved="True" type="System.String" />
             </item>
-            <item name="Av5" value="KiX5" saved="True" type="System.String">
+            <item name="Av5" value="MiX5" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA5" saved="True" type="System.String" />
             </item>
-            <item name="Av6" value="KiX6" saved="True" type="System.String">
+            <item name="Av6" value="MiX6" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA6" saved="True" type="System.String" />
             </item>
-            <item name="Av7" value="KiX7" saved="True" type="System.String">
+            <item name="Av7" value="MiX7" saved="True" type="System.String">
                 <item name="_description" value="Analog input AVcc reference, PA7" saved="True" type="System.String" />
             </item>
         </item>

@@ -46,6 +46,7 @@ void hal_pwm_configure(uint16_t base, bool inv)
     hal_dio_configure(pin, DIO_MODE_AF_PP | (cfg & 0x0F00));
     
     TIM_TypeDef * TIMx;
+    uint32_t tim_clk;
 
     switch((cfg >> 3) & 0x001F)
     {
@@ -53,68 +54,84 @@ void hal_pwm_configure(uint16_t base, bool inv)
         case 1:     // Timer 1
             RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
             TIMx = TIM1;
+            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM1
         case 2:     // Timer 2
             RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
             TIMx = TIM2;
+            tim_clk = hal_pclk1;
             break;
 #ifdef TIM3
         case 3:     // Timer 3
             RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
             TIMx = TIM3;
+            tim_clk = hal_pclk1;
             break;
 #endif  //  TIM3
 #ifdef TIM4
         case 4:     // Timer 4
             RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
             TIMx = TIM4;
+            tim_clk = hal_pclk1;
             break;
 #endif  // TIM4 
 #ifdef TIM14
         case 14:
             RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
             TIMx = TIM14;
+            tim_clk = hal_pclk1;
             break;
 #endif  //  TIM14
 #ifdef TIM15
         case 15:
             RCC->APB2ENR |= RCC_APB2ENR_TIM15EN;
             TIMx = TIM15;
+            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM15
 #ifdef  TIM16
         case 16:
             RCC->APB2ENR |= RCC_APB2ENR_TIM16EN;
             TIMx = TIM16;
+            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM16
 #ifdef  TIM17
         case 17:
             RCC->APB2ENR |= RCC_APB2ENR_TIM17EN;
             TIMx = TIM17;
+            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM17
 #ifdef  TIM21
         case 21:
             RCC->APB2ENR |= RCC_APB2ENR_TIM21EN;
             TIMx = TIM21;
+            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM21
 #ifdef  TIM22
         case 22:
             RCC->APB2ENR |= RCC_APB2ENR_TIM22EN;
             TIMx = TIM22;
+            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM22
         default:
             return;
     }
 
-    TIMx->CR1 = TIM_CR1_ARPE;       // Disable Timer
-    TIMx->PSC = 13;                 // Set Prescaler N + 1
-    TIMx->ARR = 0xFFFE;             // Set Autoreload Register (up value)
-    
+    tim_clk /= 6553500;                     // Fpwm >= 100 Hz
+    if(tim_clk > 0)
+    {
+        tim_clk--;
+    }
+
+    TIMx->CR1 = TIM_CR1_ARPE;               // Disable Timer
+    TIMx->PSC = tim_clk;                    // Set Prescaler N + 1
+    TIMx->ARR = 0xFFFE;                     // Set Autoreload Register (up value)
+
     switch(cfg & 0x03)
     {
         case 0:     // Channel 1
@@ -127,7 +144,7 @@ void hal_pwm_configure(uint16_t base, bool inv)
             else
                 TIMx->CCER &= ~TIM_CCER_CC1P;                                       // Select active high polarity on OC1
             break;
-            
+
         case 1:     // Channel 2
             TIMx->CCR2 = 0;
             TIMx->CCMR1 &= 0x00FF;
@@ -138,7 +155,7 @@ void hal_pwm_configure(uint16_t base, bool inv)
             else
                 TIMx->CCER &= ~TIM_CCER_CC2P;                                       // Select active high polarity on OC2
             break;
-            
+
         case 2:     // Channel 3
             TIMx->CCR3 = 0;
             TIMx->CCMR2 &= 0xFF00;
@@ -149,7 +166,7 @@ void hal_pwm_configure(uint16_t base, bool inv)
             else
                 TIMx->CCER &= ~TIM_CCER_CC3P;                                       // Select active high polarity on OC3
             break;
-            
+
         case 3:     // Channel 4
             TIMx->CCR4 = 0;
             TIMx->CCMR2 &= 0x00FF;
