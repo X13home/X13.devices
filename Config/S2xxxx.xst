@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root head="/etc/declarers/dev">
     <!-- device description file for S2EC13 devices  -->
-    
     <item name="S2SC13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0606">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />

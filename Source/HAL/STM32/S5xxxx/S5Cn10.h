@@ -60,8 +60,26 @@ extern "C" {
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
 #define HAL_DIO_MAPPING             { 0,  1,  2,  3,  4,  5, 6, 7,  /* PA0 - PA7 */     \
-                                     22, 23, 14, 13, 11, 255, 255, 17} /* PB7, PB6, PA14, PA13, PA11, PA10, PA9, PB1 - LED */
+                                     22, 23, 14, 13, 11, 10, 9, 17} /* PB7, PB6, PA14, PA13, PA11, PA10, PA9, PB1 - LED */
 // End DIO Section
+
+// PWM Section
+#define EXTPWM_USED                 1
+#define HAL_PWM_PORT2CFG            {((2<<8) |  (2<<3) | 0),    /* PA0:  AF2, !TIM2_CH1 */ \
+                                     ((2<<8) |  (2<<3) | 1),    /* PA1:  AF2, TIM2_CH2  */ \
+                                     ((2<<8) |  (2<<3) | 2),    /* PA2:  AF2, TIM2_CH3  */ \
+                                     ((2<<8) |  (2<<3) | 3),    /* PA3:  AF2, TIM2_CH4  */ \
+                                     255,                       /* PA4: No Config       */ \
+                                     ((5<<8) |  (2<<3) | 0),    /* PA5:  AF5, !TIM2_CH1 */ \
+                                     ((5<<8) | (22<<3) | 0),    /* PA6:  AF5, TIM22_CH1 */ \
+                                     ((5<<8) | (22<<3) | 1)}    /* PA7:  AF5, TIM22_CH2 */
+// End PWM Section
+
+// Analog Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           8
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}        // PA0-PA7: 0 - 7
+// End Analog Inputs
 
 // CC11 PHY Section
 #define HAL_USE_SPI1                2                               // SPI1 on PB3 - PB5

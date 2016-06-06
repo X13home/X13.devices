@@ -49,18 +49,22 @@ void hal_pwm_configure(uint16_t base, bool inv)
 
     switch((cfg >> 3) & 0x001F)
     {
+#ifdef TIM1
         case 1:     // Timer 1
             RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
             TIMx = TIM1;
             break;
+#endif  //  TIM1
         case 2:     // Timer 2
             RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
             TIMx = TIM2;
             break;
+#ifdef TIM3
         case 3:     // Timer 3
             RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
             TIMx = TIM3;
             break;
+#endif  //  TIM3
 #ifdef TIM4
         case 4:     // Timer 4
             RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
@@ -91,6 +95,18 @@ void hal_pwm_configure(uint16_t base, bool inv)
             TIMx = TIM17;
             break;
 #endif  //  TIM17
+#ifdef  TIM21
+        case 21:
+            RCC->APB2ENR |= RCC_APB2ENR_TIM21EN;
+            TIMx = TIM21;
+            break;
+#endif  //  TIM21
+#ifdef  TIM22
+        case 22:
+            RCC->APB2ENR |= RCC_APB2ENR_TIM22EN;
+            TIMx = TIM22;
+            break;
+#endif  //  TIM22
         default:
             return;
     }
@@ -145,8 +161,9 @@ void hal_pwm_configure(uint16_t base, bool inv)
                 TIMx->CCER &= ~TIM_CCER_CC4P;                                       // Select active high polarity on OC4
             break;
     }
-
+#ifdef TIM_BDTR_MOE
     TIMx->BDTR |= TIM_BDTR_MOE;     // Enable output (MOE = 1)
+#endif  //  TIM_BDTR_MOE
     TIMx->CR1 |= TIM_CR1_CEN;       // Enable Timer
     TIMx->EGR |= TIM_EGR_UG;        // Force update generation
 }
@@ -167,22 +184,26 @@ void hal_pwm_delete(uint16_t base)
     
     if((TIMx->CCER & (TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E)) == 0)
     {
+#ifdef TIM_BDTR_MOE
         TIMx->BDTR &= ~TIM_BDTR_MOE;        // Disable master output
+#endif  //  TIM_BDTR_MOE
         TIMx->CR1  &= ~TIM_CR1_CEN;         // Stop Timer
 
         switch((cfg >> 3) & 0x001F)
         {
+#ifdef TIM1
             case 1:     // Timer 1
                 RCC->APB2ENR &= ~RCC_APB2ENR_TIM1EN;
                 break;
-
+#endif  //  TIM1
             case 2:     // Timer 2
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN;
                 break;
-            
+#ifdef TIM3
             case 3:     // Timer 3
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM3EN;
                 break;
+#endif  //  TIM3
 #ifdef TIM4
             case 4:
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM4EN;
@@ -208,6 +229,16 @@ void hal_pwm_delete(uint16_t base)
                 RCC->APB2ENR &= ~RCC_APB2ENR_TIM17EN;
                 break;
 #endif  //  TIM17
+#ifdef  TIM21
+            case 21:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM21EN;
+                break;
+#endif  //  TIM21
+#ifdef  TIM22
+            case 22:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM22EN;
+                break;
+#endif  //  TIM22
         }
     }
 }

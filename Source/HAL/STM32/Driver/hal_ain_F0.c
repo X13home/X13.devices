@@ -1,6 +1,6 @@
 #include "config.h"
 
-#if (defined EXTAIN_USED) && (defined STM32F0)
+#if (defined EXTAIN_USED) && ((defined STM32F0) || (defined STM32L0))
 
 static const __attribute__ ((aligned (4))) uint8_t hal_ainBase2Apin[] = HAL_AIN_BASE2APIN;
 static const __attribute__ ((aligned (4))) uint8_t hal_ain2dpin[] = {0,1,2,3,4,5,6,7,       // PA0 - PA7
@@ -50,7 +50,7 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
                         ADC_CFGR1_ALIGN;    // Left Aligned 12 bit
                                             // DMA Disabled
 
-        ADC1->SMPR = ADC_SMPR1_SMPR;        // Sampling 239,5 ADC Clock cycles
+        ADC1->SMPR = ADC_SMPR_SMP;          // Sampling 239,5 ADC Clock cycles
 
         ADC1->CR |= ADC_CR_ADEN;            // ADC enabled
     }

@@ -126,6 +126,9 @@ uint8_t     hal_ain_apin2dio(uint8_t apin);
 void        hal_ain_configure(uint8_t apin, uint8_t aref);
 void        hal_ain_select(uint8_t apin, uint8_t aref);
 int16_t     hal_ain_get(void);
+
+#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+
 // AIN Section
 //////////////////////////////////////////////////////////////
 

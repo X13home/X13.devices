@@ -44,4 +44,11 @@ See LICENSE file for license details.
 // End SPI Section
 //////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////
+// PWM Section
+#define HAL_PWM_TIMERS      {NULL, NULL, TIM2, NULL, NULL, NULL, NULL, NULL,    /* 0 - 7 */ \
+                             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,    /* 8 - 15 */ \
+                             NULL, NULL, NULL, NULL, NULL, TIM21, TIM22}        /* 16 - 22 */
+// PWM Section
+//////////////////////////////////////////////////////////////
 #endif  //  HW_STM32L0_H

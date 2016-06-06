@@ -450,6 +450,11 @@ void InitOD(void)
         // Sleep Time
         WriteOD(objTASleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    
 #endif  //  ASLEEP
+#ifdef EXTPLC_USED
+        ucTmp = 0xFF;
+        eeprom_write(&ucTmp, eePLCprogram, 1);
+        eeprom_write(&ucTmp, eePLCprogram + 4, 1);
+#endif  //  EXTPLC_USED
         ucTmp = 0;
         WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);      // Device Name
         

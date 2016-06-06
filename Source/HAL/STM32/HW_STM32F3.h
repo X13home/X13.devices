@@ -123,8 +123,6 @@ See LICENSE file for license details.
 
 //////////////////////////////////////////////////////////////
 // HAL AIn Section
-#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
-
 #if defined(STM32F303x8)
 // PA0 - PA7, PB0 - PB1
 #define HAL_AIN_AIN2DPIN    {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x10, 0x11}
