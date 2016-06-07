@@ -51,4 +51,12 @@ See LICENSE file for license details.
                              NULL, NULL, NULL, NULL, NULL, TIM21, TIM22}        /* 16 - 22 */
 // PWM Section
 //////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// RTC Section
+void HAL_RTC_Set(uint8_t *pBuf);
+uint8_t HAL_RTC_Get(uint8_t *pBuf);
+// RTC Section
+//////////////////////////////////////////////////////////////
+
 #endif  //  HW_STM32L0_H

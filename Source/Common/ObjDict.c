@@ -30,6 +30,11 @@ static uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 #endif  //  LAN_NODE
 
+#ifdef HAL_USE_RTC
+static uint8_t cbWriteRTC(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+static uint8_t cbReadRTC(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
+#endif
+
 #ifdef ASLEEP
 static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 #endif  //  ASLEEP
@@ -47,6 +52,10 @@ static const indextable_t listPredefOD[] =
     {{objEEMEM, objUInt16, eeADCaverage},
         objADCaverage, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteADCaverage, NULL},
 #endif  //  EXTAIN_USED
+#ifdef HAL_USE_RTC
+    {{objEEMEM, objArray, 0},
+        objRTC, (cbRead_t)&cbReadRTC, (cbWrite_t)&cbWriteRTC, NULL},
+#endif  //  HAL_USE_RTC
 #ifdef RF_ADDR_t
     {{objEEMEM, RF_ADDR_TYPE, eeNodeID},
         objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
@@ -144,6 +153,27 @@ static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 #endif  //  LAN_NODE
+
+#ifdef HAL_USE_RTC
+static uint8_t cbWriteRTC(__attribute__ ((unused)) subidx_t * pSubidx,
+                                            uint8_t Len, uint8_t *pBuf)
+{
+    if(Len != 6)
+    {
+        return MQTTSN_RET_REJ_CONG;
+    }
+
+    HAL_RTC_Set(pBuf);
+    return MQTTSN_RET_ACCEPTED;
+}
+
+static uint8_t cbReadRTC(__attribute__ ((unused)) subidx_t *pSubidx,
+                                            uint8_t *pLen, uint8_t *pBuf)
+{
+    *pLen = HAL_RTC_Get(pBuf);
+    return MQTTSN_RET_ACCEPTED;
+}
+#endif  //  HAL_USE_RTC
 
 #ifdef ASLEEP
 static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
@@ -910,9 +940,16 @@ void OD_Poll(void)
         // Publish device info
         else if(idxUpdate < 0xFFFF)
         {
-            if(idxUpdate < 0xFFC0)
+#if (defined HAL_USE_RTC)
+            if(idxUpdate < objRTC)
             {
-                idxUpdate = 0xFFC0;
+                idxUpdate = objRTC;
+            }
+            else
+#endif  //  HAL_USE_RTC
+            if(idxUpdate < objDeviceTyp)
+            {
+                idxUpdate = objDeviceTyp;
             }
 
             if(MQTTSN_CanSend())

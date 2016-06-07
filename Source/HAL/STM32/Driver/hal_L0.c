@@ -14,15 +14,30 @@ See LICENSE file for license details.
 
 #if (defined STM32L0)
 
+// System Section
+
 uint32_t    hal_hclk  = 2097000UL;
 uint32_t    hal_pclk1 = 2097000UL;
 uint32_t    hal_pclk2 = 2097000UL;
 
+static void hal_rtc_init(void);
+
 void hal_SetSysClock(void)
 {
+    uint32_t tmp;
+
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-    PWR->CR |= PWR_CR_VOS_0;        // Set Voltage Range 1
-    PWR->CR &= ~PWR_CR_VOS_1;
+
+    // Set Voltage Range 1
+    while(PWR->CSR & PWR_CSR_VOSF);
+    tmp = PWR->CR;
+    tmp &= ~PWR_CR_VOS_1;
+    tmp |= PWR_CR_VOS_0;
+    PWR->CR = tmp;
+    while(PWR->CSR & PWR_CSR_VOSF);
+
+    FLASH->ACR |= FLASH_ACR_LATENCY;        // Set FLASH Latensy 1WS
+    while((FLASH->ACR & FLASH_ACR_LATENCY) == 0);
 
     // Clock Source HSI - 16M, prediv = 1
     RCC->CR |= RCC_CR_HSION;
@@ -48,8 +63,6 @@ void hal_SetSysClock(void)
     // Wait till PLL is ready
     while((RCC->CR & RCC_CR_PLLRDY) == 0);
 
-    FLASH->ACR |= FLASH_ACR_LATENCY;        // Set FLASH Latensy 1WS
-
     // Prescaler
     // AHB = 1
     // PCLK1 = 1
@@ -57,15 +70,20 @@ void hal_SetSysClock(void)
     RCC->CFGR &= ~(RCC_CFGR_HPRE | RCC_CFGR_PPRE1 | RCC_CFGR_PPRE2);
 
     // System Clock Source - PLL
-    RCC->CFGR &= RCC_CFGR_SW;
-    RCC->CFGR |= RCC_CFGR_SW_PLL;
+    RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | RCC_CFGR_SW_PLL;
 
     while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
 
     hal_hclk  = 32000000UL;
     hal_pclk1 = 32000000UL;
     hal_pclk2 = 32000000UL;
+
+#ifdef HAL_USE_RTC
+    hal_rtc_init();
+#endif  //  HAL_USE_RTC
 }
+
+// GPIO Section
 
 void hal_prepare_gpio(void)
 {
@@ -129,6 +147,8 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
     }
 }
 
+// EEPROM Section
+
 // Initialise EEPROM hardware
 void eeprom_init_hw(void)
 {
@@ -185,6 +205,91 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
     }
 }
 
+// RTC Section
+#if (defined HAL_USE_RTC)
+static void hal_rtc_init(void)
+{
+    RCC->CSR |= RCC_CSR_RMVF;                       // Remove reset flag
+
+    PWR->CR |= PWR_CR_DBP;                          // Disable Backup Domain write protection
+    RTC->WPR = 0xCA;                                // Disable RTC write protection
+    RTC->WPR = 0x53;
+
+    // Select RTC Clock
+    RCC->CSR |= RCC_CSR_LSEON;                      // External Low Speed oscillator enable
+    uint16_t tmp = 0;
+    while(tmp < 0xFFFF)                             // Wait till LSE is ready
+    {
+        if((RCC->CSR & (RCC_CSR_LSERDY | RCC_CSR_LSEON)) == (RCC_CSR_LSERDY | RCC_CSR_LSEON))
+        {
+            break;
+        }
+        tmp++;
+    }
+
+    uint32_t rtc_presc;
+
+    RCC->CSR &= ~RCC_CSR_RTCSEL;
+    if((RCC->CSR & (RCC_CSR_LSERDY | RCC_CSR_LSEON)) == (RCC_CSR_LSERDY | RCC_CSR_LSEON))
+    {
+        RCC->CSR |= RCC_CSR_RTCSEL_LSE;             // LSE oscillator clock used as RTC clock
+        rtc_presc = 0x007F00FF;                     // 32768/128 = 256
+    }
+    else                                            // LSE Not Connected, use LSI
+    {
+        RCC->CSR &= ~RCC_CSR_LSEON;                 // Disable LSE
+        RCC->CSR |= RCC_CSR_LSION;                  // Enable LSI
+        while((RCC->CSR & RCC_CSR_LSIRDY) == 0);    // Wait till LSI is ready
+
+        RCC->CSR |= RCC_CSR_RTCSEL_LSI;             // LSI oscillator clock used as RTC clock
+        rtc_presc = 0x007C0127;                     // 37000/125 = 296/296
+    }
+    RCC->CSR |= RCC_CSR_RTCEN;                      // RTC clock enable
+
+    if((RTC->ISR & RTC_ISR_INITS) == 0)             // RTC not Initialised
+    {
+        // Initialise RTC
+        RTC->ISR |= RTC_ISR_INIT;
+        while((RTC->ISR & RTC_ISR_INITF) != RTC_ISR_INITF);
+        RTC->PRER = rtc_presc;
+        // RTC->TR
+        // RTC->DR
+        // RTC->CR
+        RTC->ISR &= ~RTC_ISR_INIT;
+        while((RTC->ISR & RTC_ISR_INIT) != 0);
+    }
+}
+
+void HAL_RTC_Set(uint8_t *pBuf)
+{
+    // Initialise RTC
+    RTC->ISR |= RTC_ISR_INIT;
+    while((RTC->ISR & RTC_ISR_INITF) != RTC_ISR_INITF);
+
+    uint32_t uTmp = 0;
+    memcpy(&uTmp, pBuf, 3);
+    RTC->TR = uTmp;
+    pBuf += 3;
+    uTmp = 0;
+    memcpy(&uTmp, pBuf, 3);
+    RTC->DR = uTmp;
+
+    RTC->ISR &= ~RTC_ISR_INIT;
+    while((RTC->ISR & RTC_ISR_INIT) != 0);
+}
+
+uint8_t HAL_RTC_Get(uint8_t *pBuf)
+{
+    uint32_t uTmp;
+
+    uTmp = RTC->TR;
+    memcpy(pBuf, &uTmp, 3);
+    pBuf += 3;
+    uTmp = RTC->DR;
+    memcpy(pBuf, &uTmp, 3);
+
+    return 6;
+}
 
 #ifdef ASLEEP
 void HAL_ASleep(uint16_t duration)
@@ -194,6 +299,7 @@ void HAL_ASleep(uint16_t duration)
     uint32_t sec_cnt = hal_get_sec() + duration;
     while(sec_cnt != hal_get_sec());
 }
-#endif  // ASLEEP
+#endif  //  ASLEEP
+#endif  //  HAL_USE_RTC
 
 #endif  //  STM32L0
