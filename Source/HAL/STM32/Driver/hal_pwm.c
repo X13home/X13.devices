@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #if ((defined EXTDIO_USED) && (defined EXTPWM_USED))
@@ -11,12 +23,16 @@ bool hal_pwm_checkbase(uint16_t base)
 {
 #ifdef HAL_PWM_BASE_OFFSET
     if(base < HAL_PWM_BASE_OFFSET)
+    {
         return false;
+    }
     base -= HAL_PWM_BASE_OFFSET;
 #endif
     if((base >= sizeof(hal_pwm_port2cfg)) ||
        (hal_pwm_port2cfg[base] == 0xFF))
+    {
         return false;
+    }
 
     return true;
 }
@@ -30,7 +46,9 @@ bool hal_pwm_busy(uint16_t base)
 
     TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
     if(TIMx == NULL)
+    {
         return true;
+    }
 
     return ((TIMx->CCER & ((TIM_CCER_CC1E | TIM_CCER_CC1P) << ((cfg & 0x03) * 4))) != 0);
 }
@@ -44,7 +62,7 @@ void hal_pwm_configure(uint16_t base, bool inv)
 #endif
     uint16_t cfg = hal_pwm_port2cfg[base];
     hal_dio_configure(pin, DIO_MODE_AF_PP | (cfg & 0x0F00));
-    
+
     TIM_TypeDef * TIMx;
     uint32_t tim_clk;
 
@@ -75,7 +93,7 @@ void hal_pwm_configure(uint16_t base, bool inv)
             TIMx = TIM4;
             tim_clk = hal_pclk1;
             break;
-#endif  // TIM4 
+#endif  // TIM4
 #ifdef TIM14
         case 14:
             RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
@@ -122,83 +140,105 @@ void hal_pwm_configure(uint16_t base, bool inv)
             return;
     }
 
-    tim_clk /= 6553500;                     // Fpwm >= 100 Hz
+    tim_clk /= 6553500;                         // Fpwm >= 100 Hz
     if(tim_clk > 0)
     {
         tim_clk--;
     }
 
-    TIMx->CR1 = TIM_CR1_ARPE;               // Disable Timer
-    TIMx->PSC = tim_clk;                    // Set Prescaler N + 1
-    TIMx->ARR = 0xFFFE;                     // Set Autoreload Register (up value)
+    TIMx->CR1 = TIM_CR1_ARPE;                   // Disable Timer
+    TIMx->PSC = tim_clk;                        // Set Prescaler N + 1
+    TIMx->ARR = 0xFFFE;                         // Set Autoreload Register (up value)
 
     switch(cfg & 0x03)
     {
         case 0:     // Channel 1
             TIMx->CCR1 = 0;
             TIMx->CCMR1 &= 0xFF00;
-            TIMx->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1PE;   // Select PWM mode 1 on OC1  (OC1M = 110), enable preload register on OC1 (OC1PE = 1)
-            TIMx->CCER |= TIM_CCER_CC1E;                                            // Enable the output on OC1 (CC1E = 1)
+            // Select PWM mode 1 on OC1  (OC1M = 110), enable preload register on OC1 (OC1PE = 1)
+            TIMx->CCMR1 |= TIM_CCMR1_OC1M_2 | TIM_CCMR1_OC1M_1 | TIM_CCMR1_OC1PE;
+            TIMx->CCER |= TIM_CCER_CC1E;        // Enable the output on OC1 (CC1E = 1)
             if(inv)
-                TIMx->CCER |= TIM_CCER_CC1P;                                        // Select active low polarity on OC1
+            {
+                TIMx->CCER |= TIM_CCER_CC1P;    // Select active low polarity on OC1
+            }
             else
-                TIMx->CCER &= ~TIM_CCER_CC1P;                                       // Select active high polarity on OC1
+            {
+                TIMx->CCER &= ~TIM_CCER_CC1P;   // Select active high polarity on OC1
+            }
             break;
 
         case 1:     // Channel 2
             TIMx->CCR2 = 0;
             TIMx->CCMR1 &= 0x00FF;
-            TIMx->CCMR1 |= TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2PE;   // Select PWM mode 1 on OC2  (OC2M = 110), enable preload register on OC2 (OC2PE = 1)
-            TIMx->CCER |= TIM_CCER_CC2E;                                            // Enable the output on OC1 (CC2E = 1)
+            // Select PWM mode 1 on OC2  (OC2M = 110), enable preload register on OC2 (OC2PE = 1)
+            TIMx->CCMR1 |= TIM_CCMR1_OC2M_2 | TIM_CCMR1_OC2M_1 | TIM_CCMR1_OC2PE;
+            TIMx->CCER |= TIM_CCER_CC2E;        // Enable the output on OC1 (CC2E = 1)
             if(inv)
-                TIMx->CCER |= TIM_CCER_CC2P;                                        // Select active low polarity on OC2
+            {
+                TIMx->CCER |= TIM_CCER_CC2P;    // Select active low polarity on OC2
+            }
             else
-                TIMx->CCER &= ~TIM_CCER_CC2P;                                       // Select active high polarity on OC2
+            {
+                TIMx->CCER &= ~TIM_CCER_CC2P;   // Select active high polarity on OC2
+            }
             break;
 
         case 2:     // Channel 3
             TIMx->CCR3 = 0;
             TIMx->CCMR2 &= 0xFF00;
-            TIMx->CCMR2 |= TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3PE;   // Select PWM mode 1 on OC3  (OC3M = 110), enable preload register on OC3 (OC3PE = 1)
-            TIMx->CCER |= TIM_CCER_CC3E;                                            // Enable the output on OC3 (CC3E = 1)
+            // Select PWM mode 1 on OC3  (OC3M = 110), enable preload register on OC3 (OC3PE = 1)
+            TIMx->CCMR2 |= TIM_CCMR2_OC3M_2 | TIM_CCMR2_OC3M_1 | TIM_CCMR2_OC3PE;
+            TIMx->CCER |= TIM_CCER_CC3E;        // Enable the output on OC3 (CC3E = 1)
             if(inv)
-                TIMx->CCER |= TIM_CCER_CC3P;                                        // Select active low polarity on OC3
+            {
+                TIMx->CCER |= TIM_CCER_CC3P;    // Select active low polarity on OC3
+            }
             else
-                TIMx->CCER &= ~TIM_CCER_CC3P;                                       // Select active high polarity on OC3
+            {
+                TIMx->CCER &= ~TIM_CCER_CC3P;   // Select active high polarity on OC3
+            }
             break;
 
         case 3:     // Channel 4
             TIMx->CCR4 = 0;
             TIMx->CCMR2 &= 0x00FF;
-            TIMx->CCMR2 |= TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1 | TIM_CCMR2_OC4PE;   // Select PWM mode 1 on OC4  (OC4M = 110), enable preload register on OC4 (OC4PE = 1)
-            TIMx->CCER |= TIM_CCER_CC4E;                                            // Enable the output on OC4 (CC4E = 1)
+            // Select PWM mode 1 on OC4  (OC4M = 110), enable preload register on OC4 (OC4PE = 1)
+            TIMx->CCMR2 |= TIM_CCMR2_OC4M_2 | TIM_CCMR2_OC4M_1 | TIM_CCMR2_OC4PE;
+            TIMx->CCER |= TIM_CCER_CC4E;        // Enable the output on OC4 (CC4E = 1)
             if(inv)
-                TIMx->CCER |= TIM_CCER_CC4P;                                        // Select active low polarity on OC4
+            {
+                TIMx->CCER |= TIM_CCER_CC4P;    // Select active low polarity on OC4
+            }
             else
-                TIMx->CCER &= ~TIM_CCER_CC4P;                                       // Select active high polarity on OC4
+            {
+                TIMx->CCER &= ~TIM_CCER_CC4P;   // Select active high polarity on OC4
+            }
             break;
     }
 #ifdef TIM_BDTR_MOE
-    TIMx->BDTR |= TIM_BDTR_MOE;     // Enable output (MOE = 1)
+    TIMx->BDTR |= TIM_BDTR_MOE;                 // Enable output (MOE = 1)
 #endif  //  TIM_BDTR_MOE
-    TIMx->CR1 |= TIM_CR1_CEN;       // Enable Timer
-    TIMx->EGR |= TIM_EGR_UG;        // Force update generation
+    TIMx->CR1 |= TIM_CR1_CEN;                   // Enable Timer
+    TIMx->EGR |= TIM_EGR_UG;                    // Force update generation
 }
 
 void hal_pwm_delete(uint16_t base)
 {
-    hal_dio_configure(hal_dio_base2pin(base), DIO_MODE_IN_FLOAT);    
+    hal_dio_configure(hal_dio_base2pin(base), DIO_MODE_IN_FLOAT);
 #ifdef HAL_PWM_BASE_OFFSET
     base -= HAL_PWM_BASE_OFFSET;
 #endif
     uint16_t cfg = hal_pwm_port2cfg[base];
-    
+
     TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
     if(TIMx == NULL)
+    {
         return;
+    }
 
     TIMx->CCER &= ~((TIM_CCER_CC1E | TIM_CCER_CC1P) << ((cfg & 0x03) * 4));
-    
+
     if((TIMx->CCER & (TIM_CCER_CC1E | TIM_CCER_CC2E | TIM_CCER_CC3E | TIM_CCER_CC4E)) == 0)
     {
 #ifdef TIM_BDTR_MOE
@@ -266,15 +306,21 @@ void hal_pwm_write(uint16_t base, uint16_t value)
     base -= HAL_PWM_BASE_OFFSET;
 #endif
     if(base > (const uint16_t)(sizeof(hal_pwm_port2cfg)/2))
+    {
         return;
+    }
 
     uint16_t cfg = hal_pwm_port2cfg[base];
     if(cfg == 0xFF)
+    {
         return;
-    
+    }
+
     TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
     if(TIMx == NULL)
+    {
         return;
+    }
 
     uint32_t timbase = (uint32_t)TIMx + 0x34;
     timbase += (cfg & 0x03) * 4;

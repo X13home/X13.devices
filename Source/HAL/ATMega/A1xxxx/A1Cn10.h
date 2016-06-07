@@ -63,20 +63,21 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_PORT_OFFSET          1
-#define EXTDIO_MAXPORT_NR           3                                   // Number of used physical digital Ports
-#define HAL_DIO_MAPPING             {16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 24, 25, 26, 27, 28, 29, 30, 31, 8, 9}
+#define EXTDIO_MAXPORT_NR           3                       // Number of used physical digital Ports
+#define HAL_DIO_MAPPING             {16, 17, 18, 19, 20, 21, 0xFF, 0xFF,    \
+                                     24, 25, 26, 27, 28, 29, 30, 31, 8, 9}
 // End DIO Section
 
 // PWM Section
 #define EXTPWM_USED                 1
 #define HAL_PWM_BASE_OFFSET         13
-#define HAL_PWM_PORT2CFG            {1, 0, 0xFF, 0xFF, 8}               // Mapping PWM channel to configuration
-                                                                        // bits 7-3 Timer, bits 2-0 Channel
+#define HAL_PWM_PORT2CFG            {1, 0, 0xFF, 0xFF, 8}   // Mapping PWM channel to configuration
+                                                            // bits 7-3 Timer, bits 2-0 Channel
 // End PWM Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           8                                   // ADC0-ADC7
+#define EXTAIN_MAXPORT_NR           8                       // ADC0-ADC7
 #define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}
 // End Analogue Inputs
 
@@ -103,7 +104,8 @@ extern "C" {
 //  End CC11 Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           21      // Size of identificators list, PC0-PC5 + ADC6/7 + Vbg + PD2-PD7 + PB0-PB4
+#define OD_MAX_INDEX_LIST           21      // Size of identificators list
+                                            // PC0-PC5 + ADC6/7 + Vbg + PD2-PD7 + PB0-PB4
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'
 #define OD_DEV_PHY1                 'C'

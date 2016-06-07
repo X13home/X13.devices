@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #if (defined HAL_TWI_BUS) && (defined STM32F3)
@@ -104,12 +116,11 @@ bool hal_twi_configure(uint8_t enable)
         RCC->APB1RSTR |= RCC_APB1RSTR_I2C2RST;
         RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C2RST;
 #endif
-
         // Set Timings
         // I2C Clock = 8MHz
         // I2C Bus = 100 KHz
         I2C_BUS->TIMINGR = I2C_TIMING;
-        
+
         // PEC Disable
         // SMBus Disable
         // General Call Disable
@@ -142,7 +153,7 @@ bool hal_twi_configure(uint8_t enable)
         RCC->APB1RSTR |= RCC_APB1RSTR_I2C2RST;
         RCC->APB1RSTR &= ~RCC_APB1RSTR_I2C2RST;
         // Disable clock
-        RCC->APB1ENR &= ~RCC_APB1ENR_I2C2EN;    
+        RCC->APB1ENR &= ~RCC_APB1ENR_I2C2EN;
 #endif
         // Release GPIO
         hal_gpio_cfg(I2C_GPIO, (I2C_PIN_SCL | I2C_PIN_SDA), DIO_MODE_IN_FLOAT);
@@ -178,7 +189,7 @@ void hal_twi_start(void)
     uint8_t access = pTWI->frame.access;
 
     I2C_BUS->CR1 =  ( I2C_CR1_PE |                              // Enable I2C
-                                                                // Enable Interrupts on: 
+                                                                // Enable Interrupts on:
                       I2C_CR1_ERRIE |                           //  Errors
                       I2C_CR1_NACKIE);                          //  NACK received
 
@@ -215,7 +226,7 @@ void hal_twi_start(void)
         I2C_BUS->CR2 = ((uint32_t)(pTWI->frame.address << 1) |  // Slave address
                                                 (read << 16) |  // Bytes to read
                     I2C_CR2_RD_WRN | I2C_CR2_AUTOEND);          // Read request with stop
-                    
+
         I2C_BUS->CR1 |= I2C_CR1_RXIE;
     }
 
@@ -262,12 +273,12 @@ void I2C_Event_Handler()
                 I2C_BUS->CR2 = ((uint32_t)(pTWI->frame.address << 1) |  // Slave address
                                                         (read << 16) |  // Bytes to read
                             I2C_CR2_RD_WRN | I2C_CR2_AUTOEND);          // Read request with stop
-                I2C_BUS->CR2 |= I2C_CR2_START;                          // Send Repeat Start & Address
+                I2C_BUS->CR2 |= I2C_CR2_START;                      // Send Repeat Start & Address
 
                 I2C_BUS->CR1 |= I2C_CR1_RXIE;
                 I2C_BUS->CR1 &= ~(                                      // Disable Interrupts
                                   I2C_CR1_TCIE |                        // Transfer complete
-                                  I2C_CR1_TXIE);                        // Tx        
+                                  I2C_CR1_TXIE);                        // Tx
                 twi_pnt = 0;
             }
             else
@@ -291,7 +302,7 @@ void I2C_Event_Handler()
         }
     }
     // Write Data
-    else if((I2C_BUS->CR1 & I2C_CR1_TXIE) && 
+    else if((I2C_BUS->CR1 & I2C_CR1_TXIE) &&
                      (isr & I2C_ISR_TXIS))                      // Transmit buffer empty
     {
         I2C_BUS->TXDR = pTWI->frame.data[twi_pnt++];
@@ -313,7 +324,7 @@ void I2C_Event_Handler()
         I2C_BUS->CR1 |= I2C_CR1_RXIE;
         I2C_BUS->CR1 &= ~(                                      // Disable Interrupts
                           I2C_CR1_TCIE |                        // Transfer complete
-                          I2C_CR1_TXIE);                        // Tx        
+                          I2C_CR1_TXIE);                        // Tx
         twi_pnt = 0;
     }
     // Write Only Access
@@ -325,7 +336,5 @@ void I2C_Event_Handler()
     }
     // else WTF ?
 }
-
-
 
 #endif  //  HAL_TWI_BUS

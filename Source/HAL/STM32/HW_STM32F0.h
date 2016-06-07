@@ -159,9 +159,9 @@ See LICENSE file for license details.
 // PWM Section
 
 #if defined(STM32F051x8) || defined(STM32F091xC)
-#define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3, NULL,  \
-                             NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,   /* TIM5 - TIM13 */ \
-                             TIM14, TIM15, TIM16, TIM17}
+#define HAL_PWM_TIMERS      {NULL, TIM1, TIM2,  TIM3,  NULL,  NULL,     /* 0  - 5   */ \
+                             NULL, NULL, NULL,  NULL,  NULL,  NULL,     /* 6  - 11  */ \
+                             NULL, NULL, TIM14, TIM15, TIM16, TIM17}    /* 12 - 17  */
 #else
 #error unknown uC
 #endif

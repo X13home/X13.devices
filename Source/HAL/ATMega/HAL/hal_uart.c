@@ -36,7 +36,9 @@ ISR(USART0_RX_vect)
 
     uint8_t tmp_head = (pVar->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
     if(tmp_head == pVar->rx_tail)        // Overflow
+    {
         return;
+    }
 
     pVar->rx_fifo[pVar->rx_head] = data;
     pVar->rx_head = tmp_head;
@@ -65,7 +67,9 @@ ISR(USART1_RX_vect)
 
     uint8_t tmp_head = (pVar->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
     if(tmp_head == pVar->rx_tail)        // Overflow
+    {
         return;
+    }
 
     pVar->rx_fifo[pVar->rx_head] = data;
     pVar->rx_head = tmp_head;
@@ -92,7 +96,9 @@ ISR(USART2_RX_vect)
     uint8_t data = UDR2;
     uint8_t tmp_head = (hal_UARTv[HAL_USE_USART2]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
     if(tmp_head == hal_UARTv[HAL_USE_USART2]->rx_tail)        // Overflow
+    {
         return;
+    }
 
     hal_UARTv[HAL_USE_USART2]->rx_fifo[hal_UARTv[HAL_USE_USART2]->rx_head] = data;
     hal_UARTv[HAL_USE_USART2]->rx_head = tmp_head;
@@ -117,7 +123,9 @@ ISR(USART3_RX_vect)
     uint8_t data = UDR3;
     uint8_t tmp_head = (hal_UARTv[HAL_USE_USART3]->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
     if(tmp_head == hal_UARTv[HAL_USE_USART3]->rx_tail)        // Overflow
+    {
         return;
+    }
 
     hal_UARTv[HAL_USE_USART3]->rx_fifo[hal_UARTv[HAL_USE_USART3]->rx_head] = data;
     hal_UARTv[HAL_USE_USART3]->rx_head = tmp_head;
@@ -322,9 +330,13 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
     }
     
     if(enable & 1)  // Rx
+    {
         *(pPort + 1) |= ((1<<RXCIE0) | (1<<RXEN0));     // UCSRB
+    }
     if(enable & 2)  // Tx
+    {
         *(pPort + 1) |= (1<<TXEN0);                     // UCSRB
+    }
 }
 
 // Tx free
@@ -378,8 +390,10 @@ bool hal_uart_datardy(uint8_t port)
 uint8_t hal_uart_get(uint8_t port)
 {
     if(hal_UARTv[port]->rx_head == hal_UARTv[port]->rx_tail)
+    {
         return 0;
-        
+    }
+
     uint8_t data = hal_UARTv[port]->rx_fifo[hal_UARTv[port]->rx_tail];
     hal_UARTv[port]->rx_tail++;
     hal_UARTv[port]->rx_tail &= (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);

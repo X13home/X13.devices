@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #if ((defined HAL_USE_USART1)       || \
@@ -40,7 +52,6 @@ static void hal_uart_irq_handler(uint8_t port, USART_TypeDef * USARTx)
     if(itstat & USART_ISR_ORE)
     {
         USARTx->ICR = USART_ICR_ORECF;
-
         return;
     }
 #elif (defined STM32F1)
@@ -62,8 +73,10 @@ static void hal_uart_irq_handler(uint8_t port, USART_TypeDef * USARTx)
         data = USARTx->RDR;
         uint8_t tmp_head = (control->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
         if(tmp_head == control->rx_tail)        // Overflow
+        {
             return;
-            
+        }
+
         control->rx_fifo[control->rx_head] = data;
         control->rx_head = tmp_head;
     }
@@ -162,7 +175,6 @@ void hal_uart_deinit(uint8_t port)
             RCC->APB1RSTR &= ~RCC_APB1RSTR_USART2RST;
 
             RCC->APB1ENR   &= ~RCC_APB1ENR_USART2EN;    // Disable UART2 Clock
-            
             hal_dio_configure(HAL_USART2_PIN_RX, DIO_MODE_IN_FLOAT);
             hal_dio_configure(HAL_USART2_PIN_TX, DIO_MODE_IN_FLOAT);
             }
@@ -178,7 +190,6 @@ void hal_uart_deinit(uint8_t port)
             RCC->APB1RSTR &= ~RCC_APB1RSTR_USART3RST;
 
             RCC->APB1ENR   &= ~RCC_APB1ENR_USART3EN;    // Disable UART2 Clock
-            
             hal_dio_configure(HAL_USART3_PIN_RX, DIO_MODE_IN_FLOAT);
             hal_dio_configure(HAL_USART3_PIN_TX, DIO_MODE_IN_FLOAT);
             }
@@ -216,7 +227,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             uart_clock = hal_pclk2;
 #endif
 #if ((defined STM32F1) && (defined HAL_USART1_REMAP))
-            AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;                           // Remap USART1 from PA9/PA10 to PB6/PB7
+            AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;           // Remap USART1 from PA9/PA10 to PB6/PB7
 #endif
             USARTx = USART1;
             UARTx_IRQn = USART1_IRQn;
@@ -260,15 +271,12 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
         case HAL_USE_USART3:
             {
             uart_clock = hal_pclk1;
-            
 #if ((defined STM32F1) && (defined HAL_USART3_REMAP))
-            AFIO->MAPR |= AFIO_MAPR_USART3_REMAP;                           // Remap USART1 from PB10/PB11 to PC10/PC11
+            AFIO->MAPR |= AFIO_MAPR_USART3_REMAP;       // Remap USART1 from PB10/PB11 to PC10/PC11
 #endif
-            
             USARTx = USART3;
             UARTx_IRQn = USART3_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                         // Enable UART3 Clock
-
 #if ((defined STM32F0) || (defined STM32F3))
             if(enable & 1) // Enable Rx
             {
@@ -300,7 +308,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
     {
         hal_UARTv[port]->rx_head = 0;
         hal_UARTv[port]->rx_tail = 0;
-    
+
         hal_UARTv[port]->pTxBuf = NULL;
         hal_UARTv[port]->tx_len = 0;
         hal_UARTv[port]->tx_pos = 0;
@@ -310,14 +318,18 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
         USARTx->CR3 = 0;                                // Without flow control
         USARTx->BRR  = ((uart_clock + baud/2)/baud);    // Speed
     }
-    
+
     if(enable & 1) // Enable Rx
+    {
         USARTx->CR1 |= USART_CR1_RE |               // Enable RX
                        USART_CR1_RXNEIE;            // Enable RX Not Empty IRQ
+    }
 
     if(enable & 2) // Enable Tx
+    {
         USARTx->CR1 |= USART_CR1_TE;                // Enable TX
-                   
+    }
+
     NVIC_EnableIRQ(UARTx_IRQn);                     // Enable UASRT IRQ
     USARTx->CR1 |= USART_CR1_UE;                    // Enable USART
 }
@@ -330,8 +342,10 @@ bool hal_uart_datardy(uint8_t port)
 uint8_t hal_uart_get(uint8_t port)
 {
     if(hal_UARTv[port]->rx_head == hal_UARTv[port]->rx_tail)
+    {
         return 0;
-    
+    }
+
     uint8_t data = hal_UARTv[port]->rx_fifo[hal_UARTv[port]->rx_tail];
     hal_UARTv[port]->rx_tail++;
     hal_UARTv[port]->rx_tail &= (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
@@ -350,7 +364,7 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
     hal_UARTv[port]->tx_len = len;
     hal_UARTv[port]->tx_pos = 1;
     hal_UARTv[port]->pTxBuf = pBuf;
-    
+
     switch(port)
     {
 #if (defined HAL_USE_USART1)

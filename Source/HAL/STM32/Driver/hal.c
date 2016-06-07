@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 static uint32_t CriticalNesting = 0;
@@ -9,7 +21,7 @@ void halEnterCritical(void)
     __disable_irq();
 
     CriticalNesting++;
-    
+
     __DSB();    //  Data Synchronization Barrier
     __ISB();    //  Instruction Synchronization Barrier
 }
@@ -17,11 +29,15 @@ void halEnterCritical(void)
 void halLeaveCritical(void)
 {
     if(CriticalNesting == 0)
+    {
         while(1);               // Error
+    }
 
     CriticalNesting--;
-    if(CriticalNesting == 0 )
+    if(CriticalNesting == 0)
+    {
         __enable_irq();
+    }
 }
 
 void HAL_Init(void)
@@ -47,7 +63,9 @@ void HAL_Init(void)
 void HAL_StartSystemTick(void)
 {
     if(SysTick_Config((hal_hclk / 1000) - 1UL))
+    {
         while(1);
+    }
 
     // Enable Global interrupts
     __enable_irq();
@@ -62,6 +80,7 @@ uint32_t HAL_RNG32(void)
 #endif
     return CRC->DR;
 }
+
 uint16_t HAL_RNG(void)
 {
 #if (__CORTEX_M >= 0x03U)   // core_cm3, core_cm4
@@ -95,19 +114,11 @@ void _delay_us(uint16_t us)
     ticks *= us;
 
     while(ticks > 0)
+    {
         ticks--;
+    }
 #endif  //  core_cm?
 }
-
-#ifdef ASLEEP
-void HAL_ASleep(uint16_t duration)
-{
-    // ToDo ASleep dummy function
-
-    uint32_t sec_cnt = hal_get_sec() + duration;
-    while(sec_cnt != hal_get_sec());
-}
-#endif  // ASLEEP
 
 // IRQ handlers.
 
@@ -116,9 +127,9 @@ void SysTick_Handler(void)
 {
 //    PreviousMask = __get_PRIMASK();
 //    __disable_irq();
-    
+
     hal_ms_counter++;
-    
+
     static uint16_t ms_counter  = 0;
     ms_counter++;
     if(ms_counter >= 999)
@@ -126,16 +137,18 @@ void SysTick_Handler(void)
         ms_counter = 0;
         hal_sec_counter++;
     }
-    
+
     static uint16_t ticks_counter = 0;
 
     if(ticks_counter < (const uint16_t)(1000/POLL_TMR_FREQ))
+    {
         ticks_counter++;
+    }
     else
     {
         SystemTick();
         ticks_counter = 1;
     }
-    
+
 //    __set_PRIMASK(PreviousMask);
 }

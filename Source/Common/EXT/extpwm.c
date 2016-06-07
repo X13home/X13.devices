@@ -31,7 +31,8 @@ bool pwmCheckSubidx(subidx_t * pSubidx)
     return true;
 }
 
-static e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx, uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx,
+                                    uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
 {
     // Prevent hard fault on ARM
     uint16_t value = pBuf[1];

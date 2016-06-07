@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #if (defined EXTAIN_USED) && (defined STM32F3)
@@ -11,14 +23,18 @@ static uint8_t halain_adc = 0;
 uint8_t hal_ain_base2apin(uint16_t base)
 {
     if(base > sizeof(hal_ainBase2Apin))
+    {
         return 0xFF;
+    }
     return hal_ainBase2Apin[base];
 }
 
 uint8_t hal_ain_apin2dio(uint8_t apin)
 {
     if(apin >= sizeof(hal_ain2dpin))
+    {
         return 0xFF;
+    }
     return hal_ain2dpin[apin];
 }
 
@@ -29,13 +45,17 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
     if(aref == 0xFF)
     {
         if(dpin < 0xFE)
+        {
             hal_dio_configure(dpin, DIO_MODE_IN_FLOAT);
+        }
         return;
     }
 
     if(dpin < 0xFE)
+    {
         hal_dio_configure(dpin, DIO_MODE_AIN);
-    
+    }
+
     if((RCC->AHBENR & RCC_AHBENR_ADC12EN) == 0)
     {
         RCC->AHBENR |= RCC_AHBENR_ADC12EN;      // Enable ADC Clock
@@ -44,7 +64,7 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
 
         ADC1->CR &= ~ADC_CR_ADVREGEN;           // Enable ADC1 Voltage Regulator
         ADC1->CR |= ADC_CR_ADVREGEN_0;
-        
+
         ADC2->CR &= ~ADC_CR_ADVREGEN;           // Enable ADC2 Voltage Regulator
         ADC2->CR |= ADC_CR_ADVREGEN_0;
 
@@ -52,7 +72,7 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
 
         ADC1->CR |= ADC_CR_ADCAL;               // ADC1 calibration
         while(ADC1->CR & ADC_CR_ADCAL);
-        
+
         ADC2->CR |= ADC_CR_ADCAL;               // ADC2 calibration
         while(ADC2->CR & ADC_CR_ADCAL);
 
@@ -103,7 +123,7 @@ void hal_ain_select(uint8_t apin, uint8_t aref __attribute__ ((unused)))
 {
     uint8_t cfg = hal_ain2cfg[apin];
     halain_adc = cfg & 0xC0;
-    
+
     if(halain_adc != 0)   // ADC2
     {
         ADC2->SQR1 = ((cfg & 0x1F) << 6);

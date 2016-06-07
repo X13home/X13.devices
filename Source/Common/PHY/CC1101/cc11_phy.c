@@ -68,7 +68,8 @@ static const uint8_t cc11config[][2] =
 {
     {CC11_IOCFG0,   CC11_GDO_DISABLE},  // High impedance (3-State)
     {CC11_IOCFG2,   CC11_GDO_DISABLE},  // High impedance (3-State)
-    {CC11_FIFOTHR,  0x47},              // ADC_RETENTION, RX Attenuation: 0 dB, FIFO Threshold 33/32 bytes 
+    {CC11_FIFOTHR,  0x47},              // ADC_RETENTION, RX Attenuation: 0 dB, 
+                                        // FIFO Threshold 33/32 bytes 
     {CC11_PKTLEN,   0x3D},              // default packet length 61 byte
     {CC11_PKTCTRL1, 0x06},              // Append Status, Check Address and Broadcast
     {CC11_PKTCTRL0, 0x05},              // CRC calculation: enable, variable packet length
@@ -82,9 +83,11 @@ static const uint8_t cc11config[][2] =
     {CC11_MDMCFG1,  0x00},              // Channel spacing 25 kHz
     {CC11_MDMCFG0,  0x00},
     {CC11_DEVIATN,  CC11_DEVIATN_VAL},  // Deviation 20 kHz
-    {CC11_MCSM0,    0x18},              // Automatically calibrate when going from IDLE to RX or TX,  PO_TIMEOUT: 150uS
+    {CC11_MCSM0,    0x18},              // Automatically calibrate when going from IDLE to RX or TX,
+                                        //      PO_TIMEOUT: 150uS
     {CC11_FOCCFG,   0x16},              // Frequency offset compensation 67,5 kHz
-    {CC11_AGCCTRL2, 0x43},              // The highest gain setting can not be used, Target amplitude from channel filter: 33 dB 
+    {CC11_AGCCTRL2, 0x43},              // The highest gain setting can not be used,
+                                        //  Target amplitude from channel filter: 33 dB 
     {CC11_WORCTRL,  0xFB},
     {CC11_FSCAL3,   0xE9},
     {CC11_FSCAL2,   0x2A},
@@ -150,13 +153,16 @@ static void cc11_tx_task(void)
         uint8_t act_ms = HAL_get_ms() & 0xFF;
 
         if(cc11_ms == act_ms)
+        {
             return;
+        }
         cc11_ms = act_ms;
         cc11_tx_delay--;
         return;
     }
 
-    if((cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA) == 0) // Channel Busy
+    // Channel Busy ?
+    if((cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CCA) == 0)
     {
         if(cc11_tx_retry > 0)
         {
@@ -173,7 +179,9 @@ static void cc11_tx_task(void)
 
     MQ_t * pTxBuf = mqDequeue(&cc11_tx_queue);
     if(pTxBuf == NULL)      // Queue Busy
+    {
         return;
+    }
 
     // Fill Buffer
     uint8_t i, len;
@@ -183,11 +191,14 @@ static void cc11_tx_task(void)
     CC11_SELECT();                                              // Select CC1101
     CC11_WAIT_LOW_MISO();                                       // Wait until MISO goes low
     hal_spi_exch8(CC11_USE_SPI, (CC11_BIT_BURST | CC11_TXFIFO));
-    hal_spi_exch8(CC11_USE_SPI, len + 2);                       // Set data length at the first position of the TX FIFO
+    hal_spi_exch8(CC11_USE_SPI, len + 2);                       // Set data length at the
+                                                                //  first position of the TX FIFO
     hal_spi_exch8(CC11_USE_SPI, pTxBuf->a.phy1addr[0]);         // Send destination address
     hal_spi_exch8(CC11_USE_SPI, cc11s_NodeID);                  // Send Source address
     for(i = 0; i < len; i++)                                    // Send Payload
+    {
         hal_spi_exch8(CC11_USE_SPI, pTxBuf->m.raw[i]);
+    }
     CC11_RELEASE();                                             // Release CC1101
 
     mqFree(pTxBuf);
@@ -204,7 +215,8 @@ static MQ_t * cc11_rx_task(void)
 #endif  //  LED_On
 
     // read number of bytes in receive FIFO
-    // Due a chip bug, the RXBYTES register must read the same value twice in a row to guarantee an accurate value.
+    // Due a chip bug, the RXBYTES register must read the same value twice in a row 
+    //      to guarantee an accurate value.
     uint8_t frameLen = 0xFF, tmp, i = 16;
     do
     {
@@ -228,21 +240,23 @@ static MQ_t * cc11_rx_task(void)
     pRxBuf->Length = frameLen;
 
     // Read Burst
-    CC11_SELECT();                                                              // Select CC1101
-    CC11_WAIT_LOW_MISO();                                                       // Wait until MISO goes low
+    CC11_SELECT();                                                      // Select CC1101
+    CC11_WAIT_LOW_MISO();                                               // Wait until MISO goes low
     hal_spi_exch8(CC11_USE_SPI, (CC11_BIT_READ | CC11_BIT_BURST | CC11_RXFIFO));
-    hal_spi_exch8(CC11_USE_SPI, 0);                                             // Read Length
-    hal_spi_exch8(CC11_USE_SPI, 0);                                             // Read Destination address
-    pRxBuf->a.phy1addr[0] = hal_spi_exch8(CC11_USE_SPI, 0);                     // Read Source address
+    hal_spi_exch8(CC11_USE_SPI, 0);                                     // Read Length
+    hal_spi_exch8(CC11_USE_SPI, 0);                                     // Read Destination address
+    pRxBuf->a.phy1addr[0] = hal_spi_exch8(CC11_USE_SPI, 0);             // Read Source address
 
-    for(i = 0; i < frameLen; i++)                                               // Read Payload
+    for(i = 0; i < frameLen; i++)                                       // Read Payload
+    {
         pRxBuf->m.raw[i] = hal_spi_exch8(CC11_USE_SPI, 0);
+    }
 
-    cc11_rssi = hal_spi_exch8(CC11_USE_SPI, 0);                                 // Read RSSI
-    tmp  = hal_spi_exch8(CC11_USE_SPI, 0);                                      // Read LQI 
-    CC11_RELEASE();                                                             // Release CC1101
+    cc11_rssi = hal_spi_exch8(CC11_USE_SPI, 0);                         // Read RSSI
+    tmp  = hal_spi_exch8(CC11_USE_SPI, 0);                              // Read LQI 
+    CC11_RELEASE();                                                     // Release CC1101
 
-    //int8_t Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);           // int8_t frequency offset
+    //int8_t Foffs = cc11_readReg(CC11_FREQEST | CC11_STATUS_REGISTER);   // int8_t frequency offset
 
     if((tmp & CC11_LQI_CRC_OK) == 0)
     {
@@ -263,7 +277,9 @@ void CC11_Init(void)
     
     MQ_t * pBuf;
     while((pBuf = mqDequeue(&cc11_tx_queue)) != NULL)
-        mqFree(pBuf);    
+    {
+        mqFree(pBuf);
+    }
 
     // Load Device ID
     uint8_t Len = sizeof(uint8_t);
@@ -309,7 +325,9 @@ void CC11_Init(void)
     // Configure CC1101
     uint8_t i;
     for (i=0; i<(sizeof(cc11config)/sizeof(cc11config[0])); i++)
+    {
         cc11_writeReg(cc11config[i][0], cc11config[i][1]);
+    }
 
     // Load Device ID
     cc11_writeReg(CC11_ADDR, cc11s_NodeID);
@@ -325,7 +343,9 @@ void CC11_Init(void)
 void CC11_Send(void *pBuf)
 {
     if(!mqEnqueue(&cc11_tx_queue, pBuf))
+    {
         mqFree(pBuf);
+    }
 }
 
 void * CC11_Get(void)
@@ -335,7 +355,9 @@ void * CC11_Get(void)
     if(marcs == CC11_MARCSTATE_IDLE)
     {
         if(cc11_readReg(CC11_PKTSTATUS | CC11_STATUS_REGISTER) & CC11_PKTSTATUS_CRC_OK)
+        {
             return cc11_rx_task();
+        }
 
         cc11_cmdStrobe(CC11_SFTX);          // Clear TX Buffer
         cc11_cmdStrobe(CC11_SFRX);          // Clear RX Buffer

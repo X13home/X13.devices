@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #if (defined STM32L0)
@@ -11,7 +23,7 @@ void hal_SetSysClock(void)
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
     PWR->CR |= PWR_CR_VOS_0;        // Set Voltage Range 1
     PWR->CR &= ~PWR_CR_VOS_1;
-    
+
     // Clock Source HSI - 16M, prediv = 1
     RCC->CR |= RCC_CR_HSION;
     RCC->CR &= ~RCC_CR_HSIDIVEN;
@@ -29,7 +41,7 @@ void hal_SetSysClock(void)
     // PLLMUL = 4
     RCC->CFGR &= ~(RCC_CFGR_PLLDIV | RCC_CFGR_PLLMUL |  RCC_CFGR_PLLSRC);
     RCC->CFGR |= RCC_CFGR_PLLDIV2 | RCC_CFGR_PLLMUL4;
-    
+
     // PLL Enable
     RCC->CR |= RCC_CR_PLLON;
 
@@ -37,17 +49,17 @@ void hal_SetSysClock(void)
     while((RCC->CR & RCC_CR_PLLRDY) == 0);
 
     FLASH->ACR |= FLASH_ACR_LATENCY;        // Set FLASH Latensy 1WS
-    
+
     // Prescaler
     // AHB = 1
     // PCLK1 = 1
     // PCLK2 = 1
     RCC->CFGR &= ~(RCC_CFGR_HPRE | RCC_CFGR_PPRE1 | RCC_CFGR_PPRE2);
-    
+
     // System Clock Source - PLL
     RCC->CFGR &= RCC_CFGR_SW;
     RCC->CFGR |= RCC_CFGR_SW_PLL;
-    
+
     while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
 
     hal_hclk  = 32000000UL;
@@ -57,7 +69,7 @@ void hal_SetSysClock(void)
 
 void hal_prepare_gpio(void)
 {
-    RCC->IOPENR |= RCC_IOPENR_IOPAEN | RCC_IOPENR_IOPBEN | RCC_IOPENR_IOPCEN | 
+    RCC->IOPENR |= RCC_IOPENR_IOPAEN | RCC_IOPENR_IOPBEN | RCC_IOPENR_IOPCEN |
                                        RCC_IOPENR_IOPDEN | RCC_IOPENR_IOPHEN;
 }
 
@@ -78,11 +90,11 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
         if(Mask & pos)
         {
             pos = pinpos << 1;
-        
+
             // default state input
             GPIOx->MODER  &= ~(GPIO_MODER_MODE0 << pos);
             GPIOx->MODER |= mod << pos;
-            
+
             if((mod == 1) || (mod == 2))
             {
                 // Low Speed
@@ -165,12 +177,23 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
         {
             return;
         }
-        
+
         *(uint8_t *)eep_addr = *pBuf;
         eep_addr++;
         pBuf++;
         Len--;
     }
 }
+
+
+#ifdef ASLEEP
+void HAL_ASleep(uint16_t duration)
+{
+    // ToDo ASleep dummy function
+
+    uint32_t sec_cnt = hal_get_sec() + duration;
+    while(sec_cnt != hal_get_sec());
+}
+#endif  // ASLEEP
 
 #endif  //  STM32L0

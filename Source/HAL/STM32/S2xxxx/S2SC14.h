@@ -52,7 +52,8 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           2
-#define HAL_DIO_MAPPING             {17, 16, 7, 6, 5, 4, 255, 255, 255, 255, 12, 11, 3, 2, 1, 0} /* PB1, PB0, PA7, PA6, PA5, PA4, PB7, PB6, PA10, PA9, PA12, PA11, PA3, PA2, PA1, PA0 */
+        /* PB1, PB0, PA7, PA6, PA5, PA4, PB7, PB6, PA10, PA9, PA12, PA11, PA3, PA2, PA1, PA0 */
+#define HAL_DIO_MAPPING             {17, 16, 7, 6, 5, 4, 255, 255, 255, 255, 12, 11, 3, 2, 1, 0}
 // End DIO Section
 
 // PWM Section
@@ -78,7 +79,8 @@ extern "C" {
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           10
-#define HAL_AIN_BASE2APIN           {9, 8, 7, 6, 5, 4, 255, 255, 255, 255, 255, 255, 3, 2, 1, 0}    /* PB0, PB1, PA7 - PA4, GAP, PA3 - PA0 */
+                                        /* PB0, PB1, PA7 - PA4, GAP, PA3 - PA0 */
+#define HAL_AIN_BASE2APIN           {9, 8, 7, 6, 5, 4, 255, 255, 255, 255, 255, 255, 3, 2, 1, 0}
 // End Analogue Inputs
 
 // UART Section

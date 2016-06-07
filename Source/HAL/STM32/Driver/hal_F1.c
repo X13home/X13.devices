@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #if (defined STM32F1)
@@ -22,7 +34,9 @@ void hal_SetSysClock(void)
 
     // Wait till HSE is ready and if Time out is reached exit
     while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < HSE_STARTUP_TIME))
+    {
         StartUpCounter++;
+    }
 
     // Enable Prefetch Buffer
     FLASH->ACR |= FLASH_ACR_PRFTBE;
@@ -75,7 +89,8 @@ void hal_SetSysClock(void)
 
 void hal_prepare_gpio(void)
 {
-    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN | RCC_APB2ENR_IOPDEN | RCC_APB2ENR_IOPEEN;
+    RCC->APB2ENR |= RCC_APB2ENR_IOPAEN | RCC_APB2ENR_IOPBEN | RCC_APB2ENR_IOPCEN |
+                    RCC_APB2ENR_IOPDEN | RCC_APB2ENR_IOPEEN;
      // disable JTAG
     RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
     AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
@@ -93,7 +108,7 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
         if(Mask & pos)
         {
             uint32_t gpio_cr;
-        
+
             switch(Mode & 0x00FF)
             {
                 case DIO_MODE_IN_PU:
@@ -105,7 +120,8 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
                     GPIOx->BRR = pos;
                     break;
                 case DIO_MODE_OUT_PP:
-                    gpio_cr = GPIO_CRL_MODE0_1; // General purpose output push-pull, Low Speed (2MHz)
+                    gpio_cr = GPIO_CRL_MODE0_1; // General purpose output push-pull, 
+                                                //      Low Speed (2MHz)
                     break;
                 case DIO_MODE_AF_PP:
                     gpio_cr = GPIO_CRL_CNF0_1 | GPIO_CRL_MODE0_1;   // AF Push-Pull out, Low Speed
@@ -120,9 +136,9 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
                     gpio_cr = GPIO_CRL_CNF0_1 | GPIO_CRL_MODE0;     // AF Push-Pull out, HS
                     break;
                 case DIO_MODE_OUT_PP_HS:
-                    gpio_cr = GPIO_CRL_MODE0;                       // General purpose output push-pull, High Speed(50MHz)
+                    gpio_cr = GPIO_CRL_MODE0;   // General purpose output push-pull, 
+                                                //      High Speed(50MHz)
                     break;
-                    
                 default:                                            // Floating digital input
                     gpio_cr = GPIO_CRL_CNF0_0;
                     break;

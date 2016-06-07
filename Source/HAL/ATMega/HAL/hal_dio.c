@@ -10,8 +10,10 @@ static const PROGMEM uint8_t  hal_dio_sBase2Base[]   = HAL_DIO_MAPPING;
 uint8_t hal_dio_base2pin(uint16_t base)
 {
     if(base >= sizeof(hal_dio_sBase2Base))
+    {
         return 0xFF;
-    
+    }
+
     return pgm_read_byte(&hal_dio_sBase2Base[base]);
 }
 

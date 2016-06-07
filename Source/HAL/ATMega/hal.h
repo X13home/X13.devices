@@ -21,8 +21,10 @@ extern "C" {
                                     asm volatile ( "out     __SREG__, __tmp_reg__" :: )
 
 #define eeprom_init_hw()
-#define eeprom_read(pBuf, Addr, Len)  eeprom_read_block((void *)pBuf, (const void *)Addr, (size_t)Len)
-#define eeprom_write(pBuf, Addr, Len) eeprom_write_block((const void *)pBuf, (void *)Addr, (size_t)Len)
+#define eeprom_read(pBuf, Addr, Len)    \
+                    eeprom_read_block((void *)pBuf, (const void *)Addr, (size_t)Len)
+#define eeprom_write(pBuf, Addr, Len)   \
+                    eeprom_write_block((const void *)pBuf, (void *)Addr, (size_t)Len)
 
 // AVR Architecture specifics.
 #define portBYTE_ALIGNMENT          1

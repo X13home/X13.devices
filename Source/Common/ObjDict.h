@@ -109,9 +109,12 @@ typedef struct
   uint16_t    Base;
 }subidx_t;
 
-typedef e_MQTTSN_RETURNS_t (*cbRead_t)(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);   // Callback Read
-typedef e_MQTTSN_RETURNS_t (*cbWrite_t)(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);    // Callback Write
-typedef uint8_t (*cbPoll_t)(subidx_t * pSubidx);                                            // Callback Poll
+// Callback Read
+typedef e_MQTTSN_RETURNS_t (*cbRead_t)(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);
+// Callback Write
+typedef e_MQTTSN_RETURNS_t (*cbWrite_t)(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+// Callback Poll
+typedef uint8_t (*cbPoll_t)(subidx_t * pSubidx);
 
 // Structure for creating entries
 typedef struct

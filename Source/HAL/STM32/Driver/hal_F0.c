@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #if (defined STM32F0)
@@ -22,7 +34,9 @@ void hal_SetSysClock(void)
 
     // Wait till HSE is ready and if Time out is reached exit
     while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < HSE_STARTUP_TIME))
+    {
         StartUpCounter++;
+    }
 
     // Enable Prefetch Buffer and set Flash Latency
     FLASH->ACR = FLASH_ACR_PRFTBE | FLASH_ACR_LATENCY;
@@ -34,12 +48,14 @@ void hal_SetSysClock(void)
     if(StartUpCounter < HSE_STARTUP_TIME)
     {
         RCC->CFGR |= (RCC_CFGR_PLLMUL6 |            // PLL multiplication factor = 6
-                      RCC_CFGR_PLLSRC_HSE_PREDIV);  // HSE/PREDIV clock selected as PLL entry clock source
+                      RCC_CFGR_PLLSRC_HSE_PREDIV);  // HSE/PREDIV clock selected
+                                                    //      as PLL entry clock source
     }
     else
     {
         RCC->CR &= ~RCC_CR_HSEON;                   // Disble HSE
-        RCC->CFGR &= ~RCC_CFGR_PLLSRC_HSE_PREDIV;   // HSI clock divided by 2 selected as PLL entry clock source
+        RCC->CFGR &= ~RCC_CFGR_PLLSRC_HSE_PREDIV;   // HSI clock divided by 2 selected
+                                                    //      as PLL entry clock source
         RCC->CFGR |= RCC_CFGR_PLLMUL12;             // PLL multiplication factor = 12
     }
 
@@ -63,11 +79,12 @@ void hal_SetSysClock(void)
 
 void hal_prepare_gpio(void)
 {
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN |
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN |
+                   RCC_AHBENR_GPIODEN |
 #if defined RCC_AHBENR_GPIOEEN
-                    RCC_AHBENR_GPIOEEN |
+                   RCC_AHBENR_GPIOEEN |
 #endif
-                    RCC_AHBENR_GPIOFEN;
+                   RCC_AHBENR_GPIOFEN;
 }
 
 // HAL GPIO Functions
@@ -87,11 +104,11 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
         if(Mask & pos)
         {
             pos = pinpos << 1;
-        
+
             // default state input
             GPIOx->MODER  &= ~(GPIO_MODER_MODER0 << pos);
             GPIOx->MODER |= mod << pos;
-            
+
             if((mod == 1) || (mod == 2))
             {
                 // Low Speed
@@ -132,7 +149,7 @@ typedef void (*cbEXTI_t)(void);
 void EXTI0_1_IRQHandler(void);
 void EXTI2_3_IRQHandler(void);
 void EXTI4_15_IRQHandler(void);
-    
+
 static void * hal_exti_cb[16] = {[0 ... 15] = NULL};
 
 void hal_exti_config(uint8_t pin, uint8_t Trigger, void * pCallback)
@@ -154,18 +171,26 @@ void hal_exti_config(uint8_t pin, uint8_t Trigger, void * pCallback)
     EXTI->PR = (uint16_t)u32_tmp;       // Reset pending status
 
     if(Trigger & 1)                     // Falling trigger
+    {
         EXTI->FTSR |= u32_tmp;
+    }
     else
+    {
         EXTI->FTSR &= ~u32_tmp;
+    }
 
     if(Trigger & 2)                     // Rising trigger
+    {
         EXTI->RTSR |= u32_tmp;
+    }
     else
+    {
         EXTI->RTSR &= ~u32_tmp;
-    
+    }
+
     // Enable IRQ
     IRQn_Type IRQn;
-    
+
     if(pin < 2)
     {
         IRQn = EXTI0_1_IRQn;
@@ -178,7 +203,7 @@ void hal_exti_config(uint8_t pin, uint8_t Trigger, void * pCallback)
     {
         IRQn = EXTI4_15_IRQn;
     }
-    
+
     NVIC_SetPriority(IRQn, 0);
     NVIC_EnableIRQ(IRQn);
 }

@@ -101,12 +101,12 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define EXTDIO_MAXPORT_NR           11                                  // Number of used physical digital Ports
-#define HAL_DIO_MAPPING             {40, 41, 42, 43, 44, 45, 46, 47, 72, 73, 74, 75, 76, 77, 78, 79,    \
-                                     255, 255, 36, 37, 53, 35, 59, 60, 61, 62, 12, 13, 14, 15, 65, 64,  \
-                                     57, 56, 27, 26, 25, 24, 0, 1, 2, 3, 4, 5, 6, 7, 23, 22,            \
-                                     21, 20, 19, 18, 17, 16, 31, 50, 49, 48, 87, 86, 85, 84, 83, 82,    \
-                                     81, 80, 11, 10, 9, 8}
+#define EXTDIO_MAXPORT_NR           11          // Number of used physical digital Ports
+#define HAL_DIO_MAPPING     { 40, 41, 42, 43, 44, 45, 46, 47, 72, 73, 74, 75, 76, 77, 78, 79,   \
+                             255, 255, 36, 37, 53, 35, 59, 60, 61, 62, 12, 13, 14, 15, 65, 64,  \
+                              57, 56, 27, 26, 25, 24, 0, 1, 2, 3, 4, 5, 6, 7, 23, 22,           \
+                              21, 20, 19, 18, 17, 16, 31, 50, 49, 48, 87, 86, 85, 84, 83, 82,   \
+                              81, 80, 11, 10, 9, 8}
 // End DIO Section
 
 // PWM Section
@@ -128,7 +128,8 @@ extern "C" {
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           0x28                                  // ADC0 - ADC15, Vbg
-#define HAL_AIN_BASE2APIN           {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x1E}
+#define HAL_AIN_BASE2APIN           {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,        \
+                                     0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x1E}
 // End Analogue Inputs
 
 // TWI Section

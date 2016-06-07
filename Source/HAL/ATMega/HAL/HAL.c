@@ -60,7 +60,9 @@ uint16_t HAL_RNG(void)
         rand16 ^= 0xB400;
     }
     else
+    {
         rand16 >>= 1;
+    }
   
     return rand16;
 }
@@ -72,14 +74,14 @@ static uint32_t deadbeef_beef = 0xdeadbeef;
 
 uint32_t deadbeef_rand()
 {
-	deadbeef_seed = (deadbeef_seed << 7) ^ ((deadbeef_seed >> 25) + deadbeef_beef);
-	deadbeef_beef = (deadbeef_beef << 7) ^ ((deadbeef_beef >> 25) + 0xdeadbeef);
-	return deadbeef_seed;
+    deadbeef_seed = (deadbeef_seed << 7) ^ ((deadbeef_seed >> 25) + deadbeef_beef);
+    deadbeef_beef = (deadbeef_beef << 7) ^ ((deadbeef_beef >> 25) + 0xdeadbeef);
+    return deadbeef_seed;
 }
 
 void deadbeef_srand(uint32_t x) {
-	deadbeef_seed = x;
-	deadbeef_beef = 0xdeadbeef;
+    deadbeef_seed = x;
+    deadbeef_beef = 0xdeadbeef;
 }
 */
 uint32_t HAL_RNG32(void)
@@ -132,7 +134,9 @@ ISR(TIMER2_COMPA_vect)
 
     static uint16_t ticks_counter = 0;
     if(ticks_counter < (const uint16_t)(1000/POLL_TMR_FREQ))
+    {
         ticks_counter++;
+    }
     else
     {
         SystemTick();
@@ -188,7 +192,9 @@ void HAL_ASleep(uint16_t duration)
 #ifdef EXTAIN_USED
     // Restore ADC State
     if(oldAD & (1<<ADEN))
+    {
         ADCSRA = oldAD;
+    }
 #endif  //  EXTAIN_USED
 }
 #endif  //  ASLEEP
@@ -208,9 +214,11 @@ void HAL_Reboot(void)
 #ifdef HAL_USE_SPI
 void hal_spi_cfg(uint8_t port __attribute__ ((unused)), uint8_t mode, uint32_t speed)
 {
-    PRR &= ~(1<<PRSPI);                                                     // Enable clock on SPI
+    PRR &= ~(1<<PRSPI);                                          // Enable clock on SPI
     // Configure DIO
-    SPI_DDR |= (1<<SPI_PIN_SCK) | (1<<SPI_PIN_MOSI) | (1<<SPI_PIN_SS);      // for Master SPI_PIN_SS MUST be set as out
+
+    // for Master SPI_PIN_SS MUST be set as out
+    SPI_DDR |= (1<<SPI_PIN_SCK) | (1<<SPI_PIN_MOSI) | (1<<SPI_PIN_SS);
     SPI_DDR &= ~(1<<SPI_PIN_MISO);
 
     uint32_t spiclk = (F_CPU/2);
@@ -227,14 +235,18 @@ void hal_spi_cfg(uint8_t port __attribute__ ((unused)), uint8_t mode, uint32_t s
     }
 
     if((div & 1) == 0)
+    {
         SPSR = (1<<SPI2X);
+    }
 
     if(mode & HAL_SPI_LSB)      // MSB/LSB
+    {
         tmp |= (1<<DORD);
+    }
 
     tmp |= (mode & 3) << 2;     // CPOL, CPHA
     tmp |= div >> 1;
-    
+
     SPCR = tmp;
 }
 

@@ -1,31 +1,13 @@
 /*
-*****************************************************************************
-**
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
-**  File        : stm32_flash.ld
-**
-**  Abstract    : Linker script for STM32F303K8 Device with
-**                64KByte FLASH, 12KByte RAM
-**
-**                Set heap size, stack size and stack location according
-**                to application requirements.
-**
-**                Set memory bank area and size if external memory is used.
-**
-**  Target      : STMicroelectronics STM32
-**
-**  Environment : Atollic TrueSTUDIO(R)
-**
-**  Distribution: The file is distributed as is, without any warranty
-**                of any kind.
-**
-**  (c)Copyright Atollic AB.
-**  You may use this file as-is or modify it according to the needs of your
-**  project. This file may only be built (assembled or compiled and linked)
-**  using the Atollic TrueSTUDIO(R) product. The use of this file together
-**  with other tools than Atollic TrueSTUDIO(R) is not permitted.
-**
-*****************************************************************************
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
 */
 
 /* Entry Point */
@@ -40,9 +22,9 @@ _Min_Stack_Size = 0x200; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x8000000, LENGTH = 56K
-RAM (xrw)      : ORIGIN = 0x20000000, LENGTH = 12K
-CCMRAM (rw)      : ORIGIN = 0x10000000, LENGTH = 4K
+FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 56K     /* 8K of FLASH - EEPROM Emulation */
+RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 12K
+CCMRAM (rw)     : ORIGIN = 0x10000000, LENGTH = 4K
 }
 
 /* Define output sections */
@@ -144,7 +126,6 @@ SECTIONS
     _eccmram = .;       /* create a global symbol at ccmram end */
   } >CCMRAM AT> FLASH
 
-  
   /* Uninitialized data section */
   . = ALIGN(4);
   .bss :
@@ -172,8 +153,6 @@ SECTIONS
     . = ALIGN(4);
   } >RAM
 
-  
-
   /* Remove information from the standard libraries */
   /DISCARD/ :
   {
@@ -184,5 +163,3 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
-
-

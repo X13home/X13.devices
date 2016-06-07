@@ -24,7 +24,9 @@ bool hal_twi_configure(uint8_t enable)
     if(enable)
     {
         if(TWIM_SCL_STAT() == 0)
+        {
             return false;
+        }
 
         // Set Speed
         TWBR = (((F_CPU/100000UL)-16)/2);   // 100kHz
@@ -68,9 +70,13 @@ ISR(TWI_vect)
             twi_ptr = 0;
             
             if(pTWI->frame.access & TWI_WRITE)
+            {
                 TWDR = (pTWI->frame.address<<1);
+            }
             else
+            {
                 TWDR = (pTWI->frame.address<<1) | TW_READ;
+            }
             TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWIE);
             break;
         // Master Send
@@ -101,7 +107,9 @@ ISR(TWI_vect)
                 TWCR = (1<<TWINT) | (1<<TWSTO) | (1<<TWEN) | (1<<TWIE); // Send Stop
             }
             else
+            {
                 TWCR = (1<<TWEN) | (1<<TWIE) | (1<<TWINT) | (1<<TWSTA); // Send RepSTART
+            }
             break;
         // Master Receive
         case TW_MR_DATA_ACK:                        // Data byte has been received and ACK transmitted

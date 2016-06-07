@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #if (defined HAL_USE_SPI1) || \
@@ -77,22 +89,34 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
     SPIx->CR1 = (uint16_t)(SPI_CR1_SSM | SPI_CR1_SSI | SPI_CR1_MSTR) | (div<<3);
 #if (defined STM32F0) || (defined STM32F3)
     if(mode & HAL_SPI_16B)
+    {
         SPIx->CR2 = (uint16_t)(SPI_CR2_DS_3 | SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0); // 16 bit
+    }
     else
+    {
         SPIx->CR2 = (uint16_t)(SPI_CR2_FRXTH | SPI_CR2_DS_2 | SPI_CR2_DS_1 | SPI_CR2_DS_0); // 8 bit
+    }
 #elif (defined STM32F1) || (defined STM32L0)
     if(mode & HAL_SPI_16B)
+    {
         SPIx->CR1 |= SPI_CR1_DFF;
+    }
 #else
     #error hal_spi_cfg unknown uC Family
 #endif  // CPU
     if(mode & HAL_SPI_LSB)
+    {
         SPIx->CR1 |= SPI_CR1_LSBFIRST;
-    
+    }
+
     if(mode & 1)        // Mode 1/3
+    {
         SPIx->CR1 |= SPI_CR1_CPHA;
+    }
     if(mode & 2)        // Mode 2/3
+    {
         SPIx->CR1 |= SPI_CR1_CPOL;
+    }
 
     SPIx->CRCPR =  7;
 

@@ -27,7 +27,8 @@ static uint32_t twi_ms  = 0;
 // local queues
 static Queue_t  twi_tx_queue = {NULL, NULL, 4, 0};      // Max Size = 4 records
 
-static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)), uint8_t *pLen, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)),
+                                        uint8_t *pLen, uint8_t *pBuf)
 {
     if(pTWI == NULL)
         return MQTTSN_RET_REJ_CONG;
@@ -39,7 +40,8 @@ static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)),
     return MQTTSN_RET_ACCEPTED;
 }
 
-static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx __attribute__ ((unused)), uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx __attribute__ ((unused)),
+                                        uint8_t Len, uint8_t *pBuf)
 {
     if(Len < sizeof(TWI_FRAME_t))
         return MQTTSN_RET_REJ_NOT_SUPP;

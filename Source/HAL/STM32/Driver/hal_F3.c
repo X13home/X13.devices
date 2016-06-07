@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #if (defined STM32F3)
@@ -22,7 +34,9 @@ void hal_SetSysClock(void)
 
     // Wait till HSE is ready and if Time out is reached exit
     while(((RCC->CR & RCC_CR_HSERDY) == 0) && (StartUpCounter < HSE_STARTUP_TIME))
+    {
         StartUpCounter++;
+    }
 
     // Enable Prefetch Buffer
     FLASH->ACR |= FLASH_ACR_PRFTBE;
@@ -30,7 +44,7 @@ void hal_SetSysClock(void)
     // Set Flash Latency, Flash 2 wait state
     FLASH->ACR &= ~FLASH_ACR_LATENCY;
     FLASH->ACR |= FLASH_ACR_LATENCY_1;
-    
+
     // PLL->CFGR reset in SystemInit()
     // SYSCLK = 72, on PLL
     // AHB Prescaler = 1, HCLK = SYSCLK
@@ -70,7 +84,8 @@ void hal_SetSysClock(void)
 
 void hal_prepare_gpio(void)
 {
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN | RCC_AHBENR_GPIODEN |
+    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN |
+                   RCC_AHBENR_GPIODEN |
 #if defined RCC_AHBENR_GPIOEEN
                     RCC_AHBENR_GPIOEEN |
 #endif
@@ -94,11 +109,11 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
         if(Mask & pos)
         {
             pos = pinpos << 1;
-        
+
             // default state input
             GPIOx->MODER  &= ~(GPIO_MODER_MODER0 << pos);
             GPIOx->MODER |= mod << pos;
-            
+
             if((mod == 1) || (mod == 2))
             {
                 // Low Speed
