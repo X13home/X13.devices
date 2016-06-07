@@ -29,8 +29,8 @@ See LICENSE file for license details.
 //   6  PA6     P1.9    AIN6
 //   7  PA7     P1.10   AIN7
 //   8  PA8     --
-//   9  PA9     P2.9  * TX1
-//  10  PA10    P2.8  * RX1
+//   9  PA9     P2.9
+//  10  PA10    P2.8
 //  11  PA11    P2.7
 //  12  PA12    --
 //  13  PA13    P2.6    SWDIO
@@ -83,6 +83,11 @@ extern "C" {
 #define EXTAIN_MAXPORT_NR           8
 #define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}        // PA0-PA7: 0 - 7
 // End Analog Inputs
+
+// TWI Section
+#define HAL_TWI_BUS                 1       // I2C on PB6, PB7
+#define EXTTWI_USED                 1
+// End TWI Section
 
 // CC11 PHY Section
 #define HAL_USE_SPI1                2                               // SPI1 on PB3 - PB5

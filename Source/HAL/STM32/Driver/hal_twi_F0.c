@@ -12,7 +12,7 @@ See LICENSE file for license details.
 
 #include "config.h"
 
-#if (defined HAL_TWI_BUS) && (defined STM32F0)
+#if (defined HAL_TWI_BUS) && ((defined STM32F0) || (defined STM32L0))
 
 #include "EXT/exttwi.h"
 
