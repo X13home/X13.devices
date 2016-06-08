@@ -583,6 +583,18 @@ static void cb_api(void){
         case 8:
             plcvm_push(HAL_RNG32());
             break;
+#if (defined HAL_USE_RTC)
+        case 9:     // Get Now Seconds from 00:00:00
+            plcvm_push(HAL_RTC_SecNow());
+            break;
+        case 10:    // Get Date 4 bytes: YRS [31-24], MNT[23-16], DAY[15-8], WDU[7-0]
+                    // Years
+                    // Month:    1 - Jan, 12 - Dez
+                    // Day:      1 - 31
+                    // Week day: 1 - Monday, 7 - Sunday
+            plcvm_push(HAL_RTC_DateNow());
+            break;
+#endif  //  HAL_USE_RTC
         default:
             plcvm_stat = PLC_ANSWER_ERROR_UNK_API;
             break;

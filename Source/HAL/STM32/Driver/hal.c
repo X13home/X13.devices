@@ -44,6 +44,9 @@ void HAL_Init(void)
 {
     // Set Core Clock
     hal_SetSysClock();
+#ifdef HAL_USE_RTC
+    hal_rtc_init();
+#endif  //  HAL_USE_RTC
     // Enable GPIO clock
     hal_prepare_gpio();
     // Enable CRC, Used for RNG

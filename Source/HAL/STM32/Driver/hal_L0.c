@@ -20,8 +20,6 @@ uint32_t    hal_hclk  = 2097000UL;
 uint32_t    hal_pclk1 = 2097000UL;
 uint32_t    hal_pclk2 = 2097000UL;
 
-static void hal_rtc_init(void);
-
 void hal_SetSysClock(void)
 {
     uint32_t tmp;
@@ -77,10 +75,6 @@ void hal_SetSysClock(void)
     hal_hclk  = 32000000UL;
     hal_pclk1 = 32000000UL;
     hal_pclk2 = 32000000UL;
-
-#ifdef HAL_USE_RTC
-    hal_rtc_init();
-#endif  //  HAL_USE_RTC
 }
 
 // GPIO Section
@@ -204,102 +198,4 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
         Len--;
     }
 }
-
-// RTC Section
-#if (defined HAL_USE_RTC)
-static void hal_rtc_init(void)
-{
-    RCC->CSR |= RCC_CSR_RMVF;                       // Remove reset flag
-
-    PWR->CR |= PWR_CR_DBP;                          // Disable Backup Domain write protection
-    RTC->WPR = 0xCA;                                // Disable RTC write protection
-    RTC->WPR = 0x53;
-
-    // Select RTC Clock
-    RCC->CSR |= RCC_CSR_LSEON;                      // External Low Speed oscillator enable
-    uint16_t tmp = 0;
-    while(tmp < 0xFFFF)                             // Wait till LSE is ready
-    {
-        if((RCC->CSR & (RCC_CSR_LSERDY | RCC_CSR_LSEON)) == (RCC_CSR_LSERDY | RCC_CSR_LSEON))
-        {
-            break;
-        }
-        tmp++;
-    }
-
-    uint32_t rtc_presc;
-
-    RCC->CSR &= ~RCC_CSR_RTCSEL;
-    if((RCC->CSR & (RCC_CSR_LSERDY | RCC_CSR_LSEON)) == (RCC_CSR_LSERDY | RCC_CSR_LSEON))
-    {
-        RCC->CSR |= RCC_CSR_RTCSEL_LSE;             // LSE oscillator clock used as RTC clock
-        rtc_presc = 0x007F00FF;                     // 32768/128 = 256
-    }
-    else                                            // LSE Not Connected, use LSI
-    {
-        RCC->CSR &= ~RCC_CSR_LSEON;                 // Disable LSE
-        RCC->CSR |= RCC_CSR_LSION;                  // Enable LSI
-        while((RCC->CSR & RCC_CSR_LSIRDY) == 0);    // Wait till LSI is ready
-
-        RCC->CSR |= RCC_CSR_RTCSEL_LSI;             // LSI oscillator clock used as RTC clock
-        rtc_presc = 0x007C0127;                     // 37000/125 = 296/296
-    }
-    RCC->CSR |= RCC_CSR_RTCEN;                      // RTC clock enable
-
-    if((RTC->ISR & RTC_ISR_INITS) == 0)             // RTC not Initialised
-    {
-        // Initialise RTC
-        RTC->ISR |= RTC_ISR_INIT;
-        while((RTC->ISR & RTC_ISR_INITF) != RTC_ISR_INITF);
-        RTC->PRER = rtc_presc;
-        // RTC->TR
-        // RTC->DR
-        // RTC->CR
-        RTC->ISR &= ~RTC_ISR_INIT;
-        while((RTC->ISR & RTC_ISR_INIT) != 0);
-    }
-}
-
-void HAL_RTC_Set(uint8_t *pBuf)
-{
-    // Initialise RTC
-    RTC->ISR |= RTC_ISR_INIT;
-    while((RTC->ISR & RTC_ISR_INITF) != RTC_ISR_INITF);
-
-    uint32_t uTmp = 0;
-    memcpy(&uTmp, pBuf, 3);
-    RTC->TR = uTmp;
-    pBuf += 3;
-    uTmp = 0;
-    memcpy(&uTmp, pBuf, 3);
-    RTC->DR = uTmp;
-
-    RTC->ISR &= ~RTC_ISR_INIT;
-    while((RTC->ISR & RTC_ISR_INIT) != 0);
-}
-
-uint8_t HAL_RTC_Get(uint8_t *pBuf)
-{
-    uint32_t uTmp;
-
-    uTmp = RTC->TR;
-    memcpy(pBuf, &uTmp, 3);
-    pBuf += 3;
-    uTmp = RTC->DR;
-    memcpy(pBuf, &uTmp, 3);
-
-    return 6;
-}
-
-#ifdef ASLEEP
-void HAL_ASleep(uint16_t duration)
-{
-    // ToDo ASleep dummy function
-
-    uint32_t sec_cnt = hal_get_sec() + duration;
-    while(sec_cnt != hal_get_sec());
-}
-#endif  //  ASLEEP
-#endif  //  HAL_USE_RTC
-
 #endif  //  STM32L0

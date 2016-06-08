@@ -36,6 +36,8 @@ extern "C" {
 void hal_SetSysClock(void);
 void hal_prepare_gpio(void);
 
+void hal_rtc_init(void);
+
 void halEnterCritical(void);
 void halLeaveCritical(void);
 #define ENTER_CRITICAL_SECTION      halEnterCritical
@@ -182,6 +184,15 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 void _delay_us(uint16_t us);
 
 extern uint32_t hal_hclk, hal_pclk1, hal_pclk2;
+
+//////////////////////////////////////////////////////////////
+// RTC Section
+void HAL_RTC_Set(uint8_t *pBuf);
+uint8_t HAL_RTC_Get(uint8_t *pBuf);
+uint32_t HAL_RTC_SecNow(void);
+uint32_t HAL_RTC_DateNow(void);
+// RTC Section
+//////////////////////////////////////////////////////////////
 
 #define  HAL_Reboot     NVIC_SystemReset
 
