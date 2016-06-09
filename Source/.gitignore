@@ -1,6 +1,4 @@
 /.vs
-/.metadata
-/RemoteSystemsTempFiles
 /A1Cn10
 /A1Cn12
 /A1En12
@@ -13,11 +11,5 @@
 /A4Sn10
 /A4Sn10d
 /Debug
-/S2Cn13
-/S2EC13
-/S2En13
-/S2Sn10
-/S2Sn13
-/*.cogui
-/*.comarker
-/*.componentinfo.xml
+A1xxxx.componentinfo.xml
+A4xxxx.componentinfo.xml
