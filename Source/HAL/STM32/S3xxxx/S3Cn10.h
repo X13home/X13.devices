@@ -65,6 +65,9 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+// Sytem settings
+#define HAL_USE_RTC                 1
+
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3

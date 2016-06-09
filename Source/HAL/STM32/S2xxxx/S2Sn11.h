@@ -72,6 +72,11 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+// System Settings
+#define HSE_CRYSTAL_BYPASS          1   //  HSE crystal oscillator bypassed with external clock
+#define HAL_USE_RTC                 1
+#define HAL_RTC_CHECK_LSE           1
+
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3

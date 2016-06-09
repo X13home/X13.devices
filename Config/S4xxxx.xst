@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- device configuration file for STM32F1 devices  -->
 <root head="/etc/declarers/dev">
-    <item name="S4SC11" value="pack://application:,,/CC;component/Images/ty_ugate.png"  saved="True" type="System.String" ver="3.16.0503">
+    <item name="S4SC11" value="pack://application:,,/CC;component/Images/ty_ugate.png"  saved="True" type="System.String" ver="3.16.0609">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />
             <item name="long" value="yI" saved="True" type="System.String" />
@@ -10,636 +10,379 @@
         <item name="remove" value="zD" saved="True" type="System.String" />
         <item name="Digital Pull-Down Inputs">
             <item name="Ip0" value="AzX0" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA0" saved="True" type="System.String" />
-            </item>
-            <item name="Ip1" value="BzX1" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA1" saved="True" type="System.String" />
-            </item>
-            <item name="Ip2" value="CzX2" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA2" saved="True" type="System.String" />
-            </item>
-            <item name="Ip3" value="DzX3" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA3" saved="True" type="System.String" />
-            </item>
-            <item name="Ip4" value="EzX4" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA4" saved="True" type="System.String" />
-            </item>
-            <item name="Ip5" value="FzX5" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA5" saved="True" type="System.String" />
-            </item>
-            <item name="Ip6" value="GzX6" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA6" saved="True" type="System.String" />
-            </item>
-            <item name="Ip7" value="HzX7" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA7" saved="True" type="System.String" />
-            </item>
-            <!-- PB6, PB7 - I2C -->
-            <item name="Ip10" value="KzX10" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA14" saved="True" type="System.String" />
-            </item>
-            <item name="Ip11" value="LzX11" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA13" saved="True" type="System.String" />
-            </item>
-            <item name="Ip12" value="MzX12" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA11" saved="True" type="System.String" />
-            </item>
-            <!-- PA10, PA9 - RX1, TX1 -->
-        </item>
-        <item name="Digital Pull-Up Inverted Inputs">
-            <item name="In0" value="AzX0" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA0" saved="True" type="System.String" />
-            </item>
-            <item name="In1" value="BzX1" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA1" saved="True" type="System.String" />
-            </item>
-            <item name="In2" value="CzX2" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA2" saved="True" type="System.String" />
-            </item>
-            <item name="In3" value="DzX3" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA3" saved="True" type="System.String" />
-            </item>
-            <item name="In4" value="EzX4" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA4" saved="True" type="System.String" />
-            </item>
-            <item name="In5" value="FzX5" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA5" saved="True" type="System.String" />
-            </item>
-            <item name="In6" value="GzX6" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA6" saved="True" type="System.String" />
-            </item>
-            <item name="In7" value="HzX7" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA7" saved="True" type="System.String" />
-            </item>
-            <!-- PB6, PB7 - I2C -->
-            <item name="In10" value="KzX10" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA14" saved="True" type="System.String" />
-            </item>
-            <item name="In11" value="LzX11" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA13" saved="True" type="System.String" />
-            </item>
-            <item name="In12" value="MzX12" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA11" saved="True" type="System.String" />
-            </item>
-            <!-- PA10, PA9 - RX1, TX1 -->
-        </item>
-        <item name="Digital Outputs">
-            <item name="Op0" value="AzX0" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA0" saved="True" type="System.String" />
-            </item>
-            <item name="Op1" value="BzX1" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA1" saved="True" type="System.String" />
-            </item>
-            <item name="Op2" value="CzX2" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA2" saved="True" type="System.String" />
-            </item>
-            <item name="Op3" value="DzX3" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA3" saved="True" type="System.String" />
-            </item>
-            <item name="Op4" value="EzX4" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA4" saved="True" type="System.String" />
-            </item>
-            <item name="Op5" value="FzX5" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA5" saved="True" type="System.String" />
-            </item>
-            <item name="Op6" value="GzX6" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA6" saved="True" type="System.String" />
-            </item>
-            <item name="Op7" value="HzX7" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA7" saved="True" type="System.String" />
-            </item>
-            <!-- PB6, PB7 - I2C -->
-            <item name="Op10" value="KzX10" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA14" saved="True" type="System.String" />
-            </item>
-            <item name="Op11" value="LzX11" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA13" saved="True" type="System.String" />
-            </item>
-            <item name="Op12" value="MzX12" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA11" saved="True" type="System.String" />
-            </item>
-            <!-- PA10, PA9 - RX1, TX1 -->
-        </item>
-        <item name="Digital Inverted Outputs">
-            <item name="On0" value="AzX0" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA0" saved="True" type="System.String" />
-            </item>
-            <item name="On1" value="BzX1" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA1" saved="True" type="System.String" />
-            </item>
-            <item name="On2" value="CzX2" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA2" saved="True" type="System.String" />
-            </item>
-            <item name="On3" value="DzX3" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA3" saved="True" type="System.String" />
-            </item>
-            <item name="On4" value="EzX4" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA4" saved="True" type="System.String" />
-            </item>
-            <item name="On5" value="FzX5" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA5" saved="True" type="System.String" />
-            </item>
-            <item name="On6" value="GzX6" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA6" saved="True" type="System.String" />
-            </item>
-            <item name="On7" value="HzX7" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA7" saved="True" type="System.String" />
-            </item>
-            <!-- PB6, PB7 - I2C -->
-            <item name="On10" value="KzX10" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA14" saved="True" type="System.String" />
-            </item>
-            <item name="On11" value="LzX11" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA13" saved="True" type="System.String" />
-            </item>
-            <item name="On12" value="MzX12" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA11" saved="True" type="System.String" />
-            </item>
-            <!-- PA10, PA9 - RX1, TX1 -->
-        </item>
-        <item name="Analog Inputs">
-            <item name="Av0" value="AiX0" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, PA0" saved="True" type="System.String" />
-            </item>
-            <item name="Av1" value="BiX1" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, PA1" saved="True" type="System.String" />
-            </item>
-            <item name="Av2" value="CiX2" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, PA2" saved="True" type="System.String" />
-            </item>
-            <item name="Av3" value="DiX3" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, PA3" saved="True" type="System.String" />
-            </item>
-            <item name="Av4" value="EiX4" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, PA4" saved="True" type="System.String" />
-            </item>
-            <item name="Av5" value="FiX5" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, PA5" saved="True" type="System.String" />
-            </item>
-            <item name="Av6" value="GiX6" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, PA6" saved="True" type="System.String" />
-            </item>
-            <item name="Av7" value="HiX7" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, PA7" saved="True" type="System.String" />
-            </item>
-        </item>
-    </item>
-    <item name="S4Cn11" value="pack://application:,,/CC;component/Images/ty_unode.png"  saved="True" type="System.String" ver="3.16.0503">
-        <item name="_proto" value="S4SC11" saved="True" type="System.String" />
-        <item name="Digital Pull-Down Inputs">
-            <item name="Ip13" value="NzX13" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA10" saved="True" type="System.String" />
-            </item>
-            <item name="Ip14" value="OzX14" saved="True" type="System.String">
-                <item name="_description" value="Digital input, PA9" saved="True" type="System.String" />
-            </item>
-        </item>
-        <item name="Digital Pull-Up Inverted Inputs">
-            <item name="In13" value="NzX13" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA10" saved="True" type="System.String" />
-            </item>
-            <item name="In14" value="OzX14" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, PA9" saved="True" type="System.String" />
-            </item>
-        </item>
-        <item name="Digital Outputs">
-            <item name="Op13" value="NzX13" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA10" saved="True" type="System.String" />
-            </item>
-            <item name="Op14" value="OzX14" saved="True" type="System.String">
-                <item name="_description" value="Digital output, PA9" saved="True" type="System.String" />
-            </item>
-        </item>
-        <item name="Digital Inverted Outputs">
-            <item name="On13" value="NzX13" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA10" saved="True" type="System.String" />
-            </item>
-            <item name="On14" value="OzX14" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, PA9" saved="True" type="System.String" />
-            </item>
-        </item>
-    </item>
-    <item name="S4Sn10" value="pack://application:,,/CC;component/Images/ty_unode.png"  saved="True" type="System.String" ver="3.16.0601">
-        <item name="Add">
-            <item name="bool" value="yZ" saved="True" type="System.String" />
-            <item name="long" value="yI" saved="True" type="System.String" />
-            <item name="string" value="yS" saved="True" type="System.String" />
-        </item>
-        <item name="remove" value="zD" saved="True" type="System.String" />
-        <item name="Digital Pull-Down Inputs">
-            <item name="Ip0" value="AzX0" saved="True" type="System.String">
-                <item name="_description" value="Digital input, A0 - PA0" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA0 - P1.3" saved="True" type="System.String" />
             </item>
             <item name="Ip1" value="AzX1" saved="True" type="System.String">
-                <item name="_description" value="Digital input, A1 - PA1" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA1 - P1.4" saved="True" type="System.String" />
             </item>
             <item name="Ip2" value="AzX2" saved="True" type="System.String">
-                <item name="_description" value="Digital input, A2 - PA3" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA2 - P1.5" saved="True" type="System.String" />
             </item>
             <item name="Ip3" value="AzX3" saved="True" type="System.String">
-                <item name="_description" value="Digital input, A3 - PA4" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA3 - P1.6" saved="True" type="System.String" />
             </item>
             <item name="Ip4" value="AzX4" saved="True" type="System.String">
-                <item name="_description" value="Digital input, A4 - PA5" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA4 - P1.7" saved="True" type="System.String" />
             </item>
             <item name="Ip5" value="AzX5" saved="True" type="System.String">
-                <item name="_description" value="Digital input, A5 - PA6" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA5 - P1.8" saved="True" type="System.String" />
             </item>
             <item name="Ip6" value="AzX6" saved="True" type="System.String">
-                <item name="_description" value="Digital input, A6 - PA7" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA6 - P1.9" saved="True" type="System.String" />
             </item>
-            <!-- A7 - PA2 - USART2-TX -->
+            <item name="Ip7" value="AzX7" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PA7 - P1.10" saved="True" type="System.String" />
+            </item>
             <item name="Ip8" value="AzX8" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D0 - PA10" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PB6 - P2.3" saved="True" type="System.String" />
             </item>
             <item name="Ip9" value="AzX9" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D1 - PA9" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PB7 - P2.4" saved="True" type="System.String" />
             </item>
             <item name="Ip10" value="BzX10" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D2 - PA12" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA14 - P2.5" saved="True" type="System.String" />
             </item>
             <item name="Ip11" value="BzX11" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D3 - PB0" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA13 - P2.6" saved="True" type="System.String" />
             </item>
             <item name="Ip12" value="BzX12" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D4 - PB7 - SDA" saved="True" type="System.String" />
+                <item name="_description" value="Digital input, PA11 - P2.7" saved="True" type="System.String" />
             </item>
-            <item name="Ip13" value="BzX13" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D5 - PB6 - SCL" saved="True" type="System.String" />
-            </item>
-            <item name="Ip14" value="BzX14" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D6 - PB1" saved="True" type="System.String" />
-            </item>
-            <!-- D7/D8 - PF0/PF1 -->
-            <item name="Ip17" value="BzX17" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D9 - PA8" saved="True" type="System.String" />
-            </item>
-            <item name="Ip18" value="BzX18" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D10 - PA11" saved="True" type="System.String" />
-            </item>
-            <item name="Ip19" value="BzX19" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D11 - PB5" saved="True" type="System.String" />
-            </item>
-            <item name="Ip20" value="BzX20" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D12 - PB4" saved="True" type="System.String" />
-            </item>
-            <item name="Ip21" value="BzX21" saved="True" type="System.String">
-                <item name="_description" value="Digital input, D13 - PB3" saved="True" type="System.String" />
-            </item>
+            <!-- PA10, PA9 - RX1, TX1 -->
         </item>
         <item name="Digital Pull-Up Inverted Inputs">
-            <item name="In0" value="AzX0" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, A0 - PA0" saved="True" type="System.String" />
+            <item name="In0" value="CzX0" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA0 - P1.3" saved="True" type="System.String" />
             </item>
-            <item name="In1" value="AzX1" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, A1 - PA1" saved="True" type="System.String" />
+            <item name="In1" value="CzX1" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA1 - P1.4" saved="True" type="System.String" />
             </item>
-            <item name="In2" value="AzX2" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, A2 - PA3" saved="True" type="System.String" />
+            <item name="In2" value="CzX2" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="In3" value="AzX3" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, A3 - PA4" saved="True" type="System.String" />
+            <item name="In3" value="CzX3" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA3 - P1.6" saved="True" type="System.String" />
             </item>
-            <item name="In4" value="AzX4" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, A4 - PA5" saved="True" type="System.String" />
+            <item name="In4" value="CzX4" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA4 - P1.7" saved="True" type="System.String" />
             </item>
-            <item name="In5" value="AzX5" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, A5 - PA6" saved="True" type="System.String" />
+            <item name="In5" value="CzX5" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA5 - P1.8" saved="True" type="System.String" />
             </item>
-            <item name="In6" value="AzX6" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, A6 - PA7" saved="True" type="System.String" />
+            <item name="In6" value="CzX6" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA6 - P1.9" saved="True" type="System.String" />
             </item>
-            <!-- A7 - PA2 - USART2-TX -->
-            <item name="In8" value="AzX8" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D0 - PA10" saved="True" type="System.String" />
+            <item name="In7" value="CzX7" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA7 - P1.10" saved="True" type="System.String" />
             </item>
-            <item name="In9" value="AzX9" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D1 - PA9" saved="True" type="System.String" />
+            <item name="In8" value="CzX8" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PB6 - P2.3" saved="True" type="System.String" />
             </item>
-            <item name="In10" value="BzX10" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D2 - PA12" saved="True" type="System.String" />
+            <item name="In9" value="CzX9" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PB7 - P2.4" saved="True" type="System.String" />
             </item>
-            <item name="In11" value="BzX11" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D3 - PB0" saved="True" type="System.String" />
+            <item name="In10" value="DzX10" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA14 - P2.5" saved="True" type="System.String" />
             </item>
-            <item name="In12" value="BzX12" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D4 - PB7 - SDA" saved="True" type="System.String" />
+            <item name="In11" value="DzX11" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA13 - P2.6" saved="True" type="System.String" />
             </item>
-            <item name="In13" value="BzX13" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D5 - PB6 - SCL" saved="True" type="System.String" />
+            <item name="In12" value="DzX12" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA11 - P2.7" saved="True" type="System.String" />
             </item>
-            <item name="In14" value="BzX14" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D6 - PB1" saved="True" type="System.String" />
-            </item>
-            <!-- D7/D8 - PF0/PF1 -->
-            <item name="In17" value="BzX17" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D9 - PA8" saved="True" type="System.String" />
-            </item>
-            <item name="In18" value="BzX18" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D10 - PA11" saved="True" type="System.String" />
-            </item>
-            <item name="In19" value="BzX19" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D11 - PB5" saved="True" type="System.String" />
-            </item>
-            <item name="In20" value="BzX20" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D12 - PB4" saved="True" type="System.String" />
-            </item>
-            <item name="In21" value="BzX21" saved="True" type="System.String">
-                <item name="_description" value="Digital pull-up inverted input, D13 - PB3" saved="True" type="System.String" />
-            </item>
+            <!-- PA10, PA9 - RX1, TX1 -->
         </item>
         <item name="Digital Outputs">
-            <item name="Op0" value="AzX0" saved="True" type="System.String">
-                <item name="_description" value="Digital output, A0 - PA0" saved="True" type="System.String" />
+            <item name="Op0" value="EzX0" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA0 - P1.3" saved="True" type="System.String" />
             </item>
-            <item name="Op1" value="AzX1" saved="True" type="System.String">
-                <item name="_description" value="Digital output, A1 - PA1" saved="True" type="System.String" />
+            <item name="Op1" value="EzX1" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA1 - P1.4" saved="True" type="System.String" />
             </item>
-            <item name="Op2" value="AzX2" saved="True" type="System.String">
-                <item name="_description" value="Digital output, A2 - PA3" saved="True" type="System.String" />
+            <item name="Op2" value="EzX2" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="Op3" value="AzX3" saved="True" type="System.String">
-                <item name="_description" value="Digital output, A3 - PA4" saved="True" type="System.String" />
+            <item name="Op3" value="EzX3" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA3 - P1.6" saved="True" type="System.String" />
             </item>
-            <item name="Op4" value="AzX4" saved="True" type="System.String">
-                <item name="_description" value="Digital output, A4 - PA5" saved="True" type="System.String" />
+            <item name="Op4" value="EzX4" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA4 - P1.7" saved="True" type="System.String" />
             </item>
-            <item name="Op5" value="AzX5" saved="True" type="System.String">
-                <item name="_description" value="Digital output, A5 - PA6" saved="True" type="System.String" />
+            <item name="Op5" value="EzX5" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA5 - P1.8" saved="True" type="System.String" />
             </item>
-            <item name="Op6" value="AzX6" saved="True" type="System.String">
-                <item name="_description" value="Digital output, A6 - PA7" saved="True" type="System.String" />
+            <item name="Op6" value="EzX6" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA6 - P1.9" saved="True" type="System.String" />
             </item>
-            <!-- A7 - PA2 - USART2-TX -->
-            <item name="Op8" value="AzX8" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D0 - PA10" saved="True" type="System.String" />
+            <item name="Op7" value="EzX7" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA7 - P1.10" saved="True" type="System.String" />
             </item>
-            <item name="Op9" value="AzX9" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D1 - PA9" saved="True" type="System.String" />
+            <item name="Op8" value="EzX8" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PB6 - P2.3" saved="True" type="System.String" />
             </item>
-            <item name="Op10" value="BzX10" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D2 - PA12" saved="True" type="System.String" />
+            <item name="Op9" value="EzX9" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PB7 - P2.4" saved="True" type="System.String" />
             </item>
-            <item name="Op11" value="BzX11" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D3 - PB0" saved="True" type="System.String" />
+            <item name="Op10" value="FzX10" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA14 - P2.5" saved="True" type="System.String" />
             </item>
-            <item name="Op12" value="BzX12" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D4 - PB7 - SDA" saved="True" type="System.String" />
+            <item name="Op11" value="FzX11" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA13 - P2.6" saved="True" type="System.String" />
             </item>
-            <item name="Op13" value="BzX13" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D5 - PB6 - SCL" saved="True" type="System.String" />
+            <item name="Op12" value="FzX12" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA11 - P2.7" saved="True" type="System.String" />
             </item>
-            <item name="Op14" value="BzX14" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D6 - PB1" saved="True" type="System.String" />
-            </item>
-            <!-- D7/D8 - PF0/PF1 -->
-            <item name="Op17" value="BzX17" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D9 - PA8" saved="True" type="System.String" />
-            </item>
-            <item name="Op18" value="BzX18" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D10 - PA11" saved="True" type="System.String" />
-            </item>
-            <item name="Op19" value="BzX19" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D11 - PB5" saved="True" type="System.String" />
-            </item>
-            <item name="Op20" value="BzX20" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D12 - PB4" saved="True" type="System.String" />
-            </item>
-            <item name="Op21" value="BzX21" saved="True" type="System.String">
-                <item name="_description" value="Digital output, D13 - PB3 - LED" saved="True" type="System.String" />
-            </item>
+            <!-- PA10, PA9 - RX1, TX1 -->
         </item>
         <item name="Digital Inverted Outputs">
-            <item name="On0" value="AzX0" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, A0 - PA0" saved="True" type="System.String" />
+            <item name="On0" value="GzX0" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA0 - P1.3" saved="True" type="System.String" />
             </item>
-            <item name="On1" value="AzX1" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, A1 - PA1" saved="True" type="System.String" />
+            <item name="On1" value="GzX1" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA1 - P1.4" saved="True" type="System.String" />
             </item>
-            <item name="On2" value="AzX2" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, A2 - PA3" saved="True" type="System.String" />
+            <item name="On2" value="GzX2" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="On3" value="AzX3" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, A3 - PA4" saved="True" type="System.String" />
+            <item name="On3" value="GzX3" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA3 - P1.6" saved="True" type="System.String" />
             </item>
-            <item name="On4" value="AzX4" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, A4 - PA5" saved="True" type="System.String" />
+            <item name="On4" value="GzX4" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA4 - P1.7" saved="True" type="System.String" />
             </item>
-            <item name="On5" value="AzX5" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, A5 - PA6" saved="True" type="System.String" />
+            <item name="On5" value="GzX5" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA5 - P1.8" saved="True" type="System.String" />
             </item>
-            <item name="On6" value="AzX6" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, A6 - PA7" saved="True" type="System.String" />
+            <item name="On6" value="GzX6" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA6 - P1.9" saved="True" type="System.String" />
             </item>
-            <!-- A7 - PA2 - USART2-TX -->
-            <item name="On8" value="AzX8" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D0 - PA10" saved="True" type="System.String" />
+            <item name="On7" value="GzX7" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA7 - P1.10" saved="True" type="System.String" />
             </item>
-            <item name="On9" value="AzX9" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D1 - PA9" saved="True" type="System.String" />
+            <item name="On8" value="GzX8" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PB6 - P2.3" saved="True" type="System.String" />
             </item>
-            <item name="On10" value="BzX10" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D2 - PA12" saved="True" type="System.String" />
+            <item name="On9" value="GzX9" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PB7 - P2.4" saved="True" type="System.String" />
             </item>
-            <item name="On11" value="BzX11" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D3 - PB0" saved="True" type="System.String" />
+            <item name="On10" value="HzX10" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA14 - P2.5" saved="True" type="System.String" />
             </item>
-            <item name="On12" value="BzX12" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D4 - PB7 - SDA" saved="True" type="System.String" />
+            <item name="On11" value="HzX11" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA13 - P2.6" saved="True" type="System.String" />
             </item>
-            <item name="On13" value="BzX13" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D5 - PB6 - SCL" saved="True" type="System.String" />
+            <item name="On12" value="HzX12" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA11 - P2.7" saved="True" type="System.String" />
             </item>
-            <item name="On14" value="BzX14" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D6 - PB1" saved="True" type="System.String" />
-            </item>
-            <!-- D7/D8 - PF0/PF1 -->
-            <item name="On17" value="BzX17" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D9 - PA8" saved="True" type="System.String" />
-            </item>
-            <item name="On18" value="BzX18" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D10 - PA11" saved="True" type="System.String" />
-            </item>
-            <item name="On19" value="BzX19" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D11 - PB5" saved="True" type="System.String" />
-            </item>
-            <item name="On20" value="BzX20" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D12 - PB4" saved="True" type="System.String" />
-            </item>
-            <item name="On21" value="BzX21" saved="True" type="System.String">
-                <item name="_description" value="Digital inverted output, D13 - PB3" saved="True" type="System.String" />
-            </item>
+            <!-- PA10, PA9 - RX1, TX1 -->
         </item>
         <item name="PWM">
             <item name="Pp0" value="IiX0 ,X221" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, A0 - PA0" saved="True" type="System.String" />
+                <item name="_description" value="PWM Output, PA0 - P1.3" saved="True" type="System.String" />
             </item>
             <item name="Pp1" value="IiX1" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, A1 - PA1" saved="True" type="System.String" />
+                <item name="_description" value="PWM Output, PA1 - P1.4" saved="True" type="System.String" />
             </item>
             <item name="Pp2" value="IiX2" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, A2 - PA3" saved="True" type="System.String" />
+                <item name="_description" value="PWM Output, PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="Pp3" value="IiX3,X232" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, A3 - PA4" saved="True" type="System.String" />
+            <item name="Pp3" value="IiX3" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA3 - P1.6" saved="True" type="System.String" />
             </item>
-            <item name="Pp4" value="IiX4,X221" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, A4 - PA5" saved="True" type="System.String" />
+            <item name="Pp4" value="IiX4" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA4 - P1.7" saved="True" type="System.String" />
             </item>
-            <item name="Pp5" value="IiX5,X231" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, A5 - PA6" saved="True" type="System.String" />
+            <item name="Pp5" value="IiX5,X221" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA5 - P1.8" saved="True" type="System.String" />
             </item>
-            <item name="Pp6" value="IiX6,X271" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, A6 - PA7" saved="True" type="System.String" />
+            <item name="Pp6" value="IiX6" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA6 - P1.9" saved="True" type="System.String" />
             </item>
-            <!-- Pp7 - A7 - PA2 -->
-            <item name="Pp8" value="IiX8" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D0 - PA10" saved="True" type="System.String" />
+            <item name="Pp7" value="IiX7" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA7 - P1.10" saved="True" type="System.String" />
             </item>
-            <item name="Pp9" value="IiX9" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D1 - PA9" saved="True" type="System.String" />
+            <!-- Pp8 not exist -->
+            <item name="Pp9" value="IiX7" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PB7 - P2.4" saved="True" type="System.String" />
             </item>
-            <item name="Pp10" value="JiX10" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D2 - PA12" saved="True" type="System.String" />
-            </item>
-            <item name="Pp11" value="JiX11" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D3 - PB0" saved="True" type="System.String" />
-            </item>
-            <item name="Pp12" value="JiX12,X234" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D4 - PB7 - SDA" saved="True" type="System.String" />
-            </item>
-            <!-- Pp13 - D5 - PB6 -->
-            <item name="Pp14" value="JiX14,X234" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D6 - PB1" saved="True" type="System.String" />
-            </item>
-            <!-- Pp15/Pp16 - D7/D8 - PF0/PF1 -->
-            <item name="Pp17" value="JiX17" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D9 - PA8" saved="True" type="System.String" />
-            </item>
-            <item name="Pp18" value="JiX18" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D10 - PA11" saved="True" type="System.String" />
-            </item>
-            <item name="Pp19" value="JiX19,X271" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D11 - PB5" saved="True" type="System.String" />
-            </item>
-            <item name="Pp20" value="JiX20,X232" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D12 - PB4" saved="True" type="System.String" />
-            </item>
-            <item name="Pp21" value="JiX21,X231" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, D13 - PB3 - LED" saved="True" type="System.String" />
+            <!-- Pp10 - Pp11 not exist -->
+            <item name="Pp12" value="JiX12" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA11 - P2.7" saved="True" type="System.String" />
             </item>
         </item>
         <item name="PWM Inverted">
-            <item name="Pn0" value="KiX0 ,X221" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, A0 - PA0" saved="True" type="System.String" />
+            <item name="Pn0" value="IiX0 ,X221" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA0 - P1.3" saved="True" type="System.String" />
             </item>
-            <item name="Pn1" value="KiX1" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, A1 - PA1" saved="True" type="System.String" />
+            <item name="Pn1" value="IiX1" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA1 - P1.4" saved="True" type="System.String" />
             </item>
-            <item name="Pn2" value="KiX2" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, A2 - PA3" saved="True" type="System.String" />
+            <item name="Pn2" value="IiX2" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="Pn3" value="KiX3,X232" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, A3 - PA4" saved="True" type="System.String" />
+            <item name="Pn3" value="IiX3" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA3 - P1.6" saved="True" type="System.String" />
             </item>
-            <item name="Pn4" value="KiX4,X221" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, A4 - PA5" saved="True" type="System.String" />
+            <item name="Pn4" value="IiX4" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA4 - P1.7" saved="True" type="System.String" />
             </item>
-            <item name="Pn5" value="KiX5,X231" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, A5 - PA6" saved="True" type="System.String" />
+            <item name="Pn5" value="IiX5,X221" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA5 - P1.8" saved="True" type="System.String" />
             </item>
-            <item name="Pn6" value="KiX6,X271" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, A6 - PA7" saved="True" type="System.String" />
+            <item name="Pn6" value="IiX6" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA6 - P1.9" saved="True" type="System.String" />
             </item>
-            <!-- Pn7 - A7 - PA2 -->
-            <item name="Pn8" value="KiX8" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D0 - PA10" saved="True" type="System.String" />
+            <item name="Pn7" value="IiX7" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA7 - P1.10" saved="True" type="System.String" />
             </item>
-            <item name="Pn9" value="KiX9" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D1 - PA9" saved="True" type="System.String" />
+            <!-- Pn8 not exist -->
+            <item name="Pn9" value="IiX7" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PB7 - P2.4" saved="True" type="System.String" />
             </item>
-            <item name="Pn10" value="LiX10" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D2 - PA12" saved="True" type="System.String" />
-            </item>
-            <item name="Pn11" value="LiX11" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D3 - PB0" saved="True" type="System.String" />
-            </item>
-            <item name="Pn12" value="LiX12,X234" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D4 - PB7 - SDA" saved="True" type="System.String" />
-            </item>
-            <!-- Pn13 - D5 - PB6 -->
-            <item name="Pn14" value="LiX14,X234" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D6 - PB1" saved="True" type="System.String" />
-            </item>
-            <!-- Pn15/Pn16 - D7/D8 - PF0/PF1 -->
-            <item name="Pn17" value="LiX17" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D9 - PA8" saved="True" type="System.String" />
-            </item>
-            <item name="Pn18" value="LiX18" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D10 - PA11" saved="True" type="System.String" />
-            </item>
-            <item name="Pn19" value="LiX19,X271" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D11 - PB5" saved="True" type="System.String" />
-            </item>
-            <item name="Pn20" value="LiX20,X232" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D12 - PB4" saved="True" type="System.String" />
-            </item>
-            <item name="Pn21" value="LiX21,X231" saved="True" type="System.String">
-                <item name="_description" value="Inverted PWM Output, D13 - PB3" saved="True" type="System.String" />
+            <!-- Pn10 - Pn11 not exist -->
+            <item name="Pn12" value="JiX12" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA11 - P2.7" saved="True" type="System.String" />
             </item>
         </item>
         <item name="Analog Inputs">
-            <item name="Av0" value="MiX0" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, A0 - PA0" saved="True" type="System.String" />
+            <item name="Av0" value="KiX0" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA0 - P1.3" saved="True" type="System.String" />
             </item>
-            <item name="Av1" value="MiX1" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, A1 - PA1" saved="True" type="System.String" />
+            <item name="Av1" value="KiX1" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA1 - P1.4" saved="True" type="System.String" />
             </item>
-            <item name="Av2" value="MiX2" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, A2 - PA3" saved="True" type="System.String" />
+            <item name="Av2" value="KiX2" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="Av3" value="MiX3" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, A3 - PA4" saved="True" type="System.String" />
+            <item name="Av3" value="KiX3" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA3 - P1.6" saved="True" type="System.String" />
             </item>
-            <item name="Av4" value="MiX4" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, A4 - PA5" saved="True" type="System.String" />
+            <item name="Av4" value="KiX4" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA4 - P1.7" saved="True" type="System.String" />
             </item>
-            <item name="Av5" value="MiX5" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, A5 - PA7" saved="True" type="System.String" />
+            <item name="Av5" value="KiX5" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA5 - P1.8" saved="True" type="System.String" />
             </item>
-            <item name="Av6" value="MiX6" saved="True" type="System.String">
-                <item name="_description" value="Analog input AVcc reference, A6 - PA7" saved="True" type="System.String" />
+            <item name="Av6" value="KiX6" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA6 - P1.9" saved="True" type="System.String" />
+            </item>
+            <item name="Av7" value="KiX7" saved="True" type="System.String">
+                <item name="_description" value="Analog input AVcc reference, PA7 - P1.10" saved="True" type="System.String" />
             </item>
         </item>
         <item name="Serial1">
-            <item name="St0" value="ObX9,S60,B61,B62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 2400, TX1 - D1" saved="True" type="System.String" />
+            <item name="St0" value="ObX2,S110,B111,B112,B113,B114" saved="True" type="System.String">
+                <item name="_description" value="TxD 2400, TX1 - PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="Sr0" value="ObX8,S60,B61,B62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="RxD 2400, RX1 - D0" saved="True" type="System.String" />
+            <item name="St16" value="ObX2,B110,S111,B112,B113,B114" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX1 - PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="St16" value="ObX9,B60,S61,B62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 4800, TX1 - D1" saved="True" type="System.String" />
+            <item name="St32" value="ObX2,B110,B111,S112,B113,B114" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX1 - PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="Sr16" value="ObX8,B60,S61,B62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="RxD 4800, RX1 - D0" saved="True" type="System.String" />
+            <item name="St48" value="ObX2,B110,B111,B112,S113,B114" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX1 - PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="St32" value="ObX9,B60,B61,S62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 9600, TX1 - D1" saved="True" type="System.String" />
+            <item name="St64" value="ObX2,B110,B111,B112,B113,S114" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX1 - PA2 - P1.5" saved="True" type="System.String" />
             </item>
-            <item name="Sr32" value="ObX8,B60,B61,S62,B63,B64" saved="True" type="System.String">
-                <item name="_description" value="RxD 9600, RX1 - D0" saved="True" type="System.String" />
+            <item name="Sr0" value="ObX3,S110,B111,B112,B113,B114" saved="True" type="System.String">
+                <item name="_description" value="RxD 2400, RX1 - PA3 - P1.6" saved="True" type="System.String" />
             </item>
-            <item name="St48" value="ObX9,B60,B61,B62,S63,B64" saved="True" type="System.String">
-                <item name="_description" value="TxD 19200, TX1 - D1" saved="True" type="System.String" />
+            <item name="Sr16" value="ObX3,B110,S111,B112,B113,B114" saved="True" type="System.String">
+                <item name="_description" value="RxD 4800, RX1 - PA3 - P1.6" saved="True" type="System.String" />
             </item>
-            <item name="Sr48" value="ObX8,B60,B61,B62,S63,B64" saved="True" type="System.String">
-                <item name="_description" value="RxD 19200, RX1 - D0" saved="True" type="System.String" />
+            <item name="Sr32" value="ObX3,B110,B111,S112,B113,B114" saved="True" type="System.String">
+                <item name="_description" value="RxD 9600, RX1 - PA3 - P1.6" saved="True" type="System.String" />
+            </item>
+            <item name="Sr48" value="ObX3,B110,B111,B112,S113,B114" saved="True" type="System.String">
+                <item name="_description" value="RxD 19200, RX1 - PA3 - P1.6" saved="True" type="System.String" />
             </item>            
-            <item name="St64" value="ObX9,B60,B61,B62,B63,S64" saved="True" type="System.String">
-                <item name="_description" value="TxD 38400, TX1 - D1" saved="True" type="System.String" />
+            <item name="Sr64" value="ObX3,B110,B111,B112,B113,S114" saved="True" type="System.String">
+                <item name="_description" value="RxD 38400, RX1 - PA3 - P1.6" saved="True" type="System.String" />
             </item>
-            <item name="Sr64" value="ObX8,B60,B61,B62,B63,S64" saved="True" type="System.String">
-                <item name="_description" value="RxD 38400, RX1 - D0" saved="True" type="System.String" />
+        </item>
+    </item>
+    <item name="S4Cn11" value="pack://application:,,/CC;component/Images/ty_unode.png"  saved="True" type="System.String" ver="3.16.0609">
+        <item name="_proto" value="S4SC11" saved="True" type="System.String" />
+        <item name="Digital Pull-Down Inputs">
+            <item name="Ip13" value="BzX13" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PA10 - P2.8" saved="True" type="System.String" />
+            </item>
+            <item name="Ip14" value="BzX14" saved="True" type="System.String">
+                <item name="_description" value="Digital input, PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="Digital Pull-Up Inverted Inputs">
+            <item name="In13" value="DzX13" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA10 - P2.8" saved="True" type="System.String" />
+            </item>
+            <item name="In14" value="DzX14" saved="True" type="System.String">
+                <item name="_description" value="Digital pull-up inverted input, PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="Digital Outputs">
+            <item name="Op13" value="FzX13" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA10 - P2.8" saved="True" type="System.String" />
+            </item>
+            <item name="Op14" value="FzX14" saved="True" type="System.String">
+                <item name="_description" value="Digital output, PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="Digital Inverted Outputs">
+            <item name="On13" value="HzX13" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA10 - P2.8" saved="True" type="System.String" />
+            </item>
+            <item name="On14" value="HzX14" saved="True" type="System.String">
+                <item name="_description" value="Digital inverted output, PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PWM">
+            <item name="Pp13" value="JiX13" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA10 - P2.8" saved="True" type="System.String" />
+            </item>
+            <item name="Pp14" value="JiX14" saved="True" type="System.String">
+                <item name="_description" value="PWM Output, PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="PWM Inverted">
+            <item name="Pn13" value="JiX13" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA10 - P2.8" saved="True" type="System.String" />
+            </item>
+            <item name="Pn14" value="JiX14" saved="True" type="System.String">
+                <item name="_description" value="Inverted PWM Output, PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+        </item>
+        <item name="Serial2">
+            <item name="St1" value="PbX2,S120,B121,B122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="TxD 2400, TX2 - PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+            <item name="St17" value="PbX2,B120,S121,B122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="TxD 4800, TX2 - PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+            <item name="St33" value="PbX2,B120,B121,S122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="TxD 9600, TX2 - PA2 - P2.9" saved="True" type="System.String" />
+            </item>
+            <item name="St49" value="PbX2,B120,B121,B122,S123,B124" saved="True" type="System.String">
+                <item name="_description" value="TxD 19200, TX2 - PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+            <item name="St65" value="PbX2,B120,B121,B122,B123,S124" saved="True" type="System.String">
+                <item name="_description" value="TxD 38400, TX2 - PA9 - P2.9" saved="True" type="System.String" />
+            </item>
+            <item name="Sr1" value="PbX3,S120,B121,B122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="RxD 2400, RX2 - PA10 - P2.8" saved="True" type="System.String" />
+            </item>
+            <item name="Sr17" value="PbX3,B120,S121,B122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="RxD 4800, RX2 - PA10 - P2.8" saved="True" type="System.String" />
+            </item>
+            <item name="Sr33" value="PbX3,B120,B121,S122,B123,B124" saved="True" type="System.String">
+                <item name="_description" value="RxD 9600, RX2 - PA10 - P2.8" saved="True" type="System.String" />
+            </item>
+            <item name="Sr49" value="PbX3,B120,B121,B122,S123,B124" saved="True" type="System.String">
+                <item name="_description" value="RxD 19200, RX2 - PA10 - P2.8" saved="True" type="System.String" />
+            </item>            
+            <item name="Sr65" value="PbX3,B120,B121,B122,B123,S124" saved="True" type="System.String">
+                <item name="_description" value="RxD 38400, RX2 - PA10 - P2.8" saved="True" type="System.String" />
             </item>
         </item>
     </item>

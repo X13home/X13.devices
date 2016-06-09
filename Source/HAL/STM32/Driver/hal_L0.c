@@ -26,7 +26,7 @@ void hal_SetSysClock(void)
 
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
 
-    // Set Voltage Range 1
+    // Set Voltage Range 1, Vcore - 1.8V, Fcore - 32(1WS)/16(0WS)MHz
     while(PWR->CSR & PWR_CSR_VOSF);
     tmp = PWR->CR;
     tmp &= ~PWR_CR_VOS_1;
@@ -71,6 +71,9 @@ void hal_SetSysClock(void)
     RCC->CFGR = (RCC->CFGR & ~RCC_CFGR_SW) | RCC_CFGR_SW_PLL;
 
     while((RCC->CFGR & RCC_CFGR_SWS) != RCC_CFGR_SWS_PLL);
+
+    // Disable MSI
+    RCC->CR &= ~RCC_CR_MSION;
 
     hal_hclk  = 32000000UL;
     hal_pclk1 = 32000000UL;

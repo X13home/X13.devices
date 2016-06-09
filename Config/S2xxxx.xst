@@ -258,50 +258,50 @@
         </item>
         <item name="PWM Inverted">
             <item name="Pn0" value="KiX0" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PB1" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PB1" saved="True" type="System.String" />
             </item>
             <item name="Pn1" value="KiX1" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PB0" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PB0" saved="True" type="System.String" />
             </item>
             <item name="Pn2" value="KiX2" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA7" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA7" saved="True" type="System.String" />
             </item>
             <item name="Pn3" value="KiX3" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA6" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA6" saved="True" type="System.String" />
             </item>
             <item name="Pn4" value="KiX4,X221" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA5" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA5" saved="True" type="System.String" />
             </item>
             <item name="Pn5" value="KiX5" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA4" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA4" saved="True" type="System.String" />
             </item>
             <item name="Pn6" value="KiX6" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PB11" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PB11" saved="True" type="System.String" />
             </item>
             <item name="Pn7" value="KiX7" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PB10" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PB10" saved="True" type="System.String" />
             </item>
             <item name="Pn8" value="KiX8" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA10" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA10" saved="True" type="System.String" />
             </item>
             <item name="Pn9" value="KiX9" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA9" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA9" saved="True" type="System.String" />
             </item>
             <!-- PA12 - No Config -->
             <item name="Pn11" value="LiX11" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA11" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA11" saved="True" type="System.String" />
             </item>
             <item name="Pn12" value="LiX12" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA3" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA3" saved="True" type="System.String" />
             </item>
             <item name="Pn13" value="LiX13" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA2" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA2" saved="True" type="System.String" />
             </item>
             <item name="Pn14" value="LiX14" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA1" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA1" saved="True" type="System.String" />
             </item>
             <item name="Pn15" value="LiX15,X221" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, PA0" saved="True" type="System.String" />
+                <item name="_description" value="PWM Inverted Output, PA0" saved="True" type="System.String" />
             </item>
         </item>
         <item name="Analog Inputs">

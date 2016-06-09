@@ -67,6 +67,7 @@ extern "C" {
 
 // System Settings
 #define HAL_USE_RTC                 1
+#define HAL_RTC_USE_HSE             1
 
 // DIO Section
 #define EXTDIO_USED                 1

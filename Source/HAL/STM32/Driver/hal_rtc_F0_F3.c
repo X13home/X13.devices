@@ -13,22 +13,27 @@ See LICENSE file for license details.
 #include "config.h"
 
 // RTC Section
-#if (defined HAL_USE_RTC) && (defined STM32F0)
+#if (defined HAL_USE_RTC) && ((defined STM32F0) | (defined STM32F3))
 
 void hal_rtc_init(void)
 {
     RCC->APB1ENR |= RCC_APB1ENR_PWREN;
-
-    RCC->CSR |= RCC_CSR_RMVF;                       // Remove reset flag
-
     PWR->CR |= PWR_CR_DBP;                          // Disable Backup Domain write protection
-    RTC->WPR = 0xCA;                                // Disable RTC write protection
-    RTC->WPR = 0x53;
 
     // Select RTC Clock
     uint32_t rtc_presc;
+#if (defined HAL_RTC_USE_HSE)
+    if((RCC->BDCR & (RCC_BDCR_RTCSEL | RCC_BDCR_RTCEN)) != (RCC_BDCR_RTCSEL_HSE | RCC_BDCR_RTCEN))
+    {
+        // Reset BackUp Domain
+        RCC->BDCR |= RCC_BDCR_BDRST;
+        RCC->BDCR &= ~RCC_BDCR_BDRST;
+        RCC->BDCR |= RCC_BDCR_RTCSEL_HSE;           // HSE/32 clock used as RTC clock
+        RCC->BDCR |= RCC_BDCR_RTCEN;                // RTC clock enable
+    }
+    rtc_presc = 0x007C07CF;                         // 8000000/32 = 250000/125 = 2000
+#else   // use LSI or LSE
 #if (defined HAL_RTC_CHECK_LSE)
-    // Check LSE
     RCC->BDCR |= RCC_BDCR_LSEON;                    // External Low Speed oscillator enable
     uint16_t tmp = 0;
     while(tmp < 0xFFFF)                             // Wait till LSE is ready
@@ -42,22 +47,36 @@ void hal_rtc_init(void)
 
     if((RCC->BDCR & (RCC_BDCR_LSERDY | RCC_BDCR_LSEON)) == (RCC_BDCR_LSERDY | RCC_BDCR_LSEON))
     {
-        RCC->BDCR &= ~RCC_BDCR_RTCSEL;
-        RCC->BDCR |= RCC_BDCR_RTCSEL_LSE;           // LSE oscillator clock used as RTC clock
+        if((RCC->BDCR & RCC_BDCR_RTCSEL) != RCC_BDCR_RTCSEL_LSE)
+        {
+            // Reset BackUp Domain
+            RCC->BDCR |= RCC_BDCR_BDRST;
+            RCC->BDCR &= ~RCC_BDCR_BDRST;
+            RCC->BDCR |= RCC_BDCR_RTCSEL_LSE;       // LSI oscillator clock used as RTC clock
+            RCC->BDCR |= RCC_BDCR_RTCEN;            // RTC clock enable
+        }
         rtc_presc = 0x007F00FF;                     // 32768/128 = 256
     }
     else                                            // LSE Not Connected, use LSI
 #endif  //  HAL_RTC_CHECK_LSE
     {
-        RCC->BDCR &= ~RCC_BDCR_LSEON;               // Disable LSE
         RCC->CSR |= RCC_CSR_LSION;                  // Enable LSI
         while((RCC->CSR & RCC_CSR_LSIRDY) == 0);    // Wait till LSI is ready
 
-        RCC->BDCR &= ~RCC_BDCR_RTCSEL;
-        RCC->BDCR |= RCC_BDCR_RTCSEL_LSI;           // LSI oscillator clock used as RTC clock
+        if((RCC->BDCR & (RCC_BDCR_RTCSEL | RCC_BDCR_RTCEN)) != 
+                        (RCC_BDCR_RTCSEL_LSI | RCC_BDCR_RTCEN))
+        {
+            RCC->BDCR |= RCC_BDCR_BDRST;
+            RCC->BDCR &= ~RCC_BDCR_BDRST;
+            RCC->BDCR |= RCC_BDCR_RTCSEL_LSI;       // LSI oscillator clock used as RTC clock
+            RCC->BDCR |= RCC_BDCR_RTCEN;            // RTC clock enable
+        }
         rtc_presc = 0x007C013F;                     // 40000/125 = 320/320
     }
-    RCC->BDCR |= RCC_BDCR_RTCEN;                    // RTC clock enable
+#endif  //  HAL_RTC_USE_HSE
+
+    RTC->WPR = 0xCA;                                // Disable RTC write protection
+    RTC->WPR = 0x53;
 
     if((RTC->ISR & RTC_ISR_INITS) == 0)             // RTC not Initialised
     {
@@ -87,7 +106,7 @@ void HAL_RTC_Set(uint8_t *pBuf)
     RTC->ISR |= RTC_ISR_INIT;
     while((RTC->ISR & RTC_ISR_INITF) != RTC_ISR_INITF);
 
-    if(oldDR == newDR)
+    if(((RCC->BDCR & RCC_BDCR_RTCSEL) == RCC_BDCR_RTCSEL_LSI) && (oldDR == newDR))
     {
         uint32_t tmp = RTC->PRER;
         tmp &= 0x7FFF;

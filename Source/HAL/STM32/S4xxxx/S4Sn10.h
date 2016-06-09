@@ -58,7 +58,7 @@ extern "C" {
 
 // Sytem settings
 #define HAL_USE_RTC                 1   // Enable Hardware RTC
-
+#define HAL_RTC_USE_HSE             1   // As RTC clock source used HSE
 #define HSE_CRYSTAL_BYPASS          1   // HSE crystal oscillator bypassed with external clock
 // End System Settings
 

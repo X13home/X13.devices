@@ -13,7 +13,7 @@ See LICENSE file for license details.
 #ifndef _A1SR11_H
 #define _A1SR11_H
 
-// uNode Version 2.0
+// uNode Version 1.1
 // uc ATMega328p
 // Phy1: RFM12, IRQ at PB0
 

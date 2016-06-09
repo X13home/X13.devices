@@ -79,16 +79,16 @@ extern "C" {
 #define HAL_AIN_BASE2APIN           {6, 7, 0, 1, 2, 3, 4, 5, 14}
 // End Analogue Inputs
 
-// TWI Section
-#define EXTTWI_USED                 1
-// End TWI Section
-
 // UART Section
 #define HAL_USE_USART0              0
 #define HAL_UART_NUM_PORTS          1
 
 #define EXTSER_USED                 1
 // End UART Section
+
+// TWI Section
+#define EXTTWI_USED                 1
+// End TWI Section
 
 // LED
 #define LED_On()                    PORTB &= ~(1<<PB0)

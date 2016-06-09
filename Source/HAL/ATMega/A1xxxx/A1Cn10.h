@@ -56,9 +56,6 @@ extern "C" {
 
 #include <util/delay.h>
 
-//#define ASLEEP                      1       // Enable ASleep mode
-//#define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
-
 // PC0-PC5, Gap:Ain6-7, Gap:PD0-PD1, PD2-PD7, PB0-PB1
 // DIO Section
 #define EXTDIO_USED                 1
@@ -81,16 +78,16 @@ extern "C" {
 #define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}
 // End Analogue Inputs
 
-// TWI Section
-#define EXTTWI_USED                 1
-// End TWI Section
-
 // UART Section
 #define HAL_UART_NUM_PORTS          1
 #define HAL_USE_USART0              0
 
 #define EXTSER_USED                 1
 // End UART Section
+
+// TWI Section
+#define EXTTWI_USED                 1
+// End TWI Section
 
 // CC11 Section
 #define HAL_USE_SPI                 1

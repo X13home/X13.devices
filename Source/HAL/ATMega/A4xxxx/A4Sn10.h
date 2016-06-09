@@ -132,10 +132,6 @@ extern "C" {
                                      0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x1E}
 // End Analogue Inputs
 
-// TWI Section
-#define EXTTWI_USED                 1
-// End TWI Section
-
 // UART Section
 #define HAL_UART_NUM_PORTS          4
 #define HAL_USE_USART0              3
@@ -144,6 +140,10 @@ extern "C" {
 #define HAL_USE_USART3              2
 #define EXTSER_USED                 3
 // End UART Section
+
+// TWI Section
+#define EXTTWI_USED                 1
+// End TWI Section
 
 // PLC Section
 #define EXTPLC_USED                     1

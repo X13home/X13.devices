@@ -42,8 +42,8 @@ See LICENSE file for license details.
 //  19  PB3     --      CC11_SCK
 //  20  PB4     --      CC11_MISO
 //  21  PB5     --      CC11_MOSI
-//  22  PB6     P2.3  * SCL1
-//  23  PB7     P2.4  * SDA1
+//  22  PB6     P2.3    SCL1
+//  23  PB7     P2.4    SDA1
 // System
 //      3.3V    P1.1
 //      3.3V    P2.1
@@ -55,15 +55,36 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+// Sytem settings
+#define HAL_USE_RTC                 1
+#define HAL_RTC_USE_HSE             1
+
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           1
 #define HAL_DIO_MAPPING         { /* PA0 - PA7 */                               \
                                        0,  1,     2,    3,    4,    5,   6, 7,  \
                                   /* PB7, PB6, PA14, PA13, PA11, PA10, PA9 */   \
-                                      255,  255, 14,   13,   11                 \
+                                      23,  22, 14,   13,   11                 \
                                 }
 // End DIO Section
+
+// PWM Section
+#define EXTPWM_USED                 1
+#define HAL_PWM_PORT2CFG            {((1<<8)  |  (2<<3) | 0),   /* PA0:  AF1, TIM2_CH1  */ \
+                                     ((1<<8)  |  (2<<3) | 1),   /* PA1:  AF1, TIM2_CH2  */ \
+                                     ((1<<8)  |  (2<<3) | 2),   /* PA2:  AF1, TIM2_CH3  */ \
+                                     ((1<<8)  |  (2<<3) | 3),   /* PA3:  AF1, TIM2_CH4  */ \
+                                     ((2<<8)  |  (3<<3) | 1),   /* PA4:  AF2, TIM3_CH2  */ \
+                                     ((1<<8)  |  (2<<3) | 0),   /* PA5:  AF1, TIM2_CH1  */ \
+                                     ((2<<8)  |  (3<<3) | 0),   /* PA6:  AF2, TIM3_CH1  */ \
+                                     ((1<<8)  | (17<<3) | 0),   /* PA7:  AF1, TIM17_CH1 */ \
+                                     255,                       /* PB6                  */ \
+                                     ((10<<8) |  (3<<3) | 3),   /* PB7:  AF10, TIM3_CH4 */ \
+                                     255, 255,                  /* PA14, PA13,          */ \
+                                     ((11<<8) |  (1<<3) | 3)    /* PA11: AF11, TIM1_CH4 */ \
+                                    }
+// End PWM Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1

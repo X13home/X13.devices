@@ -86,6 +86,8 @@ extern "C" {
 
 // Sytem settings
 #define HSE_CRYSTAL_BYPASS          1   //  HSE crystal oscillator bypassed with external clock
+#define HAL_USE_RTC                 1
+#define HAL_RTC_USE_HSE             1
 // End System Settings
 
 // DIO Section
