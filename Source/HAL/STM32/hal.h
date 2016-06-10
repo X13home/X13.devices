@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #ifndef __HAL_H
 #define __HAL_H
 
@@ -8,14 +20,23 @@ extern "C" {
 #include <stdbool.h>
 
 #if (defined STM32F0)
-#include "stm32f0xx.h"
+#include "HW_STM32F0.h"
 #elif (defined STM32F1)
-#include "stm32f1xx.h"
+#include "HW_STM32F1.h"
 #elif (defined STM32F3)
-#include "stm32f3xx.h"
+#include "HW_STM32F3.h"
+#elif (defined STM32L0)
+#include "HW_STM32L0.h"
 #else
-#error hal.h Unknown uC Family
+#error Unknown Family
 #endif  // uC Family
+
+//////////////////////////////////////////////////////////////
+// HAL System Section
+void hal_SetSysClock(void);
+void hal_prepare_gpio(void);
+
+void hal_rtc_init(void);
 
 void halEnterCritical(void);
 void halLeaveCritical(void);
@@ -26,6 +47,9 @@ void halLeaveCritical(void);
 #define portBYTE_ALIGNMENT          8
 #define portPOINTER_SIZE_TYPE       uint32_t
 #define configTOTAL_HEAP_SIZE       2048
+
+// End HAL System Section
+//////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
 // DIO/GPIO Section
@@ -116,6 +140,9 @@ uint8_t     hal_ain_apin2dio(uint8_t apin);
 void        hal_ain_configure(uint8_t apin, uint8_t aref);
 void        hal_ain_select(uint8_t apin, uint8_t aref);
 int16_t     hal_ain_get(void);
+
+#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+
 // AIN Section
 //////////////////////////////////////////////////////////////
 
@@ -145,16 +172,6 @@ uint8_t     hal_uart_get(uint8_t port);
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
-// PLC Section
-#define EXTPLC_USED                     1
-#define EXTPLC_SIZEOF_PRG               4096
-#define EXTPLC_SIZEOF_PRG_CACHE         32      // Must be 2^n, bytes
-#define EXTPLC_SIZEOF_RAM               256     // size in uint32_t
-#define EXTPLC_SIZEOF_RW                16      // size in uint32_t
-// PLC Section
-//////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////
 // SysTick IRQ subroutine
 void        SysTick_Handler(void);
 
@@ -166,17 +183,18 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 
 void _delay_us(uint16_t us);
 
-#define  HAL_Reboot     NVIC_SystemReset
+extern uint32_t hal_hclk, hal_pclk1, hal_pclk2;
 
-#if (defined STM32F0)
-#include "HW_STM32F0.h"
-#elif (defined STM32F1)
-#include "HW_STM32F1.h"
-#elif (defined STM32F3)
-#include "HW_STM32F3.h"
-#else
-#error Unknown Family
-#endif  // uC Family
+//////////////////////////////////////////////////////////////
+// RTC Section
+void HAL_RTC_Set(uint8_t *pBuf);
+uint8_t HAL_RTC_Get(uint8_t *pBuf);
+uint32_t HAL_RTC_SecNow(void);
+uint32_t HAL_RTC_DateNow(void);
+// RTC Section
+//////////////////////////////////////////////////////////////
+
+#define  HAL_Reboot     NVIC_SystemReset
 
 #ifdef __cplusplus
 }

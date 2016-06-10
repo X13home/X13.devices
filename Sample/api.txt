@@ -10,23 +10,25 @@ TwiStatus()         UInt8 Readed bytes, UInt8 Writed bytes, UInt8 Status, UInt8 
                      Status:
 
                       Internal Flags
-                       TWI_WD_ARMED    0x04    // Watchdog started
                        TWI_BUSY        0x08    // Bus busy
 
-                      TWI_RDY         0x10    // Access complete
+                       TWI_RDY         0x10    // Access complete
 
                       Errors:
                        TWI_WD          0x20    // Timeout
                        TWI_SLANACK     0x40    // Slave Addr NACK received - Device not present
-                       TWI_ERROR       0x80    // Unknown error
-                    
+                       TWI_ERROR       0x80    // Unknown error, or BUS Problem
+
                      0x08010376  - Access compete on Address 0x76, 1 byte writed, 8 bytes ready to read
 
 TwiPutByte(u1)      Data exchange started only when writing all data bytes
 TwiGetByte()        User Must read all data, only then bus is free, execute TwiStatus - reset read pointer
 
-NodeStatus()        // 0 - Disconnected, 1 - Connected
+NodeStatus()        0 - Disconnected, 1 - Connected
 
-getMilliseconds()
-getSeconds()
+getMilliseconds()   From Cold Start
+getSeconds()        From Cold Start(Uptime)
 Random()
+
+NowSeconds()        total seconds since 0:00:00
+Today()             (year[0..99]<<24) | (month[1..12]<<16) | (day[1..31]<<8) | (dayOfWeek[1-Monday..7-Sunday])

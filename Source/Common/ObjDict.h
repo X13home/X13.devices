@@ -25,6 +25,7 @@ typedef enum
     // Global Settings
     objNodeName         = (uint16_t)0xFF00, // _sName<String>
     objTASleep          = (uint16_t)0xFF01, // cfg/XD_SleepTime<UIint16>
+    objRTC              = (uint16_t)0xFF07, // internal - Array - Len 6
     objADCaverage       = (uint16_t)0xFF08, // cfg/XD_ADCintegrate<UIint16>
     // RF Node
     objRFNodeId         = (uint16_t)0xFF10, // cfg/XD_DeviceAddr<UInt8>
@@ -109,9 +110,12 @@ typedef struct
   uint16_t    Base;
 }subidx_t;
 
-typedef e_MQTTSN_RETURNS_t (*cbRead_t)(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);   // Callback Read
-typedef e_MQTTSN_RETURNS_t (*cbWrite_t)(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);    // Callback Write
-typedef uint8_t (*cbPoll_t)(subidx_t * pSubidx);                                            // Callback Poll
+// Callback Read
+typedef e_MQTTSN_RETURNS_t (*cbRead_t)(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);
+// Callback Write
+typedef e_MQTTSN_RETURNS_t (*cbWrite_t)(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+// Callback Poll
+typedef uint8_t (*cbPoll_t)(subidx_t * pSubidx);
 
 // Structure for creating entries
 typedef struct
@@ -127,7 +131,9 @@ typedef struct
 enum
 {
 // Global
-    eeNodeName = 2,
+    eeFlag = 0,
+    eeFlagbody,
+    eeNodeName,
     eeNodeNamebody = eeNodeName + MQTTSN_SIZEOF_CLIENTID - 2,
 // ASLEEP
     eeTASleep,

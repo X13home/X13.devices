@@ -30,6 +30,11 @@ static uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 #endif  //  LAN_NODE
 
+#ifdef HAL_USE_RTC
+static uint8_t cbWriteRTC(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+static uint8_t cbReadRTC(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
+#endif
+
 #ifdef ASLEEP
 static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 #endif  //  ASLEEP
@@ -47,6 +52,10 @@ static const indextable_t listPredefOD[] =
     {{objEEMEM, objUInt16, eeADCaverage},
         objADCaverage, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteADCaverage, NULL},
 #endif  //  EXTAIN_USED
+#ifdef HAL_USE_RTC
+    {{objEEMEM, objArray, 0},
+        objRTC, (cbRead_t)&cbReadRTC, (cbWrite_t)&cbWriteRTC, NULL},
+#endif  //  HAL_USE_RTC
 #ifdef RF_ADDR_t
     {{objEEMEM, RF_ADDR_TYPE, eeNodeID},
         objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
@@ -114,10 +123,14 @@ static uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     if(Base == eeMACAddr)
     {
         if(Len != 6)
+        {
             return MQTTSN_RET_REJ_CONG;
+        }
     }
     else if(Len != 4)
+    {
         return MQTTSN_RET_REJ_CONG;
+    }
 
     eeprom_write(pBuf, Base, Len);
     return MQTTSN_RET_ACCEPTED;
@@ -128,14 +141,39 @@ static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
     uint16_t Base = pSubidx->Base;
 
     if(Base == eeMACAddr)
+    {
         *pLen = 6;
+    }
     else
+    {
         *pLen = 4;
+    }
 
     eeprom_read(pBuf, Base, *pLen);
     return MQTTSN_RET_ACCEPTED;
 }
 #endif  //  LAN_NODE
+
+#ifdef HAL_USE_RTC
+static uint8_t cbWriteRTC(__attribute__ ((unused)) subidx_t * pSubidx,
+                                            uint8_t Len, uint8_t *pBuf)
+{
+    if(Len != 6)
+    {
+        return MQTTSN_RET_REJ_CONG;
+    }
+
+    HAL_RTC_Set(pBuf);
+    return MQTTSN_RET_ACCEPTED;
+}
+
+static uint8_t cbReadRTC(__attribute__ ((unused)) subidx_t *pSubidx,
+                                            uint8_t *pLen, uint8_t *pBuf)
+{
+    *pLen = HAL_RTC_Get(pBuf);
+    return MQTTSN_RET_ACCEPTED;
+}
+#endif  //  HAL_USE_RTC
 
 #ifdef ASLEEP
 static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
@@ -165,14 +203,22 @@ static indextable_t * scanIndexOD(uint16_t index, uint8_t flags)
     if(flags == MQTTSN_FL_TOPICID_NORM)
     {
         for(i = 0; i < OD_MAX_INDEX_LIST; i++)
+        {
             if(ListOD[i].Index == index)
-                return &ListOD[i]; 
+            {
+                return &ListOD[i];
+            }
+        }
     }
     else if(flags == MQTTSN_FL_TOPICID_PREDEF)
     {
         for(i = 0; i < sizeof(listPredefOD)/sizeof(indextable_t); i++)
+        {
             if(listPredefOD[i].Index == index)
+            {
                 return (indextable_t *)&listPredefOD[i];
+            }
+        }
     }
 
     return NULL;
@@ -310,7 +356,9 @@ static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
     {
         uint8_t Len = sizeof(psDeviceTyp);
         if(Len > *pLen)
+        {
             Len = *pLen;
+        }
 
         memcpy((void *)pBuf, (const void *)psDeviceTyp, Len);
         *pLen = Len;
@@ -355,7 +403,9 @@ static void SaveSubindex(uint16_t sidxn, subidx_t *pSubidx)
 static void deleteIndexOD(uint8_t id)
 {
     if(id >= OD_MAX_INDEX_LIST)
+    {
         return;
+    }
     
     ListOD[id].Index = 0xFFFF;
 
@@ -385,12 +435,18 @@ void InitOD(void)
     eeprom_init_hw();
 
     // Check Settings
-    uint8_t     Len = 1;
     uint8_t     ucTmp = 0;
     uint16_t    uiTmp;
+    
+    eeprom_read((uint8_t *)&uiTmp, 0, 2);      // read Flag;
+    
+    uint16_t Flag = 0;
+    for(ucTmp = 0; ucTmp < sizeof(psDeviceTyp); ucTmp++)
+    {
+        Flag += psDeviceTyp[ucTmp];
+    }
 
-    ReadOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, &Len, &ucTmp);
-    if(ucTmp == 0xFF)                                                                       // Not Configured
+    if(uiTmp != Flag)                                                              // Not Configured
     {
         // Load Default Settings
 #ifdef RF_ADDR_t
@@ -398,16 +454,16 @@ void InitOD(void)
 #define ADDR_DEFAULT_RF ADDR_UNDEF_RF    // DHCP
 #endif  //  ADDR_DEFAULT_RF
         RF_ADDR_t rfAddr = ADDR_DEFAULT_RF;
-        WriteOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfAddr);         // Node address
+        WriteOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfAddr);  // Node address
         RF_ADDR_t rfGw = ADDR_UNDEF_RF;
-        WriteOD(objRFGateId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfGw);             // Gateway address
+        WriteOD(objRFGateId, MQTTSN_FL_TOPICID_PREDEF, sizeof(RF_ADDR_t), &rfGw); // Gateway address
 #ifdef OD_DEFAULT_GROUP
         uiTmp = OD_DEFAULT_GROUP;
-        WriteOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Group Id
+        WriteOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); // Group Id
 #endif  //  OD_DEFAULT_GROUP
 #ifdef OD_DEFAULT_CHANNEL
         ucTmp = OD_DEFAULT_CHANNEL;
-        WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);             // Channel
+        WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);           // Channel
 #endif  //  OD_DEFAULT_CHANNEL
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
@@ -436,19 +492,30 @@ void InitOD(void)
 #endif  //  LAN_NODE
 #ifdef EXTAIN_USED
         uiTmp = OD_DEF_ADC_AVERAGE;
-        WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);   // ADC conversion delay
+        // ADC conversion delay
+        WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); 
 #endif  //  EXTAIN_USED
 #ifdef ASLEEP
         uiTmp = OD_DEFAULT_TASLEEP;
-        WriteOD(objTASleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    // Sleep Time
+        // Sleep Time
+        WriteOD(objTASleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    
 #endif  //  ASLEEP
+#ifdef EXTPLC_USED
+        ucTmp = 0xFF;
+        eeprom_write(&ucTmp, eePLCprogram, 1);
+        eeprom_write(&ucTmp, eePLCprogram + 4, 1);
+#endif  //  EXTPLC_USED
         ucTmp = 0;
-        WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);                          // Device Name
+        WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);      // Device Name
+        
+        eeprom_write((uint8_t *)&Flag, 0, 2);                     // Write Device Flag
     }
 
     // Clear listOD
     for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
+    {
         ListOD[uiTmp].Index = 0xFFFF;
+    }
 
     // Clear Poll Variables
     idxUpdate = 0x0000;
@@ -464,14 +531,18 @@ void InitOD(void)
         {
             pos++;
             if(pos == OD_MAX_INDEX_LIST)
+            {
                 return;
+            }
         }
 
         RestoreSubindex(uiTmp, &ListOD[pos].sidx);
 
         if((ListOD[pos].sidx.Place == 0xFF) || (ListOD[pos].sidx.Place == 0x00) ||
            (extRegisterOD(&ListOD[pos]) != MQTTSN_RET_ACCEPTED))
+        {
             continue;
+        }
 
         ListOD[pos++].Index = 0x0000;
     }
@@ -512,7 +583,9 @@ e_MQTTSN_RETURNS_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pB
     e_MQTTSN_RETURNS_t retval;
     retval = (pIndex->cbRead)(&pIndex->sidx, pLen, pBuf);
     if(retval != MQTTSN_RET_ACCEPTED)
+    {
         *pLen = 0;
+    }
 
     return retval;
 }
@@ -521,9 +594,14 @@ e_MQTTSN_RETURNS_t WriteOD(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t *pBu
 {
     indextable_t * pIndex = scanIndexOD(Id, Flags);
     if(pIndex == NULL)
+    {
         return MQTTSN_RET_REJ_INV_ID;
+    }
+    
     if(pIndex->cbWrite == NULL)
+    {
         return MQTTSN_RET_REJ_NOT_SUPP;
+    }
 
     return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
@@ -547,7 +625,9 @@ uint8_t MakeTopicName(uint8_t RecNR, uint8_t *pBuf)
             addr = addr % div;
         }
         else
+        {
             ch = 0;
+        }
 
         div = div/10;
 
@@ -565,9 +645,13 @@ uint8_t MakeTopicName(uint8_t RecNR, uint8_t *pBuf)
 void RegAckOD(uint16_t index)
 {
     if(index != 0xFFFF)
+    {
         ListOD[idxUpdate].Index = index;
+    }
     else    // Delete Message
+    {
         deleteIndexOD(idxUpdate);
+    }
     idxUpdate++;
 }
 
@@ -587,7 +671,10 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
     uint8_t Len = pMsg->Length;
     Len -= (MQTTSN_SIZEOF_MSG_REGISTER + 2);
     if((Len < 1) || (Len > 5))
+    {
         return MQTTSN_RET_REJ_NOT_SUPP;
+    }
+    
     for(i = 0; i < Len; i++)
     {
         uint8_t ch = *(pTopicName++);
@@ -597,13 +684,17 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
             val += ch -'0';
         }
         else
+        {
             return MQTTSN_RET_REJ_NOT_SUPP;
+        }
     }
     Subidx.Base = val;
     }
 
     if(!extCheckSubidx(&Subidx))
+    {
         return MQTTSN_RET_REJ_NOT_SUPP;
+    }
 
     uint16_t TopicId = (pMsg->m.regist.TopicId[0]<<8) | pMsg->m.regist.TopicId[1];
 
@@ -616,33 +707,44 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
         if(ListOD[pos].Index == 0xFFFF)
         {
             if(id == 0xFFFF)
+            {
                 id = pos;
+            }
         }
         else
         {
-            if(memcmp((const void *)&Subidx, (const void *)&ListOD[pos].sidx, sizeof(subidx_t)) == 0)
+            if(memcmp((const void *)&Subidx, (const void *)&ListOD[pos].sidx, 
+                                                                    sizeof(subidx_t)) == 0)
             {
                 id = pos;
-                break;                                                  // Object exist    
+                break;                                      // Object exist    
             }
             
-            if(ListOD[pos].Index == TopicId)                            // TopicId exist but with another subidx
+            if(ListOD[pos].Index == TopicId)                // TopicId exist but with another subidx
+            {
                 return MQTTSN_RET_REJ_INV_ID;
+            }
         }
     }
     }
 
-    if(id == 0xFFFF)                                                    // Table is full
-        return MQTTSN_RET_REJ_CONG;
-
-    if(ListOD[id].Index == 0xFFFF)                                      // New variable
+    if(id == 0xFFFF)                                            // Table is full
     {
-        if(TopicId == 0xFFFF)                                           // Try to delete not exist variable
+        return MQTTSN_RET_REJ_CONG;
+    }
+
+    if(ListOD[id].Index == 0xFFFF)                              // New variable
+    {
+        if(TopicId == 0xFFFF)                                   // Try to delete not exist variable
+        {
             return MQTTSN_RET_REJ_INV_ID;
+        }
 
         ListOD[id].sidx = Subidx;
         if(extRegisterOD(&ListOD[id]) != MQTTSN_RET_ACCEPTED)           // Variable overlapped
+        {
             return MQTTSN_RET_REJ_INV_ID;
+        }
 
         ListOD[id].Index = TopicId;
     
@@ -654,7 +756,10 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
         {
             RestoreSubindex(i, &Subidx2);
             if(memcmp((const void *)&Subidx, (const void *)&Subidx2, sizeof(subidx_t)) == 0)
+            {
                 break;                                                  // Variable Exist in EEPROM
+            }
+            
             if((Subidx2.Place == 0xFF) || (Subidx2.Place == 0x00))
             {
                 SaveSubindex(i, &Subidx);
@@ -664,9 +769,13 @@ e_MQTTSN_RETURNS_t RegisterOD(MQTTSN_MESSAGE_t *pMsg)
         }
     }
     else if(TopicId == 0xFFFF)          // Delete Variable
+    {
         deleteIndexOD(id);
+    }
     else                                // Renew Topic ID, or duplicate message
+    {
         ListOD[id].Index = TopicId;
+    }
 
     return MQTTSN_RET_ACCEPTED;
 }
@@ -700,9 +809,13 @@ e_MQTTSN_RETURNS_t ReadODpack(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t
             {
                 if(((pBuf[len-1] == 0)    && ((pBuf[len-2] & 0x80) == 0)) ||
                    ((pBuf[len-1] == 0xFF) && ((pBuf[len-2] & 0x80) == 0x80)))
-                        len--;
+                {
+                    len--;
+                }
                 else
+                {
                     break;
+                }
             }
             *pLen = len;
         }
@@ -714,12 +827,16 @@ e_MQTTSN_RETURNS_t ReadODpack(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t
                 len++;
             }
             else while((len > 1) && (pBuf[len-1] == 0) && ((pBuf[len-2] & 0x80) == 0))
+            {
                 len--;
+            }
             *pLen = len;
         }
     }
     else
+    {
         *pLen = 0;
+    }
 
     return retval;
 }
@@ -729,9 +846,13 @@ e_MQTTSN_RETURNS_t WriteODpack(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t 
 {
     indextable_t * pIndex = scanIndexOD(Id, Flags);
     if(pIndex == NULL)
+    {
         return MQTTSN_RET_REJ_INV_ID;
+    }
     if(pIndex->cbWrite == NULL)
+    {
         return MQTTSN_RET_REJ_NOT_SUPP;
+    }
 
     // Unpack Object
     uint8_t len;
@@ -741,11 +862,15 @@ e_MQTTSN_RETURNS_t WriteODpack(uint16_t Id, uint8_t Flags, uint8_t Len, uint8_t 
         uint8_t fill;
         fill = (pBuf[Len-1] & 0x80) ? 0xFF: 0x00;
         while(Len < len)
+        {
             pBuf[Len++] = fill;
+        }
     }
 
     if(len)
+    {
         Len = len;
+    }
 
     return (pIndex->cbWrite)(&pIndex->sidx, Len, pBuf);
 }
@@ -766,7 +891,9 @@ void OD_Poll(void)
         )
     {
         if(idxUpdate >= OD_MAX_INDEX_LIST)
+        {
             idxUpdate = 0;
+        }
 
         while(MQTTSN_CanSend() && (idxUpdate < OD_MAX_INDEX_LIST))
         {
@@ -799,18 +926,32 @@ void OD_Poll(void)
             if(ListOD[idxUpdate].Index != 0xFFFF)
             {
                 if(MQTTSN_CanSend())
+                {
                     MQTTSN_Send(MQTTSN_MSGTYP_REGISTER,     // Message type
                                 idxUpdate,                  // Flags
                                 ListOD[idxUpdate].Index);   // Topic Id
+                }
             }
             else
+            {
                 idxUpdate++;
+            }
         }
         // Publish device info
         else if(idxUpdate < 0xFFFF)
         {
-            if(idxUpdate < 0xFFC0)
-                idxUpdate = 0xFFC0;
+#if (defined HAL_USE_RTC)
+            if(idxUpdate < objRTC)
+            {
+                idxUpdate = objRTC;
+            }
+            else
+#endif  //  HAL_USE_RTC
+            if(idxUpdate < objDeviceTyp)
+            {
+                idxUpdate = objDeviceTyp;
+            }
+
             if(MQTTSN_CanSend())
             {
                 if(scanIndexOD(idxUpdate, MQTTSN_FL_TOPICID_PREDEF) != NULL)
@@ -821,16 +962,22 @@ void OD_Poll(void)
                     idxUpdate++;
                 }
                 else
+                {
                     idxUpdate = 0xFFFF;
+                }
             }
         }
         // Send Subscribe
         else
         {
             if(MQTTSN_CanSend())
+            {
                 MQTTSN_Send(MQTTSN_MSGTYP_SUBSCRIBE, (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM), 0);
+            }
         }
     }
     else
+    {
         idxUpdate = 0x00;
+    }
 }

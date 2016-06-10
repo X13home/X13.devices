@@ -72,7 +72,6 @@ void hal_rfm12_enable_irq(void)
 // defined in rfm12_phy.c
 void rfm12_irq(void);
 
-
 #ifdef RFM12_INT0
 ISR(INT0_vect)
 {
@@ -82,7 +81,9 @@ ISR(INT0_vect)
 ISR(PCINT0_vect)
 {
     if(RFM12_IRQ_PORT_PIN & (1<<RFM12_IRQ_PIN))
+    {
         return;
+    }
 
     rfm12_irq();
 }

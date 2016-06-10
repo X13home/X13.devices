@@ -57,8 +57,9 @@ typedef enum e_MQTTSN_MSGTYPE
     MQTTSN_MSGTYP_WILLMSGUPD    =   0x1C,
     MQTTSN_MSGTYP_WILLMSGRESP   =   0x1D,
 
-    MQTTSN_MSGTYP_DHCPREQ       =   0x43,   // Not standard options, Request Address from Node to Gateway
-    MQTTSN_MSGTYP_DHCPRESP      =   0x44,   // Not standard options, Assign address to Node from Gateway.
+    // Not standard options
+    MQTTSN_MSGTYP_DHCPREQ       =   0x43,   // Request Address from Node to Gateway
+    MQTTSN_MSGTYP_DHCPRESP      =   0x44,   // Assign address to Node from Gateway.
 
     MQTTSN_MSGTYP_FORWARD       =   0xFE
 }e_MQTTSN_MSGTYPE_t;

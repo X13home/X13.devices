@@ -10,12 +10,16 @@ bool hal_pwm_checkbase(uint16_t base)
 {
 #ifdef HAL_PWM_BASE_OFFSET
     if(base < HAL_PWM_BASE_OFFSET)
+    {
         return false;
+    }
     base -= HAL_PWM_BASE_OFFSET;
 #endif
     if((base >= sizeof(hal_pwm_port2cfg)) ||
        (pgm_read_byte(&hal_pwm_port2cfg[base]) == 0xFF))
+    {
         return false;
+    }
 
     return true;
 }
@@ -31,14 +35,18 @@ bool hal_pwm_busy(uint16_t base)
     uint8_t channel = Config & 0x07;
 
     volatile uint8_t * pTIM;
-    
+
     switch(Config>>3)
     {
         case 0:     // Timer 0
             if(channel == 0)
+            {
                 return ((TCCR0A & (3<<COM0A0)) != 0);
+            }
             else
+            {
                 return ((TCCR0A & (3<<COM0B0)) != 0);
+            }
         case 1:         //  Timer 1
             pTIM = &TCCR1A;
             break;
@@ -89,20 +97,28 @@ void hal_pwm_configure(uint16_t base, bool inv)
     uint8_t tccra;
     uint8_t mode;
     if(inv)
+    {
         mode = 3;
+    }
     else
+    {
         mode = 2;
+    }
 
     volatile uint8_t * pTIM;
-    
+
     switch(Config>>3)
     {
         case 0:     // Timer 0
             tccra = TCCR0A & ((3<<COM0A0) | (3<<COM0B0));
             if(channel == 0)
+            {
                 tccra |= (mode<<COM0A0);
+            }
             else
+            {
                 tccra |= (mode<<COM0B0);
+            }
 
             TCCR0A = tccra | (1<<WGM00);    // PWM, Phase Correct, 0x00 - 0xFF
             TCCR0B = (4<<CS00);             // Clock = Fcpu/256
@@ -174,14 +190,18 @@ void hal_pwm_delete(uint16_t base)
     uint8_t channel = Config & 0x07;
 
     volatile uint8_t * pTIM;
-    
+
     switch(Config>>3)
     {
         case 0:     // Timer 0
             if(channel == 0)
+            {
                 TCCR0A &= ~(3<<COM0A0);
+            }
             else
+            {
                 TCCR0A &= ~(3<<COM0B0);
+            }
 
             if((TCCR0A & ((3<<COM0A0) | (3<<COM0B0))) == 0)     // stop timer
             {
@@ -257,7 +277,9 @@ void hal_pwm_write(uint16_t base, uint16_t value)
 #endif
 
     if(base > sizeof(hal_pwm_port2cfg))
+    {
         return;
+    }
 
     uint8_t Config = pgm_read_byte(&hal_pwm_port2cfg[base]);
     uint8_t channel = Config & 0x07;
@@ -268,9 +290,13 @@ void hal_pwm_write(uint16_t base, uint16_t value)
     {
         case 0:
             if(channel == 0)
+            {
                 OCR0A = value>>8;
+            }
             else
+            {
                 OCR0B = value>>8;
+            }
             return;
         case 1:         //  Timer 1
             pTIM = &TCCR1A;

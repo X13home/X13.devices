@@ -13,7 +13,7 @@ See LICENSE file for license details.
 #ifndef _A1SR11_H
 #define _A1SR11_H
 
-// uNode Version 2.0
+// uNode Version 1.1
 // uc ATMega328p
 // Phy1: RFM12, IRQ at PB0
 
@@ -56,8 +56,9 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_PORT_OFFSET          2
-#define EXTDIO_MAXPORT_NR           2                                   // Number of used physical digital Ports
-#define HAL_DIO_MAPPING             {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 26, 27, 28, 29, 30, 31}
+#define EXTDIO_MAXPORT_NR           2           // Number of used physical digital Ports
+#define HAL_DIO_MAPPING             {0xFF, 0xFF, 16, 17, 18, 19, 20, 21,    \
+                                     0xFF, 0xFF, 26, 27, 28, 29, 30, 31}
 // End DIO Section
 
 // PWM Section
@@ -69,9 +70,8 @@ extern "C" {
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           9                                   // ADC0-ADC7, Vbg
-#define EXTAIN_BASE_2_APIN          {6, 7, 0, 1, 2, 3, 4, 5, 14}
-#define EXTAIN_REF                  0x06                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define EXTAIN_MAXPORT_NR           15                                  // ADC0-ADC7, Vbg
+#define HAL_AIN_BASE2APIN           {6, 7, 0, 1, 2, 3, 4, 5, 14}
 // End Analogue Inputs
 
 // TWI Section

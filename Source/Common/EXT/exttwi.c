@@ -20,13 +20,15 @@ See LICENSE file for license details.
 
 // Global variable used in HAL
 volatile TWI_QUEUE_t  * pTWI = NULL;
+static uint32_t twi_ms  = 0;
 
 #ifndef EXTPLC_USED
 
 // local queues
 static Queue_t  twi_tx_queue = {NULL, NULL, 4, 0};      // Max Size = 4 records
 
-static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)), uint8_t *pLen, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)),
+                                        uint8_t *pLen, uint8_t *pBuf)
 {
     if(pTWI == NULL)
         return MQTTSN_RET_REJ_CONG;
@@ -38,7 +40,8 @@ static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)),
     return MQTTSN_RET_ACCEPTED;
 }
 
-static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx __attribute__ ((unused)), uint8_t Len, uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx __attribute__ ((unused)),
+                                        uint8_t Len, uint8_t *pBuf)
 {
     if(Len < sizeof(TWI_FRAME_t))
         return MQTTSN_RET_REJ_NOT_SUPP;
@@ -97,30 +100,27 @@ static uint8_t twiPollOD(subidx_t * pSubidx __attribute__ ((unused)))
         }
         else
         {
-            static uint16_t twi_ms = 0;
-            uint16_t act_ms = HAL_get_ms() & 0x0000FFFF;
-
-            if((access & TWI_WD_ARMED) == 0)
-            {
-                pTWI->frame.access |= TWI_WD_ARMED;
-                twi_ms = act_ms;
-            }
-            else if((act_ms - twi_ms) > TWIM_BUS_TIMEOUT)
+            if((HAL_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
             {
                 if(access & TWI_BUSY)
+                {
                     hal_twi_stop();
+                }
                 
                 pTWI->frame.access |= TWI_WD;
                 return 1;
             }
 
             if((access & TWI_BUSY) == 0)
+            {
                 hal_twi_start();
+            }
         }
     }
     else if(twi_tx_queue.Size != 0)
     {
         pTWI = mqDequeue(&twi_tx_queue);
+        twi_ms = HAL_get_ms();
     }
 
     return 0;
@@ -169,7 +169,7 @@ void twiInit()
 }
 
 #ifdef EXTPLC_USED
-static uint8_t twi_pnt = 0;
+static uint8_t  twi_pnt = 0;
 
 void twiControl(uint32_t ctrl)
 {
@@ -179,8 +179,9 @@ void twiControl(uint32_t ctrl)
     pTWI = mqAlloc(sizeof(MQ_t));
     if(pTWI == NULL)
         return;
-    
+
     twi_pnt = 0;
+    twi_ms = HAL_get_ms();
     
     memcpy((void *)&pTWI->frame, &ctrl, 4);
 
@@ -199,20 +200,12 @@ uint32_t twiStat(void)
 {
     if(pTWI == NULL)
         return 0;
-    
+
     uint8_t access = pTWI->frame.access;
 
-    if((access & (TWI_RDY | TWI_WD | TWI_SLANACK | TWI_ERROR)) == 0)
+    if((access & (TWI_WD | TWI_SLANACK | TWI_ERROR)) == 0)
     {
-        static uint16_t twi_ms = 0;
-        uint16_t act_ms = HAL_get_ms() & 0x0000FFFF;
-
-        if((access & TWI_WD_ARMED) == 0)
-        {
-            pTWI->frame.access |= TWI_WD_ARMED;
-            twi_ms = act_ms;
-        }
-        else if((act_ms - twi_ms) > TWIM_BUS_TIMEOUT)
+        if((HAL_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
         {
             if(pTWI->frame.access & TWI_BUSY)
                 hal_twi_stop();

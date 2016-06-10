@@ -38,7 +38,7 @@ See LICENSE file for license details.
 //   9  PA9     16      10.21   5.1(D8)     USART1_TX_AF1   TIM1_CH2_AF2    I2C1_SCL_AF4
 //  39  PC7     17      10.19   5.2(D9)                     TIM3_CH2_AF0
 //  22  PB6     18      10.17   5.3(D10)    USART1_TX_AF0   I2C1_SCL_AF1
-//   7  PA7     19      10.15   5.4(D11)    SPI1_MOSI_AF0   TIM3_CH2_AF1    TIM14_CH1_AF4   TIM17_CH1_AF5
+//   7  PA7     19      10.15   5.4(D11)    SPI1_MOSI_AF0   TIM3_CH2_AF1 TIM14_CH1_AF4/TIM17_CH1_AF5
 //   6  PA6     20      10.13   5.5(D12)    SPI1_MISO_AF0   TIM3_CH1_AF1    TIM16_CH1_AF5
 //   5  PA5     21      10.11   5.6(D13)    SPI1_SCK_AF0    TIM2_CH1_AF2    USART6_RX_AF5
 //  25  PB9     22      10.5    5.9(D14)    IR_OUT_AF0      I2C1_SDA_AF1    TIM17_CH1_AF2
@@ -72,13 +72,23 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+// System Settings
+#define HSE_CRYSTAL_BYPASS          1   //  HSE crystal oscillator bypassed with external clock
+#define HAL_USE_RTC                 1
+#define HAL_RTC_CHECK_LSE           1
+
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
-#define HAL_DIO_MAPPING             {  0,   1,   4,  16,  33,  32,  34,  35, 255, 255,  10, 19, /*  PA0,  PA1,  PA4,  PB0,  PC1,  PC0,  PC2,  PC3,  PA3,  PA2, PA10,  PB3 */ \
-                                      21,  20,  26,   8,   9,  39,  22,   7,   6,   5,  25, 24, /*  PB5,  PB4, PB10,  PA8,  PA9,  PC7,  PB6,  PA7,  PA6,  PA5,  PB9,  PB8 */ \
-                                      42,  43,  44, 255, 255,  15,  23,  45,  46,  47,  36, 29, /* PC10, PC11, PC12, PA13, PA14, PA15,  PB7, PC13, PC14, PC15,  PC4, PB13 */ \
-                                      30,  31,  17,  18,  27,  28,  11,  12,  37,  38,  40, 41} /* PB14, PB15,  PB1,  PB2, PB11, PB12, PA11, PA12,  PC5,  PC6,  PC8,  PC9 */
+#define HAL_DIO_MAPPING  {  \
+                /*  PA0,  PA1,  PA4,  PB0,  PC1,  PC0,  PC2,  PC3,  PA3,  PA2, PA10,  PB3 */    \
+                      0,    1,    4,   16,   33,   32,   34,   35,  255,  255,   10,   19,      \
+                /*  PB5,  PB4, PB10,  PA8,  PA9,  PC7,  PB6,  PA7,  PA6,  PA5,  PB9,  PB8 */    \
+                     21,   20,   26,    8,    9,   39,   22,    7,    6,    5,   25,   24,      \
+                /* PC10, PC11, PC12, PA13, PA14, PA15,  PB7, PC13, PC14, PC15,  PC4, PB13 */    \
+                     42,   43,   44,  255,  255,   15,   23,   45,   46,   47,   36,   29,      \
+                /* PB14, PB15,  PB1,  PB2, PB11, PB12, PA11, PA12,  PC5,  PC6,  PC8,  PC9 */    \
+                     30,   31,   17,   18,   27,   28,   11,   12,   37,   38,   40,   41} 
 // End DIO Section
 
 // PWM Section
@@ -126,10 +136,11 @@ extern "C" {
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           14
-#define EXTAIN_BASE_2_APIN          {0, 1, 4, 8, 11, 10, 12, 13, 3, 2,              /*  PA0, PA1, PA4, PB0, PC1, PC0, PC2, PC3, PA3, PA2 */ \
-                                     255, 255, 255, 255, 255, 255, 255, 255, 255,   /* GAP */   \
-                                     7, 6, 5}                                       /* PA7, PA6, PA5 */
-#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define HAL_AIN_BASE2APIN           {   /* PA0, PA1, PA4, PB0, PC1, PC0, PC2, PC3, PA3, PA2 */  \
+                                             0,   1,   4,   8,  11,  10,  12,  13,   3,   2,    \
+                                      255, 255, 255, 255, 255, 255, 255, 255, 255,   /* GAP */  \
+                                        /* PA7, PA6, PA5 */                                     \
+                                             7,   6,   5}
 // End Analogue Inputs
 
 // UART PHY Section

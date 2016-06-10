@@ -40,12 +40,12 @@ See LICENSE file for license details.
 // GPIOB
 //  16  PB0     19                  TIM3_CH3
 //  17  PB1     20                  TIM3_CH4
-//  18  PB2         LED
+//  18  PB2       * LED
 //  19  PB3
 //  20  PB4
 //  21  PB5
-//  22  PB6       * _USART1_TX
-//  23  PB7       * _USART1_RX
+//  22  PB6       * USART1_TX
+//  23  PB7       * USART1_RX
 //  24  PB8
 //  25  PB9
 //  26  PB10    13  SCL2            TIM2_CH3
@@ -58,6 +58,10 @@ See LICENSE file for license details.
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+// System Settings
+#define HAL_USE_RTC                 1
+#define HAL_RTC_USE_HSE             1
 
 // DIO Section
 #define EXTDIO_USED                 1
@@ -86,25 +90,23 @@ extern "C" {
 
 // End PWM Section
 
-// PA4-PA7: 4 - 7
+// PA0-PA7: 0 - 7
 // PB0-PB1: 8 - 9
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           10
-#define EXTAIN_BASE_2_APIN          {9, 8, 7, 6, 5, 4, 255, 255, 255, 255, 255, 255, 3, 2, 1, 0}
-#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define HAL_AIN_BASE2APIN           {9, 8, 7, 6, 5, 4, 255, 255, 255, 255, 255, 255, 3, 2, 1, 0}
 // End Analogue Inputs
 
 // UART Section
 #define HAL_UART_NUM_PORTS          2
-#define HAL_USE_USART2              0       // Mapping to logical port
-#define HAL_USE_ALT_USART1          1       // USART1 on PB6/PB7
+#define HAL_USE_USART2              0
 
 #define EXTSER_USED                 1
 // End UART Section
 
 // TWI Section
-#define HAL_TWI_BUS                 2       // I2C_Bus 1 - I2C1, 2 - I2C2
+#define HAL_TWI_BUS                 2           // I2C_Bus 1 - I2C1, 2 - I2C2
 #define EXTTWI_USED                 1
 // End TWI Section
 
@@ -114,11 +116,12 @@ extern "C" {
 #define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
 
 // UART PHY Section
-#define UART_PHY_PORT               1       // Logical port
+#define HAL_USE_USART1              1           // Mapping to logical port
+#define HAL_USART1_REMAP            1           // USART1 on PB6/PB7
+#define UART_PHY_PORT               1           // Logical port
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section
-
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           20

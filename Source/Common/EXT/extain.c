@@ -137,7 +137,8 @@ static e_MQTTSN_RETURNS_t ainReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *
     return MQTTSN_RET_ACCEPTED;
 }
 
-static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t ainWriteOD(subidx_t * pSubidx, 
+                                uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
 {
     uint8_t apin = hal_ain_base2apin(pSubidx->Base);
     ain_mask_rs(apin, 0);   // Reset change mask

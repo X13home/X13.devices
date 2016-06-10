@@ -10,8 +10,8 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _S3SC10_H
-#define _S3SC10_H
+#ifndef _S3CN10_H
+#define _S3CN10_H
 
 // Board: Maple Mini
 // uC: STM32F103CBT6
@@ -65,19 +65,26 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+// Sytem settings
+#define HAL_USE_RTC                 1
+
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           3
-#define HAL_DIO_MAPPING             {27, 26, 18, 16, 7, 6, 5, 4, 3, 2, 1, 0,        /* PB11, PB10, PB2, PB0, PA7 - PA0 */ \
-                                     47, 46, 45, 23, 22, 21, 20, 19,                /* PC13 - PC15, PB7 - PB3 */ \
-                                     15, 0xFF, 0xFF, 12, 11, 10, 9, 8}              /* PA15 - PA8 */ \
+#define HAL_DIO_MAPPING             {   /* PB11, PB10, PB2, PB0, PA7 - PA0 */               \
+                                             27,   26,  18,  16,   7, 6, 5, 4, 3, 2, 1, 0,  \
+                                        /* PC13 - PC15,     PB7 - PB3 */                    \
+                                             47,   46,  45,  23,  22, 21, 20, 19,           \
+                                        /* PA15 - PA8 */                                    \
+                                             15,  255, 255,  12,  11, 10,  9,  8            \
+                                    }
 // End DIO Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
 #define EXTAIN_MAXPORT_NR           9
-#define EXTAIN_BASE_2_APIN          {0xFF, 0xFF, 0xFF, 8, 7, 6, 5, 4, 3, 2, 1, 0}   /* PB11, PB10, PB2, PB0, PA7 - PA0 */
-#define EXTAIN_REF                  0x02        // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+                                    /* PB11, PB10,  PB2, PB0, PA7 - PA0 */
+#define HAL_AIN_BASE2APIN           {  0xFF, 0xFF, 0xFF,   8, 7, 6, 5, 4, 3, 2, 1, 0}
 // End Analogue Inputs
 
 // PWM Section
@@ -99,8 +106,22 @@ extern "C" {
                                      ((1<<3) | 3),              /* PA11: TIM1_CH4   */ \
                                      ((1<<3) | 2),              /* PA10: TIM1_CH3   */ \
                                      ((1<<3) | 1),              /* PA9:  TIM1_CH2   */ \
-                                     ((1<<3) | 0)}              /* PA8:  TIM1_CH2   */
+                                     ((1<<3) | 0)}              /* PA8:  TIM1_CH1   */
 // End PWM Section
+
+// TWI Section
+#define HAL_TWI_BUS                 1
+#define EXTTWI_USED                 1
+// End TWI Section
+
+// UART Section
+#define HAL_UART_NUM_PORTS          3
+#define HAL_USE_USART1              0           // Mapping to logical port
+#define HAL_USE_USART2              1
+#define HAL_USE_USART3              2
+
+#define EXTSER_USED                 3
+// End UART Section
 
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS1
@@ -132,4 +153,4 @@ extern "C" {
 }
 #endif
 
-#endif // _S3SC10_H
+#endif // _S3CN10_H

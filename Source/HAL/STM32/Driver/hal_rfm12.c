@@ -1,3 +1,15 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 #include "config.h"
 
 #ifdef RFM12_PHY
@@ -14,7 +26,7 @@ void hal_rfm12_init_hw(void)
     // Configure NSS Pin
     hal_gpio_cfg(RFM12_NSS_GPIO, RFM12_NSS_PIN, DIO_MODE_OUT_PP_HS);
     RFM12_RELEASE();
-    
+
     // Configure IRQ Pin
     hal_dio_configure(RFM12_IRQ_PIN, DIO_MODE_IN_PU);
 

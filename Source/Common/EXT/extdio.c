@@ -41,7 +41,8 @@ static void dioPin2hw(uint8_t pin, uint8_t *pPort, DIO_PORT_TYPE *pMask)
 }
 
 // Write DIO Object's
-static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t dioWriteOD(subidx_t * pSubidx, 
+                            uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
 {
     uint8_t port;
     DIO_PORT_TYPE mask;

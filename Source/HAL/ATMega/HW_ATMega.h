@@ -35,7 +35,7 @@ See LICENSE file for license details.
 #include "A1xxxx/A1Cn10.h"
 // Arduino Mega ATMega2560 + OSC 16 MHz
 #elif   (defined CFG_A4Sn10)
-#include "A4xxxx/A4Sn10.h"
+#include "A4xxxx/A4Sn10.h"          // Arduino Mega2560 + UART on PE0/PE1
 // Unknown
 #else
 #error Unknown configuration
@@ -49,8 +49,12 @@ See LICENSE file for license details.
 // DIO
 #define HAL_DIO_PORTNUM2PORT        {0xFFFF, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
 // AIn
-#define HAL_AIN_APIN2DIO            {16,   17,   18,   19,   20,   21,   0xFE, 0xFE,    /* PC0 - PC5, Ain6, Ain7 */ \
-                                     0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE}    // TempSens, Vbg, GND}
+#define EXTAIN_REF                  0x06    // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define HAL_AIN_APIN2DIO        {   /* PC0 - PC5, Ain6, Ain7 */                         \
+                                        16,   17,   18,   19,   20,   21,   0xFE, 0xFE, \
+                                    /* TempSens, Vbg, GND   */                          \
+                                     0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE     \
+                                }
 // TWI
 #define TWIM_SCL_STAT()             (PINC & (1<<PC5))
 #define I2C_DIO_SDA                 20
@@ -71,15 +75,18 @@ See LICENSE file for license details.
 
 #elif defined (__AVR_ATmega2560__)
 // DIO
-#define HAL_DIO_PORTNUM2PORT        {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD,    \
-                                     (uint16_t)&PORTE, (uint16_t)&PORTF, (uint16_t)&PORTG, (uint16_t)&PORTH,    \
-                                     (uint16_t)&PORTJ, (uint16_t)&PORTK, (uint16_t)&PORTL}
+#define HAL_DIO_PORTNUM2PORT    {    (uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC,  \
+                                     (uint16_t)&PORTD, (uint16_t)&PORTE, (uint16_t)&PORTF,  \
+                                     (uint16_t)&PORTG, (uint16_t)&PORTH, (uint16_t)&PORTJ,  \
+                                     (uint16_t)&PORTK, (uint16_t)&PORTL                     \
+                                }
 // AIN
-#define HAL_AIN_APIN2DIO            {40, 41, 42, 43, 44, 45, 46, 47,                    /* PF0 - PF7 */ \
-                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,                    \
-                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,                    \
-                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF,    /* Vbg */       \
-                                     72, 73, 74, 75, 76, 77, 78, 79}                    /* PK0 - PK7 */
+#define EXTAIN_REF                  0x0F    // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define HAL_AIN_APIN2DIO            {40, 41, 42, 43, 44, 45, 46, 47,              /* PF0 - PF7 */ \
+                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,              \
+                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,              \
+                                     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, /* Vbg */    \
+                                     72, 73, 74, 75, 76, 77, 78, 79}                 /* PK0 - PK7 */
 // TWI
 #define TWIM_SCL_STAT()             (PIND & (1<<PD0))
 #define I2C_DIO_SCL                 24

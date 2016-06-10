@@ -1,19 +1,33 @@
+/*
+Copyright (c) 2011-2016 <comparator@gmx.de>
+
+This file is part of the X13.Home project.
+http://X13home.org
+http://X13home.net
+http://X13home.github.io/
+
+BSD New License
+See LICENSE file for license details.
+*/
+
 // EEPROM emulation for STM32F0/STM32F1/STM32F3
 
-/******************************************************************************************************************/
+/**************************************************************************************************/
 // Data placed in the FLASH from address: FEE_BASE
 // User MUST check, that:
 //  data aligned to page
 //  enough FLASH
 //  data not overlapped with program memory
 
-/******************************************************************************************************************/
+/**************************************************************************************************/
 // Data allocated in program memory
-//static const uint8_t fee_data[] __attribute__ ((aligned(FEE_PAGE_SIZE))) = { [0 ... (FEE_SIZE - 1)] = 0xFF};
+//static const uint8_t fee_data[] __attribute__ ((aligned(FEE_PAGE_SIZE))) =
+//            { [0 ... (FEE_SIZE - 1)] = 0xFF};
 //#define FEE_BASE    (uint32_t)fee_data
 
-/******************************************************************************************************************/
-// Data allocated in program memory, but counted in bss Size, section ".feedata" must be defined in linker script
+/**************************************************************************************************/
+// Data allocated in program memory, but counted in bss Size,
+//       section ".feedata" must be defined in linker script
 // EEPROM Emulation  section
 
 //MEMORY
@@ -37,21 +51,6 @@
 #include "config.h"
 
 #ifdef FEE_SIZE
-
-#if (defined STM32F0)
-#define FEE_EraseTimeout        (uint32_t)0x000B0000
-#define FEE_ProgramTimeout      (uint32_t)0x000B0000
-
-#elif (defined STM32F1)
-#define FEE_EraseTimeout        (uint32_t)0x000B0000
-#define FEE_ProgramTimeout      (uint32_t)0x00002000
-
-#elif (defined STM32F3)
-#define FLASH_SR_WRPRTERR       FLASH_SR_WRPERR
-#define FEE_EraseTimeout        (uint32_t)0x000B0000
-#define FEE_ProgramTimeout      (uint32_t)0x00002000
-
-#endif
 
 #define FEE_AVAIL_PAGES (uint8_t)((FEE_SIZE/FEE_PAGE_SIZE) - FEE_TRANSFER_PAGES)
 
@@ -85,22 +84,22 @@ static bool flash_erase_page(uint32_t Page_Address)
     if(status)
     {
         halEnterCritical();
-        
+
         // Unlocking the program memory access
         FLASH->KEYR = FLASH_KEY1;
         FLASH->KEYR = FLASH_KEY2;
-        
+
         // If the previous operation is completed, proceed to erase the page
         FLASH->CR |= FLASH_CR_PER;
         FLASH->AR  = Page_Address & ~(FEE_PAGE_SIZE - 1);
         FLASH->CR |= FLASH_CR_STRT;
-    
+
         // Wait for last operation to be completed
         status = flash_wait(FEE_EraseTimeout);
-    
+
         // Disable the PER Bit
         FLASH->CR &= ~FLASH_CR_PER;
-        
+
         // Lock the program memory access
         FLASH->CR |= FLASH_CR_LOCK;
 
@@ -116,11 +115,11 @@ static bool flash_programm(uint32_t Address, uint16_t Data)
     if(status)
     {
         halEnterCritical();
-        
+
         // Unlocking the program memory access
         FLASH->KEYR = FLASH_KEY1;
         FLASH->KEYR = FLASH_KEY2;
-        
+
         // If the previous operation is completed, proceed to program the new data
         FLASH->CR |= FLASH_CR_PG;
 
@@ -128,16 +127,18 @@ static bool flash_programm(uint32_t Address, uint16_t Data)
 
         // Wait for last operation to be completed
         status = flash_wait(FEE_ProgramTimeout);
-    
+
         // Disable the PG Bit */
         FLASH->CR &= ~FLASH_CR_PG;
-        
+
         if(*(__IO uint16_t*)Address != Data)
+        {
             status = false;
-        
+        }
+
         // Lock the program memory access
         FLASH->CR |= FLASH_CR_LOCK;
-        
+
         halLeaveCritical();
     }
     return status;
@@ -185,7 +186,7 @@ fee_transfer_rep1:
 
     if((fee_free_page < FEE_BASE) ||
        (fee_free_page >= (FEE_BASE + FEE_SIZE)) ||
-       ((fee_free_page & (FEE_PAGE_SIZE - 1)) != 0))
+      ((fee_free_page & (FEE_PAGE_SIZE - 1)) != 0))
     {
         fee_free_page = FEE_BASE;
     }
@@ -254,7 +255,7 @@ fee_transfer_rep1:
                 goto fee_transfer_rep1;
             }
         }
-        
+
         src_sddr += 2;
         dst_addr += 2;
     }
@@ -278,7 +279,7 @@ fee_transfer_rep1:
                 goto fee_transfer_rep1;
             }
         }
-        
+
         src_sddr += 2;
         dst_addr += 2;
         len -= 2;
@@ -329,7 +330,7 @@ static uint32_t fee_virt2real(uint32_t addr)
             return addr;
         }
     }
-    
+
     // Allocate Page
     for(base_addr = FEE_BASE; base_addr < (FEE_BASE + FEE_SIZE); base_addr += FEE_PAGE_SIZE)
     {
@@ -359,12 +360,12 @@ void eeprom_init_hw(void)
     {
         // Clear Flags
         flash_clear_flags();
-        
-        uint16_t info = *(uint16_t *)(addr);                // Read page Info, LSB page, MSB Version
+
+        uint16_t info = *(uint16_t *)(addr);            // Read page Info, LSB page, MSB Version
 
         if(info == 0xFFFF)
         {
-            if(fee_check_blank(addr) == false)              // Page marked as blank, but it's not blank
+            if(fee_check_blank(addr) == false)          // Page marked as blank, but it's not blank
             {
                 flash_erase_page(addr);
             }
@@ -384,7 +385,7 @@ void eeprom_init_hw(void)
                 {
                     uint16_t vers1 = info >> 8;
                     uint16_t vers2 = info1 >> 8;
-                    
+
                     if(vers1 == 0xFF)
                     {
                         vers1 = 0;
@@ -455,7 +456,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
             pBuf += length;
             continue;
         }
-        
+
         if(!fee_transfer(fee_addr, length))
         {
             return;                                 // Flash Error

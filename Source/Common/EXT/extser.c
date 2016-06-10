@@ -34,7 +34,7 @@ typedef struct
 
 static EXTSER_VAR_t * extSerV[EXTSER_USED] = {NULL,};
 
-void serInit()
+void serInit(void)
 {
     uint8_t port;
     

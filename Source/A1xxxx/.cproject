@@ -33,6 +33,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.521151062" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.755686942" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.def.253554471" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="CFG_A1Cn12"/>
 								</option>
@@ -99,6 +100,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.1816620225" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.1088899660" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.def.832534417" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="CFG_A1En12"/>
 								</option>
@@ -165,6 +167,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.619300726" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.503977466" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.def.1364087671" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="CFG_A1Rn11"/>
 								</option>
@@ -231,6 +234,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.1986364145" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.1476972109" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.def.630124160" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="CFG_A1SC12"/>
 								</option>
@@ -297,6 +301,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.1630480975" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.186455040" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.def.1361830169" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="CFG_A1Sn10"/>
 								</option>
@@ -363,6 +368,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.1501507881" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.190638018" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.def.292564911" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="CFG_A1Sn12"/>
 								</option>
@@ -429,6 +435,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.1319852730" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.2003898447" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.def.2112885214" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="CFG_A1SR11"/>
 								</option>
@@ -495,6 +502,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.1008651426" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.295077739" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.def.307110957" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="CFG_A1SC10"/>
 								</option>
@@ -561,6 +569,7 @@
 								<option id="de.innot.avreclipse.compiler.option.optimize.1826532350" name="Optimization Level" superClass="de.innot.avreclipse.compiler.option.optimize" value="de.innot.avreclipse.compiler.optimize.one" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.201630650" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.def.573825709" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
 									<listOptionValue builtIn="false" value="CFG_A1Cn10"/>
 								</option>
@@ -623,8 +632,12 @@
 		</configuration>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220;de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220.;de.innot.avreclipse.tool.compiler.winavr.app.release.1214992658;de.innot.avreclipse.compiler.winavr.input.1360862383">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.660712838;de.innot.avreclipse.configuration.app.release.660712838.;de.innot.avreclipse.tool.compiler.winavr.app.release.819907808;de.innot.avreclipse.compiler.winavr.input.871093448">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
@@ -646,9 +659,11 @@
 		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.448623520.1081480683;de.innot.avreclipse.configuration.app.release.448623520.1081480683.;de.innot.avreclipse.tool.compiler.winavr.app.release.225252214;de.innot.avreclipse.compiler.winavr.input.1128623177">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1751035062;de.innot.avreclipse.configuration.app.release.448623520.1752821069.1751035062.;de.innot.avreclipse.tool.compiler.winavr.app.release.981372856;de.innot.avreclipse.compiler.winavr.input.1696846525">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
+		</scannerConfigBuildInfo>
 		<scannerConfigBuildInfo instanceId="de.innot.avreclipse.configuration.app.release.448623520.654999664;de.innot.avreclipse.configuration.app.release.448623520.654999664.;de.innot.avreclipse.tool.compiler.winavr.app.release.1121760896;de.innot.avreclipse.compiler.winavr.input.990708119">
 			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="de.innot.avreclipse.core.AVRGCCManagedMakePerProjectProfileC"/>
 		</scannerConfigBuildInfo>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>
 </cproject>

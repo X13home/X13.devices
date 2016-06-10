@@ -20,7 +20,8 @@ typedef struct S_BLOCK_LINK
 #endif  //  portBYTE_ALIGNMENT
 
 #define configADJUSTED_HEAP_SIZE    (configTOTAL_HEAP_SIZE - portBYTE_ALIGNMENT)
-#define heapSTRUCT_SIZE ((uint16_t)((sizeof(BlockLink_t) + (portBYTE_ALIGNMENT - 1)) & ~portBYTE_ALIGNMENT_MASK))
+#define heapSTRUCT_SIZE ((uint16_t)((sizeof(BlockLink_t) + (portBYTE_ALIGNMENT - 1)) &  \
+                                                           ~portBYTE_ALIGNMENT_MASK))
 
 // Allocate the memory for the heap.
 static uint8_t mqMemHeap[configTOTAL_HEAP_SIZE];
@@ -38,7 +39,8 @@ void mqInit(void)
     uint8_t     * pAlignedHeap;
 
     // Ensure the heap starts on a correctly aligned boundary.
-    pAlignedHeap = (uint8_t *)(((portPOINTER_SIZE_TYPE)&mqMemHeap[portBYTE_ALIGNMENT]) & ((portPOINTER_SIZE_TYPE)~portBYTE_ALIGNMENT_MASK));
+    pAlignedHeap = (uint8_t *)(((portPOINTER_SIZE_TYPE)&mqMemHeap[portBYTE_ALIGNMENT]) & 
+                               ((portPOINTER_SIZE_TYPE)~portBYTE_ALIGNMENT_MASK));
 
     // mqMemStart is used to hold a pointer to the first item in the list of free blocks.
     mqMemStart.pNext = (void *)pAlignedHeap;
@@ -67,7 +69,8 @@ void * mqAlloc(size_t xWantedSize)
 
     ENTER_CRITICAL_SECTION();
 
-    // The wanted size is increased so it can contain a BlockLink_t structure in addition to the requested amount of bytes.
+    // The wanted size is increased so it can contain a BlockLink_t structure 
+    //      in addition to the requested amount of bytes.
     xWantedSize += heapSTRUCT_SIZE;
 
     // Ensure that blocks are always aligned to the required number of bytes.

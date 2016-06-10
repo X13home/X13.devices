@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2014 <comparator@gmx.de>
+Copyright (c) 2011-2016 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -13,9 +13,10 @@ See LICENSE file for license details.
 #ifndef _A4SN10_H
 #define _A4SN10_H
 
-// Arduino MEGA
-// uc ATMega2560
-// PHY: UART
+// Board:   Arduino MEGA
+// uc:      ATMega2560
+// PHY1:    UART
+// PHY2:    --
 
 // Dio  Prt CN          FN1     FN2
 //  40  PF0 A0          Ain0
@@ -100,51 +101,57 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define EXTDIO_MAXPORT_NR           11                                  // Number of used physical digital Ports
-#define HAL_DIO_MAPPING             {40, 41, 42, 43, 44, 45, 46, 47, 72, 73, 74, 75, 76, 77, 78, 79,    \
-                                     255, 255, 36, 37, 53, 35, 59, 60, 61, 62, 12, 13, 14, 15, 65, 64,  \
-                                     57, 56, 27, 26, 25, 24, 0, 1, 2, 3, 4, 5, 6, 7, 23, 22,            \
-                                     21, 20, 19, 18, 17, 16, 31, 50, 49, 48, 87, 86, 85, 84, 83, 82,    \
-                                     81, 80, 11, 10, 9, 8}
+#define EXTDIO_MAXPORT_NR           11          // Number of used physical digital Ports
+#define HAL_DIO_MAPPING     { 40, 41, 42, 43, 44, 45, 46, 47, 72, 73, 74, 75, 76, 77, 78, 79,   \
+                             255, 255, 36, 37, 53, 35, 59, 60, 61, 62, 12, 13, 14, 15, 65, 64,  \
+                              57, 56, 27, 26, 25, 24, 0, 1, 2, 3, 4, 5, 6, 7, 23, 22,           \
+                              21, 20, 19, 18, 17, 16, 31, 50, 49, 48, 87, 86, 85, 84, 83, 82,   \
+                              81, 80, 11, 10, 9, 8}
 // End DIO Section
 
 // PWM Section
 #define EXTPWM_USED                 1
 #define HAL_PWM_BASE_OFFSET          18
 #define HAL_PWM_PORT2CFG             {((3<<3) | 1),      /* PE4, OC3B */ \
-                                     ((3<<3) | 2),      /* PE5, OC3C */ \
-                                     ((0<<3) | 1),      /* PG5, OC0B */ \
-                                     ((3<<3) | 0),      /* PE3, OC3A */ \
-                                     ((4<<3) | 0),      /* PH3, OC4A */ \
-                                     ((4<<3) | 1),      /* PH4, OC4B */ \
-                                     ((4<<3) | 2),      /* PH5, OC4C */ \
-                                     255,255,           /* PH6, PB4, OC2 busy */\
-                                     ((1<<3) | 0),      /* PB5, OC1A */ \
-                                     ((1<<3) | 1),      /* PB6, OC1B */ \
-                                     ((1<<3) | 2)}      /* PB7, OC1C */
+                                      ((3<<3) | 2),      /* PE5, OC3C */ \
+                                      ((0<<3) | 1),      /* PG5, OC0B */ \
+                                      ((3<<3) | 0),      /* PE3, OC3A */ \
+                                      ((4<<3) | 0),      /* PH3, OC4A */ \
+                                      ((4<<3) | 1),      /* PH4, OC4B */ \
+                                      ((4<<3) | 2),      /* PH5, OC4C */ \
+                                      255,255,           /* PH6, PB4, OC2 busy */\
+                                      ((1<<3) | 0),      /* PB5, OC1A */ \
+                                      ((1<<3) | 1),      /* PB6, OC1B */ \
+                                      ((1<<3) | 2)}      /* PB7, OC1C */
  // End PWM Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           17                                  // ADC0 - ADC15, Vbg
-#define EXTAIN_BASE_2_APIN          {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x1E}
-#define EXTAIN_REF                  0x0F                                // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
+#define EXTAIN_MAXPORT_NR           0x28                                  // ADC0 - ADC15, Vbg
+#define HAL_AIN_BASE2APIN           {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07,        \
+                                     0x20, 0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27, 0x1E}
 // End Analogue Inputs
+
+// UART Section
+#define HAL_UART_NUM_PORTS          4
+#define HAL_USE_USART0              3
+#define HAL_USE_USART1              0
+#define HAL_USE_USART2              1
+#define HAL_USE_USART3              2
+#define EXTSER_USED                 3
+// End UART Section
 
 // TWI Section
 #define EXTTWI_USED                 1
 // End TWI Section
 
-// UART Section
-#define HAL_USE_USART0              3
-#define HAL_USE_USART1              0
-#define HAL_USE_USART2              1
-#define HAL_USE_USART3              2
-
-#define HAL_UART_NUM_PORTS          4
-
-#define EXTSER_USED                 1
-// End UART Section
+// PLC Section
+#define EXTPLC_USED                     1
+#define EXTPLC_SIZEOF_PRG               2048
+#define EXTPLC_SIZEOF_PRG_CACHE         32      // Must be 2^n, bytes
+#define EXTPLC_SIZEOF_RAM               256     // size in uint32_t
+#define EXTPLC_SIZEOF_RW                16      // size in uint32_t
+// PLC Section
 
 // End Extensions configuration
 ////////////////////////////////////////////////////////
