@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- device configuration file for STM32F1 devices  -->
 <root head="/etc/declarers/dev">
-    <item name="S3SC10" value="pack://application:,,/CC;component/Images/ty_ugate.png"  saved="True" type="System.String" ver="3.16.0609">
+    <item name="S3SC10" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0609">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />
             <item name="long" value="yI" saved="True" type="System.String" />
