@@ -120,6 +120,7 @@ extern "C" {
 #define RFM69_SELECT()              GPIOB->BRR = GPIO_Pin_12
 #define RFM69_RELEASE()             GPIOB->BSRR = GPIO_Pin_12
 #define RFM69_IRQ_PIN               8                           // PA8
+#define RFM69_IRQ_STATE()           ((GPIOA->IDR & GPIO_Pin_8) != 0)
 #define RFM69_PHY                   1
 #include "PHY/RFM69/rfm69_phy.h"
 // End RFM69 Section

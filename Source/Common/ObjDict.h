@@ -25,7 +25,7 @@ typedef enum
     // Global Settings
     objNodeName         = (uint16_t)0xFF00, // _sName<String>
     objTASleep          = (uint16_t)0xFF01, // cfg/XD_SleepTime<UIint16>
-    objRTC              = (uint16_t)0xFF07, // cfg/Xa_RTC       - Array - Len 6
+    objRTC              = (uint16_t)0xFF07, // internal
     objADCaverage       = (uint16_t)0xFF08, // cfg/XD_ADCintegrate<UIint16>
     // RF Node
     objRFNodeId         = (uint16_t)0xFF10, // cfg/XD_DeviceAddr<UInt8>
@@ -164,8 +164,8 @@ enum
     eeGroupID,
     eeGroupIDbody,
     eeChannel,
+    eeChannelBody,
 #endif  //  RF_ADDR_t
-
 #ifdef EXTPLC_USED
     eePLCStackBot,
     eePLCStackBotBody = eePLCStackBot + sizeof(uint32_t) - 1,

@@ -23,17 +23,19 @@ See LICENSE file for license details.
 #define RFM68_FSTEP     (RFM69_FXO/524288UL)
 #define RFM69_FDEV      20000U          // (FDEV + BitRate / 2 <= 500KHz)
 // FSK Mode: RxBw = FXOSC / (RxBwMant * 2^(RxBwExp + 2))
-// RX filter BW 100 kHz = 32M /(20 * 2^(2 + 2))
+// RX filter BW 100 KHz = 32M /(20 * 2^(2 + 2))
 #define RFM69_RXBW      (RFM69_RXBW_MANT_20 | RFM69_RXBW_EXP_2)
 
-
-#define RFM69_RFBASE    868000000UL
-
-// Freq:
-// 290-340  - 315
-// 424-510  - 433
-// 862-890  - 868
-// 890-1020 - 915
+// RF States
+typedef enum
+{
+    RFM69_TRV_SLEEP = 0,    // Sleep mode, all blocks disabled
+    RFM69_TRV_IDLE,
+    RFM69_TRV_RXIDLE,
+    RFM69_TRV_RXDONE,
+    RFM69_TRV_TXIDLE,
+    RFM69_TRV_TXDONE
+}RFM69_TRVSTATE_t;
 
 static const uint8_t rfm69config[][2] = {
     // Data operation mode and Modulation settings
@@ -46,65 +48,20 @@ static const uint8_t rfm69config[][2] = {
     // Frequency Deviation setting
     {RFM69_REG_FDEVMSB,     ((RFM69_FDEV / RFM68_FSTEP) >> 8)},
     {RFM69_REG_FDEVLSB,     ((RFM69_FDEV / RFM68_FSTEP) & 0xFF)},
-    // RF Carrier Frequency
-    // {RFM69_REG_FRFMSB,      ((RF_BASE_FREQ / RFM68_FSTEP) >> 16)},
-    // {RFM69_REG_FRFMID,     (((RF_BASE_FREQ / RFM68_FSTEP) >> 8) & 0xFF)},
-    // {RFM69_REG_FRFLSB,      ((RF_BASE_FREQ / RFM68_FSTEP) & 0xFF)},
-    // RC Oscillators Settings
-    // {RFM69_REG_OSC1,
-    // AFC control in low modulation index situations
-    // {RFM69_REG_AFCCTRL
-    // Listen Mode settings
-    // {RFM69_REG_LISTEN1
-    // Listen Mode Idle duration
-    // {RFM69_REG_LISTEN2
-    // Listen Mode Rx duration
-    // {RFM69_REG_LISTEN3
-    // PA selection and Output Power control
-    // {RFM69_REG_PALEVEL
-    // Control of the PA ramp time in FSK mode
-    // {RFM69_REG_PARAMP
-    // Over Current Protection control
-    // {RFM69_REG_OCP
-    // LNA settings
-    // {RFM69_REG_LNA
     // Channel Filter BW Control
     {RFM69_REG_RXBW,        RFM69_RXBW_DCCFREQ_2 |                  // Recommended Cut-off frequency
                             RFM69_RXBW},
-    // Channel Filter BW control during the AFC routine
-    // {RFM69_REG_AFCBW,
-    // OOK demodulator selection and control in peak mode
-    // {RFM69_REG_OOKPEAK
-    // Average threshold control of the OOK demodulator
-    // {RFM69_REG_OOKAVG
-    // Fixed threshold control of the OOK demodulator
-    // {RFM69_REG_OOKFIX
-    // AFC and FEI control and status
-    // {RFM69_REG_AFCFEI
-    // frequency correction of the AFC
-    // RSSI-related settings
-    // {RFM69_REG_RSSICONFIG
     // Mapping of pins DIO0 to DIO3
     {RFM69_REG_DIOMAPPING1, RFM69_DIOMAPPING1_DIO0_1},              // DIO0 - PayloadReady / TxReady
     // Mapping of pins DIO4 and DIO5, ClkOut frequency
     {RFM69_REG_DIOMAPPING2, RFM69_DIOMAPPING2_CLKOUT_OFF},          // ClkOut Disable
     // Status register: FIFO handling flags...
     {RFM69_REG_IRQFLAGS2,   RFM69_IRQFLAGS2_FIFOOVERRUN},           // Clear FIFO overrun flag
-    // RSSI Threshold control
+    // RSSI Threshold control, Val = -THdbm * 2
     {RFM69_REG_RSSITHRESH, 220},                                    // -110 dBm
-    // Timeout duration between Rx request and RSSI detection
-    //{RFM69_REG_RXTIMEOUT1
-    // Timeout duration between RSSI detection and PayloadReady
-    //{RFM69_REG_RXTIMEOUT2
-    // Preamble length, default value - 0x03
-    //{RFM69_REG_PREAMBLEMSB
-    //{RFM69_REG_PREAMBLELSB
     // Sync Word Recognition control
     {RFM69_REG_SYNCCONFIG,  RFM69_SYNC |                            // Enable Sync
                             RFM69_SYNC_SIZE_2},                     // 2 bytes, tolerance 0
-    // Sync Word bytes, 1 through 8
-    //{RFM69_REG_SYNCVALUE1
-    //{RFM69_REG_SYNCVALUE8
     // Packet mode settings
     {RFM69_REG_PACKETCONFIG1, RFM69_PACKET1_FORMAT_VARIABLE |       // Packet variable length
                               RFM69_PACKET1_DCFREE_OFF |            // without encoding
@@ -115,12 +72,8 @@ static const uint8_t rfm69config[][2] = {
                               RFM69_PACKET1_ADRSFILTERING_NODEBROADCAST},
     // Payload length setting, max length in Rx
     {RFM69_REG_PAYLOADLENGTH, sizeof(MQ_t)},
-    // Node address
-    //{RFM69_REG_NODEADRS
     // Broadcast address
     {RFM69_REG_BROADCASTADRS, 0},
-    // Auto modes settings
-    //{RFM69_REG_AUTOMODES
     // Fifo threshold, Tx start condition
     // Start Transmission if FIFO not empty
     {RFM69_REG_FIFOTHRESH,  RFM69_FIFOTHRESH_TXSTART_FIFONOTEMPTY | RFM69_FIFOTHRESH_VALUE},
@@ -129,9 +82,6 @@ static const uint8_t rfm69config[][2] = {
     {RFM69_REG_PACKETCONFIG2, RFM69_PACKET2_RXRESTARTDELAY_2BITS |
                               RFM69_PACKET2_AUTORXRESTART_ON |      // ?
                               RFM69_PACKET2_AES_OFF},
-    // 16 bytes of the cypher key
-    //{RFM69_REG_AESKEY1
-    //{RFM69_REG_AESKEY16
     // run DAGC continuously in RX mode for Fading Margin Improvement, 
     // recommended default for AfcLowBetaOn=0
     {RFM69_REG_TESTDAGC, RFM69_DAGC_IMPROVED_LOWBETA0}
@@ -139,6 +89,7 @@ static const uint8_t rfm69config[][2] = {
 
 static uint8_t          rfm69_NodeID;
 static Queue_t          rfm69_tx_queue = {NULL, NULL, 4, 0};
+static uint8_t          rfm69_state = RFM69_TRV_SLEEP;
 
 // Local Subroutines
 
@@ -169,22 +120,29 @@ static void rmm69_setMode(uint8_t mode)
     while((rfm69_readReg(RFM69_REG_IRQFLAGS1) & RFM69_IRQFLAGS1_MODEREADY) == 0);
 }
 
-static void rfm69_setFreq(uint8_t chan)
+// Channel space - 5KHz
+static void rfm69_setFreq(uint16_t chan)
 {
     // More accurate calculation
     int64_t frf;
-    int32_t offset = chan & 0x7F;
-    offset *= 25000;
 
-    frf = RFM69_RFBASE;
+    int32_t offset = chan & 0x7FFF;
+    offset *= 5000U;
 
-    if(chan & 0x80)
+    frf = RFM69_FRQ;
+
+    if(chan & 0x8000U)
     {
         frf -= offset;
     }
     else
     {
         frf += offset;
+    }
+
+    if((frf < RFM69_FRQ_MIN) || (frf >= RFM69_FRQ_MAX))
+    {
+        frf = RFM69_FRQ;
     }
 
     frf *= 524288UL;        // 2^19
@@ -200,7 +158,7 @@ static void rfm69_setFreq(uint8_t chan)
 
 void RFM69_Init(void)
 {
-    uint8_t     Channel;
+    uint16_t     Channel;
     uint16_t    GroupID;
 
     MQ_t * pBuf;
@@ -212,10 +170,10 @@ void RFM69_Init(void)
     // Load Device ID
     uint8_t Len = sizeof(uint8_t);
     ReadOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF,  &Len, &rfm69_NodeID);
-    // Load Frequency channel
-    ReadOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, &Len, &Channel);
-    // Load Group ID(Synchro)
     Len = sizeof(uint16_t);
+    // Load Frequency channel
+    ReadOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, &Len, (uint8_t *)&Channel);
+    // Load Group ID(Synchro)
     ReadOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF,  &Len, (uint8_t *)&GroupID);
 
     // Init Hardware
@@ -225,7 +183,7 @@ void RFM69_Init(void)
     RFM69_RELEASE();
 
     // Configure IRQ Pin
-    hal_dio_configure(RFM69_IRQ_PIN, DIO_MODE_IN_PU);
+    hal_dio_configure(RFM69_IRQ_PIN, DIO_MODE_IN_PD);
 
     // Configure SPI
     hal_spi_cfg(RFM69_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 10000000UL);
@@ -252,6 +210,7 @@ void RFM69_Init(void)
     rfm69_setFreq(Channel);
 
     rmm69_setMode(RFM69_OPMODE_SLEEP);
+    rfm69_state = RFM69_TRV_SLEEP;
 }
 
 void RFM69_Send(void *pBuf)

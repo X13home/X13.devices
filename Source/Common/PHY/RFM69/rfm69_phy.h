@@ -13,6 +13,28 @@ See LICENSE file for license details.
 #ifndef _RFM69_PHY_H
 #define _RFM69_PHY_H
 
+#if ((RF_BASE_FREQ >= 290000000UL) && (RF_BASE_FREQ < 340000000UL))
+#define RFM69_FRQ_MIN               290000000UL
+#define RFM69_FRQ                   315000000UL
+#define RFM69_FRQ_MAX               340000000UL
+#elif ((RF_BASE_FREQ >= 424000000UL) && (RF_BASE_FREQ < 510000000UL))
+#define RFM69_FRQ_MIN               424000000UL
+#define RFM69_FRQ                   433000000UL
+#define RFM69_FRQ_MAX               510000000UL
+#elif ((RF_BASE_FREQ >= 862000000UL) && (RF_BASE_FREQ < 890000000UL))
+#define RFM69_FRQ_MIN               862000000UL
+#define RFM69_FRQ                   868000000UL
+#define RFM69_FRQ_MAX               890000000UL
+#elif ((RF_BASE_FREQ >= 890000000UL) && (RF_BASE_FREQ < 1020000000UL))
+#define RFM69_FRQ_MIN               890000000UL
+#define RFM69_FRQ                   915000000UL
+#define RFM69_FRQ_MAX               1020000000UL
+#else
+#error RF_BASE_FREQ this frequency is impossible
+#endif  //  RF_BASE_FREQ
+
+#define OD_DEFAULT_CHANNEL          ((RF_BASE_FREQ - RFM69_FRQ)/5000)
+#define OD_DEFAULT_GROUP            0x2DD4
 
 #if (RFM69_PHY == 1)
 
