@@ -36,6 +36,8 @@ See LICENSE file for license details.
 #include "S2xxxx/S2Sn13.h"      // UART ALT
 #elif   (defined CFG_S2SC13)
 #include "S2xxxx/S2SC13.h"      // UART ALT + CC1101
+#elif   (defined CFG_S2Qn13)
+#include "S2xxxx/S2Qn13.h"      // RFM69
 
 // STM32F051K8
 #elif   (defined CFG_S2SC14)

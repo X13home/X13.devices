@@ -32,6 +32,7 @@ typedef enum
     objRFGroup          = (uint16_t)0xFF11, // cfg/XD_GroupID<UInt16>
     objRFChannel        = (uint16_t)0xFF12, // cfg/XD_Channel<UInt8>
     objRFGateId         = (uint16_t)0xFF14, // cfg/XD_GateId
+    objRFkey            = (uint16_t)0xFF18, // cfg/XA_Key
     // Lan Node 
     objMACAddr          = (uint16_t)0xFF20, // cfg/Xa_MACAddr   - Array - Len 6
     objIPAddr           = (uint16_t)0xFF21, // cfg/Xa_IPAddr    - Array - Len 4

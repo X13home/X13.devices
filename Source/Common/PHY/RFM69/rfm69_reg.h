@@ -146,7 +146,7 @@ See LICENSE file for license details.
                                                             // OOK: filtering with fcutoff = BR
 #define RFM69_DATAMODUL_MODULATIONSHAPING_2         0x02    // FSK: Gaussian filter, BT = 0.5
                                                             // OOK: filtering with fcutoff = 2*BR
-#define RFM69_DATAMODUL_MODULATIONSHAPING_2         0x03    // FSK: Gaussian filter, BT = 0.3
+#define RFM69_DATAMODUL_MODULATIONSHAPING_3         0x03    // FSK: Gaussian filter, BT = 0.3
 ////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////
@@ -310,11 +310,11 @@ See LICENSE file for license details.
 #define RFM69_LNA_GAINSELECT_AUTO                   0x00    // gain set by the internal AGC loop
                                                             // default                      
 #define RFM69_LNA_GAINSELECT_MAX                    0x01    // G1 = highest gain 
-#define RFM69_LNA_GAINSELECT_MAX-6                  0x02    // G2 = highest gain - 6 dB
-#define RFM69_LNA_GAINSELECT_MAX-12                 0x03    // G3 = highest gain - 12 dB
-#define RFM69_LNA_GAINSELECT_MAX-24                 0x04    // G4 = highest gain - 24 dB
-#define RFM69_LNA_GAINSELECT_MAX-36                 0x05    // G5 = highest gain - 36 dB
-#define RFM69_LNA_GAINSELECT_MAX-48                 0x06    // G6 = highest gain - 48 dB
+#define RFM69_LNA_GAINSELECT_MAX_6                  0x02    // G2 = highest gain - 6 dB
+#define RFM69_LNA_GAINSELECT_MAX_12                 0x03    // G3 = highest gain - 12 dB
+#define RFM69_LNA_GAINSELECT_MAX_24                 0x04    // G4 = highest gain - 24 dB
+#define RFM69_LNA_GAINSELECT_MAX_36                 0x05    // G5 = highest gain - 36 dB
+#define RFM69_LNA_GAINSELECT_MAX_48                 0x06    // G6 = highest gain - 48 dB
 ////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////
@@ -350,7 +350,7 @@ See LICENSE file for license details.
 ////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////
-// RegAfcBw
+// RegAfcBw - 0x1A
 // bits 7-5, DccFreq parameter used during the AFC
 #define RFM69_AFCBW_DCCFREQAFC_0                    0x00
 #define RFM69_AFCBW_DCCFREQAFC_1                    0x20
@@ -601,5 +601,59 @@ See LICENSE file for license details.
 // RegSyncValue1-8 0x2F-0x36
 // n'th byte of Sync word, Used if SyncOn is set.
 ////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+// RegPacketConfig1 - 0x37
+// Packet mode settings
+#define RFM69_PACKET1_FORMAT_VARIABLE               0x80
+#define RFM69_PACKET1_DCFREE_OFF                    0x00    // Default
+#define RFM69_PACKET1_DCFREE_MANCHESTER             0x20
+#define RFM69_PACKET1_DCFREE_WHITENING              0x40
+#define RFM69_PACKET1_CRC_ON                        0x10    // Default
+#define RFM69_PACKET1_CRC_OFF                       0x00
+#define RFM69_PACKET1_CRCAUTOCLEAR_ON               0x00    // Default
+#define RFM69_PACKET1_CRCAUTOCLEAR_OFF              0x08
+#define RFM69_PACKET1_ADRSFILTERING_OFF             0x00    // Default
+#define RFM69_PACKET1_ADRSFILTERING_NODE            0x02
+#define RFM69_PACKET1_ADRSFILTERING_NODEBROADCAST   0x04
+////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+// RegFifoThresh - 0x3C
+#define RFM69_FIFOTHRESH_TXSTART_FIFOTHRESH         0x00    // Reset value
+#define RFM69_FIFOTHRESH_TXSTART_FIFONOTEMPTY       0x80    // Recommended default
+#define RFM69_FIFOTHRESH_VALUE                      0x0F    // Default
+////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+// RegPacketConfig2 - 0x3D
+#define RFM69_PACKET2_RXRESTARTDELAY_1BIT           0x00    // Default
+#define RFM69_PACKET2_RXRESTARTDELAY_2BITS          0x10
+#define RFM69_PACKET2_RXRESTARTDELAY_4BITS          0x20
+#define RFM69_PACKET2_RXRESTARTDELAY_8BITS          0x30
+#define RFM69_PACKET2_RXRESTARTDELAY_16BITS         0x40
+#define RFM69_PACKET2_RXRESTARTDELAY_32BITS         0x50
+#define RFM69_PACKET2_RXRESTARTDELAY_64BITS         0x60
+#define RFM69_PACKET2_RXRESTARTDELAY_128BITS        0x70
+#define RFM69_PACKET2_RXRESTARTDELAY_256BITS        0x80
+#define RFM69_PACKET2_RXRESTARTDELAY_512BITS        0x90
+#define RFM69_PACKET2_RXRESTARTDELAY_1024BITS       0xA0
+#define RFM69_PACKET2_RXRESTARTDELAY_2048BITS       0xB0
+#define RFM69_PACKET2_RXRESTARTDELAY_NONE           0xC0
+#define RFM69_PACKET2_RXRESTART                     0x04
+#define RFM69_PACKET2_AUTORXRESTART_ON              0x02    // Default
+#define RFM69_PACKET2_AUTORXRESTART_OFF             0x00
+#define RFM69_PACKET2_AES_ON                        0x01
+#define RFM69_PACKET2_AES_OFF                       0x00    // Default
+////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+// RegTestDagc - 0x6F
+// Fading Margin Improvement
+#define RFM69_DAGC_NORMAL              0x00     // Reset value
+#define RFM69_DAGC_IMPROVED_LOWBETA1   0x20
+#define RFM69_DAGC_IMPROVED_LOWBETA0   0x30     // Recommended default
+////////////////////////////////////////////////////////
+
 
 #endif  //  _RFM69_REG_H_
