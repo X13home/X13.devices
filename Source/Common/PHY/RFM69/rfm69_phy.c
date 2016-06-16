@@ -18,21 +18,6 @@ See LICENSE file for license details.
 
 #include "rfm69_reg.h"
 
-
-#define RFM69_PREDIV    524288UL
-#define RFM69_BAUD      38400U
-#define RFM69_FDEV      20000U
-
-// FSK Mode: RxBw = FXOSC / (RxBwMant * 2^(RxBwExp + 2))
-// RX filter BW 100 KHz = 32M /(20 * 2^(2 + 2))
-//#define RFM69_RXBW      (RFM69_RXBW_MANT_20 | RFM69_RXBW_EXP_2)
-// 10 KHz
-//#define RFM69_RXBW      (RFM69_RXBW_MANT_24 | RFM69_RXBW_EXP_5)
-
-// Improved AFC routine for signals with modulation index lower than 2
-// modulation index = (2*Fdev/BR), and should be <= 10 and >= 0,5
-//#define RFM69_IMPROVED_AFC  1
-
 // RF States
 typedef enum
 {
@@ -40,73 +25,6 @@ typedef enum
     RFM69_TRV_RX,
     RFM69_TRV_TX
 }RFM69_TRVSTATE_t;
-
-/*
-    // 0x0B - AFC control in low modulation index situations
-#ifdef RFM69_IMPROVED_AFC
-    {RFM69_REG_AFCCTRL, RFM69_AFCCTRL_LOWBETA_ON},
-#else
-    {RFM69_REG_AFCCTRL, RFM69_AFCCTRL_LOWBETA_OFF},
-#endif  //  RFM69_IMPROVED_AFC
-    // Low power, PA0 +13 dBm, OCP off
-    // 0x11 - PA selection and Output Power control
-    {RFM69_REG_PALEVEL, RFM69_PALEVEL_PA0_ON | 31},
-    // 0x12 - // Control of the PA ramp time in FSK mode
-    // Ramp Time = 10 us
-    {RFM69_REG_PARAMP, RFM69_PARAMP_10},
-    // 0x13 - Over Current Protection control
-    {RFM69_REG_OCP, RFM69_OCP_OFF},
-    
-
-    // 0x28 - Status register: FIFO handling flags...
-    // A8, 10
-    {RFM69_REG_IRQFLAGS2,   RFM69_IRQFLAGS2_FIFOOVERRUN},           // Clear FIFO overrun flag
-    // 0x29 - RSSI Threshold control, Val = -THdbm * 2
-    // A9, DC
-    {RFM69_REG_RSSITHRESH, 200},                                    // -100 dBm
-    // 0x2E - Sync Word Recognition control
-    // AE, 88
-    {RFM69_REG_SYNCCONFIG,  RFM69_SYNC |                            // Enable Sync
-                            RFM69_SYNC_SIZE_2},                     // 2 bytes, tolerance 0
-    // 0x37 - Packet mode settings
-    // B7, 94
-    {RFM69_REG_PACKETCONFIG1, RFM69_PACKET1_FORMAT_VARIABLE |       // Packet variable length
-                              RFM69_PACKET1_DCFREE_OFF |            // without encoding
-                              RFM69_PACKET1_CRC_ON |                // Enable CRC
-                              // On CRC error, clear FIFO and restart new packet reception
-                              RFM69_PACKET1_CRCAUTOCLEAR_ON |
-                              // Address field must match NodeAddress or BroadcastAddress
-                              RFM69_PACKET1_ADRSFILTERING_NODEBROADCAST},
-    // 0x3C - Fifo threshold, Tx start condition
-    // Start Transmission if FIFO not empty
-    // BC, 8F
-    {RFM69_REG_FIFOTHRESH,  RFM69_FIFOTHRESH_TXSTART_FIFONOTEMPTY | RFM69_FIFOTHRESH_VALUE},
-    // 0x3D - Packet mode settings
-    //  Rx automatically restarted after InterPacketRxDelay.
-    // BD, 12
-    {RFM69_REG_PACKETCONFIG2, RFM69_PACKET2_RXRESTARTDELAY_2BITS |
-                              RFM69_PACKET2_AUTORXRESTART_ON |
-                              RFM69_PACKET2_AES_OFF},
-    // 0x6F - Fading Margin Improvement
-    // EF, 30
-    // run DAGC continuously in RX mode for Fading Margin Improvement, 
-    // recommended default for AfcLowBetaOn=0
-#ifdef RFM69_IMPROVED_AFC
-    {RFM69_REG_TESTDAGC, RFM69_DAGC_IMPROVED_LOWBETA1}
-#else
-    {RFM69_REG_TESTDAGC, RFM69_DAGC_IMPROVED_LOWBETA0}
-#endif  //  RFM69_IMPROVED_AFC
-
-    // 0x07/0x08/0x09 - RF Carrier Frequency
-    //{RFM69_REG_FRFMSB, RFM69_REG_FRFMSB_DEF},                   // RegFrfMsb
-    //{RFM69_REG_FRFMID, RFM69_REG_FRFMID_DEF},                   // RegFrfMid
-    //{RFM69_REG_FRFLSB, RFM69_REG_FRFLSB_DEF},                   // RegFrfLsb
-    //{0x2F, 0x2D},   //  RegSyncValue1
-    //{0x30, 0xD4},   //  RegSyncValue2
-    //{0x31, 0x2D},   //  RegSyncValue3
-    //{0x32, 0xD4},   //  RegSyncValue4
-    //{0x39, 0xFF},   //  RegNodeAdrs
-*/
 
 static const uint8_t rfm69config[][2] = {
     // 0x02 - Data operation mode and Modulation settings
@@ -120,10 +38,21 @@ static const uint8_t rfm69config[][2] = {
     // 0x05/0x06 - Frequency Deviation setting
     {RFM69_REG_FDEVMSB, RFM69_REG_FDEVMSB_DEF},                 // RegFdevMsb 0x01
     {RFM69_REG_FDEVLSB, RFM69_REG_FDEVLSB_DEF},                 // RegFdevLsb 0x48
-    {0x0B, 0x40},   //  RegAfcCtrl
-    {0x11, 0x9F},   //  RegPaLevel
-    {0x12, 0x09},   //  RegPaRamp
-    {0x13, 0x1A},   //  RegOcp
+    // 0x0B - AFC control in low modulation index situations
+    // RegAfcCtrl - 0x00
+    {RFM69_REG_AFCCTRL, RFM69_AFCCTRL_LOWBETA_OFF},
+    // Low power, PA0 +13 dBm, OCP on
+    // 0x11 - PA selection and Output Power control
+    // RegPaLevel 0x9F
+    {RFM69_REG_PALEVEL, RFM69_PALEVEL_PA0_ON | 31},
+    // 0x12 - // Control of the PA ramp time in FSK mode
+    // Ramp Time = 40 us
+    // RegPaRamp 0x09
+    {RFM69_REG_PARAMP, RFM69_PARAMP_40},
+    // 0x13 - Over Current Protection control
+    // Overcurrent protection enabled, 95 mA
+    // RegOcp - 0x1A
+    {RFM69_REG_OCP, RFM69_OCP_ON | RFM69_OCP_TRIM_95},
     // 0x18 - LNA settings
     // RegLna 0x88
     {RFM69_REG_LNA, RFM69_LNA_ZIN_200 |                         // Zin = 200 ohms
@@ -132,25 +61,57 @@ static const uint8_t rfm69config[][2] = {
     {RFM69_REG_RXBW, RFM69_REG_RXBW_DEF},                       // RegRxBw 0x4A
     {0x1A, 0x8B},   //  RegAfcBw
     {0x1E, 0x10},   //  RegAfcFei
-    {0x25, 0x00},   //  RegDioMapping1
+    // 0x25 - Mapping of pins DIO0 to DIO3, 
+    // RegDioMapping1 0x01
+    {RFM69_REG_DIOMAPPING1, RFM69_DIOMAPPING1_DIO0_1},          // DIO0 - Rx PayloadReady
     // 0x26 - Mapping of pins DIO4 and DIO5, ClkOut frequency
     // RegDioMapping2 - 0x07
     {RFM69_REG_DIOMAPPING2, RFM69_DIOMAPPING2_CLKOUT_OFF},      // ClkOut Disable
-    {0x29, 0xE4},   //  RegRssiThresh
+    // 0x29 - RSSI Threshold control, Val = -THdbm * 2
+    // RegRssiThresh - 0xE4(default)
+    {RFM69_REG_RSSITHRESH, 200},                                // -100 dBm
     {0x2A, 0x00},   //  RegRxTimeout1
     {0x2B, 0x00},   //  RegRxTimeout2
-    {0x2C, 0x00},   //  RegPreambleMsb
-    {0x2D, 0x03},   //  RegPreambleLsb
-    {0x2E, 0x98},   //  RegSyncConfig
-    {0x37, 0x95},   //  RegPacketConfig1
-                    //  bit 0 - CRC mode, 0 CCITT, 1 IBM
-    {0x38, 0x40},   //  RegPayloadLength
-    {0x3A, 0x00},   //  RegBroadcastAdrs
+    // 0x2C/0x2D  Preamble length
+    // RegPreambleMsb, RegPreambleLsb 0x0003
+    {RFM69_REG_PREAMBLEMSB, 0x00},
+    {RFM69_REG_PREAMBLELSB, 0x03},
+    // 0x2E - Sync Word Recognition control
+    // RegSyncConfig - 0x88
+    {RFM69_REG_SYNCCONFIG,  RFM69_SYNC |                        // Enable Sync
+                            RFM69_SYNC_SIZE_2 |                 // Sync Size - 2 bytes
+                            RFM69_SYNC_TOL_0},                  // Tolerance 0 words
+    // 0x37 - Packet mode settings
+    // RegPacketConfig1 - 0x94
+    {RFM69_REG_PACKETCONFIG1, RFM69_PACKET1_FORMAT_VARIABLE |   // Packet variable length
+                              RFM69_PACKET1_DCFREE_OFF |        // without encoding
+                              RFM69_PACKET1_CRC_ON |            // Enable CRC
+                              RFM69_PACKET1_CRCAUTOCLEAR_ON |   // On CRC error, clear FIFO and 
+                                                                // restart new packet reception
+                  RFM69_PACKET1_ADRSFILTERING_NODEBROADCAST},   // Address field must
+                                                                // match NodeAddress
+                                                                // or BroadcastAddress
+    // 0x38 - Payload length setting
+    // RegPayloadLength - 0x40
+    {RFM69_REG_PAYLOADLENGTH, 0x40},
+    // 0x3A - Broadcast address
+    // RegBroadcastAdrs - 0x00
+    {RFM69_REG_BROADCASTADRS, RFM69_BROADCAST_ADDR},
     {0x3B, 0x00},   //  RegAutoModes
-    {0x3C, 0x8F},   //  RegFifoThresh
-    {0x3D, 0x02},   //  RegPacketConfig2
+    // 0x3C - Fifo threshold, Tx start condition
+    // Start Transmission if FIFO not empty
+    // RegFifoThresh - 0x8F
+    {RFM69_REG_FIFOTHRESH,  RFM69_FIFOTHRESH_TXSTART_FIFONOTEMPTY | RFM69_FIFOTHRESH_VALUE},
+    // 0x3D - Packet mode settings
+    // Rx automatically restarted after InterPacketRxDelay = 1, AES - Off
+    // RegPacketConfig2 0x02
+    {RFM69_REG_PACKETCONFIG2, RFM69_REG_PACKETCONFIG2_DEF},
     {0x58, 0x1B},   //  RegTestLna
-    {0x6F, 0x30},   //  RegTestDagc
+    // 0x6F - Fading Margin Improvement
+    // RegTestDagc - 0x30
+    // run DAGC continuously in RX mode for Fading Margin Improvement, 
+    // recommended default for AfcLowBetaOn=0
+    {RFM69_REG_TESTDAGC, RFM69_DAGC_IMPROVED_LOWBETA0},
     {0x71, 0x00}    //  RegTestAfc
 };
 
@@ -210,6 +171,7 @@ static void rfm69_setFreq(uint8_t chan)
 static MQ_t * rfm69_rx_task(void)
 {
     MQ_t * pRxBuf;
+    uint8_t i;
     
 #ifdef LED_On
     LED_On();
@@ -228,13 +190,13 @@ static MQ_t * rfm69_rx_task(void)
         return NULL;
     }
 
-    frameLen -= 3;
     pRxBuf = mqAlloc(sizeof(MQ_t));
+    frameLen -= 2;
+    pRxBuf->Length = frameLen;
 
-    hal_spi_exch8(RFM69_USE_SPI, 0);                            // Read destination address
+    i = hal_spi_exch8(RFM69_USE_SPI, 0);                        // Read destination address
     pRxBuf->a.phy1addr[0] = hal_spi_exch8(RFM69_USE_SPI, 0);    // Read Source address
 
-    uint8_t i;
     for(i = 0; i < frameLen; i++)                               // Read Payload
     {
         pRxBuf->m.raw[i] = hal_spi_exch8(RFM69_USE_SPI, 0);
@@ -370,8 +332,6 @@ void RFM69_Init(void)
     rfm69_writeReg(RFM69_REG_NODEADRS, rfm69_NodeID);
     rfm69_writeReg(RFM69_REG_SYNCVALUE1, GroupID >> 8);
     rfm69_writeReg(RFM69_REG_SYNCVALUE2, GroupID & 0xFF);
-    rfm69_writeReg(RFM69_REG_SYNCVALUE3, GroupID >> 8);
-    rfm69_writeReg(RFM69_REG_SYNCVALUE4, GroupID & 0xFF);
 
     rfm69_setFreq(Channel);
     
@@ -416,6 +376,8 @@ void  * RFM69_Get(void)
         {
             if(rfm69_readReg(RFM69_REG_IRQFLAGS2) & RFM69_IRQFLAGS2_PACKETSENT)
             {
+                // DIO0 - PayloadReady
+                rfm69_writeReg(RFM69_REG_DIOMAPPING1, RFM69_DIOMAPPING1_DIO0_1);
                 rmm69_setMode(RFM69_OPMODE_RX);     // Enter to RX State
                 rfm69_state = RFM69_TRV_RX;
             }

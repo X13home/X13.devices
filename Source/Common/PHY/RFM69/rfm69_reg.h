@@ -619,6 +619,8 @@ See LICENSE file for license details.
 #define RFM69_PACKET1_ADRSFILTERING_OFF             0x00    // Default
 #define RFM69_PACKET1_ADRSFILTERING_NODE            0x02
 #define RFM69_PACKET1_ADRSFILTERING_NODEBROADCAST   0x04
+#define RFM69_PACKET1_CRC_CCITT                     0x00    // default
+#define RFM69_PACKET1_CRC_IBM                       0x01    // No documentation
 ////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////

@@ -23,8 +23,14 @@ See LICENSE file for license details.
 // FDEV = Deviation / FSTEP
 #define RFM69_REG_FDEVMSB_DEF       0x01
 #define RFM69_REG_FDEVLSB_DEF       0x48
-// FSK, Rx Bandwidth = 100 KHz, CuttOff Freq 4%
+// FSK Mode: RxBw = FXOSC / (RxBwMant * 2^(RxBwExp + 2))
+// RX filter Bandwidth 100 KHz = 32M /(20 * 2^(2 + 2))
+// CuttOff Freq 4%
 #define RFM69_REG_RXBW_DEF          (RFM69_RXBW_DCCFREQ_2 | RFM69_RXBW_MANT_20 | RFM69_RXBW_EXP_2)
+
+#define RFM69_REG_PACKETCONFIG2_DEF (RFM69_PACKET2_RXRESTARTDELAY_1BIT |    \
+                                     RFM69_PACKET2_AUTORXRESTART_ON |       \
+                                     RFM69_PACKET2_AES_OFF)
 
 #if ((RF_BASE_FREQ >= 868000000UL) && (RF_BASE_FREQ <= 870000000UL))
 #define RFM69_BASE_FREQ             868000000UL
@@ -39,10 +45,12 @@ See LICENSE file for license details.
 #define OD_DEFAULT_CHANNEL          ((RF_BASE_FREQ - RFM69_BASE_FREQ)/25000)
 #define OD_DEFAULT_GROUP            0x2DD4
 
+#define RFM69_BROADCAST_ADDR        0x00
+
 #if (RFM69_PHY == 1)
 
 #define PHY1_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
+#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)RFM69_BROADCAST_ADDR
 #define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)0xFF
 
 #define PHY1_Init                   RFM69_Init
@@ -55,7 +63,7 @@ See LICENSE file for license details.
 #elif   (RFM69_PHY == 2)
 
 #define PHY2_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY2         (PHY2_ADDR_t)0x00
+#define ADDR_BROADCAST_PHY2         (PHY2_ADDR_t)RFM69_BROADCAST_ADDR
 #define ADDR_UNDEF_PHY2             (PHY2_ADDR_t)0xFF
 
 #define PHY2_Init                   RFM69_Init
