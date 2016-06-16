@@ -13,27 +13,30 @@ See LICENSE file for license details.
 #ifndef _RFM69_PHY_H
 #define _RFM69_PHY_H
 
-#if ((RF_BASE_FREQ >= 290000000UL) && (RF_BASE_FREQ < 340000000UL))
-#define RFM69_FRQ_MIN               290000000UL
-#define RFM69_FRQ                   315000000UL
-#define RFM69_FRQ_MAX               340000000UL
-#elif ((RF_BASE_FREQ >= 424000000UL) && (RF_BASE_FREQ < 510000000UL))
-#define RFM69_FRQ_MIN               424000000UL
-#define RFM69_FRQ                   433000000UL
-#define RFM69_FRQ_MAX               510000000UL
-#elif ((RF_BASE_FREQ >= 862000000UL) && (RF_BASE_FREQ < 890000000UL))
-#define RFM69_FRQ_MIN               862000000UL
-#define RFM69_FRQ                   868000000UL
-#define RFM69_FRQ_MAX               890000000UL
-#elif ((RF_BASE_FREQ >= 890000000UL) && (RF_BASE_FREQ < 1020000000UL))
-#define RFM69_FRQ_MIN               890000000UL
-#define RFM69_FRQ                   915000000UL
-#define RFM69_FRQ_MAX               1020000000UL
+// FXO = 32000000UL
+// FSTEP = FXO/2^19
+// Baud = 38400
+// BITRATE = RFM69_FXO/Baud
+#define RFM69_REG_BITRATEMSB_DEF    0x03
+#define RFM69_REG_BITRATELSB_DEF    0x41
+// Deviation = 20000
+// FDEV = Deviation / FSTEP
+#define RFM69_REG_FDEVMSB_DEF       0x01
+#define RFM69_REG_FDEVLSB_DEF       0x48
+// FSK, Rx Bandwidth = 100 KHz, CuttOff Freq 4%
+#define RFM69_REG_RXBW_DEF          (RFM69_RXBW_DCCFREQ_2 | RFM69_RXBW_MANT_20 | RFM69_RXBW_EXP_2)
+
+#if ((RF_BASE_FREQ >= 868000000UL) && (RF_BASE_FREQ <= 870000000UL))
+#define RFM69_BASE_FREQ             868000000UL
+// Default Frequence = 868,3
+#define RFM69_REG_FRFMSB_DEF        0xD9
+#define RFM69_REG_FRFMID_DEF        0x13
+#define RFM69_REG_FRFLSB_DEF        0x33
 #else
-#error RF_BASE_FREQ this frequency is impossible
+#error RF_BASE_FREQ does not belond to ISM band
 #endif  //  RF_BASE_FREQ
 
-#define OD_DEFAULT_CHANNEL          ((RF_BASE_FREQ - RFM69_FRQ)/5000)
+#define OD_DEFAULT_CHANNEL          ((RF_BASE_FREQ - RFM69_BASE_FREQ)/25000)
 #define OD_DEFAULT_GROUP            0x2DD4
 
 #if (RFM69_PHY == 1)

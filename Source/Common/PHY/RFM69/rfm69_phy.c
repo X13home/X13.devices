@@ -18,51 +18,58 @@ See LICENSE file for license details.
 
 #include "rfm69_reg.h"
 
-#define RFM69_FXO       32000000UL
-#define RFM69_BAUD      38400U          // (BitRate < 2 * RxBw)
-#define RFM68_FSTEP     (RFM69_FXO/524288UL)
-#define RFM69_FDEV      20000U          // (FDEV + BitRate / 2 <= 500KHz)
+
+#define RFM69_PREDIV    524288UL
+#define RFM69_BAUD      38400U
+#define RFM69_FDEV      20000U
+
 // FSK Mode: RxBw = FXOSC / (RxBwMant * 2^(RxBwExp + 2))
 // RX filter BW 100 KHz = 32M /(20 * 2^(2 + 2))
-#define RFM69_RXBW      (RFM69_RXBW_MANT_20 | RFM69_RXBW_EXP_2)
+//#define RFM69_RXBW      (RFM69_RXBW_MANT_20 | RFM69_RXBW_EXP_2)
+// 10 KHz
+//#define RFM69_RXBW      (RFM69_RXBW_MANT_24 | RFM69_RXBW_EXP_5)
+
+// Improved AFC routine for signals with modulation index lower than 2
+// modulation index = (2*Fdev/BR), and should be <= 10 and >= 0,5
+//#define RFM69_IMPROVED_AFC  1
 
 // RF States
 typedef enum
 {
     RFM69_TRV_SLEEP = 0,    // Sleep mode, all blocks disabled
-    RFM69_TRV_IDLE,
-    RFM69_TRV_RXIDLE,
-    RFM69_TRV_RXDONE,
-    RFM69_TRV_TXIDLE,
-    RFM69_TRV_TXDONE
+    RFM69_TRV_RX,
+    RFM69_TRV_TX
 }RFM69_TRVSTATE_t;
 
-static const uint8_t rfm69config[][2] = {
-    // Data operation mode and Modulation settings
-    {RFM69_REG_DATAMODUL,   RFM69_DATAMODUL_DATAMODE_PACKET |               // Packet mode
-                            RFM69_DATAMODUL_MODULATIONTYPE_FSK |            // Modulation - FSK
-                            RFM69_DATAMODUL_MODULATIONSHAPING_0},           // No shaping
-    // Bit Rate setting
-    {RFM69_REG_BITRATEMSB,  ((RFM69_FXO / RFM69_BAUD) >> 8)},
-    {RFM69_REG_BITRATELSB,  ((RFM69_FXO / RFM69_BAUD) & 0xFF)},
-    // Frequency Deviation setting
-    {RFM69_REG_FDEVMSB,     ((RFM69_FDEV / RFM68_FSTEP) >> 8)},
-    {RFM69_REG_FDEVLSB,     ((RFM69_FDEV / RFM68_FSTEP) & 0xFF)},
-    // Channel Filter BW Control
-    {RFM69_REG_RXBW,        RFM69_RXBW_DCCFREQ_2 |                  // Recommended Cut-off frequency
-                            RFM69_RXBW},
-    // Mapping of pins DIO0 to DIO3
-    {RFM69_REG_DIOMAPPING1, RFM69_DIOMAPPING1_DIO0_1},              // DIO0 - PayloadReady / TxReady
-    // Mapping of pins DIO4 and DIO5, ClkOut frequency
-    {RFM69_REG_DIOMAPPING2, RFM69_DIOMAPPING2_CLKOUT_OFF},          // ClkOut Disable
-    // Status register: FIFO handling flags...
+/*
+    // 0x0B - AFC control in low modulation index situations
+#ifdef RFM69_IMPROVED_AFC
+    {RFM69_REG_AFCCTRL, RFM69_AFCCTRL_LOWBETA_ON},
+#else
+    {RFM69_REG_AFCCTRL, RFM69_AFCCTRL_LOWBETA_OFF},
+#endif  //  RFM69_IMPROVED_AFC
+    // Low power, PA0 +13 dBm, OCP off
+    // 0x11 - PA selection and Output Power control
+    {RFM69_REG_PALEVEL, RFM69_PALEVEL_PA0_ON | 31},
+    // 0x12 - // Control of the PA ramp time in FSK mode
+    // Ramp Time = 10 us
+    {RFM69_REG_PARAMP, RFM69_PARAMP_10},
+    // 0x13 - Over Current Protection control
+    {RFM69_REG_OCP, RFM69_OCP_OFF},
+    
+
+    // 0x28 - Status register: FIFO handling flags...
+    // A8, 10
     {RFM69_REG_IRQFLAGS2,   RFM69_IRQFLAGS2_FIFOOVERRUN},           // Clear FIFO overrun flag
-    // RSSI Threshold control, Val = -THdbm * 2
-    {RFM69_REG_RSSITHRESH, 220},                                    // -110 dBm
-    // Sync Word Recognition control
+    // 0x29 - RSSI Threshold control, Val = -THdbm * 2
+    // A9, DC
+    {RFM69_REG_RSSITHRESH, 200},                                    // -100 dBm
+    // 0x2E - Sync Word Recognition control
+    // AE, 88
     {RFM69_REG_SYNCCONFIG,  RFM69_SYNC |                            // Enable Sync
                             RFM69_SYNC_SIZE_2},                     // 2 bytes, tolerance 0
-    // Packet mode settings
+    // 0x37 - Packet mode settings
+    // B7, 94
     {RFM69_REG_PACKETCONFIG1, RFM69_PACKET1_FORMAT_VARIABLE |       // Packet variable length
                               RFM69_PACKET1_DCFREE_OFF |            // without encoding
                               RFM69_PACKET1_CRC_ON |                // Enable CRC
@@ -70,21 +77,81 @@ static const uint8_t rfm69config[][2] = {
                               RFM69_PACKET1_CRCAUTOCLEAR_ON |
                               // Address field must match NodeAddress or BroadcastAddress
                               RFM69_PACKET1_ADRSFILTERING_NODEBROADCAST},
-    // Payload length setting, max length in Rx
-    {RFM69_REG_PAYLOADLENGTH, sizeof(MQ_t)},
-    // Broadcast address
-    {RFM69_REG_BROADCASTADRS, 0},
-    // Fifo threshold, Tx start condition
+    // 0x3C - Fifo threshold, Tx start condition
     // Start Transmission if FIFO not empty
+    // BC, 8F
     {RFM69_REG_FIFOTHRESH,  RFM69_FIFOTHRESH_TXSTART_FIFONOTEMPTY | RFM69_FIFOTHRESH_VALUE},
-    // Packet mode settings
+    // 0x3D - Packet mode settings
     //  Rx automatically restarted after InterPacketRxDelay.
+    // BD, 12
     {RFM69_REG_PACKETCONFIG2, RFM69_PACKET2_RXRESTARTDELAY_2BITS |
-                              RFM69_PACKET2_AUTORXRESTART_ON |      // ?
+                              RFM69_PACKET2_AUTORXRESTART_ON |
                               RFM69_PACKET2_AES_OFF},
+    // 0x6F - Fading Margin Improvement
+    // EF, 30
     // run DAGC continuously in RX mode for Fading Margin Improvement, 
     // recommended default for AfcLowBetaOn=0
+#ifdef RFM69_IMPROVED_AFC
+    {RFM69_REG_TESTDAGC, RFM69_DAGC_IMPROVED_LOWBETA1}
+#else
     {RFM69_REG_TESTDAGC, RFM69_DAGC_IMPROVED_LOWBETA0}
+#endif  //  RFM69_IMPROVED_AFC
+
+    // 0x07/0x08/0x09 - RF Carrier Frequency
+    //{RFM69_REG_FRFMSB, RFM69_REG_FRFMSB_DEF},                   // RegFrfMsb
+    //{RFM69_REG_FRFMID, RFM69_REG_FRFMID_DEF},                   // RegFrfMid
+    //{RFM69_REG_FRFLSB, RFM69_REG_FRFLSB_DEF},                   // RegFrfLsb
+    //{0x2F, 0x2D},   //  RegSyncValue1
+    //{0x30, 0xD4},   //  RegSyncValue2
+    //{0x31, 0x2D},   //  RegSyncValue3
+    //{0x32, 0xD4},   //  RegSyncValue4
+    //{0x39, 0xFF},   //  RegNodeAdrs
+*/
+
+static const uint8_t rfm69config[][2] = {
+    // 0x02 - Data operation mode and Modulation settings
+    // RegDataModul 0x02
+    {RFM69_REG_DATAMODUL, RFM69_DATAMODUL_DATAMODE_PACKET |     // Packet mode
+                          RFM69_DATAMODUL_MODULATIONTYPE_FSK |  // Modulation - FSK
+                          RFM69_DATAMODUL_MODULATIONSHAPING_2}, // FSK: Gaussian filter, BT = 0.5
+    // 0x03/0x04 - Bit Rate setting
+    {RFM69_REG_BITRATEMSB, RFM69_REG_BITRATEMSB_DEF},           // RegBitrateMsb 0x03
+    {RFM69_REG_BITRATELSB, RFM69_REG_BITRATELSB_DEF},           // RegBitrateLsb 0x41
+    // 0x05/0x06 - Frequency Deviation setting
+    {RFM69_REG_FDEVMSB, RFM69_REG_FDEVMSB_DEF},                 // RegFdevMsb 0x01
+    {RFM69_REG_FDEVLSB, RFM69_REG_FDEVLSB_DEF},                 // RegFdevLsb 0x48
+    {0x0B, 0x40},   //  RegAfcCtrl
+    {0x11, 0x9F},   //  RegPaLevel
+    {0x12, 0x09},   //  RegPaRamp
+    {0x13, 0x1A},   //  RegOcp
+    // 0x18 - LNA settings
+    // RegLna 0x88
+    {RFM69_REG_LNA, RFM69_LNA_ZIN_200 |                         // Zin = 200 ohms
+                    RFM69_LNA_GAINSELECT_AUTO},                 // gain set by the internal AGC loop
+    // 0x19 - Channel Filter BW Control
+    {RFM69_REG_RXBW, RFM69_REG_RXBW_DEF},                       // RegRxBw 0x4A
+    {0x1A, 0x8B},   //  RegAfcBw
+    {0x1E, 0x10},   //  RegAfcFei
+    {0x25, 0x00},   //  RegDioMapping1
+    // 0x26 - Mapping of pins DIO4 and DIO5, ClkOut frequency
+    // RegDioMapping2 - 0x07
+    {RFM69_REG_DIOMAPPING2, RFM69_DIOMAPPING2_CLKOUT_OFF},      // ClkOut Disable
+    {0x29, 0xE4},   //  RegRssiThresh
+    {0x2A, 0x00},   //  RegRxTimeout1
+    {0x2B, 0x00},   //  RegRxTimeout2
+    {0x2C, 0x00},   //  RegPreambleMsb
+    {0x2D, 0x03},   //  RegPreambleLsb
+    {0x2E, 0x98},   //  RegSyncConfig
+    {0x37, 0x95},   //  RegPacketConfig1
+                    //  bit 0 - CRC mode, 0 CCITT, 1 IBM
+    {0x38, 0x40},   //  RegPayloadLength
+    {0x3A, 0x00},   //  RegBroadcastAdrs
+    {0x3B, 0x00},   //  RegAutoModes
+    {0x3C, 0x8F},   //  RegFifoThresh
+    {0x3D, 0x02},   //  RegPacketConfig2
+    {0x58, 0x1B},   //  RegTestLna
+    {0x6F, 0x30},   //  RegTestDagc
+    {0x71, 0x00}    //  RegTestAfc
 };
 
 static uint8_t          rfm69_NodeID;
@@ -120,33 +187,17 @@ static void rmm69_setMode(uint8_t mode)
     while((rfm69_readReg(RFM69_REG_IRQFLAGS1) & RFM69_IRQFLAGS1_MODEREADY) == 0);
 }
 
-// Channel space - 5KHz
-static void rfm69_setFreq(uint16_t chan)
+// Channel space - 25KHz
+static void rfm69_setFreq(uint8_t chan)
 {
     // More accurate calculation
     int64_t frf;
 
-    int32_t offset = chan & 0x7FFF;
-    offset *= 5000U;
-
-    frf = RFM69_FRQ;
-
-    if(chan & 0x8000U)
-    {
-        frf -= offset;
-    }
-    else
-    {
-        frf += offset;
-    }
-
-    if((frf < RFM69_FRQ_MIN) || (frf >= RFM69_FRQ_MAX))
-    {
-        frf = RFM69_FRQ;
-    }
+    frf = RFM69_BASE_FREQ;
+    frf += chan * 25000U;
 
     frf *= 524288UL;        // 2^19
-    frf /= RFM69_FXO;
+    frf /= 32000000UL;      // FXO
 
     RFM69_SELECT();
     hal_spi_exch8(RFM69_USE_SPI, 0x80 | RFM69_REG_FRFMSB);
@@ -156,9 +207,121 @@ static void rfm69_setFreq(uint16_t chan)
     RFM69_RELEASE();
 }
 
+static MQ_t * rfm69_rx_task(void)
+{
+    MQ_t * pRxBuf;
+    
+#ifdef LED_On
+    LED_On();
+#endif  //  LED_On
+    uint8_t frameLen;
+
+    RFM69_SELECT();
+    hal_spi_exch8(RFM69_USE_SPI, RFM69_REG_FIFO);
+    frameLen = hal_spi_exch8(RFM69_USE_SPI, 0);
+    if((frameLen < 5) || (frameLen > MQTTSN_MSG_SIZE))      // Packet is too big/small
+    {
+        RFM69_RELEASE();
+        rfm69_writeReg(RFM69_REG_PACKETCONFIG2, rfm69_readReg(RFM69_REG_PACKETCONFIG2) |
+                                                              RFM69_PACKET2_RXRESTART);
+        rfm69_state = RFM69_TRV_SLEEP;
+        return NULL;
+    }
+
+    frameLen -= 3;
+    pRxBuf = mqAlloc(sizeof(MQ_t));
+
+    hal_spi_exch8(RFM69_USE_SPI, 0);                            // Read destination address
+    pRxBuf->a.phy1addr[0] = hal_spi_exch8(RFM69_USE_SPI, 0);    // Read Source address
+
+    uint8_t i;
+    for(i = 0; i < frameLen; i++)                               // Read Payload
+    {
+        pRxBuf->m.raw[i] = hal_spi_exch8(RFM69_USE_SPI, 0);
+    }
+
+    RFM69_RELEASE();
+
+    rfm69_writeReg(RFM69_REG_OPMODE, RFM69_OPMODE_RX);          // Enter to RX State
+
+    return pRxBuf;
+}
+
+#define RFM69_TX_RETRYS  5      // delay 15 - 50 ms
+
+static void rfm69_tx_task(void)
+{
+    static uint8_t rfm69_tx_delay = 0;
+    static uint8_t rfm69_tx_retry = RFM69_TX_RETRYS;
+
+#ifdef LED_On
+    LED_On();
+#endif  //  LED_On
+    
+    // CDMA
+    if(rfm69_tx_delay > 0)
+    {
+        static uint8_t rfm69_ms = 0;
+        uint8_t act_ms = HAL_get_ms() & 0xFF;
+
+        if(rfm69_ms == act_ms)
+        {
+            return;
+        }
+        rfm69_ms = act_ms;
+        rfm69_tx_delay--;
+        return;
+    }
+
+    // Channel Busy ?
+    if(rfm69_readReg(RFM69_REG_RSSIVALUE) < 200)    // -100dBm
+    {
+        if(rfm69_tx_retry > 0)
+        {
+            rfm69_tx_retry--;
+            rfm69_tx_delay = (HAL_RNG() & 0x7) + 3;
+            return;
+        }
+    }
+
+    rfm69_tx_delay = 0;
+    rfm69_tx_retry = RFM69_TX_RETRYS;
+
+    MQ_t * pTxBuf = mqDequeue(&rfm69_tx_queue);
+    if(pTxBuf == NULL)      // Queue Busy
+    {
+        return;
+    }
+    
+    rmm69_setMode(RFM69_OPMODE_STDBY);
+    rfm69_writeReg(RFM69_REG_DIOMAPPING1, RFM69_DIOMAPPING1_DIO0_0);    // DIO0 - Packet Sent
+
+    // Fill Buffer
+    uint8_t i, len;
+
+    len = pTxBuf->Length;
+    // Send burst
+    RFM69_SELECT();
+    hal_spi_exch8(RFM69_USE_SPI, RFM69_REG_FIFO | 0x80);
+    hal_spi_exch8(RFM69_USE_SPI, len + 2);                      // Set data length at the
+                                                                //  first position of the TX FIFO 
+    hal_spi_exch8(RFM69_USE_SPI, pTxBuf->a.phy1addr[0]);        // Send destination address
+    hal_spi_exch8(RFM69_USE_SPI, rfm69_NodeID);                 // Send Source address
+    for(i = 0; i < len; i++)                                    // Send Payload
+    {
+        hal_spi_exch8(RFM69_USE_SPI, pTxBuf->m.raw[i]);
+    }
+    RFM69_RELEASE();
+
+    mqFree(pTxBuf);
+    
+    rfm69_writeReg(RFM69_REG_OPMODE, RFM69_OPMODE_TX);          // Switch to TX state
+    rfm69_state = RFM69_TRV_TX;
+}
+
 void RFM69_Init(void)
 {
-    uint16_t     Channel;
+    uint8_t     Channel;
     uint16_t    GroupID;
 
     MQ_t * pBuf;
@@ -170,9 +333,9 @@ void RFM69_Init(void)
     // Load Device ID
     uint8_t Len = sizeof(uint8_t);
     ReadOD(objRFNodeId, MQTTSN_FL_TOPICID_PREDEF,  &Len, &rfm69_NodeID);
-    Len = sizeof(uint16_t);
     // Load Frequency channel
     ReadOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, &Len, (uint8_t *)&Channel);
+    Len = sizeof(uint16_t);
     // Load Group ID(Synchro)
     ReadOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF,  &Len, (uint8_t *)&GroupID);
 
@@ -191,10 +354,11 @@ void RFM69_Init(void)
     // Chip Mode - Standby
     rmm69_setMode(RFM69_OPMODE_STDBY);
 
+/*
     // Start RC Calibration
     rfm69_writeReg(RFM69_REG_OSC1, (rfm69_readReg(RFM69_REG_OSC1) | RFM69_OSC1_RCCAL_START));
     while((rfm69_readReg(RFM69_REG_OSC1) & RFM69_OSC1_RCCAL_DONE) == 0);
-
+*/
     // Load Config
     uint8_t i;
     for(i = 0; i<(sizeof(rfm69config)/2); i++)
@@ -206,22 +370,66 @@ void RFM69_Init(void)
     rfm69_writeReg(RFM69_REG_NODEADRS, rfm69_NodeID);
     rfm69_writeReg(RFM69_REG_SYNCVALUE1, GroupID >> 8);
     rfm69_writeReg(RFM69_REG_SYNCVALUE2, GroupID & 0xFF);
+    rfm69_writeReg(RFM69_REG_SYNCVALUE3, GroupID >> 8);
+    rfm69_writeReg(RFM69_REG_SYNCVALUE4, GroupID & 0xFF);
 
     rfm69_setFreq(Channel);
-
-    rmm69_setMode(RFM69_OPMODE_SLEEP);
+    
+    //rmm69_setMode(RFM69_OPMODE_SLEEP);
     rfm69_state = RFM69_TRV_SLEEP;
 }
 
 void RFM69_Send(void *pBuf)
 {
-    // ToDo Dummy
-    mqFree(pBuf);
+    if(!mqEnqueue(&rfm69_tx_queue, pBuf))
+    {
+        mqFree(pBuf);
+    }
 }
 
 void  * RFM69_Get(void)
 {
-    // ToDo Dummy
+    static uint16_t rfm_wd = 0;
+
+    if(rfm69_state == RFM69_TRV_RX)
+    {
+        if(RFM69_IRQ_STATE() || (rfm_wd == 0))
+        {
+            rfm_wd = 0xFFFF;
+            if(rfm69_readReg(RFM69_REG_IRQFLAGS2) & RFM69_IRQFLAGS2_PAYLOADREADY)
+            {
+                return rfm69_rx_task();
+            }
+//            else
+            // dummy read check config
+        }
+        else if(rfm69_tx_queue.Size != 0)
+        {
+            rfm69_tx_task();
+            rfm_wd = 0;
+        }
+        rfm_wd--;
+    }
+    else if(rfm69_state == RFM69_TRV_TX)
+    {
+        if(RFM69_IRQ_STATE() || (rfm_wd == 0))
+        {
+            if(rfm69_readReg(RFM69_REG_IRQFLAGS2) & RFM69_IRQFLAGS2_PACKETSENT)
+            {
+                rmm69_setMode(RFM69_OPMODE_RX);     // Enter to RX State
+                rfm69_state = RFM69_TRV_RX;
+            }
+        }
+        rfm_wd--;
+    }
+    else
+    {
+        rmm69_setMode(RFM69_OPMODE_SLEEP);                                  // Reset Chip
+        rfm69_writeReg(RFM69_REG_DIOMAPPING1, RFM69_DIOMAPPING1_DIO0_1);    // DIO0 - PayloadReady
+        rmm69_setMode(RFM69_OPMODE_RX);                                     // Enter to RX State
+        rfm69_state = RFM69_TRV_RX;
+    }
+
     return NULL;
 }
 

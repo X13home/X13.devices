@@ -164,7 +164,6 @@ enum
     eeGroupID,
     eeGroupIDbody,
     eeChannel,
-    eeChannelBody,
 #endif  //  RF_ADDR_t
 #ifdef EXTPLC_USED
     eePLCStackBot,

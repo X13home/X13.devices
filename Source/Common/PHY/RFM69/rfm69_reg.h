@@ -188,6 +188,7 @@ See LICENSE file for license details.
 ////////////////////////////////////////////////////////
 // RegAfcCtrl - 0x0B
 #define RFM69_AFCCTRL_LOWBETA_ON                    0x20
+#define RFM69_AFCCTRL_LOWBETA_OFF                   0x00
 // Improved AFC routine for signals with modulation index lower than 2. 
 // Refer to section 3.4.16 for details
 // 0 - Standard AFC routine
@@ -275,7 +276,9 @@ See LICENSE file for license details.
 ////////////////////////////////////////////////////////
 // RegOcp - 0x13
 // POR Value: 0x1A, OCP - On, 95 mA
-#define RFM69_OCP_ON                                0x10   //  Enables overload current protection (OCP) for the PA:
+                                                    // overload current protection (OCP) for the PA:
+#define RFM69_OCP_ON                                0x10    //  Enabled
+#define RFM69_OCP_OFF                               0x00    //  Disabled
 // bits 3-0 Trimming of OCP current:
 // Imax = 45 + 5 * OcpTrim
 #define RFM69_OCP_TRIM_45                           0x00

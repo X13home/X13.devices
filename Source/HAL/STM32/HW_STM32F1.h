@@ -24,6 +24,8 @@ See LICENSE file for license details.
 #include "S3xxxx/S3En10.h"    // ENC28J60
 #elif (defined CFG_S3Cn10)
 #include "S3xxxx/S3Cn10.h"    // CC1101
+#elif (defined CFG_S3SQ10)
+#include "S3xxxx/S3SQ10.h"    // UART + RFM69
 #else
 #error Unknown configuration
 #endif  //  Configuration
