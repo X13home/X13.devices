@@ -189,8 +189,10 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                     {
 #if (defined MQTTSN_USE_MESH)
                         vMQ_tGWinfo1 = 0;
-#endif	//	(defined MQTTSN_USE_MESH)
+#endif  //  (defined MQTTSN_USE_MESH)
                         vMQ_tGWinfo2 = 0;
+                        // Set Destination - Broadcast
+                        memcpy(pPHY1outBuf->a.phy2addr, &addr2_broad, sizeof(PHY2_ADDR_t));
                         PHY2_Send(pPHY1outBuf);
                         return;
                     }

@@ -103,6 +103,9 @@ See LICENSE file for license details.
 #define RFM69_REG_TESTDAGC      0x6F    // Fading Margin Improvement
 #define RFM69_REG_TESTAFC       0x71    // AFC offset for low modulation index AFC
 // 0x50+ RegTest - Internal Test Registers
+#define RFM69_REG_WRITE         0x80    // Write Access
+#define RFM69_REG_READ          0x00
+
 
 //******************************************************
 // RF69/SX1231 bit control definition
@@ -243,12 +246,13 @@ See LICENSE file for license details.
                                                             // default
 #define RFM69_PALEVEL_PA1_ON                        0x40    // Enables PA1, on PA_BOOST pin
 #define RFM69_PALEVEL_PA2_ON                        0x20    // Enables PA2, on PA_BOOST pin
+#define RFM69_PALEVEL_MAX                           0x1F
 // bits 4-0 Output Power
 // Output power setting, with 1 dB steps
 // Pout = -18 + OutputPower [dBm] , with PA0
 // Pout = -18 + OutputPower [dBm] , with PA1**
 // Pout = -14+ OutputPower [dBm] , with PA1 and PA2**
-// Pout = -11 + OutputPower [dBm] , with PA1 and PA2, and high Power PA settings (refer to section 3.3.7)**
+// Pout = -11 + OutputPower [dBm] , with PA1 and PA2, and high Power PA settings
 ////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////
@@ -590,7 +594,7 @@ See LICENSE file for license details.
 #define RFM69_SYNC_SIZE_7                           0x30
 #define RFM69_SYNC_SIZE_8                           0x38
 // Number of tolerated bit errors in Sync word
-#define RFM69_SYNC_TOL_0                            0x00  // Default
+#define RFM69_SYNC_TOL_0                            0x00    // Default
 #define RFM69_SYNC_TOL_1                            0x01
 #define RFM69_SYNC_TOL_2                            0x02
 #define RFM69_SYNC_TOL_3                            0x03
@@ -653,12 +657,25 @@ See LICENSE file for license details.
 ////////////////////////////////////////////////////////
 
 ////////////////////////////////////////////////////////
-// RegTestDagc - 0x6F
-// Fading Margin Improvement
-#define RFM69_DAGC_NORMAL              0x00     // Reset value
-#define RFM69_DAGC_IMPROVED_LOWBETA1   0x20
-#define RFM69_DAGC_IMPROVED_LOWBETA0   0x30     // Recommended default
+// RegTestLna - 0x58
+#define RFM69_REG_TESTLNA_NORM                      0x1B    // Normal Mode
+#define RFM69_REG_TESTLNA_HIGH                      0x2D    // High sensitivity mode
 ////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////
+// RegTestPa1 - 0x5A, RegTestPa1 - 0x5C
+#define RFM69_REG_TESTPA1_LOW                       0x55    // Normal and Rx mode
+#define RFM69_REG_TESTPA2_LOW                       0x70
+#define RFM69_REG_TESTPA1_BOOST                     0x5D    // +20 dBm mode
+#define RFM69_REG_TESTPA2_BOOST                     0x7C
+////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////
+// RegTestDagc - 0x6F
+// Fading Margin Improvement
+#define RFM69_DAGC_NORMAL              0x00                 // Reset value
+#define RFM69_DAGC_IMPROVED_LOWBETA1   0x20
+#define RFM69_DAGC_IMPROVED_LOWBETA0   0x30                 // Recommended default
+////////////////////////////////////////////////////////
 
 #endif  //  _RFM69_REG_H_

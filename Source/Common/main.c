@@ -43,6 +43,10 @@ int main(void)
     {
         if(SystemTickCnt)
         {
+#ifdef LED_Off
+            LED_Off();
+#endif  //  LED_Off
+
             SystemTickCnt--;
             OD_Poll();
 
@@ -50,9 +54,6 @@ int main(void)
 #ifdef DIAG_USED
             DIAG_Poll();
 #endif  //  USE_DIAG
-#ifdef LED_Off
-            LED_Off();
-#endif  //  LED_Off
         }
 
         MQ_t * pBuf;

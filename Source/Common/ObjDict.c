@@ -69,6 +69,14 @@ static const indextable_t listPredefOD[] =
     {{objEEMEM, objUInt8, eeChannel},
         objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #endif  //  OD_DEFAULT_CHANNEL
+#ifdef OD_DEFAULT_RF_PWR
+    {{objEEMEM, objInt8, eeRFpower},
+        objRFpower, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+#endif  //  OD_DEFAULT_RF_PWR
+#ifdef OD_DEFAULT_RF_KEY
+    {{objEEMEM, objArray, eeRFkey},
+        objRFkey,  (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+#endif  //  OD_DEFAULT_RF_KEY
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
     {{objEEMEM, objArray, eeMACAddr},
@@ -465,6 +473,14 @@ void InitOD(void)
         ucTmp = OD_DEFAULT_CHANNEL;
         WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);           // Channel
 #endif  //  OD_DEFAULT_CHANNEL
+#ifdef OD_DEFAULT_RF_PWR
+        ucTmp = OD_DEFAULT_RF_PWR;
+        WriteOD(objRFpower, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp); // Output Power in dBm
+#endif  //  OD_DEFAULT_RF_PWR
+#ifdef OD_DEFAULT_RF_KEY
+        uint8_t rfkey[16] = OD_DEFAULT_RF_KEY;
+        WriteOD(objRFkey, MQTTSN_FL_TOPICID_PREDEF, 16, rfkey);                           // AES Key
+#endif  //  OD_DEFAULT_RF_KEY
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
 #ifndef OD_DEF_IP_ADDR

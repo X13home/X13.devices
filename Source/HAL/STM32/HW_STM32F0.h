@@ -26,6 +26,7 @@ See LICENSE file for license details.
 #include "S2xxxx/S2Sn11.h"      // UART
 
 // STM32F051C8
+// Board S2EC13
 #elif   (defined CFG_S2EC13)
 #include "S2xxxx/S2EC13.h"      // ENC28J60 + CC1101
 #elif   (defined CFG_S2En13)
@@ -36,8 +37,11 @@ See LICENSE file for license details.
 #include "S2xxxx/S2Sn13.h"      // UART ALT
 #elif   (defined CFG_S2SC13)
 #include "S2xxxx/S2SC13.h"      // UART ALT + CC1101
+// Board S2ER13
 #elif   (defined CFG_S2Qn13)
 #include "S2xxxx/S2Qn13.h"      // RFM69
+#elif   (defined CFG_S2SQ13)
+#include "S2xxxx/S2SQ13.h"      // UART ALT + RFM69
 
 // STM32F051K8
 #elif   (defined CFG_S2SC14)
