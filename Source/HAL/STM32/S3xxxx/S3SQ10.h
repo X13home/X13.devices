@@ -81,13 +81,6 @@ extern "C" {
                             }
 // End DIO Section
 
-// Analogue Inputs
-#define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           9
-                                  /* PB11, PB10,  PB2, PB0, PA7 - PA0 */
-#define HAL_AIN_BASE2APIN           {0xFF, 0xFF, 0xFF,   8,   7, 6, 5, 4, 3, 2, 1, 0}
-// End Analogue Inputs
-
 // PWM Section
 #define EXTPWM_USED                 1
 #define HAL_PWM_PORT2CFG            {255, 255, 255,             /* PB11, PB10, PB2  */ \
@@ -108,6 +101,13 @@ extern "C" {
                                      ((1<<3) | 2),              /* PA10: TIM1_CH3   */ \
                                      ((1<<3) | 1)}              /* PA9:  TIM1_CH2   */
 // End PWM Section
+
+// Analogue Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           9
+                                  /* PB11, PB10,  PB2, PB0, PA7 - PA0 */
+#define HAL_AIN_BASE2APIN           {0xFF, 0xFF, 0xFF,   8,   7, 6, 5, 4, 3, 2, 1, 0}
+// End Analogue Inputs
 
 // TWI Section
 #define HAL_TWI_BUS                 1

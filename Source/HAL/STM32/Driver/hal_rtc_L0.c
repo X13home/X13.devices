@@ -46,7 +46,9 @@ void hal_rtc_init(void)
         else                                        // LSE Not Connected, use LSI
 #endif  //  HAL_RTC_CHECK_LSE
         {
+#if (defined HAL_RTC_CHECK_LSE)
 hal_rtc_start_lsi:
+#endif  //  HAL_RTC_CHECK_LSE
             if((RCC->CSR & RCC_CSR_LSEON) ||
               ((RCC->CSR & RCC_CSR_RTCSEL) == RCC_CSR_RTCSEL_LSI))
             {

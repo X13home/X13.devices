@@ -10,7 +10,7 @@ BSD New License
 See LICENSE file for license details.
 */
 
-// MQTT-SN Library, Version 3.0.2 from 13.Dec.2015
+// MQTT-SN Library, Version 3.1.2 from 20.06.2016
 
 #include "config.h"
 
@@ -301,12 +301,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                 {
                     if(vMQ_MsgType == MQTTSN_MSGTYP_PINGREQ)
                     {
-#ifdef ASLEEP
-                        if(vMQ_tASleep != 0)
-                            vMQ_tRetry = MQTTSN_T_SHORT;
-                        else
-#endif  //  ASLEEP
-                            vMQ_tRetry = (const uint16_t)(MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                        vMQ_tRetry = MQTTSN_T_SHORT;
                     }
 
                     pPHY1outBuf->m.mq.m.regack.ReturnCode = RegisterOD(&pPHY1outBuf->m.mq);
@@ -396,12 +391,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                     {
                         if(vMQ_MsgType == MQTTSN_MSGTYP_PINGREQ)
                         {
-#ifdef ASLEEP
-                            if(vMQ_tASleep != 0)
-                                vMQ_tRetry = MQTTSN_T_SHORT;
-                            else
-#endif  //  ASLEEP
-                                vMQ_tRetry = (const uint16_t)(MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                            vMQ_tRetry = MQTTSN_T_SHORT;
                         }
 
                         pPHY1outBuf->Length = MQTTSN_SIZEOF_MSG_PUBACK;
@@ -442,12 +432,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                         mqFree(vMQ_pMessage);
                         vMQ_MsgType = MQTTSN_MSGTYP_PINGREQ;
                         vMQ_nRetry = MQTTSN_N_RETRIES;
-#ifdef ASLEEP
-                        if(vMQ_tASleep != 0)
-                            vMQ_tRetry = MQTTSN_T_SHORT;
-                        else
-#endif  //  ASLEEP
-                            vMQ_tRetry = (const uint16_t)(MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                        vMQ_tRetry = MQTTSN_T_SHORT;
                     }
                 }
             }
@@ -495,12 +480,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                         vMQ_MsgType = MQTTSN_MSGTYP_PINGREQ;
                         vMQ_Status = MQTTSN_STATUS_CONNECT;
                         vMQ_nRetry = MQTTSN_N_RETRIES;
-#ifdef ASLEEP
-                        if(vMQ_tASleep != 0)
-                            vMQ_tRetry = MQTTSN_T_SHORT;
-                        else
-#endif  //  ASLEEP
-                            vMQ_tRetry = (const uint16_t)(MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                        vMQ_tRetry = MQTTSN_T_SHORT;
                     }
                 }
             }
