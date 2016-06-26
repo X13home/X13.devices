@@ -31,11 +31,11 @@ See LICENSE file for license details.
 // BITRATE = RFM69_FXO/Baud
 #define RFM69_REG_BITRATEMSB_DEF    0x03
 #define RFM69_REG_BITRATELSB_DEF    0x41
-// Deviation: 38400
+// Deviation: 40000
 // FDEV = Deviation / FSTEP
 // Modulation index: 2 = 2 * Deviation / Baud
 #define RFM69_REG_FDEVMSB_DEF       0x02
-#define RFM69_REG_FDEVLSB_DEF       0x75
+#define RFM69_REG_FDEVLSB_DEF       0x8F
 // RXBW >= 2 * Deviation + Baud + FXOerr
 // FSK Mode: RxBw = FXOSC / (RxBwMant * 2^(RxBwExp + 2))
 // RX filter Bandwidth 167 KHz = 32M /(24 * 2^(2 + 1))
@@ -45,6 +45,14 @@ See LICENSE file for license details.
 // CuttOff Freq: 500 Hz
 #define RFM69_REG_AFCBW_DEF         (RFM69_AFCBW_DCCFREQAFC_4 | RFM69_AFCBW_MANTAFC_20 | \
                                      RFM69_AFCBW_EXPAFC_3)
+
+// Rx Mapping DIO0 - RSSI, DIO3 - Sync Address
+#define RFM69_REG_DIOMAPPING1_RX    RFM69_DIOMAPPING1_DIO0_3 | RFM69_DIOMAPPING1_DIO3_2
+// Tx Mapping DIO0 - Packet Sent, DIO3 - TxReady
+#define RFM69_REG_DIOMAPPING1_TX    RFM69_DIOMAPPING1_DIO0_0 | RFM69_DIOMAPPING1_DIO3_2
+
+// RSSI Threshold -90 dBm
+#define RFM69_REG_RSSITHRESH_DEF    180
 // Sync word - Device Network ID
 #define RFM69_REG_SYNCVALUE1_DEF    0xB1
 #define RFM69_REG_SYNCVALUE2_DEF    0x82
@@ -100,28 +108,24 @@ static const uint8_t rfm69config[][2] = {
     // 0x1A - Channel Filter BW control during the AFC routine
     // RegAfcBw - 0x8B
     {RFM69_REG_AFCBW, RFM69_REG_AFCBW_DEF},
-    // 0x1E - AFC and FEI control and status
-    // AFC is performed each time Rx mode is entered
-    // AFC register is cleared before a new AFC phase
-    // RegAfcFei - 0x5C
-    /*{RFM69_REG_AFCFEI, RFM69_AFCFEI_AFCAUTOCLEAR | RFM69_AFCFEI_AFCAUTO},*/
     // 0x25 - Mapping of pins DIO0 to DIO3,
     // DIO0 - Rx PayloadReady
     // RegDioMapping1 0x01
-    /*{RFM69_REG_DIOMAPPING1, RFM69_DIOMAPPING1_DIO0_1},*/
+    {RFM69_REG_DIOMAPPING1, RFM69_REG_DIOMAPPING1_RX},
     // 0x26 - Mapping of pins DIO4 and DIO5, ClkOut frequency
     // ClkOut Disable
     // RegDioMapping2 - 0x07
     {RFM69_REG_DIOMAPPING2, RFM69_DIOMAPPING2_CLKOUT_OFF},
     // 0x29 - RSSI Threshold control, Val = -THdbm * 2
     // RegRssiThresh - 0xE4(default)
-    {RFM69_REG_RSSITHRESH, 180},                                // -90 dBm
+    {RFM69_REG_RSSITHRESH, RFM69_REG_RSSITHRESH_DEF},
     // 0x2A - Timeout duration between Rx request and RSSI detection
     // RegRxTimeout1- 0x00 - disabled
     {RFM69_REG_RXTIMEOUT1, 0x00},
     // 0x2B - Timeout duration between RSSI detection and PayloadReady
-    //  RegRxTimeout2 - 0x00 - disabled
-    {RFM69_REG_RXTIMEOUT2, 0x20},
+    // Timeout = Val * 16 / Baud
+    // RegRxTimeout2 - 0x1C - 11,66mS
+    {RFM69_REG_RXTIMEOUT2, 0x1C},
     // 0x2C/0x2D  Preamble length
     // RegPreambleMsb, RegPreambleLsb 0x0004
     {RFM69_REG_PREAMBLEMSB, 0x00},
@@ -174,7 +178,7 @@ static const uint8_t rfm69config[][2] = {
 static uint8_t          rfm69_NodeID = 0xFF;
 static Queue_t          rfm69_tx_queue = {NULL, NULL, 4, 0};
 static uint8_t          rfm69_state = RFM69_TRV_SLEEP;
-static int8_t           rfm69_rssi = 0;
+static int8_t           rfm69_rssi = -(RFM69_REG_RSSITHRESH_DEF/2);
 
 // Local Subroutines
 
@@ -325,7 +329,7 @@ static void rfm69_aes(uint8_t * aes)
 // Read data from FIFO
 static MQ_t * rfm69_getFIFO(void)
 {
-    MQ_t * pRxBuf;
+    MQ_t * pRxBuf = NULL;
     uint8_t i, frameLen;
 
     rfm69_standby();
@@ -333,27 +337,21 @@ static MQ_t * rfm69_getFIFO(void)
     RFM69_SELECT();
     hal_spi_exch8(RFM69_USE_SPI, RFM69_REG_FIFO);
 
-    frameLen = hal_spi_exch8(RFM69_USE_SPI, 0);                 // Read Frame Length
-    if(frameLen < 5)
+    frameLen = hal_spi_exch8(RFM69_USE_SPI, 0);                     // Read Frame Length
+    if(frameLen >= 4)
     {
-        RFM69_RELEASE();
-        // Clear FIFO
-        rfm69_state = RFM69_TRV_SLEEP;
-        return NULL;
+        pRxBuf = mqAlloc(sizeof(MQ_t));
+        frameLen -= 2;
+        pRxBuf->Length = frameLen;
+
+        i = hal_spi_exch8(RFM69_USE_SPI, 0);                        // Read destination address
+        pRxBuf->a.phy1addr[0] = hal_spi_exch8(RFM69_USE_SPI, 0);    // Read Source address
+
+        for(i = 0; i < frameLen; i++)                               // Read Payload
+        {
+            pRxBuf->m.raw[i] = hal_spi_exch8(RFM69_USE_SPI, 0);
+        }
     }
-
-    pRxBuf = mqAlloc(sizeof(MQ_t));
-    frameLen -= 2;
-    pRxBuf->Length = frameLen;
-
-    i = hal_spi_exch8(RFM69_USE_SPI, 0);                        // Read destination address
-    pRxBuf->a.phy1addr[0] = hal_spi_exch8(RFM69_USE_SPI, 0);    // Read Source address
-
-    for(i = 0; i < frameLen; i++)                               // Read Payload
-    {
-        pRxBuf->m.raw[i] = hal_spi_exch8(RFM69_USE_SPI, 0);
-    }
-
     RFM69_RELEASE();
 
     // Enter to RX State
@@ -382,7 +380,7 @@ static void rfm69_tx_task(void)
     }
 
     // Channel Busy ?
-    if(rfm69_readReg(RFM69_REG_RSSIVALUE) < 200)    // -100dBm
+    if(rfm69_readReg(RFM69_REG_RSSIVALUE) < RFM69_REG_RSSITHRESH_DEF)
     {
         if(rfm69_tx_retry > 0)
         {
@@ -421,7 +419,7 @@ static void rfm69_tx_task(void)
     }
     RFM69_RELEASE();
 
-    rfm69_writeReg(RFM69_REG_DIOMAPPING1, RFM69_DIOMAPPING1_DIO0_0);    // DIO0 - Packet Sent
+    rfm69_writeReg(RFM69_REG_DIOMAPPING1, RFM69_REG_DIOMAPPING1_TX);    // DIO0 - Packet Sent
     rfm69_writeReg(RFM69_REG_OPMODE, RFM69_OPMODE_TX);          // Switch to TX state
     rfm69_state = RFM69_TRV_TX;
 
@@ -519,12 +517,11 @@ void * RFM69_Get(void)
 {
     if(RFM69_IRQ_STATE())
     {
-        LED_On();
-
         if(rfm69_state == RFM69_TRV_RX)
         {
             if(rfm69_readReg(RFM69_REG_IRQFLAGS2) & RFM69_IRQFLAGS2_PAYLOADREADY)
             {
+                LED_On();
                 rfm69_rssi = -(rfm69_readReg(RFM69_REG_RSSIVALUE) >> 1);
                 return rfm69_getFIFO();
             }
@@ -533,6 +530,11 @@ void * RFM69_Get(void)
             {
                 return NULL;
             }
+        }
+        else    // Tx - Packet Sent Interrupt
+        {
+            // set DIO0 to "RSSI detected" in receive mode
+            rfm69_writeReg(RFM69_REG_DIOMAPPING1, RFM69_REG_DIOMAPPING1_RX);
         }
 
         rfm69_standby();
@@ -547,15 +549,10 @@ void * RFM69_Get(void)
             rfm69_tx_task();
         }
     }
-    else if(rfm69_state != RFM69_TRV_TX)
+    else if(rfm69_state == RFM69_TRV_SLEEP)
     {
-        // set DIO0 to "RSSI detected" in receive mode
-        rfm69_writeReg(RFM69_REG_DIOMAPPING1, RFM69_DIOMAPPING1_DIO0_3);
-        
         // Enter to RX State
         rfm69_writeReg(RFM69_REG_OPMODE, RFM69_OPMODE_RX);
-        // Wait for ModeReady
-        while((rfm69_readReg(RFM69_REG_IRQFLAGS1) & RFM69_IRQFLAGS1_MODEREADY) == 0);
         rfm69_state = RFM69_TRV_RX;
     }
 
