@@ -60,7 +60,7 @@ bool serCheckSubidx(subidx_t * pSubidx)
     uint8_t nBaud = pSubidx->Base >> 4;
 
     if((port >= EXTSER_USED) ||
-       (nBaud > 4) ||
+       (nBaud > UART_BAUD_MAX) ||
        ((type != ObjSerRx) && (type != ObjSerTx)))
         return false;
 

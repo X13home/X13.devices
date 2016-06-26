@@ -36,7 +36,7 @@ typedef struct
     uint8_t             rx_tail;
 }HAL_UART_t;
 
-static const uint16_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400};
+static const uint32_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400, 93750};
 static HAL_UART_t * hal_UARTv[HAL_UART_NUM_PORTS] = {NULL, };
 
 // IRQ handlers
@@ -214,7 +214,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
     IRQn_Type           UARTx_IRQn;
 
     uint32_t            uart_clock;
-    uint16_t            baud = hal_baud_list[nBaud];
+    uint32_t            baud = hal_baud_list[nBaud];
 
     switch(port)
     {

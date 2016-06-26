@@ -157,6 +157,14 @@ void        hal_twi_start(void);
 
 //////////////////////////////////////////////////////////////
 // UART Section
+#define     UART_BAUD_2400      0
+#define     UART_BAUD_4800      1
+#define     UART_BAUD_9600      2
+#define     UART_BAUD_19200     3
+#define     UART_BAUD_38400     4
+#define     UART_BAUD_93750     5
+#define     UART_BAUD_MAX       4
+
 void        USART1_IRQHandler(void);
 void        USART2_IRQHandler(void);
 void        USART3_IRQHandler(void);

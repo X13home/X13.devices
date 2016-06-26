@@ -80,6 +80,14 @@ void        hal_twi_start(void);
 
 //////////////////////////////////////////////////////////////
 // UART Section
+#define     UART_BAUD_2400      0
+#define     UART_BAUD_4800      1
+#define     UART_BAUD_9600      2
+#define     UART_BAUD_19200     3
+#define     UART_BAUD_38400     4
+#define     UART_BAUD_MAX       4
+
+
 void        hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
 void        hal_uart_deinit(uint8_t port);
 void        hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable);

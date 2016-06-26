@@ -15,9 +15,10 @@ xxCxxx/xxxCxx  - RF: CC1101
 xxRxxx/xxxRxx  - RF: RFM12/MRF49XA
 xxQxxx/xxxQxx  - RF: RFM69/SX1231
 
-xxExxx/xxxExx  - LAN - ENC28J60
+xxExxx/xxxExx  - LAN: ENC28J60
 
 xxSxxx/xxxSxx  - UART
+xxMxxx/xxxMxx  - RS485
 
        xxxnxx  - PHY2 not used
 

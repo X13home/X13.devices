@@ -15,13 +15,15 @@ See LICENSE file for license details.
 
 #include "stm32f0xx.h"
 
-// STM32F051R8
+// STM32F051R8, Discovery F0
 #if   (defined CFG_S2Sn10)
 #include "S2xxxx/S2Sn10.h"      // UART
 #elif   (defined CFG_S2SR10)
 #include "S2xxxx/S2SR10.h"      // UART + RFM12
+#elif   (defined CFG_S2SM10)
+#include "S2xxxx/S2SM10.h"      // UART + RS485
 
-// STM32F091RC
+// STM32F091RC, Nucleo F091RC
 #elif   (defined CFG_S2Sn11)
 #include "S2xxxx/S2Sn11.h"      // UART
 
