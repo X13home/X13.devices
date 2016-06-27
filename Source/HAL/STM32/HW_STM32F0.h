@@ -20,8 +20,6 @@ See LICENSE file for license details.
 #include "S2xxxx/S2Sn10.h"      // UART
 #elif   (defined CFG_S2SR10)
 #include "S2xxxx/S2SR10.h"      // UART + RFM12
-#elif   (defined CFG_S2SM10)
-#include "S2xxxx/S2SM10.h"      // UART + RS485
 
 // STM32F091RC, Nucleo F091RC
 #elif   (defined CFG_S2Sn11)
@@ -39,6 +37,9 @@ See LICENSE file for license details.
 #include "S2xxxx/S2Sn13.h"      // UART ALT
 #elif   (defined CFG_S2SC13)
 #include "S2xxxx/S2SC13.h"      // UART ALT + CC1101
+#elif   (defined CFG_S2SM13)
+#include "S2xxxx/S2SM13.h"      // UART ALT + EXT_RS485
+
 // Board S2ER13
 #elif   (defined CFG_S2Qn13)
 #include "S2xxxx/S2Qn13.h"      // RFM69

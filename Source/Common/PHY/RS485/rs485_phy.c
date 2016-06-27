@@ -39,7 +39,8 @@ typedef enum
     RS_STATE_RX_DATA,
     RS_STATE_RX_BUSY,
 
-    RS_STATE_TX
+    RS_STATE_TX,
+    RS_STATE_TX_SYNC
 }RS485_STATES_t;
 
 static Queue_t              rs_tx_queue = {NULL, NULL, 4, 0};
@@ -83,7 +84,7 @@ void * RS485_Get(void)
     static uint8_t  rx_CRC, rx_Pos, rx_Len;
     static MQ_t   * pRx_buf;
     // Tx Variables
-    static uint8_t *pTx_buf = NULL;
+    static uint8_t *pTx_buf;
     // Timeouts
     static uint16_t rx_wd = 0;
     static uint16_t rx_to = 0;
@@ -99,7 +100,7 @@ void * RS485_Get(void)
             MQ_t * pBuf;
 
             RS485_DE_ENABLE();
-            rs_state = RS_STATE_TX;
+            
 
             if((rs_tx_queue.Size != 0) && ((pBuf = mqDequeue(&rs_tx_queue)) != NULL))
             {
@@ -123,25 +124,25 @@ void * RS485_Get(void)
                 }
 
                 pTx_buf[out_Pos++] = tx_CRC;
-
+                rs_state = RS_STATE_TX;
                 hal_uart_send(RS485_PHY_PORT, out_Pos, pTx_buf);
             }
             else        // Send Synchro Frame
             {
+                rs_state = RS_STATE_TX_SYNC;
                 hal_uart_send(RS485_PHY_PORT, sizeof(rs_token), rs_token);
             }
             return NULL;
         }
     }
-    else if(rs_state == RS_STATE_TX)
+    else if(rs_state >= RS_STATE_TX)
     {
         if(hal_uart_free(RS485_PHY_PORT))
         {
             RS485_DE_DISABLE();
-            if(pTx_buf != NULL)
+            if(rs_state == RS_STATE_TX)
             {
                 mqFree(pTx_buf);
-                pTx_buf = NULL;
             }
 
             rs_state = RS_STATE_RX_IDLE;
