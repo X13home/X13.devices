@@ -63,7 +63,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             {
                 // Configure DIO
                 hal_dio_configure(HAL_USART1_PIN_RX, HAL_USART1_AF);
-                // DMA1 Channel2 USART_RX config
+                // DMA1 Channel3 USART_RX config
                 DMA1_Channel3->CPAR = (uint32_t)&(USART1->RDR); // Peripheral address
                 DMA1_Channel3->CMAR = (uint32_t)Rx1_FIFO;       // Memory address
                 DMA1_Channel3->CNDTR = HAL_SIZEOF_UART_RX_FIFO; // Data size
@@ -302,4 +302,83 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
     }
 }
 
-#endif  //  
+
+#if (defined EXTSER_USED)
+void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx)
+{
+    switch(port)
+    {
+#if (defined HAL_USE_USART1)
+        case HAL_USE_USART1:
+            *pRx = HAL_USART1_PIN_RX;
+            *pTx = HAL_USART1_PIN_TX;
+            break;
+#endif  //  HAL_USE_USART1
+#if (defined HAL_USE_USART2)
+        case HAL_USE_USART2:
+            *pRx = HAL_USART2_PIN_RX;
+            *pTx = HAL_USART2_PIN_TX;
+            break;
+#endif  //  USART2
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            *pRx = HAL_USART3_PIN_RX;
+            *pTx = HAL_USART3_PIN_TX;
+            break;
+#endif  //  USART3
+        default:
+            *pRx = 0xFF;    // Not Exist
+            *pTx = 0xFF;
+            break;
+    }
+}
+
+void hal_uart_deinit(uint8_t port)
+{
+    switch(port)
+    {
+#if (defined HAL_USE_USART1)
+        case HAL_USE_USART1:
+            {
+            USART1->CR1 &= ~USART_CR1_UE;               // Disable USART
+
+            DMA1_Channel2->CCR = 0;
+            DMA1_Channel3->CCR = 0;
+
+            RCC->APB2RSTR |= RCC_APB2RSTR_USART1RST;    // Reset USART
+            RCC->APB2RSTR &= ~RCC_APB2RSTR_USART1RST;
+
+            RCC->APB2ENR  &= ~RCC_APB2ENR_USART1EN;     // Disable UART1 Clock
+
+            hal_dio_configure(HAL_USART1_PIN_RX, DIO_MODE_IN_FLOAT);
+            hal_dio_configure(HAL_USART1_PIN_TX, DIO_MODE_IN_FLOAT);
+            }
+            break;
+#endif  //  USART1
+
+#if (defined HAL_USE_USART2)
+        case HAL_USE_USART2:
+            {
+            USART2->CR1 &= ~USART_CR1_UE;               // Disable USART
+
+            DMA1_Channel4->CCR = 0;
+            DMA1_Channel5->CCR = 0;
+
+            RCC->APB1RSTR |= RCC_APB1RSTR_USART2RST;    // Reset USART
+            RCC->APB1RSTR &= ~RCC_APB1RSTR_USART2RST;
+
+            RCC->APB1ENR   &= ~RCC_APB1ENR_USART2EN;    // Disable UART2 Clock
+            hal_dio_configure(HAL_USART2_PIN_RX, DIO_MODE_IN_FLOAT);
+            hal_dio_configure(HAL_USART2_PIN_TX, DIO_MODE_IN_FLOAT);
+            }
+            break;
+#endif  //  USART2
+
+        default:
+            while(1);
+    }
+}
+
+#endif  //  EXTSER_USED
+
+#endif
