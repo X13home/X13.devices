@@ -12,11 +12,10 @@ See LICENSE file for license details.
 
 #include "config.h"
 
-#ifndef STM32F0
-
-#if ((defined HAL_USE_USART1)       || \
-     (defined HAL_USE_USART2)       || \
-     (defined HAL_USE_USART3))
+#if (defined STM32F1) &&                \
+    (((defined HAL_USE_USART1)       || \
+      (defined HAL_USE_USART2)       || \
+      (defined HAL_USE_USART3)))
 
 #define HAL_SIZEOF_UART_RX_FIFO     32      // Should be 2^n
 
@@ -49,24 +48,12 @@ static void hal_uart_irq_handler(uint8_t port, USART_TypeDef * USARTx)
     uint8_t data;
     uint32_t itstat;
 
-#if (defined STM32F3)
-    itstat = USARTx->ISR;
-    if(itstat & USART_ISR_ORE)
-    {
-        USARTx->ICR = USART_ICR_ORECF;
-        return;
-    }
-#elif (defined STM32F1)
     itstat = USARTx->SR;
     if(itstat & USART_SR_ORE)
     {
         data = USARTx->RDR;
         return;
     }
-#else
-#error hal_uart_irq_handler Unknown uC Family
-#endif
-
     itstat &= USARTx->CR1;
 
     // Received data is ready to be read
@@ -223,23 +210,15 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
 #if (defined HAL_USE_USART1)
         case HAL_USE_USART1:
             {
-#if (defined STM32F3)
-            uart_clock = hal_pclk1;
-#else
             uart_clock = hal_pclk2;
-#endif
-#if ((defined STM32F1) && (defined HAL_USART1_REMAP))
+
+#if (defined HAL_USART1_REMAP)
             AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;           // Remap USART1 from PA9/PA10 to PB6/PB7
-#endif
+#endif  //  HAL_USART1_REMAP
             USARTx = USART1;
             UARTx_IRQn = USART1_IRQn;
             RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                         // Enable UART1 Clock
-#if (!(defined STM32F1))
-            if(enable & 1) // Enable Rx
-            {
-                hal_dio_configure(HAL_USART1_PIN_RX, HAL_USART1_AF);
-            }
-#endif  // STM32F1
+
             if(enable & 2) // Enable Tx
             {
                 hal_dio_configure(HAL_USART1_PIN_TX, HAL_USART1_AF);
@@ -255,12 +234,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             USARTx = USART2;
             UARTx_IRQn = USART2_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                         // Enable UART2 Clock
-#if (!(defined STM32F1))
-            if(enable & 1) // Enable Rx
-            {
-                hal_dio_configure(HAL_USART2_PIN_RX, HAL_USART2_AF);
-            }
-#endif  // STM32F1
+
             if(enable & 2) // Enable Tx
             {
                 hal_dio_configure(HAL_USART2_PIN_TX, HAL_USART2_AF);
@@ -273,18 +247,13 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
         case HAL_USE_USART3:
             {
             uart_clock = hal_pclk1;
-#if ((defined STM32F1) && (defined HAL_USART3_REMAP))
+#if (defined HAL_USART3_REMAP)
             AFIO->MAPR |= AFIO_MAPR_USART3_REMAP;       // Remap USART1 from PB10/PB11 to PC10/PC11
 #endif
             USARTx = USART3;
             UARTx_IRQn = USART3_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                         // Enable UART3 Clock
-#if (!(defined STM32F1))
-            if(enable & 1) // Enable Rx
-            {
-                hal_dio_configure(HAL_USART3_PIN_RX, HAL_USART3_AF);
-            }
-#endif  // STM32F1
+
             if(enable & 2) // Enable Tx
             {
                 hal_dio_configure(HAL_USART3_PIN_TX, HAL_USART3_AF);
@@ -389,4 +358,3 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
 }
 
 #endif  //  (defined HAL_USE_U[S]ARTx)
-#endif  //  STM32F0

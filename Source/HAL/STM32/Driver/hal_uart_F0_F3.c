@@ -12,13 +12,39 @@ See LICENSE file for license details.
 
 #include "config.h"
 
-#if (defined STM32F0) && ((defined HAL_USE_USART1) | (defined HAL_USE_USART2))
+#if ((defined STM32F0) || (defined STM32F3)) &&     \
+    ((defined HAL_USE_USART1) | (defined HAL_USE_USART2))
 
-// DMA STM32F05x
+// STM32F05x
 //CH2 - USART1_TX
 //CH3 - USART1_RX
 //CH4 - USART2_TX
 //CH5 - USART2_RX
+
+// STM32F334xx
+// CH2 - USART3_TX
+// CH3 - USART3_RX
+// CH4 - USART1_TX
+// CH5 - USART1_RX
+// CH6 - USART2_RX
+// CH7 - USART2_TX
+
+#if (defined STM32F0)
+#define USART1_TX_DMA       DMA1_Channel2
+#define USART1_RX_DMA       DMA1_Channel3
+#define USART2_TX_DMA       DMA1_Channel4
+#define USART2_RX_DMA       DMA1_Channel5
+
+#elif (defined STM32F3)
+#define USART1_TX_DMA       DMA1_Channel4
+#define USART1_RX_DMA       DMA1_Channel5
+#define USART2_TX_DMA       DMA1_Channel7
+#define USART2_RX_DMA       DMA1_Channel6
+
+#else
+#error Unknown uC Family
+#endif
+
 
 #define HAL_SIZEOF_UART_RX_FIFO     64
 
@@ -48,7 +74,11 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
                 RCC->APB2ENR |= RCC_APB2ENR_USART1EN;           // Enable UART1 Clock
                 RCC->AHBENR |= RCC_AHBENR_DMA1EN;               // Enable the peripheral clock DMA1
 
+#if (defined STM32F3)
+                USART1->BRR = ((hal_pclk1 + (baud/2))/baud);
+#else   //  STM32F0
                 USART1->BRR = ((hal_pclk2 + (baud/2))/baud);
+#endif  //  STM32F3
                 
                 USART1->CR1 = 0;                                // Disable USART1
                 USART1->CR2 = 0;                                // 8N1
@@ -64,10 +94,10 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
                 // Configure DIO
                 hal_dio_configure(HAL_USART1_PIN_RX, HAL_USART1_AF);
                 // DMA1 Channel3 USART_RX config
-                DMA1_Channel3->CPAR = (uint32_t)&(USART1->RDR); // Peripheral address
-                DMA1_Channel3->CMAR = (uint32_t)Rx1_FIFO;       // Memory address
-                DMA1_Channel3->CNDTR = HAL_SIZEOF_UART_RX_FIFO; // Data size
-                DMA1_Channel3->CCR =                            // Priority - Low
+                USART1_RX_DMA->CPAR = (uint32_t)&(USART1->RDR); // Peripheral address
+                USART1_RX_DMA->CMAR = (uint32_t)Rx1_FIFO;       // Memory address
+                USART1_RX_DMA->CNDTR = HAL_SIZEOF_UART_RX_FIFO; // Data size
+                USART1_RX_DMA->CCR =                            // Priority - Low
                                                                 // Memory Size - 8 bit
                                                                 // Peripheral size - 8 bit
                                     DMA_CCR_MINC |              // Memory increment
@@ -108,7 +138,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
                 RCC->APB1ENR |= RCC_APB1ENR_USART2EN;           // Enable UART1 Clock
                 RCC->AHBENR |= RCC_AHBENR_DMA1EN;               // Enable the peripheral clock DMA1
 
-                USART2->BRR = ((hal_pclk2 + (baud/2))/baud);
+                USART2->BRR = ((hal_pclk1 + (baud/2))/baud);
                 
                 USART2->CR1 = 0;                                // Disable USART1
                 USART2->CR2 = 0;                                // 8N1
@@ -124,10 +154,10 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
                 // Configure DIO
                 hal_dio_configure(HAL_USART2_PIN_RX, HAL_USART2_AF);
                 // DMA1 Channel5 USART_RX config
-                DMA1_Channel5->CPAR = (uint32_t)&(USART2->RDR); // Peripheral address
-                DMA1_Channel5->CMAR = (uint32_t)Rx2_FIFO;       // Memory address
-                DMA1_Channel5->CNDTR = HAL_SIZEOF_UART_RX_FIFO; // Data size
-                DMA1_Channel5->CCR =                            // Priority - Low
+                USART2_RX_DMA->CPAR = (uint32_t)&(USART2->RDR); // Peripheral address
+                USART2_RX_DMA->CMAR = (uint32_t)Rx2_FIFO;       // Memory address
+                USART2_RX_DMA->CNDTR = HAL_SIZEOF_UART_RX_FIFO; // Data size
+                USART2_RX_DMA->CCR =                            // Priority - Low
                                                                 // Memory Size - 8 bit
                                                                 // Peripheral size - 8 bit
                                     DMA_CCR_MINC |              // Memory increment
@@ -175,12 +205,12 @@ bool hal_uart_datardy(uint8_t port)
 #if (defined HAL_USE_USART1)
         case HAL_USE_USART1:
             tmp -= Rx1_Tail;
-            return (tmp != DMA1_Channel3->CNDTR);
+            return (tmp != USART1_RX_DMA->CNDTR);
 #endif
 #if (defined HAL_USE_USART2)
         case HAL_USE_USART2:
             tmp -= Rx2_Tail;
-            return (tmp != DMA1_Channel5->CNDTR);
+            return (tmp != USART2_RX_DMA->CNDTR);
 #endif
         default:
             return false;
@@ -224,12 +254,11 @@ bool hal_uart_free(uint8_t port)
     {
 #if (defined HAL_USE_USART1)
         case HAL_USE_USART1:
-            if(DMA1_Channel2->CCR & DMA_CCR_EN)
+            if(USART1_TX_DMA->CCR & DMA_CCR_EN)
             {
-                if(DMA1->ISR & DMA_ISR_TCIF2)
+                if(USART1_TX_DMA->CNDTR == 0)
                 {
-                    DMA1_Channel2->CCR &= ~DMA_CCR_EN;
-                    DMA1->IFCR |= DMA_IFCR_CTCIF2;  // Clear TC flag
+                    USART1_TX_DMA->CCR &= ~DMA_CCR_EN;
                 }
                 else
                 {
@@ -241,12 +270,11 @@ bool hal_uart_free(uint8_t port)
 
 #if (defined HAL_USE_USART2)
         case HAL_USE_USART2:
-            if(DMA1_Channel4->CCR & DMA_CCR_EN)
+            if(USART2_TX_DMA->CCR & DMA_CCR_EN)
             {
-                if(DMA1->ISR & DMA_ISR_TCIF4)
+                if(USART2_TX_DMA->CNDTR == 0)
                 {
-                    DMA1_Channel4->CCR &= ~DMA_CCR_EN;
-                    DMA1->IFCR |= DMA_IFCR_CTCIF4;  // Clear TC flag
+                    USART2_TX_DMA->CCR &= ~DMA_CCR_EN;
                 }
                 else
                 {
@@ -268,10 +296,10 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
 #if (defined HAL_USE_USART1)
         case HAL_USE_USART1:
             // DMA1 Channel2 USART1_TX config
-            DMA1_Channel2->CPAR = (uint32_t)&(USART1->TDR);     // Peripheral address
-            DMA1_Channel2->CMAR = (uint32_t)pBuf;               // Memory address
-            DMA1_Channel2->CNDTR = len;
-            DMA1_Channel2->CCR =                                // Priority - Low
+            USART1_TX_DMA->CPAR = (uint32_t)&(USART1->TDR);     // Peripheral address
+            USART1_TX_DMA->CMAR = (uint32_t)pBuf;               // Memory address
+            USART1_TX_DMA->CNDTR = len;
+            USART1_TX_DMA->CCR =                                // Priority - Low
                                                                 // Memory Size - 8 bit
                                                                 // Peripheral size - 8 bit
                                     DMA_CCR_MINC |              // Memory increment
@@ -284,10 +312,10 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
 #if (defined HAL_USE_USART2)
         case HAL_USE_USART2:
             // DMA1 Channel2 USART1_TX config
-            DMA1_Channel4->CPAR = (uint32_t)&(USART2->TDR);     // Peripheral address
-            DMA1_Channel4->CMAR = (uint32_t)pBuf;               // Memory address
-            DMA1_Channel4->CNDTR = len;
-            DMA1_Channel4->CCR =                                // Priority - Low
+            USART2_TX_DMA->CPAR = (uint32_t)&(USART2->TDR);     // Peripheral address
+            USART2_TX_DMA->CMAR = (uint32_t)pBuf;               // Memory address
+            USART2_TX_DMA->CNDTR = len;
+            USART2_TX_DMA->CCR =                                // Priority - Low
                                                                 // Memory Size - 8 bit
                                                                 // Peripheral size - 8 bit
                                     DMA_CCR_MINC |              // Memory increment
@@ -301,7 +329,6 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
             break;
     }
 }
-
 
 #if (defined EXTSER_USED)
 void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx)
@@ -342,8 +369,8 @@ void hal_uart_deinit(uint8_t port)
             {
             USART1->CR1 &= ~USART_CR1_UE;               // Disable USART
 
-            DMA1_Channel2->CCR = 0;
-            DMA1_Channel3->CCR = 0;
+            USART1_TX_DMA->CCR = 0;
+            USART1_RX_DMA->CCR = 0;
 
             RCC->APB2RSTR |= RCC_APB2RSTR_USART1RST;    // Reset USART
             RCC->APB2RSTR &= ~RCC_APB2RSTR_USART1RST;
@@ -361,8 +388,8 @@ void hal_uart_deinit(uint8_t port)
             {
             USART2->CR1 &= ~USART_CR1_UE;               // Disable USART
 
-            DMA1_Channel4->CCR = 0;
-            DMA1_Channel5->CCR = 0;
+            USART2_TX_DMA->CCR = 0;
+            USART2_RX_DMA->CCR = 0;
 
             RCC->APB1RSTR |= RCC_APB1RSTR_USART2RST;    // Reset USART
             RCC->APB1RSTR &= ~RCC_APB1RSTR_USART2RST;
