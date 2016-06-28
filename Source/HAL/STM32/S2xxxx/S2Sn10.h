@@ -159,15 +159,15 @@ extern "C" {
 // End TWI Section
 
 // UART Section
-#define HAL_UART_NUM_PORTS          2
-#define HAL_USE_USART1              1
-#define HAL_USART1_REMAP            1   // USART1 on PB6/PB7
+#define HAL_UART_NUM_PORTS          1
+//#define HAL_USE_USART1              0
+//#define HAL_USART1_REMAP            1   // USART1 on PB6/PB7
 
 #define HAL_USE_USART2              0
-#define EXTSER_USED                 1
+//#define EXTSER_USED                 1
 
 // UART PHY Section
-#define UART_PHY_PORT               1   // Logical port
+#define UART_PHY_PORT               0   // Logical port
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section

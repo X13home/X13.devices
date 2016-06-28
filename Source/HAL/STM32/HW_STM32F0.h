@@ -26,21 +26,23 @@ See LICENSE file for license details.
 #include "S2xxxx/S2Sn11.h"      // UART
 
 // STM32F051C8
-// Board S2EC13
-#elif   (defined CFG_S2EC13)
-#include "S2xxxx/S2EC13.h"      // ENC28J60 + CC1101
+// Board S2EC13/S2ER13 without RF
 #elif   (defined CFG_S2En13)
 #include "S2xxxx/S2En13.h"      // ENC28J60
-#elif   (defined CFG_S2Cn13)
-#include "S2xxxx/S2Cn13.h"      // CC1101
 #elif   (defined CFG_S2Sn13)
 #include "S2xxxx/S2Sn13.h"      // UART ALT
-#elif   (defined CFG_S2SC13)
-#include "S2xxxx/S2SC13.h"      // UART ALT + CC1101
 #elif   (defined CFG_S2SM13)
 #include "S2xxxx/S2SM13.h"      // UART ALT + EXT_RS485
-
-// Board S2ER13
+#elif   (defined CFG_S2Mn13)
+#include "S2xxxx/S2Mn13.h"      // EXT_RS485
+// Board S2EC13 + CC1101
+#elif   (defined CFG_S2EC13)
+#include "S2xxxx/S2EC13.h"      // ENC28J60 + CC1101
+#elif   (defined CFG_S2Cn13)
+#include "S2xxxx/S2Cn13.h"      // CC1101
+#elif   (defined CFG_S2SC13)
+#include "S2xxxx/S2SC13.h"      // UART ALT + CC1101
+// Board S2ER13 + RFM69CW
 #elif   (defined CFG_S2Qn13)
 #include "S2xxxx/S2Qn13.h"      // RFM69
 #elif   (defined CFG_S2SQ13)

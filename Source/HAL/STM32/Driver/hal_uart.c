@@ -12,6 +12,8 @@ See LICENSE file for license details.
 
 #include "config.h"
 
+#ifndef STM32F0
+
 #if ((defined HAL_USE_USART1)       || \
      (defined HAL_USE_USART2)       || \
      (defined HAL_USE_USART3))
@@ -47,7 +49,7 @@ static void hal_uart_irq_handler(uint8_t port, USART_TypeDef * USARTx)
     uint8_t data;
     uint32_t itstat;
 
-#if ((defined STM32F0) || (defined STM32F3))
+#if (defined STM32F3)
     itstat = USARTx->ISR;
     if(itstat & USART_ISR_ORE)
     {
@@ -232,12 +234,12 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             USARTx = USART1;
             UARTx_IRQn = USART1_IRQn;
             RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                         // Enable UART1 Clock
-#if ((defined STM32F0) || (defined STM32F3))
+#if (!(defined STM32F1))
             if(enable & 1) // Enable Rx
             {
                 hal_dio_configure(HAL_USART1_PIN_RX, HAL_USART1_AF);
             }
-#endif  // STM32F0
+#endif  // STM32F1
             if(enable & 2) // Enable Tx
             {
                 hal_dio_configure(HAL_USART1_PIN_TX, HAL_USART1_AF);
@@ -253,12 +255,12 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             USARTx = USART2;
             UARTx_IRQn = USART2_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                         // Enable UART2 Clock
-#if ((defined STM32F0) || (defined STM32F3))
+#if (!(defined STM32F1))
             if(enable & 1) // Enable Rx
             {
                 hal_dio_configure(HAL_USART2_PIN_RX, HAL_USART2_AF);
             }
-#endif  // STM32F0
+#endif  // STM32F1
             if(enable & 2) // Enable Tx
             {
                 hal_dio_configure(HAL_USART2_PIN_TX, HAL_USART2_AF);
@@ -277,12 +279,12 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             USARTx = USART3;
             UARTx_IRQn = USART3_IRQn;
             RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                         // Enable UART3 Clock
-#if ((defined STM32F0) || (defined STM32F3))
+#if (!(defined STM32F1))
             if(enable & 1) // Enable Rx
             {
                 hal_dio_configure(HAL_USART3_PIN_RX, HAL_USART3_AF);
             }
-#endif  // STM32F0
+#endif  // STM32F1
             if(enable & 2) // Enable Tx
             {
                 hal_dio_configure(HAL_USART3_PIN_TX, HAL_USART3_AF);
@@ -313,9 +315,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
         hal_UARTv[port]->tx_len = 0;
         hal_UARTv[port]->tx_pos = 0;
 
-        USARTx->CR1 = 0;                                // Disable USART1
-        USARTx->CR2 = 0;                                // 8N1
-        USARTx->CR3 = 0;                                // Without flow control
+
         USARTx->BRR  = ((uart_clock + baud/2)/baud);    // Speed
     }
 
@@ -389,3 +389,4 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
 }
 
 #endif  //  (defined HAL_USE_U[S]ARTx)
+#endif  //  STM32F0
