@@ -104,10 +104,6 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
                 USART1->CR1 &= ~USART_CR1_UE;                   // Disable USART
             }
 
-#if (defined STM32F1) && (defined HAL_USART1_REMAP)
-            AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;               // Remap USART
-#endif  //  HAL_USART1_REMAP
-
             if(enable & 1) // Enable Rx
             {
 #if (!defined STM32F1)
@@ -171,10 +167,6 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
                 USART2->CR1 &= ~USART_CR1_UE;                   // Disable USART
             }
 
-#if (defined STM32F1) && (defined HAL_USART2_REMAP)
-            AFIO->MAPR |= AFIO_MAPR_USART2_REMAP;               // Remap USART
-#endif  //  HAL_USART2_REMAP
-
             if(enable & 1) // Enable Rx
             {
 #if (!defined STM32F1)
@@ -237,10 +229,6 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             {
                 USART3->CR1 &= ~USART_CR1_UE;                   // DIsable USART
             }
-
-#if (defined STM32F1) && (defined HAL_USART3_REMAP)
-            AFIO->MAPR |= AFIO_MAPR_USART3_REMAP;               // Remap USART
-#endif  //  HAL_USART2_REMAP
 
             if(enable & 1) // Enable Rx
             {

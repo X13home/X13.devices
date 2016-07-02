@@ -33,25 +33,27 @@ static void uart_tx_task(void)
 {
     static MQ_t   * pTx_buf = NULL;
 
-    if(hal_uart_free(UART_PHY_PORT))
+    if(pTx_buf != NULL)
     {
-        if(pTx_buf != NULL)
+        if(hal_uart_free(UART_PHY_PORT))
         {
             mqFree(pTx_buf);
             pTx_buf = NULL;
         }
+    }
 
-        if(uart_tx_queue.Size != 0)
+    if(uart_tx_queue.Size != 0)
+    {
+#ifdef LED_On
+        LED_On();
+#endif  //  LED_On
+        if(hal_uart_free(UART_PHY_PORT))
         {
             pTx_buf = mqDequeue(&uart_tx_queue);
             // Paranoid check
             if(pTx_buf != NULL)
             {
                 hal_uart_send(UART_PHY_PORT, (pTx_buf->Length + 1), &pTx_buf->Length);
-#ifdef LED_On
-                LED_On();
-#endif  //  LED_On
-
             }
         }
     }

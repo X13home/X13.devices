@@ -94,6 +94,19 @@ void hal_prepare_gpio(void)
      // disable JTAG
     RCC->APB2ENR |= RCC_APB2ENR_AFIOEN;
     AFIO->MAPR |= AFIO_MAPR_SWJ_CFG_JTAGDISABLE;
+    
+    // Remap USART's
+#if (defined HAL_USART1_REMAP)
+    AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;               
+#endif  //  HAL_USART1_REMAP
+
+#if (defined HAL_USART2_REMAP)
+    AFIO->MAPR |= AFIO_MAPR_USART2_REMAP;
+#endif  //  HAL_USART2_REMAP
+
+#if (defined HAL_USART3_REMAP)
+    AFIO->MAPR |= AFIO_MAPR_USART3_REMAP;
+#endif  //  HAL_USART3_REMAP
 }
 
 // HAL GPIO Functions
