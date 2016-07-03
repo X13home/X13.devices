@@ -115,11 +115,6 @@ extern "C" {
 #define HAL_USE_USART2              0
 #define RS485_PHY_PORT              0
 #define RS485_PHY                   2
-
-#define RS485_DE_PIN                1   // PA1
-#define RS485_DE_DISABLE()          GPIOA->BSRR = GPIO_BSRR_BR_1
-#define RS485_DE_ENABLE()           GPIOA->BSRR = GPIO_BSRR_BS_1
-
 #include "PHY/RS485/rs485_phy.h"
 // End RS485 PHY Section
 

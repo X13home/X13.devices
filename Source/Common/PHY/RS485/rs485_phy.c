@@ -33,14 +33,12 @@ See LICENSE file for license details.
 typedef enum
 {
     RS_STATE_INIT   = 0,
-    RS_STATE_ARB_LOST,
     RS_STATE_RX_IDLE,
     RS_STATE_RX_HDR,
     RS_STATE_RX_DATA,
     RS_STATE_RX_BUSY,
 
-    RS_STATE_TX,
-    RS_STATE_TX_SYNC
+    RS_STATE_TX
 }RS485_STATES_t;
 
 static Queue_t              rs_tx_queue = {NULL, NULL, 4, 0};
@@ -63,10 +61,8 @@ void RS485_Init(void)
 
     if(rs_state == RS_STATE_INIT)   // Init Hardware
     {
-        hal_uart_init_hw(RS485_PHY_PORT, UART_BAUD_93750, 3);   // init uart 93750, Rx + Tx
-        hal_dio_configure(RS485_DE_PIN, DIO_MODE_OUT_PP);
+        hal_uart_init_hw(RS485_PHY_PORT, UART_BAUD_93750, 7);   // init uart 93750, DE + Rx + Tx
     }
-    RS485_DE_DISABLE();
     rs_state = RS_STATE_RX_IDLE;
 }
 
@@ -86,65 +82,67 @@ void * RS485_Get(void)
     // Tx Variables
     static uint8_t *pTx_buf;
     // Timeouts
-    static uint16_t rx_wd = 0;
-    static uint16_t rx_to = 0;
-    uint16_t act_ms = HAL_get_ms() & 0xFFFF;
+    static uint32_t rs_tx_wd = 0;
+    static uint32_t rs_rx_wd = 0;
+    static uint16_t rs_tx_to = 135;
+    uint32_t act_ms = HAL_get_ms();
 
-    // Tx Task
     if(rs_state == RS_STATE_RX_IDLE)
     {
-        if(((act_ms - rx_wd) >= rx_to) && (hal_uart_free(RS485_PHY_PORT)))
+        // Tx Task
+        uint32_t tmp_ms = act_ms - rs_tx_wd;
+        if(tmp_ms >= rs_tx_to)
         {
-            rx_wd = act_ms;
-            rx_to = 135;
-            MQ_t * pBuf;
-
-            RS485_DE_ENABLE();
-            
-
-            if((rs_tx_queue.Size != 0) && ((pBuf = mqDequeue(&rs_tx_queue)) != NULL))
+            if(hal_uart_free(RS485_PHY_PORT))
             {
-                pTx_buf = mqAlloc(sizeof(MQ_t));
-                uint8_t  tx_Len = pBuf->Length;
-                uint8_t  tx_CRC, in_Pos, out_Pos = 4;
+                rs_tx_wd = act_ms;
+                rs_tx_to = 135 + rs_addr;
 
-                pTx_buf[0] = RS485_SOF;                     // Start of Frame
-                pTx_buf[1] = tx_Len + 2;                    // Lenght
-                tx_CRC     = tx_Len + 2;
-                pTx_buf[2] = rs_addr;                       // Source address
-                tx_CRC    += rs_addr;
-                pTx_buf[3] = pBuf->a.phy1addr[0];           // Destination address
-                tx_CRC    += pBuf->a.phy1addr[0];
-
-                for(in_Pos = 0; in_Pos < tx_Len; in_Pos++)  // Copy Data, calculate CRC
+                if(rs_tx_queue.Size != 0)
                 {
-                    uint8_t ch = pBuf->m.raw[in_Pos];
-                    tx_CRC += ch;
-                    pTx_buf[out_Pos++] = ch;
-                }
+                    MQ_t * pBuf = mqDequeue(&rs_tx_queue);
+                    if(pBuf == NULL)
+                    {
+                        return NULL;
+                    }
 
-                pTx_buf[out_Pos++] = tx_CRC;
-                rs_state = RS_STATE_TX;
-                hal_uart_send(RS485_PHY_PORT, out_Pos, pTx_buf);
+                    pTx_buf = (uint8_t *)pBuf;
+                    uint8_t  tx_Len = pBuf->Length;
+                    uint8_t  tx_Dst = pBuf->a.phy1addr[0];
+                    uint8_t  tx_CRC, in_Pos, out_Pos = 4;
+
+                    pTx_buf[0] = RS485_SOF;                     // Start of Frame
+                    pTx_buf[1] = tx_Len + 2;                    // Lenght
+                    tx_CRC     = tx_Len + 2;
+                    pTx_buf[2] = rs_addr;                       // Source address
+                    tx_CRC    += rs_addr;
+                    pTx_buf[3] = tx_Dst;                        // Destination address
+                    tx_CRC    += tx_Dst;
+
+                    for(in_Pos = 0; in_Pos < tx_Len; in_Pos++)  // Copy Data, calculate CRC
+                    {
+                        uint8_t ch = pBuf->m.raw[in_Pos];
+                        tx_CRC += ch;
+                        pTx_buf[out_Pos++] = ch;
+                    }
+
+                    pTx_buf[out_Pos++] = tx_CRC;
+                    rs_state = RS_STATE_TX;
+                    hal_uart_send(RS485_PHY_PORT, out_Pos, pTx_buf);
+                }
+                else        // Send Synchro Frame
+                {
+                    hal_uart_send(RS485_PHY_PORT, sizeof(rs_token), rs_token);
+                }
+                return NULL;
             }
-            else        // Send Synchro Frame
-            {
-                rs_state = RS_STATE_TX_SYNC;
-                hal_uart_send(RS485_PHY_PORT, sizeof(rs_token), rs_token);
-            }
-            return NULL;
         }
     }
-    else if(rs_state >= RS_STATE_TX)
+    else if(rs_state == RS_STATE_TX)
     {
         if(hal_uart_free(RS485_PHY_PORT))
         {
-            RS485_DE_DISABLE();
-            if(rs_state == RS_STATE_TX)
-            {
-                mqFree(pTx_buf);
-            }
-
+            mqFree(pTx_buf);
             rs_state = RS_STATE_RX_IDLE;
         }
 
@@ -155,26 +153,33 @@ void * RS485_Get(void)
         }
         return NULL;
     }
+    else    // Rx Watchdog
+    {
+        uint16_t tmp_ms = act_ms - rs_rx_wd;
+        if(tmp_ms > 8)
+        {
+            if(rs_state == RS_STATE_RX_DATA)
+            {
+                mqFree(pRx_buf);
+            }
+            rs_rx_wd = act_ms;
+            rs_state = RS_STATE_RX_IDLE;
+        }
+    }
 
     while(hal_uart_datardy(RS485_PHY_PORT))
     {
         uint8_t ch = hal_uart_get(RS485_PHY_PORT);
 
-        if((rs_state == RS_STATE_RX_IDLE) ||
-           (rs_state == RS_STATE_ARB_LOST))
+        if(rs_state == RS_STATE_RX_IDLE)
         {
-            rx_wd = act_ms;
-            rx_to = 8 + (rs_addr >> 1);
-
             if(ch == RS485_SOF)
             {
+                rs_rx_wd = act_ms;
                 rs_state = RS_STATE_RX_HDR;
                 rx_Pos = 0;
             }
-            else    // Arbitration Lost
-            {
-                rs_state = RS_STATE_ARB_LOST;
-            }
+            // else - Arbitration Lost
         }
         else if(rs_state == RS_STATE_RX_HDR)
         {
@@ -189,12 +194,21 @@ void * RS485_Get(void)
                 }
                 else                                        // Bad Length, Arbitration Lost
                 {
-                    rs_state = RS_STATE_ARB_LOST;
+                    rs_state = RS_STATE_RX_IDLE;
                 }
             }
             else if(rx_Pos == 1)                            // source address
             {
-                rx_to = ((rs_addr - ch) >> 1);
+                if(rs_addr > ch)
+                {
+                    rs_tx_to = rs_addr - ch;
+                }
+                else
+                {
+                    rs_tx_to = 0x100 + rs_addr - ch;
+                }
+
+                rs_tx_to +=  (rx_Len >> 3) + 1;
 
                 if(rx_Len == 1)                             // Synchro Frame
                 {
@@ -202,7 +216,6 @@ void * RS485_Get(void)
                 }
                 else
                 {
-                    rx_to += (rx_Len >> 3);
                     rx_Pos = 2;
                     rx_CRC += ch;
                 }
@@ -242,6 +255,7 @@ void * RS485_Get(void)
                 }
                 else
                 {
+                    pRx_buf->Length = rx_Len;
                     return pRx_buf;
                 }
             }
@@ -259,18 +273,8 @@ void * RS485_Get(void)
         }
     }
 
-    if((rs_state != RS_STATE_RX_IDLE) && ((act_ms - rx_wd) >= rx_to))
-    {
-        if(rs_state == RS_STATE_RX_DATA)
-        {
-            mqFree(pRx_buf);
-        }
-        rs_state = RS_STATE_RX_IDLE;
-    }
-
     return NULL;
 }
-
 
 void * RS485_GetAddr(void)
 {

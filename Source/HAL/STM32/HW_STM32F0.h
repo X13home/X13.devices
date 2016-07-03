@@ -141,13 +141,13 @@ See LICENSE file for license details.
 
 #if (defined HAL_USART1_REMAP)
 #define HAL_USART1_AF           DIO_MODE_AF_PP
-#define HAL_USART1_PIN_TX       22                      // GPIOB PIN6
-#define HAL_USART1_PIN_RX       23                      // GPIOB PIN7
+#define HAL_USART1_PIN_TX       22                      // PB6
+#define HAL_USART1_PIN_RX       23                      // PB7
 
 #else
 #define HAL_USART1_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
-#define HAL_USART1_PIN_TX       9                       // GPIOA PIN9
-#define HAL_USART1_PIN_RX       10                      // GPIOA PIN10
+#define HAL_USART1_PIN_TX       9                       // PA9
+#define HAL_USART1_PIN_RX       10                      // PA10
 
 #endif  //  HAL_USART1_REMAP
 #endif  //  HAL_USE_USART1
@@ -158,12 +158,13 @@ See LICENSE file for license details.
 #define HAL_USART2_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
 #if (defined HAL_USART2_REMAP)
-#define HAL_USART2_PIN_TX       14                      // GPIOA PIN14
-#define HAL_USART2_PIN_RX       15                      // GPIOA PIN15
+#define HAL_USART2_PIN_TX       14                      // PA14
+#define HAL_USART2_PIN_RX       15                      // PA15
 
 #else
-#define HAL_USART2_PIN_TX       2                       // GPIOA PIN2
-#define HAL_USART2_PIN_RX       3                       // GPIOA PIN3
+#define HAL_USART2_PIN_DE       1                       // PA1
+#define HAL_USART2_PIN_TX       2                       // PA2
+#define HAL_USART2_PIN_RX       3                       // PA3
 
 #endif  //  HAL_USART2_REMAP
 #endif  //  HAL_USE_USART2
@@ -174,13 +175,13 @@ See LICENSE file for license details.
 
 #if (defined HAL_USART3_REMAP)
 #define HAL_USART3_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
-#define HAL_USART3_PIN_TX       42                      // GPIOC PIN10
-#define HAL_USART3_PIN_RX       43                      // GPIOC PIN11
+#define HAL_USART3_PIN_TX       42                      // PC10
+#define HAL_USART3_PIN_RX       43                      // PC11
 
 #else   //  HAL_USART3_REMAP
 #define HAL_USART3_AF           ((4<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
-#define HAL_USART3_PIN_TX       26                      // GPIOB PIN10
-#define HAL_USART3_PIN_RX       27                      // GPIOB PIN11
+#define HAL_USART3_PIN_TX       26                      // PB10
+#define HAL_USART3_PIN_RX       27                      // PB11
 
 #endif  //  HAL_USART3_REMAP
 #endif  //  HAL_USE_USART3
