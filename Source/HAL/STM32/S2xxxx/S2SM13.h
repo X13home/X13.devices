@@ -93,10 +93,6 @@ extern "C" {
 #define HAL_AIN_BASE2APIN           {9, 8, 7, 6, 5, 4}
 // End Analogue Inputs
 
-// UART Section
-#define HAL_UART_NUM_PORTS          2
-// End UART Section
-
 // TWI Section
 #define HAL_TWI_BUS                 2           // I2C_Bus 1 - I2C1, 2 - I2C2
 #define EXTTWI_USED                 1

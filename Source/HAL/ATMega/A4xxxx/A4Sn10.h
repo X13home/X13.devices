@@ -134,7 +134,6 @@ extern "C" {
 
 // UART Section
 #define HAL_UART_NUM_PORTS          4
-#define HAL_USE_USART0              3
 #define HAL_USE_USART1              0
 #define HAL_USE_USART2              1
 #define HAL_USE_USART3              2
@@ -160,6 +159,7 @@ extern "C" {
 // Start PHY Section
 
 // UART PHY Section
+#define HAL_USE_USART0              3
 #define UART_PHY_PORT               3       // Logical Port Number 0,1,2,...
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"

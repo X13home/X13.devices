@@ -94,6 +94,11 @@ extern "C" {
 #define EXTTWI_USED                 1
 // End TWI Section
 
+// LEDs
+#define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_0
+#define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR_0
+#define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_0, DIO_MODE_OUT_PP)
+
 // CC11 PHY Section
 #define HAL_USE_SPI1                2                               // SPI1 on PB3 - PB5
 #define CC11_USE_SPI                1
@@ -104,11 +109,6 @@ extern "C" {
 #define CC11_PHY                    1
 #include "PHY/CC1101/cc11_phy.h"
 // End CC11 PHY Section
-
-// LEDs
-#define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_0
-#define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR_0
-#define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_0, DIO_MODE_OUT_PP)
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           32

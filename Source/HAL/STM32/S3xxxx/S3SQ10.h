@@ -109,30 +109,28 @@ extern "C" {
 #define HAL_AIN_BASE2APIN           {0xFF, 0xFF, 0xFF,   8,   7, 6, 5, 4, 3, 2, 1, 0}
 // End Analogue Inputs
 
+// UART Section
+#define HAL_USE_USART1              0           // Mapping to logical port
+#define HAL_USE_USART2              1
+#define EXTSER_USED                 2
+// End UART Section
+
 // TWI Section
 #define HAL_TWI_BUS                 1
 #define EXTTWI_USED                 1
 // End TWI Section
 
-// UART Section
-#define HAL_UART_NUM_PORTS          3
-#define HAL_USE_USART1              0           // Mapping to logical port
-#define HAL_USE_USART2              1
-#define HAL_USE_USART3              2
-
-#define EXTSER_USED                 2
-// End UART Section
-
-// UART PHY Section
-#define UART_PHY_PORT               2   // Logical port
-#define UART_PHY                    1
-#include "PHY/UART/uart_phy.h"
-// End UART PHY Section
-
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS1
 #define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR1
 #define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_1, DIO_MODE_OUT_PP)
+
+// UART PHY Section
+#define HAL_USE_USART3              2
+#define UART_PHY_PORT               2   // Logical port
+#define UART_PHY                    1
+#include "PHY/UART/uart_phy.h"
+// End UART PHY Section
 
 // RFM69 Section
 #define HAL_USE_SPI2                1

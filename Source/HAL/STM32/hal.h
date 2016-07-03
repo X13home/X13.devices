@@ -165,10 +165,6 @@ void        hal_twi_start(void);
 #define     UART_BAUD_93750     5
 #define     UART_BAUD_MAX       4
 
-void        USART1_IRQHandler(void);
-void        USART2_IRQHandler(void);
-void        USART3_IRQHandler(void);
-
 void        hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
 void        hal_uart_deinit(uint8_t port);
 void        hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable);

@@ -17,17 +17,20 @@ See LICENSE file for license details.
 /*
  HAL USART, STM32F0/F1/F3
 
-            Config 1        Config 2
-U[S]ARTx    RX      TX      RX      TX      APB
-USART1      PA10    PA9     PB7     PB6     2
-USART2      PA3     PA2                     1
-USART3      PB11    PB10    PC11    PC10    1
+            Config 1        Config 2        Config 3
+U[S]ARTx    RX      TX      RX      TX      RX      TX      APB
+USART1      PA10    PA9     PB7     PB6                     2
+USART2      PA3     PA2     PB4     PB3     PA15    PA14    1
+USART3      PB11    PB10    PC11    PC10                    1
 
 STM32F05x
  CH2 - USART1_TX
  CH3 - USART1_RX
  CH4 - USART2_TX
  CH5 - USART2_RX
+STM32F09x
+ CH6 - USART3_RX
+ CH7 - USART3_TX
 
 STM32F103, STM32F334xx
  CH2 - USART3_TX
@@ -37,24 +40,6 @@ STM32F103, STM32F334xx
  CH6 - USART2_RX
  CH7 - USART2_TX
 */
-
-#if (defined STM32F0)
-#define USART1_TX_DMA       DMA1_Channel2
-#define USART1_RX_DMA       DMA1_Channel3
-#define USART2_TX_DMA       DMA1_Channel4
-#define USART2_RX_DMA       DMA1_Channel5
-
-#elif ((defined STM32F3) || (defined STM32F1))
-#define USART3_TX_DMA       DMA1_Channel2
-#define USART3_RX_DMA       DMA1_Channel3
-#define USART1_TX_DMA       DMA1_Channel4
-#define USART1_RX_DMA       DMA1_Channel5
-#define USART2_RX_DMA       DMA1_Channel6
-#define USART2_TX_DMA       DMA1_Channel7
-
-#else
-#error Unknown uC Family
-#endif
 
 #define HAL_SIZEOF_UART_RX_FIFO     64
 

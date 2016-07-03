@@ -94,14 +94,13 @@ extern "C" {
 #define LED_Off()                   PORTB |= (1<<PB0)
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
-// UART Section
+// UART PHY Section
 #define HAL_USE_USART0              0       // Logical Port Number 0,1,2,...
 #define HAL_UART_NUM_PORTS          1
-
 #define UART_PHY_PORT               0       // Logical Port Number 0,1,2,...
-// End UART Section
-
 #define UART_PHY                    1
+#include "PHY/UART/uart_phy.h"
+// End UART PHY Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           20      // Size of identificators list
@@ -111,8 +110,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
-
-#include "PHY/UART/uart_phy.h"
 
 #ifdef __cplusplus
 }

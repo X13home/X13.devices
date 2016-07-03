@@ -93,10 +93,14 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
-#define HAL_UART_NUM_PORTS          2
-#define HAL_USE_USART1              1
 #define HAL_USE_USART2              0
+#define EXTSER_USED                 1
 // End UART Section
+
+// TWI Section
+#define HAL_TWI_BUS                 1       // I2C_Bus 1 - I2C1, 2 - I2C2
+#define EXTTWI_USED                 1
+// End TWI Section
 
 // LEDs
 #define LED_On()                    GPIOB->BSRR = GPIO_BSRR_BS_0
@@ -104,15 +108,11 @@ extern "C" {
 #define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_0, DIO_MODE_OUT_PP)
 
 // UART PHY Section
+#define HAL_USE_USART1              1
 #define UART_PHY_PORT               1   // Logical port
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section
-
-// TWI Section
-#define HAL_TWI_BUS                 1       // I2C_Bus 1 - I2C1, 2 - I2C2
-#define EXTTWI_USED                 1
-// End TWI Section
 
 // CC11 PHY Section
 #define HAL_USE_SPI1                2                               // SPI1 on PB3 - PB5

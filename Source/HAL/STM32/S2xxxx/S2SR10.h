@@ -107,12 +107,6 @@ extern "C" {
                             }
 // End DIO Section
 
-// Analog Inputs
-#define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           16
-#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
-// End Analog Inputs
-
 // PWM Section
 #define EXTPWM_USED                 1
 #define HAL_PWM_PORT2CFG            {((2<<8) |  (2<<3) | 0),    /* PA0:  AF2, TIM2_CH1      */ \
@@ -149,26 +143,30 @@ extern "C" {
                                     }
 // End PWM Section
 
+// Analog Inputs
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           16
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15}
+// End Analog Inputs
+
+// UART Section
+#define HAL_USE_USART2              0
+#define EXTSER_USED                 1
+// End UART Section
+
 // TWI Section
 #define HAL_TWI_BUS                 2
 #define HAL_TWI_REMAP               1   // I2C2 on PF6/PF7
 #define EXTTWI_USED                 1
 // End TWI Section
 
-// UART Section
-#define HAL_UART_NUM_PORTS          2
+// UART PHY Section
 #define HAL_USE_USART1              1
 #define HAL_USART1_REMAP            1   // USART1 on PB6/PB7
-
-#define HAL_USE_USART2              0
-#define EXTSER_USED                 1
-
-// UART PHY Section
 #define UART_PHY_PORT               1   // Logical port
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section
-// End UART Section
 
 // RFM12 Section
 #define HAL_USE_EXTI                1

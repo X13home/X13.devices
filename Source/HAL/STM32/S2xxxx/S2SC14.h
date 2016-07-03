@@ -88,18 +88,16 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
-#define HAL_UART_NUM_PORTS          2
-#define HAL_USE_USART1              1       // PA9, PA10 - PHY
 #define HAL_USE_USART2              0       // PA2, PA3 - User Port
-
 #define EXTSER_USED                 1
+// End UART Section
 
 // UART PHY Section
+#define HAL_USE_USART1              1       // PA9, PA10 - PHY
 #define UART_PHY_PORT               1       // Logical port
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section
-// End UART Section
 
 // User Extensions
 // Si1143
