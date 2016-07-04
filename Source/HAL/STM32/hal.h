@@ -187,6 +187,8 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
 
 void _delay_us(uint16_t us);
 
+uint16_t HAL_get_250us_tick(void);
+
 extern uint32_t hal_hclk, hal_pclk1, hal_pclk2;
 
 //////////////////////////////////////////////////////////////

@@ -17,10 +17,12 @@ See LICENSE file for license details.
 #ifdef RS485_PHY
 
 // Frame Format
+
 // Variable Length Data
 // [SOF] [LEN] [SRC] [DST] [DATA ... ] [CRC]
 // Len = sizeof(Data) + 2
 // CRC = Summ(Len /-/ Data)
+
 // Synchro Frame
 // [SOF] [0x01] [SRC]
 
@@ -79,12 +81,12 @@ void * RS485_Get(void)
     // Rx Variables
     static uint8_t  rx_CRC, rx_Pos, rx_Len, rx_Src = 0;
     static MQ_t   * pRx_buf;
+    static uint16_t rs_rx_wd = 0;       // Rx Timeout
     // Tx Variables
     static uint8_t *pTx_buf;
-    // Timeouts
-    static uint32_t rs_tx_wd = 32;
-    static uint32_t rs_rx_wd = 0;
-    uint32_t act_ms = HAL_get_ms();
+    // Tx Timeouts
+    static uint16_t rs_tx_wd = 128;     // 32 ms
+    static uint16_t rs_tx_to = 0;       // Timeouts, in 0.25ms
 
     while(hal_uart_datardy(RS485_PHY_PORT))
     {
@@ -94,7 +96,7 @@ void * RS485_Get(void)
         {
             if(ch == RS485_SOF)
             {
-                rs_rx_wd = act_ms + 8;
+                rs_rx_wd = HAL_get_250us_tick();
                 rs_state = RS_STATE_RX_HDR;
                 rx_Pos = 0;
             }
@@ -119,11 +121,11 @@ void * RS485_Get(void)
             else if(rx_Pos == 1)                            // source address
             {
                 rx_Src = rs_addr - ch;
-                rx_Src >>= 2;
 
                 if(rx_Len == 1)                             // Synchro Frame
                 {
-                    rs_tx_wd = act_ms + rx_Src;
+                    rs_tx_wd = HAL_get_250us_tick();
+                    rs_tx_to = rx_Src;
                     rs_state = RS_STATE_RX_IDLE;
                 }
                 else
@@ -165,7 +167,8 @@ void * RS485_Get(void)
                 rs_state = RS_STATE_RX_IDLE;
                 if(ch == rx_CRC)
                 {
-                    rs_tx_wd = act_ms + rx_Src;
+                    rs_tx_wd = HAL_get_250us_tick();
+                    rs_tx_to = rx_Src;
                     pRx_buf->Length = rx_Len;
                     return pRx_buf;
                 }
@@ -184,7 +187,8 @@ void * RS485_Get(void)
             {
                 if(ch == rx_CRC)
                 {
-                    rs_tx_wd = act_ms + rx_Src;
+                    rs_tx_wd = HAL_get_250us_tick();
+                    rs_tx_to = rx_Src;
                 }
                 rs_state = RS_STATE_RX_IDLE;
             }
@@ -193,12 +197,16 @@ void * RS485_Get(void)
 
     if(rs_state == RS_STATE_RX_IDLE)
     {
+        uint16_t act_ticks = HAL_get_250us_tick();
+        uint16_t diff = act_ticks - rs_tx_wd;
+
         // Tx Task
-        if(act_ms >= rs_tx_wd)
+        if(diff > rs_tx_to)
         {
             if(hal_uart_free(RS485_PHY_PORT))
             {
-                rs_tx_wd = act_ms + 64;
+                rs_tx_wd = act_ticks;
+                rs_tx_to = 255;                         // Free Run Sync Timeout 64mS
 
                 if(rs_tx_queue.Size != 0)
                 {
@@ -249,7 +257,9 @@ void * RS485_Get(void)
     }
     else    // Rx Watchdog
     {
-        if(act_ms > rs_rx_wd)
+        uint16_t diff = HAL_get_250us_tick() - rs_rx_wd;
+
+        if(diff > 20)               // 64 bytes, 128kps, timeout = 5ms // 20 ticks
         {
             if(rs_state == RS_STATE_RX_DATA)
             {
