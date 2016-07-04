@@ -38,9 +38,9 @@ See LICENSE file for license details.
 #define MQTTSN_T_ACCEL          mqttsn_get_random_delay((2 * POLL_TMR_FREQ), POLL_TMR_FREQ);
 // Delay retries based
 #define MQTTSN_T_RETR_BASED     mqttsn_get_random_delay(((MQTTSN_N_RETRIES - vMQ_nRetry)*   \
-                                                                       (POLL_TMR_FREQ/5)),  \
+                                                         (const uint8_t)(POLL_TMR_FREQ/4)), \
                                                         ((MQTTSN_N_RETRIES - vMQ_nRetry)*   \
-                                                                        (POLL_TMR_FREQ/10)))
+                                                         (const uint8_t)(POLL_TMR_FREQ/8)))
 // Pause on Disconnect State, 30 Sec.
 #define MQTTSN_T_DISCONNECT     (uint16_t)(30 * POLL_TMR_FREQ)
 

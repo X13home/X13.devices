@@ -68,7 +68,7 @@ void UART_Init(void)
     uint8_t Len = sizeof(UART_ADDR_t);
     ReadOD(UART_NODE_ID, MQTTSN_FL_TOPICID_PREDEF, &Len, (uint8_t *)&uart_addr);
 
-    hal_uart_init_hw(UART_PHY_PORT, UART_BAUD_38400, 3);    // init uart 38400, Rx + Tx
+    hal_uart_init_hw(UART_PHY_PORT, UART_BAUD_38K4, 3);    // init uart 38400, Rx + Tx
 }
 
 void UART_Send(void *pBuf)

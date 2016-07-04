@@ -157,12 +157,12 @@ void        hal_twi_start(void);
 
 //////////////////////////////////////////////////////////////
 // UART Section
-#define     UART_BAUD_2400      0
-#define     UART_BAUD_4800      1
-#define     UART_BAUD_9600      2
-#define     UART_BAUD_19200     3
-#define     UART_BAUD_38400     4
-#define     UART_BAUD_93750     5
+#define     UART_BAUD_2K4       0
+#define     UART_BAUD_4K8       1
+#define     UART_BAUD_9K6       2
+#define     UART_BAUD_19K2      3
+#define     UART_BAUD_38K4      4
+#define     UART_BAUD_128K      5
 #define     UART_BAUD_MAX       4
 
 void        hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
