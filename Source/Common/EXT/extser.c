@@ -157,7 +157,8 @@ static void serProc(void)
             {
                 if(hal_uart_datardy(port))
                 {
-                    uint8_t tmphead = extSerV[port]->RxHead + 1;
+                    uint8_t tmphead = extSerV[port]->RxHead;
+                    tmphead++;
                     if(tmphead >= sizeof(MQ_t))
                         tmphead = 0;
 

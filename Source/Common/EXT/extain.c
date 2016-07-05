@@ -247,6 +247,11 @@ int16_t ainRead(subidx_t * pSubidx)
         return ain_act_val[apin];
     return 0;
 }
+
+void * ainGetPoll(void)
+{
+    return &ainPollOD;
+}
 #endif  //  EXTPLC_USED
 
 // AIn Section

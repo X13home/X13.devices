@@ -27,6 +27,7 @@ typedef enum
     objTASleep          = (uint16_t)0xFF01, // cfg/XD_SleepTime<UIint16>
     objRTC              = (uint16_t)0xFF07, // internal
     objADCaverage       = (uint16_t)0xFF08, // cfg/XD_ADCintegrate<UIint16>
+    objInMute           = (uint16_t)0xFF09, // cfg/Xa_InMute
     // RF Node
     objRFNodeId         = (uint16_t)0xFF10, // cfg/XD_DeviceAddr<UInt8>
     objRFGroup          = (uint16_t)0xFF11, // cfg/XD_GroupID<UInt16>
@@ -40,8 +41,6 @@ typedef enum
     objIPMask           = (uint16_t)0xFF22, // cfg/Xa_IPMask    - Array - Len 4
     objIPRouter         = (uint16_t)0xFF23, // cfg/Xa_IPRouter  - Array - Len 4
     objIPBroker         = (uint16_t)0xFF24, // cfg/Xa_IPBroker  - Array - Len 4
-    // PLC Settings
-    objPLCStackBot      = (uint16_t)0xFF50, // cfg/XD_StackBot
     // Read Only Variables
     objDeviceTyp        = (uint16_t)0xFFC0, // _declarer<String>
     objPHY1addr         = (uint16_t)0xFFC1, // cfg/_a_phy1
@@ -136,7 +135,7 @@ enum
     eeFlag = 0,
     eeFlagbody,
     eeNodeName,
-    eeNodeNamebody = eeNodeName + MQTTSN_SIZEOF_CLIENTID - 2,
+    eeNodeNamebody = eeNodeName + MQTTSN_SIZEOF_CLIENTID,
 // ASLEEP
     eeTASleep,
     eeTASleepbody,
@@ -146,6 +145,7 @@ enum
     eelistOdbu,
     eelistOdbubody = eelistOdbu + OD_MAX_INDEX_LIST * sizeof(subidx_t) - 1,
 // LAN NODE
+#ifdef LAN_NODE
     eeMACAddr,
     eeMACAddrBody = eeMACAddr + 5,
     eeIPAddr,
@@ -156,6 +156,7 @@ enum
     eeIPRouterbody = eeIPRouter + sizeof(uint32_t) - 1,
     eeIPBroker,
     eeIPBrokerbody = eeIPBroker + sizeof(uint32_t) - 1,
+#endif  //  LAN_NODE
 // RF NODE
 #if (defined RF_ADDR_t)
     eeNodeID,
@@ -167,7 +168,7 @@ enum
     eeChannel,
     eeRFpower,
     eeRFkey,
-    eeRFkeyBody = eeRFkey + 15,
+    eeRFkeyBody = eeRFkey + 16,
 #endif  //  RF_ADDR_t
 #ifdef EXTPLC_USED
     eePLCStackBot,

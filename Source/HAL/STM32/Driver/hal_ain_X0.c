@@ -78,13 +78,13 @@ void hal_ain_configure(uint8_t apin, uint8_t aref)
 
 void hal_ain_select(uint8_t apin, uint8_t aref __attribute__ ((unused)))
 {
-    ADC1->CHSELR = (1<<apin);
+    ADC1->CHSELR = (1UL << apin);
 }
 
 int16_t hal_ain_get(void)
 {
-    int16_t retval;
-    retval = (ADC1->DR) >> 1;
+    int16_t retval = (int16_t)(ADC1->DR);
+    retval >>= 1;
     // Start Conversion
     ADC1->CR |= ADC_CR_ADSTART;
     return retval;

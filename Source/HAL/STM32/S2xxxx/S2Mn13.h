@@ -30,8 +30,8 @@ See LICENSE file for license details.
 //   6  PA6     17                  TIM3_CH1
 //   7  PA7     18                  TIM3_CH2
 //   8  PA8
-//   9  PA9     9                   TIM1_CH2
-//  10  PA10    10                  TIM1_CH3
+//   9  PA9     9    USART1_TX      TIM1_CH2
+//  10  PA10    10   USART1_RX      TIM1_CH3
 //  11  PA11    7                   TIM1_CH4
 //  12  PA12    8                   
 //  13  PA13      * SWDIO
