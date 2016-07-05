@@ -269,7 +269,7 @@ static uint8_t cbWriteInMute(__attribute__ ((unused)) subidx_t * pSubidx,
                 {
                     ListOD[pos].cbPoll = NULL;
                 }
-                else if(ListOD[pos].cbPoll != NULL)
+                else if(ListOD[pos].cbPoll == NULL)
                 {
                     ListOD[pos].cbPoll = ext_getPoll(&ListOD[pos].sidx);
                 }
