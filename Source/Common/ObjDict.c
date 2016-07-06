@@ -158,12 +158,12 @@ static uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     {
         if(Len != 6)
         {
-            return MQTTSN_RET_REJ_CONG;
+            return MQTTSN_RET_REJ_NOT_SUPP;
         }
     }
     else if(Len != 4)
     {
-        return MQTTSN_RET_REJ_CONG;
+        return MQTTSN_RET_REJ_NOT_SUPP;
     }
 
     eeprom_write(pBuf, Base, Len);
