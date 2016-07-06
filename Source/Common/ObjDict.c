@@ -15,12 +15,13 @@ See LICENSE file for license details.
 //////////////////////////
 // Objects List
 
-// Local subroutines
+// Prototypes for callback functions
 static uint8_t eepromReadOD(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 static uint8_t eepromWriteOD(subidx_t *pSubidx, uint8_t Len, uint8_t *pBuf);
 static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 
-// Prototypes for callback functions
+static uint8_t cbWriteNodeName(subidx_t *pSubidx, uint8_t Len, uint8_t *pBuf);
+
 #ifdef EXTAIN_USED
 static uint8_t cbWriteADCaverage(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 #endif  //  EXTAIN_USED
@@ -39,11 +40,20 @@ static uint8_t cbReadRTC(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
 #endif  //  ASLEEP
 
+#ifdef EXTPLC_USED
+static uint8_t cbWriteInMute(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+#endif  //  EXTPLC_USED
+
+#ifdef OD_DEFAULT_RF_KEY
+static uint8_t cbWriteRFkey(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+#endif
+
 // List of pre defined objects
 static const indextable_t listPredefOD[] = 
 {
+    // System Settings
     {{objEEMEM, objString, eeNodeName},
-        objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+        objNodeName, (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteNodeName, NULL},
 #ifdef ASLEEP
     {{objEEMEM, objUInt16, eeTASleep},
         objTASleep, (cbRead_t)&eepromReadOD,  (cbWrite_t)&cbWriteTASleep, NULL},
@@ -56,6 +66,11 @@ static const indextable_t listPredefOD[] =
     {{objEEMEM, objArray, 0},
         objRTC, (cbRead_t)&cbReadRTC, (cbWrite_t)&cbWriteRTC, NULL},
 #endif  //  HAL_USE_RTC
+#ifdef EXTPLC_USED
+    {{objEEMEM, objArray, 0},
+        objInMute, NULL, (cbWrite_t)&cbWriteInMute, NULL},      // Write Only
+#endif  //  EXTPLC_USED
+    // RF Settings
 #ifdef RF_ADDR_t
     {{objEEMEM, RF_ADDR_TYPE, eeNodeID},
         objRFNodeId, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
@@ -69,7 +84,16 @@ static const indextable_t listPredefOD[] =
     {{objEEMEM, objUInt8, eeChannel},
         objRFChannel, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
 #endif  //  OD_DEFAULT_CHANNEL
+#ifdef OD_DEFAULT_RF_PWR
+    {{objEEMEM, objInt8, eeRFpower},
+        objRFpower, (cbRead_t)&eepromReadOD, (cbWrite_t)&eepromWriteOD, NULL},
+#endif  //  OD_DEFAULT_RF_PWR
+#ifdef OD_DEFAULT_RF_KEY
+    {{objEEMEM, objArray, eeRFkey},
+        objRFkey,  (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteRFkey, NULL},
+#endif  //  OD_DEFAULT_RF_KEY
 #endif  //  RF_ADDR_t
+    // LAN Settings
 #ifdef LAN_NODE
     {{objEEMEM, objArray, eeMACAddr},
         objMACAddr, (cbRead_t)&cbReadLANParm, (cbWrite_t)&cbWriteLANParm, NULL},
@@ -104,6 +128,16 @@ static uint16_t idxUpdate = 0;                                          // Poll 
 
 //////////////////////////
 // Callback functions
+
+static uint8_t cbWriteNodeName(subidx_t *pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    if(Len > MQTTSN_SIZEOF_CLIENTID)
+    {
+        return MQTTSN_RET_REJ_NOT_SUPP;
+    }
+    return eepromWriteOD(pSubidx, Len, pBuf);
+}
+
 #ifdef EXTAIN_USED
 void ainLoadAverage(void);
 static uint8_t cbWriteADCaverage(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
@@ -124,18 +158,19 @@ static uint8_t cbWriteLANParm(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     {
         if(Len != 6)
         {
-            return MQTTSN_RET_REJ_CONG;
+            return MQTTSN_RET_REJ_NOT_SUPP;
         }
     }
     else if(Len != 4)
     {
-        return MQTTSN_RET_REJ_CONG;
+        return MQTTSN_RET_REJ_NOT_SUPP;
     }
 
     eeprom_write(pBuf, Base, Len);
     return MQTTSN_RET_ACCEPTED;
 }
 
+// Convert LAN variables to mqtt-sn packet
 static uint8_t cbReadLANParm(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
     uint16_t Base = pSubidx->Base;
@@ -160,7 +195,7 @@ static uint8_t cbWriteRTC(__attribute__ ((unused)) subidx_t * pSubidx,
 {
     if(Len != 6)
     {
-        return MQTTSN_RET_REJ_CONG;
+        return MQTTSN_RET_REJ_NOT_SUPP;
     }
 
     HAL_RTC_Set(pBuf);
@@ -187,6 +222,64 @@ static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
     return MQTTSN_RET_ACCEPTED;
 }
 #endif  //  ASLEEP
+
+#ifdef OD_DEFAULT_RF_KEY
+static uint8_t cbWriteRFkey(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf)
+{
+    if(Len != 16)
+    {
+        return MQTTSN_RET_REJ_NOT_SUPP;
+    }
+    return eepromWriteOD(pSubidx, Len, pBuf);
+}
+#endif  //  OD_DEFAULT_RF_KEY
+
+#ifdef EXTPLC_USED
+static uint8_t cbWriteInMute(__attribute__ ((unused)) subidx_t * pSubidx,
+                                                uint8_t Len, uint8_t *pBuf)
+{
+    if(Len > 32)
+    {
+        return MQTTSN_RET_REJ_NOT_SUPP;
+    }
+
+    uint8_t pos;
+    for(pos = 0; pos < OD_MAX_INDEX_LIST; pos++)
+    {
+        if(ListOD[pos].Index != 0xFFFF)
+        {
+            uint8_t pin = ext_getDPin(&ListOD[pos].sidx);
+            if(pin != 0xFF)
+            {
+                uint8_t offs = pin >> 3;
+                uint8_t mask;
+
+                if(offs < Len)
+                {
+                    mask = pBuf[offs];
+                    mask &= (1 << (pin & 0x07));
+                }
+                else
+                {
+                    mask = 0;
+                }
+
+
+                if(mask != 0)               // Poll Disabled
+                {
+                    ListOD[pos].cbPoll = NULL;
+                }
+                else if(ListOD[pos].cbPoll == NULL)
+                {
+                    ListOD[pos].cbPoll = ext_getPoll(&ListOD[pos].sidx);
+                }
+            }
+        }
+    }
+
+    return MQTTSN_RET_ACCEPTED;
+}
+#endif  //  EXTPLC_USED
 
 // End callback's
 //////////////////////////
@@ -437,9 +530,9 @@ void InitOD(void)
     // Check Settings
     uint8_t     ucTmp = 0;
     uint16_t    uiTmp;
-    
-    eeprom_read((uint8_t *)&uiTmp, 0, 2);      // read Flag;
-    
+
+    eeprom_read((uint8_t *)&uiTmp, eeFlag, 2);      // read Flag;
+
     uint16_t Flag = 0;
     for(ucTmp = 0; ucTmp < sizeof(psDeviceTyp); ucTmp++)
     {
@@ -465,6 +558,14 @@ void InitOD(void)
         ucTmp = OD_DEFAULT_CHANNEL;
         WriteOD(objRFChannel, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp);           // Channel
 #endif  //  OD_DEFAULT_CHANNEL
+#ifdef OD_DEFAULT_RF_PWR
+        ucTmp = OD_DEFAULT_RF_PWR;
+        WriteOD(objRFpower, MQTTSN_FL_TOPICID_PREDEF, sizeof(ucTmp), &ucTmp); // Output Power in dBm
+#endif  //  OD_DEFAULT_RF_PWR
+#ifdef OD_DEFAULT_RF_KEY
+        uint8_t rfkey[16] = OD_DEFAULT_RF_KEY;
+        WriteOD(objRFkey, MQTTSN_FL_TOPICID_PREDEF, 16, rfkey);                           // AES Key
+#endif  //  OD_DEFAULT_RF_KEY
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
 #ifndef OD_DEF_IP_ADDR
@@ -493,12 +594,12 @@ void InitOD(void)
 #ifdef EXTAIN_USED
         uiTmp = OD_DEF_ADC_AVERAGE;
         // ADC conversion delay
-        WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp); 
+        WriteOD(objADCaverage, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);
 #endif  //  EXTAIN_USED
 #ifdef ASLEEP
         uiTmp = OD_DEFAULT_TASLEEP;
         // Sleep Time
-        WriteOD(objTASleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);    
+        WriteOD(objTASleep, MQTTSN_FL_TOPICID_PREDEF, sizeof(uiTmp), (uint8_t *)&uiTmp);
 #endif  //  ASLEEP
 #ifdef EXTPLC_USED
         ucTmp = 0xFF;
@@ -508,7 +609,7 @@ void InitOD(void)
         ucTmp = 0;
         WriteOD(objNodeName, MQTTSN_FL_TOPICID_PREDEF, 0, &ucTmp);      // Device Name
         
-        eeprom_write((uint8_t *)&Flag, 0, 2);                     // Write Device Flag
+        eeprom_write((uint8_t *)&Flag, eeFlag, 2);                      // Write Device Flag
     }
 
     // Clear listOD

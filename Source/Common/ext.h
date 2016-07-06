@@ -52,6 +52,9 @@ void extProc(void);                                         // Update IO's
 #ifdef EXTPLC_USED
 uint32_t ext_in(subidx_t * pSubidx);                        // PLC read data from IO
 void ext_out(subidx_t * pSubidx, uint32_t val);             // PLC write data to IO
+
+uint8_t ext_getDPin(subidx_t * pSubidx);                    // convert subidx to DPin
+void * ext_getPoll(subidx_t * pSubidx);                     // convert subidx to *Poll
 #endif  //  EXTPLC_USED
 
 #ifdef __cplusplus

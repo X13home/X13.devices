@@ -86,13 +86,13 @@ extern "C" {
 #define LED_Off()                   PORTB |= (1<<PB0)
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
-// UART Section
+// UART PHY Section
 #define HAL_USE_USART0              0
 #define HAL_UART_NUM_PORTS          1
 #define UART_PHY_PORT               0
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
-// End UART Section
+// End UART PHY Section
 
 // CC11 Section
 #define HAL_USE_SPI                 1

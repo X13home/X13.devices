@@ -98,9 +98,7 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
-#define HAL_UART_NUM_PORTS          2
 #define HAL_USE_USART2              0
-
 #define EXTSER_USED                 1
 // End UART Section
 

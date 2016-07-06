@@ -53,9 +53,6 @@ extern "C" {
 
 #define F_CPU                       16000000UL
 
-//#define ASLEEP                      1       // Enable ASleep mode
-//#define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
-
 // PC0-PC5, Gap:Ain6-7, Gap:PD0-PD1, PD2-PD7, PB0-PB4
 // DIO Section
 #define EXTDIO_USED                 1
@@ -82,14 +79,13 @@ extern "C" {
 #define EXTTWI_USED                 1
 // End TWI Section
 
-// UART Section
+// UART PHY Section
 #define HAL_USE_USART0              0       // Logical Port Number 0,1,2,...
 #define HAL_UART_NUM_PORTS          1
-
 #define UART_PHY_PORT               0       // Logical Port Number 0,1,2,...
-// End UART Section
-
 #define UART_PHY                    1
+#include "PHY/UART/uart_phy.h"
+// End UART PHY Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           21      // Size of identificators list,
@@ -100,8 +96,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '0'
-
-#include "PHY/UART/uart_phy.h"
 
 #ifdef __cplusplus
 }

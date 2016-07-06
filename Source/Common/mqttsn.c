@@ -10,7 +10,7 @@ BSD New License
 See LICENSE file for license details.
 */
 
-// MQTT-SN Library, Version 3.0.2 from 13.Dec.2015
+// MQTT-SN Library, Version 3.1.3 from 06.07.2016
 
 #include "config.h"
 
@@ -38,9 +38,9 @@ See LICENSE file for license details.
 #define MQTTSN_T_ACCEL          mqttsn_get_random_delay((2 * POLL_TMR_FREQ), POLL_TMR_FREQ);
 // Delay retries based
 #define MQTTSN_T_RETR_BASED     mqttsn_get_random_delay(((MQTTSN_N_RETRIES - vMQ_nRetry)*   \
-                                                                       (POLL_TMR_FREQ/5)),  \
+                                                         (const uint8_t)(POLL_TMR_FREQ/4)), \
                                                         ((MQTTSN_N_RETRIES - vMQ_nRetry)*   \
-                                                                        (POLL_TMR_FREQ/10)))
+                                                         (const uint8_t)(POLL_TMR_FREQ/8)))
 // Pause on Disconnect State, 30 Sec.
 #define MQTTSN_T_DISCONNECT     (uint16_t)(30 * POLL_TMR_FREQ)
 
@@ -189,8 +189,10 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                     {
 #if (defined MQTTSN_USE_MESH)
                         vMQ_tGWinfo1 = 0;
-#endif	//	(defined MQTTSN_USE_MESH)
+#endif  //  (defined MQTTSN_USE_MESH)
                         vMQ_tGWinfo2 = 0;
+                        // Set Destination - Broadcast
+                        memcpy(pPHY1outBuf->a.phy2addr, &addr2_broad, sizeof(PHY2_ADDR_t));
                         PHY2_Send(pPHY1outBuf);
                         return;
                     }
@@ -299,12 +301,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                 {
                     if(vMQ_MsgType == MQTTSN_MSGTYP_PINGREQ)
                     {
-#ifdef ASLEEP
-                        if(vMQ_tASleep != 0)
-                            vMQ_tRetry = MQTTSN_T_SHORT;
-                        else
-#endif  //  ASLEEP
-                            vMQ_tRetry = (const uint16_t)(MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                        vMQ_tRetry = MQTTSN_T_SHORT;
                     }
 
                     pPHY1outBuf->m.mq.m.regack.ReturnCode = RegisterOD(&pPHY1outBuf->m.mq);
@@ -394,12 +391,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                     {
                         if(vMQ_MsgType == MQTTSN_MSGTYP_PINGREQ)
                         {
-#ifdef ASLEEP
-                            if(vMQ_tASleep != 0)
-                                vMQ_tRetry = MQTTSN_T_SHORT;
-                            else
-#endif  //  ASLEEP
-                                vMQ_tRetry = (const uint16_t)(MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                            vMQ_tRetry = MQTTSN_T_SHORT;
                         }
 
                         pPHY1outBuf->Length = MQTTSN_SIZEOF_MSG_PUBACK;
@@ -440,12 +432,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                         mqFree(vMQ_pMessage);
                         vMQ_MsgType = MQTTSN_MSGTYP_PINGREQ;
                         vMQ_nRetry = MQTTSN_N_RETRIES;
-#ifdef ASLEEP
-                        if(vMQ_tASleep != 0)
-                            vMQ_tRetry = MQTTSN_T_SHORT;
-                        else
-#endif  //  ASLEEP
-                            vMQ_tRetry = (const uint16_t)(MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                        vMQ_tRetry = MQTTSN_T_SHORT;
                     }
                 }
             }
@@ -493,12 +480,7 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
                         vMQ_MsgType = MQTTSN_MSGTYP_PINGREQ;
                         vMQ_Status = MQTTSN_STATUS_CONNECT;
                         vMQ_nRetry = MQTTSN_N_RETRIES;
-#ifdef ASLEEP
-                        if(vMQ_tASleep != 0)
-                            vMQ_tRetry = MQTTSN_T_SHORT;
-                        else
-#endif  //  ASLEEP
-                            vMQ_tRetry = (const uint16_t)(MQTTSN_T_KEEPALIVE * POLL_TMR_FREQ);
+                        vMQ_tRetry = MQTTSN_T_SHORT;
                     }
                 }
             }

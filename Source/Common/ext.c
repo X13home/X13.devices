@@ -161,7 +161,6 @@ void extDeleteOD(subidx_t * pSubidx)
     }
 }
 
-
 void extRegProc(void * cb)
 {
     uint8_t pos;
@@ -237,4 +236,42 @@ void ext_out(subidx_t * pSubidx, uint32_t val)
             break;
     }
 }
+
+// Convert Subindex to Input Dpin, 0xFF - pin not exist
+uint8_t ext_getDPin(subidx_t * pSubidx)
+{
+    switch(pSubidx->Place)
+    {
+#ifdef EXTDIO_USED
+        case objDin:
+            return pSubidx->Base & 0xFF;
+#endif  //  EXTDIO_USED
+#ifdef EXTAIN_USED
+        case objAin:
+            return pSubidx->Base & 0xFF;
+#endif  //  EXTAIN_USED
+        default:
+            break;
+    }
+    return 0xFF;
+}
+
+void * ext_getPoll(subidx_t * pSubidx)
+{
+    switch(pSubidx->Place)
+    {
+#ifdef EXTDIO_USED
+        case objDin:
+            return dioGetPoll();
+#endif  //  EXTDIO_USED
+#ifdef EXTAIN_USED
+        case objAin:
+            return ainGetPoll();
+#endif  //  EXTAIN_USED
+        default:
+            break;
+    }
+    return NULL;
+}
+
 #endif  // EXTPLC_USED

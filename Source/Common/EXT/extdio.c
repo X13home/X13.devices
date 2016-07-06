@@ -310,6 +310,11 @@ void dioWrite(subidx_t * pSubidx, bool sr)
     else
         dio_status[port] &= ~mask;
 }
+
+void * dioGetPoll(void)
+{
+    return &dioPollOD;
+}
 #endif  //  EXTPLC_USED
 
 #endif  //  EXTDIO_USED

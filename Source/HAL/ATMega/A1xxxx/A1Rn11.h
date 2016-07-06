@@ -85,7 +85,6 @@ extern "C" {
 // UART Section
 #define HAL_USE_USART0              0
 #define HAL_UART_NUM_PORTS          1
-
 #define EXTSER_USED                 1
 // End UART Section
 
@@ -105,13 +104,12 @@ extern "C" {
 #define RFM12_PIN_MOSI              PB3
 #define RFM12_PIN_MISO              PB4
 #define RFM12_PIN_SCK               PB5
-
 #define RFM12_IRQ_PORT              PORTB
 #define RFM12_IRQ_PORT_PIN          PINB
 #define RFM12_IRQ_PIN               PB0
-//  End RF Section
-
 #define RFM12_PHY                   1
+#include "PHY/RFM12/rfm12_phy.h"
+//  End RF Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           17      // Size of identificators list
@@ -121,8 +119,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '1'
-
-#include "PHY/RFM12/rfm12_phy.h"
 
 #ifdef __cplusplus
 }

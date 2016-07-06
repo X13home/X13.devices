@@ -15,27 +15,38 @@ See LICENSE file for license details.
 
 #include "stm32f0xx.h"
 
-// STM32F051R8
+// STM32F051R8, Discovery F0
 #if   (defined CFG_S2Sn10)
 #include "S2xxxx/S2Sn10.h"      // UART
 #elif   (defined CFG_S2SR10)
 #include "S2xxxx/S2SR10.h"      // UART + RFM12
 
-// STM32F091RC
+// STM32F091RC, Nucleo F091RC
 #elif   (defined CFG_S2Sn11)
 #include "S2xxxx/S2Sn11.h"      // UART
 
 // STM32F051C8
-#elif   (defined CFG_S2EC13)
-#include "S2xxxx/S2EC13.h"      // ENC28J60 + CC1101
+// Board S2EC13/S2ER13 without RF
 #elif   (defined CFG_S2En13)
 #include "S2xxxx/S2En13.h"      // ENC28J60
-#elif   (defined CFG_S2Cn13)
-#include "S2xxxx/S2Cn13.h"      // CC1101
 #elif   (defined CFG_S2Sn13)
 #include "S2xxxx/S2Sn13.h"      // UART ALT
+#elif   (defined CFG_S2SM13)
+#include "S2xxxx/S2SM13.h"      // UART ALT + EXT_RS485
+#elif   (defined CFG_S2Mn13)
+#include "S2xxxx/S2Mn13.h"      // EXT_RS485
+// Board S2EC13 + CC1101
+#elif   (defined CFG_S2EC13)
+#include "S2xxxx/S2EC13.h"      // ENC28J60 + CC1101
+#elif   (defined CFG_S2Cn13)
+#include "S2xxxx/S2Cn13.h"      // CC1101
 #elif   (defined CFG_S2SC13)
 #include "S2xxxx/S2SC13.h"      // UART ALT + CC1101
+// Board S2ER13 + RFM69CW
+#elif   (defined CFG_S2Qn13)
+#include "S2xxxx/S2Qn13.h"      // RFM69
+#elif   (defined CFG_S2SQ13)
+#include "S2xxxx/S2SQ13.h"      // UART ALT + RFM69
 
 // UNode V3.0 - STM32F051K8
 #elif   (defined CFG_S2SC15)    
@@ -121,32 +132,55 @@ See LICENSE file for license details.
 //  UART Section
 
 #if (defined HAL_USE_USART1)
+#define USART1_TX_DMA           DMA1_Channel2
+#define USART1_RX_DMA           DMA1_Channel3
+
 #if (defined HAL_USART1_REMAP)
 #define HAL_USART1_AF           DIO_MODE_AF_PP
-#define HAL_USART1_PIN_RX       23                      // GPIOB PIN7
-#define HAL_USART1_PIN_TX       22                      // GPIOB PIN6
+#define HAL_USART1_PIN_TX       22                      // PB6
+#define HAL_USART1_PIN_RX       23                      // PB7
 
 #else
 #define HAL_USART1_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
-#define HAL_USART1_PIN_RX       10                      // GPIOA PIN10
-#define HAL_USART1_PIN_TX       9                       // GPIOA PIN9
+#define HAL_USART1_PIN_TX       9                       // PA9
+#define HAL_USART1_PIN_RX       10                      // PA10
 
 #endif  //  HAL_USART1_REMAP
 #endif  //  HAL_USE_USART1
 
 #if (defined HAL_USE_USART2)
+#define USART2_TX_DMA           DMA1_Channel4
+#define USART2_RX_DMA           DMA1_Channel5
 #define HAL_USART2_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
 #if (defined HAL_USART2_REMAP)
-#define HAL_USART2_PIN_RX       15                      // GPIOA PIN15
-#define HAL_USART2_PIN_TX       14                      // GPIOA PIN14
+#define HAL_USART2_PIN_TX       14                      // PA14
+#define HAL_USART2_PIN_RX       15                      // PA15
 
 #else
-#define HAL_USART2_PIN_RX       3                       // GPIOA PIN3
-#define HAL_USART2_PIN_TX       2                       // GPIOA PIN2
+#define HAL_USART2_PIN_DE       1                       // PA1
+#define HAL_USART2_PIN_TX       2                       // PA2
+#define HAL_USART2_PIN_RX       3                       // PA3
 
 #endif  //  HAL_USART2_REMAP
 #endif  //  HAL_USE_USART2
+
+#if (defined HAL_USE_USART3)
+#define USART3_RX_DMA           DMA1_Channel6
+#define USART3_TX_DMA           DMA1_Channel7
+
+#if (defined HAL_USART3_REMAP)
+#define HAL_USART3_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+#define HAL_USART3_PIN_TX       42                      // PC10
+#define HAL_USART3_PIN_RX       43                      // PC11
+
+#else   //  HAL_USART3_REMAP
+#define HAL_USART3_AF           ((4<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+#define HAL_USART3_PIN_TX       26                      // PB10
+#define HAL_USART3_PIN_RX       27                      // PB11
+
+#endif  //  HAL_USART3_REMAP
+#endif  //  HAL_USE_USART3
 
 //  End UART Section
 //////////////////////////////////////////////////////////////

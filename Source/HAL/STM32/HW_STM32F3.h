@@ -82,6 +82,8 @@ See LICENSE file for license details.
 // STM32F303/STM32F334
 
 // USART 1
+#define USART1_TX_DMA           DMA1_Channel4
+#define USART1_RX_DMA           DMA1_Channel5
 #define HAL_USART1_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
 #if   (defined HAL_USART1_REMAP)
@@ -95,10 +97,12 @@ See LICENSE file for license details.
 #endif  //  HAL_USART1_REMAP
 
 // USART 2
+#define USART2_RX_DMA           DMA1_Channel6
+#define USART2_TX_DMA           DMA1_Channel7
 #define HAL_USART2_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
 #ifndef HAL_USART2_REMAP
-#define HAL_USART2_REMAP          1
+#define HAL_USART2_REMAP        1
 #endif  //  HAL_USART2_REMAP
 
 #if   (HAL_USART2_REMAP == 2)

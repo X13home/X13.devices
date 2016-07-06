@@ -11,18 +11,25 @@ Automation System oriented to "Smart House" - IoT, over MQTT(SN) protocol
 Devices
 
   Board: S2EC13, uC: ST32F051C8 - ARM Cortex M0
+    S2SC13      PHY1 - UART, PHY2 - CC1101
     S2Cn13      PHY1 - CC1101
     S2EC13      PHY1 - ENC28J60, PHY2 - CC1101
     S2En13      PHY1 - ENC28J60
     S2Sn13      PHY1 - UART
-    S2SC13      PHY1 - UART, PHY2 - CC1101
+    S2SQ13      PHY1 - UART, PHY2 - RFM69
+    S2Qn13      PHY1 - RFM69
+    S2SM13      PHY1 - UART, PHY2 - RS485
+    S2Mn13      PHY1 - RS485
 
   Board: uNodeV3, uC: STM32F051K8 - ARM Cortex M0
     S2Cn15      PHY1 - CC1101
     S2SC15      PHY1 - UART, PHY2 - CC1101
-    
+
   Board: uNodeV3, uC: STM32L051K8 - ARM Cortex M0+
     S5Cn10      PHY1 - CC1101
+
+  Board: Prototype, uC: STM32L051K8 - ARM Cortex M0+
+    S5Qn10      PHY1 - RFM69
 
   Board: uNodeV3, uC: STM32F303K8/STM32F334K8 - ARM Cortex M4
     S4Cn11      PHY1 - CC1101
@@ -56,6 +63,7 @@ Devices
     S3En10      PHY1 - ENC28J60
     S3SC10      PHY1 - UART, PHY2 - CC1101
     S3Sn10      PHY1 - UART
+    S3SQ10      PHY1 - UART, PHY1 - RFM69
 
   Board: Nucleo Nano, uC: STM32F303K8/STM32F334K8 - ARM Cortex M4
     S4Sn10      PHY1 - UART

@@ -78,17 +78,18 @@ extern "C" {
 #define EXTTWI_USED                 1
 // End TWI Section
 
-// UART Section
-#define HAL_USE_USART0              0
-#define HAL_UART_NUM_PORTS          1
-
-#define UART_PHY_PORT               0
-// End UART Section
-
 // LED
 #define LED_On()                    PORTB &= ~(1<<PB1)
 #define LED_Off()                   PORTB |= (1<<PB1)
 #define LED_Init()                  {DDRB |= (1<<PB1); PORTB |= (1<<PB1);}
+
+// UART PHY Section
+#define HAL_USE_USART0              0
+#define HAL_UART_NUM_PORTS          1
+#define UART_PHY_PORT               0
+#define UART_PHY                    1
+#include "PHY/UART/uart_phy.h"
+// End UART PHY Section
 
 // RF Section
 #define RFM12_PORT                  PORTB
@@ -97,14 +98,12 @@ extern "C" {
 #define RFM12_PIN_MOSI              PB3
 #define RFM12_PIN_MISO              PB4
 #define RFM12_PIN_SCK               PB5
-
 #define RFM12_IRQ_PORT              PORTB
 #define RFM12_IRQ_PORT_PIN          PINB
 #define RFM12_IRQ_PIN               PB0
-//  End RF Section
-
-#define UART_PHY                    1
 #define RFM12_PHY                   2
+#include "PHY/RFM12/rfm12_phy.h"
+//  End RF Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           15      // Size of identificators list
@@ -114,9 +113,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'R'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '1'
-
-#include "PHY/UART/uart_phy.h"
-#include "PHY/RFM12/rfm12_phy.h"
 
 #ifdef __cplusplus
 }

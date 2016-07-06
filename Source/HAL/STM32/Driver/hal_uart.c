@@ -12,111 +12,442 @@ See LICENSE file for license details.
 
 #include "config.h"
 
-#if ((defined HAL_USE_USART1)       || \
-     (defined HAL_USE_USART2)       || \
-     (defined HAL_USE_USART3))
+#if ((defined HAL_USE_USART1) || (defined HAL_USE_USART2) || (defined HAL_USE_USART3))
 
-#define HAL_SIZEOF_UART_RX_FIFO     32      // Should be 2^n
+/*
+ HAL USART, STM32F0/F1/F3
 
-/*          Config 1        Config 2
-U[S]ARTx    RX      TX      RX      TX      APB
-USART1      PA10    PA9     PB7     PB6     2
-USART2      PA3     PA2                     1
-USART3      PB11    PB10    PC11    PC10    1
+            Config 1        Config 2        Config 3
+U[S]ARTx    RX      TX      RX      TX      RX      TX      APB
+USART1      PA10    PA9     PB7     PB6                     2
+USART2      PA3     PA2     PB4     PB3     PA15    PA14    1
+USART3      PB11    PB10    PC11    PC10                    1
+
+STM32F05x
+ CH2 - USART1_TX
+ CH3 - USART1_RX
+ CH4 - USART2_TX
+ CH5 - USART2_RX
+STM32F09x
+ CH6 - USART3_RX
+ CH7 - USART3_TX
+
+STM32F103, STM32F334xx
+ CH2 - USART3_TX
+ CH3 - USART3_RX
+ CH4 - USART1_TX
+ CH5 - USART1_RX
+ CH6 - USART2_RX
+ CH7 - USART2_TX
 */
 
-typedef struct
-{
-    uint8_t         *   pTxBuf;
-    uint8_t             tx_len;
-    uint8_t             tx_pos;
-    
-    uint8_t             rx_fifo[HAL_SIZEOF_UART_RX_FIFO];
-    volatile uint8_t    rx_head;
-    uint8_t             rx_tail;
-}HAL_UART_t;
+#define HAL_SIZEOF_UART_RX_FIFO     64
 
-static const uint16_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400};
-static HAL_UART_t * hal_UARTv[HAL_UART_NUM_PORTS] = {NULL, };
-
-// IRQ handlers
-static void hal_uart_irq_handler(uint8_t port, USART_TypeDef * USARTx)
-{
-    HAL_UART_t * control = hal_UARTv[port];
-
-    uint8_t data;
-    uint32_t itstat;
-
-#if ((defined STM32F0) || (defined STM32F3))
-    itstat = USARTx->ISR;
-    if(itstat & USART_ISR_ORE)
-    {
-        USARTx->ICR = USART_ICR_ORECF;
-        return;
-    }
-#elif (defined STM32F1)
-    itstat = USARTx->SR;
-    if(itstat & USART_SR_ORE)
-    {
-        data = USARTx->RDR;
-        return;
-    }
-#else
-#error hal_uart_irq_handler Unknown uC Family
-#endif
-
-    itstat &= USARTx->CR1;
-
-    // Received data is ready to be read
-    if(itstat & USART_CR1_RXNEIE)
-    {
-        data = USARTx->RDR;
-        uint8_t tmp_head = (control->rx_head + 1) & (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
-        if(tmp_head == control->rx_tail)        // Overflow
-        {
-            return;
-        }
-
-        control->rx_fifo[control->rx_head] = data;
-        control->rx_head = tmp_head;
-    }
-
-    // Transmit data register empty
-    if(itstat & USART_CR1_TXEIE)
-    {
-        if(control->tx_pos == control->tx_len)
-        {
-            control->tx_len = 0;
-            USARTx->CR1 &= ~(uint32_t)USART_CR1_TXEIE;
-            return;
-        }
-
-        USARTx->TDR = control->pTxBuf[control->tx_pos];
-        control->tx_pos++;
-    }
-}
+static const uint32_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400, 128000};
 
 #if (defined HAL_USE_USART1)
-void USART1_IRQHandler(void)
-{
-    hal_uart_irq_handler(HAL_USE_USART1, USART1);
-}
-#endif  // USART1
+static uint8_t  Rx1_FIFO[HAL_SIZEOF_UART_RX_FIFO];
+static uint16_t Rx1_Tail = 0;
+#endif  // HAL_USE_USART1
 
 #if (defined HAL_USE_USART2)
-void USART2_IRQHandler(void)
-{
-    hal_uart_irq_handler(HAL_USE_USART2, USART2);
-}
-#endif  //  USART2
+static uint8_t  Rx2_FIFO[HAL_SIZEOF_UART_RX_FIFO];
+static uint16_t Rx2_Tail = 0;
+#endif  //  HAL_USE_USART2
 
 #if (defined HAL_USE_USART3)
-void USART3_IRQHandler(void)
-{
-    hal_uart_irq_handler(HAL_USE_USART3, USART3);
-}
-#endif  //  USART3
+static uint8_t  Rx3_FIFO[HAL_SIZEOF_UART_RX_FIFO];
+static uint16_t Rx3_Tail = 0;
+#endif  //  HAL_USE_USART3
 
+// enable bit 0 - Rx, 1 - Tx, 2 - RS485 Mode
+void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
+{
+    uint32_t baud = hal_baud_list[nBaud];
+
+    switch(port)
+    {
+#if (defined HAL_USE_USART1)
+        case HAL_USE_USART1:
+            if((RCC->APB2ENR & RCC_APB2ENR_USART1EN) == 0)      // USART Disabled
+            {
+                RCC->APB2ENR |= RCC_APB2ENR_USART1EN;           // Enable UART Clock
+                RCC->AHBENR |= RCC_AHBENR_DMA1EN;               // Enable the peripheral clock DMA1
+
+#if (defined STM32F3)
+                USART1->BRR = ((hal_pclk1 + (baud/2))/baud);
+#else   //  STM32F0
+                USART1->BRR = ((hal_pclk2 + (baud/2))/baud);
+#endif  //  STM32F3
+
+                USART1->CR1 = 0;                                // Disable USART
+                USART1->CR2 = 0;                                // 8N1
+                USART1->CR3 = 0;                                // Without flow control
+            }
+            else
+            {
+                USART1->CR1 &= ~USART_CR1_UE;                   // Disable USART
+            }
+
+            if(enable & 1) // Enable Rx
+            {
+#if (!defined STM32F1)
+                // Configure DIO
+                hal_dio_configure(HAL_USART1_PIN_RX, HAL_USART1_AF);
+#endif  //  STM32F1
+                // DMA1 USART1_RX config
+                USART1_RX_DMA->CPAR = (uint32_t)&(USART1->RDR); // Peripheral address
+                USART1_RX_DMA->CMAR = (uint32_t)Rx1_FIFO;       // Memory address
+                USART1_RX_DMA->CNDTR = HAL_SIZEOF_UART_RX_FIFO; // Data size
+                USART1_RX_DMA->CCR =                            // Priority - Low
+                                                                // Memory Size - 8 bit
+                                                                // Peripheral size - 8 bit
+                                    DMA_CCR_MINC |              // Memory increment
+                                                                // Peripheral increment disabled
+                                    DMA_CCR_CIRC |              // Circular mode
+                                    DMA_CCR_EN;                 // DMA Channel Enable
+                // Configure UART
+                USART1->CR1 |= USART_CR1_RE;                    // Enable RX
+                USART1->CR3 |= USART_CR3_DMAR;                  // DMA enable receiver
+                // Set Variables
+                Rx1_Tail = 0;
+            }
+
+            if(enable & 2) // Enable Tx
+            {
+                hal_dio_configure(HAL_USART1_PIN_TX, HAL_USART1_AF);
+
+                USART1->CR1 |= USART_CR1_TE;                    // Enable TX
+                USART1->CR3 |= USART_CR3_DMAT;                  // DMA enable transmitter
+            }
+
+#if (defined HAL_USART1_PIN_DE)
+            // Only STM32F0/F3
+            if(enable & 4)  //  RS485 Mode
+            {
+                hal_dio_configure(HAL_USART1_PIN_DE, HAL_USART1_AF);
+                USART1->CR3 |= USART_CR3_DEM;
+            }
+#endif  //  HAL_USART1_PIN_DE
+
+            USART1->CR1 |= USART_CR1_UE;                        // Enable USART
+            break;
+#endif  //  HAL_USE_USART1
+
+#if (defined HAL_USE_USART2)
+        case HAL_USE_USART2:
+            if((RCC->APB1ENR & RCC_APB1ENR_USART2EN) == 0)      // USART Disabled
+            {
+                RCC->APB1ENR |= RCC_APB1ENR_USART2EN;           // Enable UART Clock
+                RCC->AHBENR |= RCC_AHBENR_DMA1EN;               // Enable the peripheral clock DMA1
+
+                USART2->BRR = ((hal_pclk1 + (baud/2))/baud);
+
+                USART2->CR1 = 0;                                // Disable USART
+                USART2->CR2 = 0;                                // 8N1
+                USART2->CR3 = 0;                                // Without flow control
+            }
+            else
+            {
+                USART2->CR1 &= ~USART_CR1_UE;                   // Disable USART
+            }
+
+            if(enable & 1) // Enable Rx
+            {
+#if (!defined STM32F1)
+                // Configure DIO
+                hal_dio_configure(HAL_USART2_PIN_RX, HAL_USART2_AF);
+#endif  //  STM32F1
+                // DMA1 USART2_RX config
+                USART2_RX_DMA->CPAR = (uint32_t)&(USART2->RDR); // Peripheral address
+                USART2_RX_DMA->CMAR = (uint32_t)Rx2_FIFO;       // Memory address
+                USART2_RX_DMA->CNDTR = HAL_SIZEOF_UART_RX_FIFO; // Data size
+                USART2_RX_DMA->CCR =                            // Priority - Low
+                                                                // Memory Size - 8 bit
+                                                                // Peripheral size - 8 bit
+                                    DMA_CCR_MINC |              // Memory increment
+                                                                // Peripheral increment disabled
+                                    DMA_CCR_CIRC |              // Circular mode
+                                    DMA_CCR_EN;                 // DMA Channel Enable
+                // Configure UART
+                USART2->CR1 |= USART_CR1_RE;                    // Enable RX
+                USART2->CR3 |= USART_CR3_DMAR;                  // DMA enable receiver
+                // Set Variables
+                Rx2_Tail = 0;
+            }
+
+            if(enable & 2) // Enable Tx
+            {
+                hal_dio_configure(HAL_USART2_PIN_TX, HAL_USART2_AF);
+                
+                USART2->CR1 |= USART_CR1_TE;                    // Enable TX
+                USART2->CR3 |= USART_CR3_DMAT;                  // DMA enable transmitter
+            }
+
+#if (defined HAL_USART2_PIN_DE)
+            // Only STM32F0/F3
+            if(enable & 4)  //  RS485 Mode
+            {
+                hal_dio_configure(HAL_USART2_PIN_DE, HAL_USART2_AF);
+                USART2->CR3 |= USART_CR3_DEM;
+            }
+#endif  //  HAL_USART2_PIN_DE
+
+            USART2->CR1 |= USART_CR1_UE;                        // Enable USART
+            break;
+#endif  //  HAL_USE_USART2
+
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            if((RCC->APB1ENR & RCC_APB1ENR_USART3EN) == 0)      // USART Disabled
+            {
+                RCC->APB1ENR |= RCC_APB1ENR_USART3EN;           // Enable UART Clock
+                RCC->AHBENR |= RCC_AHBENR_DMA1EN;               // Enable the peripheral clock DMA1
+
+                USART3->BRR = ((hal_pclk1 + (baud/2))/baud);
+
+                USART3->CR1 = 0;                                // Disable USART
+                USART3->CR2 = 0;                                // 8N1
+                USART3->CR3 = 0;                                // Without flow control
+            }
+            else
+            {
+                USART3->CR1 &= ~USART_CR1_UE;                   // DIsable USART
+            }
+
+            if(enable & 1) // Enable Rx
+            {
+#if (!defined STM32F1)
+                // Configure DIO
+                hal_dio_configure(HAL_USART3_PIN_RX, HAL_USART3_AF);
+#endif  //  STM32F1
+                // DMA1 USART3_RX config
+                USART3_RX_DMA->CPAR = (uint32_t)&(USART3->RDR); // Peripheral address
+                USART3_RX_DMA->CMAR = (uint32_t)Rx3_FIFO;       // Memory address
+                USART3_RX_DMA->CNDTR = HAL_SIZEOF_UART_RX_FIFO; // Data size
+                USART3_RX_DMA->CCR =                            // Priority - Low
+                                                                // Memory Size - 8 bit
+                                                                // Peripheral size - 8 bit
+                                    DMA_CCR_MINC |              // Memory increment
+                                                                // Peripheral increment disabled
+                                    DMA_CCR_CIRC |              // Circular mode
+                                    DMA_CCR_EN;                 // DMA Channel Enable
+                // Configure UART
+                USART3->CR1 |= USART_CR1_RE;                    // Enable RX
+                USART3->CR3 |= USART_CR3_DMAR;                  // DMA enable receiver
+                // Set Variables
+                Rx3_Tail = 0;
+            }
+
+            if(enable & 2) // Enable Tx
+            {
+                hal_dio_configure(HAL_USART3_PIN_TX, HAL_USART3_AF);
+                
+                USART3->CR1 |= USART_CR1_TE;                    // Enable TX
+                USART3->CR3 |= USART_CR3_DMAT;                  // DMA enable transmitter
+            }
+
+#if (defined HAL_USART3_PIN_DE)
+            // Only STM32F0/F3
+            if(enable & 4)  //  RS485 Mode
+            {
+                hal_dio_configure(HAL_USART3_PIN_DE, HAL_USART3_AF);
+                USART3->CR3 |= USART_CR3_DEM;
+            }
+#endif  //  HAL_USART3_PIN_DE
+
+            USART3->CR1 |= USART_CR1_UE;                        // Enable USART
+            break;
+#endif  //  HAL_USE_USART3
+
+        default:
+            while(1);
+    }
+}
+
+bool hal_uart_datardy(uint8_t port)
+{
+    uint32_t tmp = HAL_SIZEOF_UART_RX_FIFO;
+
+    switch(port)
+    {
+#if (defined HAL_USE_USART1)
+        case HAL_USE_USART1:
+            tmp -= Rx1_Tail;
+            return (tmp != USART1_RX_DMA->CNDTR);
+#endif  //  HAL_USE_USART1
+#if (defined HAL_USE_USART2)
+        case HAL_USE_USART2:
+            tmp -= Rx2_Tail;
+            return (tmp != USART2_RX_DMA->CNDTR);
+#endif  //  HAL_USE_USART2
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            tmp -= Rx3_Tail;
+            return (tmp != USART3_RX_DMA->CNDTR);
+#endif  //  HAL_USE_USART3
+        default:
+            return false;
+    }
+}
+
+uint8_t hal_uart_get(uint8_t port)
+{
+    uint16_t retval;
+
+    switch(port)
+    {
+#if (defined HAL_USE_USART1)
+        case HAL_USE_USART1:
+            retval = Rx1_FIFO[Rx1_Tail++];
+            if(Rx1_Tail >= HAL_SIZEOF_UART_RX_FIFO)
+            {
+                Rx1_Tail = 0;
+            }
+            return retval;
+#endif  //  HAL_USE_USART1
+
+#if (defined HAL_USE_USART2)
+        case HAL_USE_USART2:
+            retval = Rx2_FIFO[Rx2_Tail++];
+            if(Rx2_Tail >= HAL_SIZEOF_UART_RX_FIFO)
+            {
+                Rx2_Tail = 0;
+            }
+            return retval;
+#endif  //  HAL_USE_USART2
+
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            retval = Rx3_FIFO[Rx3_Tail++];
+            if(Rx3_Tail >= HAL_SIZEOF_UART_RX_FIFO)
+            {
+                Rx3_Tail = 0;
+            }
+            return retval;
+#endif  //  HAL_USE_USART3
+
+        default:
+            return 0;
+    }
+}
+
+bool hal_uart_free(uint8_t port)
+{
+    switch(port)
+    {
+#if (defined HAL_USE_USART1)
+        case HAL_USE_USART1:
+            if(USART1_TX_DMA->CCR & DMA_CCR_EN)
+            {
+                if(USART1_TX_DMA->CNDTR == 0)
+                {
+                    USART1_TX_DMA->CCR &= ~DMA_CCR_EN;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            break;
+#endif  //  HAL_USE_USART1
+
+#if (defined HAL_USE_USART2)
+        case HAL_USE_USART2:
+            if(USART2_TX_DMA->CCR & DMA_CCR_EN)
+            {
+                if(USART2_TX_DMA->CNDTR == 0)
+                {
+                    USART2_TX_DMA->CCR &= ~DMA_CCR_EN;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            break;
+#endif  //  HAL_USE_USART2
+
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            if(USART3_TX_DMA->CCR & DMA_CCR_EN)
+            {
+                if(USART3_TX_DMA->CNDTR == 0)
+                {
+                    USART3_TX_DMA->CCR &= ~DMA_CCR_EN;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            break;
+#endif  //  HAL_USE_USART3
+
+        default:
+            break;
+    }
+    return true;
+}
+
+void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
+{
+    switch(port)
+    {
+#if (defined HAL_USE_USART1)
+        case HAL_USE_USART1:
+            // DMA1 USART1_TX config
+            USART1_TX_DMA->CPAR = (uint32_t)&(USART1->TDR);     // Peripheral address
+            USART1_TX_DMA->CMAR = (uint32_t)pBuf;               // Memory address
+            USART1_TX_DMA->CNDTR = len;
+            USART1_TX_DMA->CCR =                                // Priority - Low
+                                                                // Memory Size - 8 bit
+                                                                // Peripheral size - 8 bit
+                                    DMA_CCR_MINC |              // Memory increment
+                                                                // Peripheral increment disabled
+                                    DMA_CCR_DIR |               // Read from memory
+                                    DMA_CCR_EN;                 // DMA Channel Enable
+            break;
+#endif  //  HAL_USE_USART1
+
+#if (defined HAL_USE_USART2)
+        case HAL_USE_USART2:
+            // DMA1 USART2_TX config
+            USART2_TX_DMA->CPAR = (uint32_t)&(USART2->TDR);     // Peripheral address
+            USART2_TX_DMA->CMAR = (uint32_t)pBuf;               // Memory address
+            USART2_TX_DMA->CNDTR = len;
+            USART2_TX_DMA->CCR =                                // Priority - Low
+                                                                // Memory Size - 8 bit
+                                                                // Peripheral size - 8 bit
+                                    DMA_CCR_MINC |              // Memory increment
+                                                                // Peripheral increment disabled
+                                    DMA_CCR_DIR |               // Read from memory
+                                    DMA_CCR_EN;                 // DMA Channel Enable
+            break;
+#endif  //  HAL_USE_USART1
+
+#if (defined HAL_USE_USART3)
+        case HAL_USE_USART3:
+            // DMA1 USART3_TX config
+            USART3_TX_DMA->CPAR = (uint32_t)&(USART3->TDR);     // Peripheral address
+            USART3_TX_DMA->CMAR = (uint32_t)pBuf;               // Memory address
+            USART3_TX_DMA->CNDTR = len;
+            USART3_TX_DMA->CCR =                                // Priority - Low
+                                                                // Memory Size - 8 bit
+                                                                // Peripheral size - 8 bit
+                                    DMA_CCR_MINC |              // Memory increment
+                                                                // Peripheral increment disabled
+                                    DMA_CCR_DIR |               // Read from memory
+                                    DMA_CCR_EN;                 // DMA Channel Enable
+            break;
+#endif  //  HAL_USE_USART3
+
+        default:
+            break;
+    }
+}
+
+#if (defined EXTSER_USED)
 void hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx)
 {
     switch(port)
@@ -154,22 +485,28 @@ void hal_uart_deinit(uint8_t port)
         case HAL_USE_USART1:
             {
             USART1->CR1 &= ~USART_CR1_UE;               // Disable USART
-            NVIC_DisableIRQ(USART1_IRQn);               // Disable USART IRQ
+
+            USART1_TX_DMA->CCR = 0;
+            USART1_RX_DMA->CCR = 0;
 
             RCC->APB2RSTR |= RCC_APB2RSTR_USART1RST;    // Reset USART
             RCC->APB2RSTR &= ~RCC_APB2RSTR_USART1RST;
 
             RCC->APB2ENR  &= ~RCC_APB2ENR_USART1EN;     // Disable UART1 Clock
+
             hal_dio_configure(HAL_USART1_PIN_RX, DIO_MODE_IN_FLOAT);
             hal_dio_configure(HAL_USART1_PIN_TX, DIO_MODE_IN_FLOAT);
             }
             break;
 #endif  //  USART1
+
 #if (defined HAL_USE_USART2)
         case HAL_USE_USART2:
             {
             USART2->CR1 &= ~USART_CR1_UE;               // Disable USART
-            NVIC_DisableIRQ(USART2_IRQn);               // Disable USART IRQ
+
+            USART2_TX_DMA->CCR = 0;
+            USART2_RX_DMA->CCR = 0;
 
             RCC->APB1RSTR |= RCC_APB1RSTR_USART2RST;    // Reset USART
             RCC->APB1RSTR &= ~RCC_APB1RSTR_USART2RST;
@@ -180,11 +517,14 @@ void hal_uart_deinit(uint8_t port)
             }
             break;
 #endif  //  USART2
+
 #if (defined HAL_USE_USART3)
         case HAL_USE_USART3:
             {
             USART3->CR1 &= ~USART_CR1_UE;               // Disable USART
-            NVIC_DisableIRQ(USART3_IRQn);               // Disable USART IRQ
+
+            USART3_TX_DMA->CCR = 0;
+            USART3_RX_DMA->CCR = 0;
 
             RCC->APB1RSTR |= RCC_APB1RSTR_USART3RST;    // Reset USART
             RCC->APB1RSTR &= ~RCC_APB1RSTR_USART3RST;
@@ -194,198 +534,13 @@ void hal_uart_deinit(uint8_t port)
             hal_dio_configure(HAL_USART3_PIN_TX, DIO_MODE_IN_FLOAT);
             }
             break;
-#endif  //  USART3
+#endif  //  USART2
 
         default:
             while(1);
     }
-
-    if(hal_UARTv[port] != NULL)
-    {
-        mqFree(hal_UARTv[port]);
-        hal_UARTv[port] = NULL;
-    }
 }
 
-// enable bit 0 - Rx, 1 - Tx
-void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
-{
-    USART_TypeDef     * USARTx;
-    IRQn_Type           UARTx_IRQn;
+#endif  //  EXTSER_USED
 
-    uint32_t            uart_clock;
-    uint16_t            baud = hal_baud_list[nBaud];
-
-    switch(port)
-    {
-#if (defined HAL_USE_USART1)
-        case HAL_USE_USART1:
-            {
-#if (defined STM32F3)
-            uart_clock = hal_pclk1;
-#else
-            uart_clock = hal_pclk2;
 #endif
-#if ((defined STM32F1) && (defined HAL_USART1_REMAP))
-            AFIO->MAPR |= AFIO_MAPR_USART1_REMAP;           // Remap USART1 from PA9/PA10 to PB6/PB7
-#endif
-            USARTx = USART1;
-            UARTx_IRQn = USART1_IRQn;
-            RCC->APB2ENR   |= RCC_APB2ENR_USART1EN;                         // Enable UART1 Clock
-#if ((defined STM32F0) || (defined STM32F3))
-            if(enable & 1) // Enable Rx
-            {
-                hal_dio_configure(HAL_USART1_PIN_RX, HAL_USART1_AF);
-            }
-#endif  // STM32F0
-            if(enable & 2) // Enable Tx
-            {
-                hal_dio_configure(HAL_USART1_PIN_TX, HAL_USART1_AF);
-            }
-            }
-            break;
-#endif  //  USART1
-
-#if (defined HAL_USE_USART2)
-        case HAL_USE_USART2:
-            {
-            uart_clock = hal_pclk1;
-            USARTx = USART2;
-            UARTx_IRQn = USART2_IRQn;
-            RCC->APB1ENR   |= RCC_APB1ENR_USART2EN;                         // Enable UART2 Clock
-#if ((defined STM32F0) || (defined STM32F3))
-            if(enable & 1) // Enable Rx
-            {
-                hal_dio_configure(HAL_USART2_PIN_RX, HAL_USART2_AF);
-            }
-#endif  // STM32F0
-            if(enable & 2) // Enable Tx
-            {
-                hal_dio_configure(HAL_USART2_PIN_TX, HAL_USART2_AF);
-            }
-            }
-            break;
-#endif  //  USART2
-
-#if (defined HAL_USE_USART3)
-        case HAL_USE_USART3:
-            {
-            uart_clock = hal_pclk1;
-#if ((defined STM32F1) && (defined HAL_USART3_REMAP))
-            AFIO->MAPR |= AFIO_MAPR_USART3_REMAP;       // Remap USART1 from PB10/PB11 to PC10/PC11
-#endif
-            USARTx = USART3;
-            UARTx_IRQn = USART3_IRQn;
-            RCC->APB1ENR   |= RCC_APB1ENR_USART3EN;                         // Enable UART3 Clock
-#if ((defined STM32F0) || (defined STM32F3))
-            if(enable & 1) // Enable Rx
-            {
-                hal_dio_configure(HAL_USART3_PIN_RX, HAL_USART3_AF);
-            }
-#endif  // STM32F0
-            if(enable & 2) // Enable Tx
-            {
-                hal_dio_configure(HAL_USART3_PIN_TX, HAL_USART3_AF);
-            }
-            }
-            break;
-#endif  //  USART3
-
-        default:
-            while(1);
-    }
-
-    if(hal_UARTv[port] == NULL)
-    {
-        hal_UARTv[port] = mqAlloc(sizeof(HAL_UART_t));
-    }
-
-    if(USARTx->CR1 & USART_CR1_UE)
-    {
-        USARTx->CR1 &= ~USART_CR1_UE;
-    }
-    else
-    {
-        hal_UARTv[port]->rx_head = 0;
-        hal_UARTv[port]->rx_tail = 0;
-
-        hal_UARTv[port]->pTxBuf = NULL;
-        hal_UARTv[port]->tx_len = 0;
-        hal_UARTv[port]->tx_pos = 0;
-
-        USARTx->CR1 = 0;                                // Disable USART1
-        USARTx->CR2 = 0;                                // 8N1
-        USARTx->CR3 = 0;                                // Without flow control
-        USARTx->BRR  = ((uart_clock + baud/2)/baud);    // Speed
-    }
-
-    if(enable & 1) // Enable Rx
-    {
-        USARTx->CR1 |= USART_CR1_RE |               // Enable RX
-                       USART_CR1_RXNEIE;            // Enable RX Not Empty IRQ
-    }
-
-    if(enable & 2) // Enable Tx
-    {
-        USARTx->CR1 |= USART_CR1_TE;                // Enable TX
-    }
-
-    NVIC_EnableIRQ(UARTx_IRQn);                     // Enable UASRT IRQ
-    USARTx->CR1 |= USART_CR1_UE;                    // Enable USART
-}
-
-bool hal_uart_datardy(uint8_t port)
-{
-    return (hal_UARTv[port]->rx_head != hal_UARTv[port]->rx_tail);
-}
-
-uint8_t hal_uart_get(uint8_t port)
-{
-    if(hal_UARTv[port]->rx_head == hal_UARTv[port]->rx_tail)
-    {
-        return 0;
-    }
-
-    uint8_t data = hal_UARTv[port]->rx_fifo[hal_UARTv[port]->rx_tail];
-    hal_UARTv[port]->rx_tail++;
-    hal_UARTv[port]->rx_tail &= (uint8_t)(HAL_SIZEOF_UART_RX_FIFO - 1);
-
-    return data;
-}
-
-// Tx free
-bool hal_uart_free(uint8_t port)
-{
-    return (hal_UARTv[port]->tx_len == 0);
-}
-
-void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
-{
-    hal_UARTv[port]->tx_len = len;
-    hal_UARTv[port]->tx_pos = 1;
-    hal_UARTv[port]->pTxBuf = pBuf;
-
-    switch(port)
-    {
-#if (defined HAL_USE_USART1)
-        case HAL_USE_USART1:
-            USART1->TDR = *pBuf;
-            USART1->CR1 |= USART_CR1_TXEIE;
-            break;
-#endif  //  USART1
-#if (defined HAL_USE_USART2)
-        case HAL_USE_USART2:
-            USART2->TDR = *pBuf;
-            USART2->CR1 |= USART_CR1_TXEIE;
-            break;
-#endif  //  USART2
-#if (defined HAL_USE_USART3)
-        case HAL_USE_USART3:
-            USART3->TDR = *pBuf;
-            USART3->CR1 |= USART_CR1_TXEIE;
-            break;
-#endif  //  USART3
-    }
-}
-
-#endif  //  (defined HAL_USE_U[S]ARTx)

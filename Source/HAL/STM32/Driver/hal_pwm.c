@@ -323,7 +323,9 @@ void hal_pwm_write(uint16_t base, uint16_t value)
     }
 
     uint32_t timbase = (uint32_t)TIMx + 0x34;
-    timbase += (cfg & 0x03) * 4;
+    uint32_t offset = cfg & 0x03;
+    offset *= 4;
+    timbase += offset;
     *(__IO uint32_t *)timbase = value;
 }
 

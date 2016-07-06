@@ -24,6 +24,8 @@ See LICENSE file for license details.
 #include "S3xxxx/S3En10.h"    // ENC28J60
 #elif (defined CFG_S3Cn10)
 #include "S3xxxx/S3Cn10.h"    // CC1101
+#elif (defined CFG_S3SQ10)
+#include "S3xxxx/S3SQ10.h"    // UART + RFM69
 #else
 #error Unknown configuration
 #endif  //  Configuration
@@ -110,6 +112,8 @@ See LICENSE file for license details.
 #define TDR     DR
 
 // USART 1
+#define USART1_TX_DMA           DMA1_Channel4
+#define USART1_RX_DMA           DMA1_Channel5
 #define HAL_USART1_AF           DIO_MODE_AF_PP
 #if (defined HAL_USART1_REMAP)
 #define HAL_USART1_PIN_RX       23                      // GPIOB PIN7
@@ -121,11 +125,15 @@ See LICENSE file for license details.
 #endif  //  HAL_USART1_REMAP
 
 // USART 2
+#define USART2_RX_DMA           DMA1_Channel6
+#define USART2_TX_DMA           DMA1_Channel7
 #define HAL_USART2_AF           DIO_MODE_AF_PP
 #define HAL_USART2_PIN_RX       3                       // GPIOA PIN3
 #define HAL_USART2_PIN_TX       2                       // GPIOA PIN2
 
 // USART 3
+#define USART3_TX_DMA           DMA1_Channel2
+#define USART3_RX_DMA           DMA1_Channel3
 #define HAL_USART3_AF           DIO_MODE_AF_PP
 
 #if (defined HAL_USART3_REMAP)

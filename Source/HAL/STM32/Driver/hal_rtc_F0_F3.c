@@ -33,44 +33,69 @@ void hal_rtc_init(void)
     }
     rtc_presc = 0x007C07CF;                         // 8000000/32 = 250000/125 = 2000
 #else   // use LSI or LSE
-#if (defined HAL_RTC_CHECK_LSE)
-    RCC->BDCR |= RCC_BDCR_LSEON;                    // External Low Speed oscillator enable
-    uint16_t tmp = 0;
-    while(tmp < 0xFFFF)                             // Wait till LSE is ready
+    if((RCC->BDCR & RCC_BDCR_RTCEN) == 0)
     {
-        if((RCC->BDCR & (RCC_BDCR_LSERDY | RCC_BDCR_LSEON)) == (RCC_BDCR_LSERDY | RCC_BDCR_LSEON))
+#if (defined HAL_RTC_CHECK_LSE)
+        RCC->BDCR |= RCC_BDCR_LSEON;                // External Low Speed oscillator enable
+        uint16_t tmp = 0;
+        while(tmp < 0xFFFF)                         // Wait till LSE is ready
         {
-            break;
+            if(RCC->BDCR & RCC_BDCR_LSERDY)
+            {
+                break;
+            }
+            tmp++;
         }
-        tmp++;
+
+        if(RCC->BDCR & RCC_BDCR_LSERDY)
+        {
+            RCC->BDCR |= RCC_BDCR_RTCSEL_LSE;       // LSE oscillator clock used as RTC clock
+        }
+        else                                        // LSE Not Connected, use LSI
+#endif  //  HAL_RTC_CHECK_LSE
+        {
+#if (defined HAL_RTC_CHECK_LSE)
+hal_rtc_start_lsi:
+#endif  //  HAL_RTC_CHECK_LSE
+            if((RCC->BDCR & RCC_BDCR_LSEON) || 
+              ((RCC->BDCR & RCC_BDCR_RTCSEL) != RCC_BDCR_RTCSEL_LSI))
+            {
+                // LSE enabled, or used another clock, Reset DBP
+                RCC->BDCR |= RCC_BDCR_BDRST;
+                RCC->BDCR &= ~RCC_BDCR_BDRST;
+            }
+
+            RCC->CSR |= RCC_CSR_LSION;                  // Enable LSI
+            while((RCC->CSR & RCC_CSR_LSIRDY) == 0);    // Wait till LSI is ready
+            RCC->BDCR |= RCC_BDCR_RTCSEL_LSI;           // LSI oscillator clock used as RTC clock
+        }
+        RCC->BDCR |= RCC_BDCR_RTCEN;            // RTC clock enable
     }
 
-    if((RCC->BDCR & (RCC_BDCR_LSERDY | RCC_BDCR_LSEON)) == (RCC_BDCR_LSERDY | RCC_BDCR_LSEON))
+#if (defined HAL_RTC_CHECK_LSE)
+    if((RCC->BDCR & RCC_BDCR_RTCSEL) == RCC_BDCR_RTCSEL_LSE)
     {
-        if((RCC->BDCR & RCC_BDCR_RTCSEL) != RCC_BDCR_RTCSEL_LSE)
+        uint16_t tmp = 0;
+        while(tmp < 0xFFFF)                         // Wait till LSE is ready
         {
-            // Reset BackUp Domain
-            RCC->BDCR |= RCC_BDCR_BDRST;
-            RCC->BDCR &= ~RCC_BDCR_BDRST;
-            RCC->BDCR |= RCC_BDCR_RTCSEL_LSE;       // LSI oscillator clock used as RTC clock
-            RCC->BDCR |= RCC_BDCR_RTCEN;            // RTC clock enable
+            if((RCC->BDCR & (RCC_BDCR_LSERDY | RCC_BDCR_LSEON)) == (RCC_BDCR_LSERDY | RCC_BDCR_LSEON))
+            {
+                break;
+            }
+            tmp++;
+        }
+
+        if((RCC->BDCR & (RCC_BDCR_LSERDY | RCC_BDCR_LSEON)) != (RCC_BDCR_LSERDY | RCC_BDCR_LSEON))
+        {
+            goto hal_rtc_start_lsi;
         }
         rtc_presc = 0x007F00FF;                     // 32768/128 = 256
     }
-    else                                            // LSE Not Connected, use LSI
+    else
 #endif  //  HAL_RTC_CHECK_LSE
     {
         RCC->CSR |= RCC_CSR_LSION;                  // Enable LSI
         while((RCC->CSR & RCC_CSR_LSIRDY) == 0);    // Wait till LSI is ready
-
-        if((RCC->BDCR & (RCC_BDCR_RTCSEL | RCC_BDCR_RTCEN)) != 
-                        (RCC_BDCR_RTCSEL_LSI | RCC_BDCR_RTCEN))
-        {
-            RCC->BDCR |= RCC_BDCR_BDRST;
-            RCC->BDCR &= ~RCC_BDCR_BDRST;
-            RCC->BDCR |= RCC_BDCR_RTCSEL_LSI;       // LSI oscillator clock used as RTC clock
-            RCC->BDCR |= RCC_BDCR_RTCEN;            // RTC clock enable
-        }
         rtc_presc = 0x007C013F;                     // 40000/125 = 320/320
     }
 #endif  //  HAL_RTC_USE_HSE
