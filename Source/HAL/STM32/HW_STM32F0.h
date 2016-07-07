@@ -31,6 +31,8 @@ See LICENSE file for license details.
 #include "S2xxxx/S2En13.h"      // ENC28J60
 #elif   (defined CFG_S2Sn13)
 #include "S2xxxx/S2Sn13.h"      // UART ALT
+#elif   (defined CFG_S2EM13)
+#include "S2xxxx/S2EM13.h"      // ENC28J60 + EXT_RS485
 #elif   (defined CFG_S2SM13)
 #include "S2xxxx/S2SM13.h"      // UART ALT + EXT_RS485
 #elif   (defined CFG_S2Mn13)

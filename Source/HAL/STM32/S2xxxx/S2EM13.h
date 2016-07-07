@@ -10,12 +10,12 @@ BSD New License
 See LICENSE file for license details.
 */
 
-#ifndef _S2SM13_H
-#define _S2SM13_H
+#ifndef _S2EM13_H
+#define _S2EM13_H
 
 // Board: S2EC13
 // uC: STM32F051C8T6
-// PHY1: UART on PB6, PB7
+// PHY1: ENC28J60
 // PHY2: EXT_RS485
 
 
@@ -30,22 +30,22 @@ See LICENSE file for license details.
 //   6  PA6     17                  TIM3_CH1
 //   7  PA7     18                  TIM3_CH2
 //   8  PA8
-//   9  PA9     9                   TIM1_CH2
-//  10  PA10    10                  TIM1_CH3
+//   9  PA9     9   USART1_TX       TIM1_CH2
+//  10  PA10    10  USART1_RX       TIM1_CH3
 //  11  PA11    7                   TIM1_CH4
-//  12  PA12    8                   
+//  12  PA12    8
 //  13  PA13      * SWDIO
 //  14  PA14      * SWCLK
-//  15  PA15
+//  15  PA15      * ENC_IRQ
 // GPIOB
 //  16  PB0     19                  TIM3_CH3
 //  17  PB1     20                  TIM3_CH4
 //  18  PB2       * LED
-//  19  PB3
-//  20  PB4
-//  21  PB5
-//  22  PB6       * USART1_TX
-//  23  PB7       * USART1_RX
+//  19  PB3       * ENC_SCK
+//  20  PB4       * ENC_MISO
+//  21  PB5       * ENC_MOSI
+//  22  PB6       * ENC_SEL
+//  23  PB7       * ENC_RST
 //  24  PB8
 //  25  PB9
 //  26  PB10    13  SCL2            TIM2_CH3
@@ -93,6 +93,11 @@ extern "C" {
 #define HAL_AIN_BASE2APIN           {9, 8, 7, 6, 5, 4}
 // End Analogue Inputs
 
+// UART Section
+#define HAL_USE_USART1              0
+#define EXTSER_USED                 1
+// End UART Section
+
 // TWI Section
 #define HAL_TWI_BUS                 2           // I2C_Bus 1 - I2C1, 2 - I2C2
 #define EXTTWI_USED                 1
@@ -103,18 +108,20 @@ extern "C" {
 #define LED_Off()                   GPIOB->BSRR = GPIO_BSRR_BR_2
 #define LED_Init()                  hal_gpio_cfg(GPIOB, GPIO_Pin_2, DIO_MODE_OUT_PP)
 
-// UART PHY Section
-#define HAL_USE_USART1              1           // Mapping to logical port
-#define HAL_USART1_REMAP            1           // USART1 on PB6/PB7
-#define UART_PHY_PORT               1           // Logical port
-#define UART_PHY                    1
-#include "PHY/UART/uart_phy.h"
-// End UART PHY Section
+// ENC PHY Section
+#define HAL_USE_SPI1                2   // SPI1, Config 2: PB3-PB5
+#define ENC_USE_SPI                 1
+#define ENC_NSS_PIN                 22  // PB6
+#define ENC_SELECT()                GPIOB->BRR = GPIO_Pin_6
+#define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); GPIOB->BSRR = GPIO_Pin_6;}
+#define ENC28J60_PHY                1
+#include "PHY/ENC28J60/enc28j60_phy.h"
+// End ENC PHY Section
 
 // RS485 PHY Section
 #define HAL_USE_SUBMSTICK           1
-#define HAL_USE_USART2              0
-#define RS485_PHY_PORT              0
+#define HAL_USE_USART2              1
+#define RS485_PHY_PORT              1
 #define RS485_PHY                   2
 #include "PHY/RS485/rs485_phy.h"
 // End RS485 PHY Section
@@ -123,10 +130,16 @@ extern "C" {
 #define OD_MAX_INDEX_LIST           20
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '2'
-#define OD_DEV_PHY1                 'S'
+#define OD_DEV_PHY1                 'E'
 #define OD_DEV_PHY2                 'M'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '3'
+
+#define OD_DEV_MAC                  {0x00,0x04,0xA3,0x00,0x00,0x12}   // MAC MSB->LSB
+//#define OD_DEF_IP_ADDR              inet_addr(192,168,10,202)
+//#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
+//#define OD_DEF_IP_ROUTER            inet_addr(192,168,10,1)
+//#define OD_DEF_IP_BROKER            inet_addr(192,168,20,8)
 
 #ifdef __cplusplus
 }

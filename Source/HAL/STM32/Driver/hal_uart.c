@@ -43,7 +43,7 @@ STM32F103, STM32F334xx
 
 #define HAL_SIZEOF_UART_RX_FIFO     64
 
-static const uint32_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400, 128000};
+static const uint32_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400, 250000};
 
 #if (defined HAL_USE_USART1)
 static uint8_t  Rx1_FIFO[HAL_SIZEOF_UART_RX_FIFO];

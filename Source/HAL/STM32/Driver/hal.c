@@ -52,15 +52,15 @@ void HAL_Init(void)
     // Enable CRC, Used for RNG
     RCC->AHBENR |= RCC_AHBENR_CRCEN;
     CRC->CR = CRC_CR_RESET;
-#ifdef HAL_USE_250US
-    // Star TIM6, as 250us tick counter, used in rs485
+#ifdef HAL_USE_SUBMSTICK
+    // Star TIM6, as 62,5us tick counter, used in rs485 & oops
     RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
     TIM6->CR1 = 0;
-    TIM6->PSC = (hal_pclk1/4000UL) - 1UL;
+    TIM6->PSC = (hal_pclk1/16000UL) - 1UL;
     TIM6->CNT = 0;
     TIM6->ARR = 0xFFFF;
     TIM6->CR1 = TIM_CR1_CEN;
-#endif  //  HAL_USE_250US
+#endif  //  HAL_USE_SUBMSTICK
 
 #if (__CORTEX_M >= 0x03U)   // core_cm3, core_cm4
     // delay
@@ -103,12 +103,12 @@ uint16_t HAL_RNG(void)
     return (CRC->DR & 0x0000FFFF);
 }
 
-#ifdef HAL_USE_250US
-uint16_t HAL_get_250us_tick(void)
+#ifdef HAL_USE_SUBMSTICK
+uint16_t HAL_get_submstick(void)
 {
     return TIM6->CNT;
 }
-#endif  //  HAL_USE_250US
+#endif  //  HAL_USE_SUBMSTICK
 
 uint32_t HAL_get_ms(void)
 {

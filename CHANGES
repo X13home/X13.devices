@@ -1,10 +1,16 @@
+Version develop-3.1.3 from 07.07.2016
+
+Changed: RS485, Speed From 128k to 250k, frame time from 64 to 32 ms
+Added: config S2EM13
+====================================================================================================
+
 Version develop-3.1.2 from 06.07.2016
 
 Bugfix: EEPROM, overlapped variables
 Bugfix: MQTTSN, Advertise message, bad broadcast address
 Bugfix: HAL_RTC F0/F3/L0, Lock on bad source config
 
-Changed: 1st timeout to Ping from default to 2s. Don't send the RSSI on the highly contaminated devices
+Changed: 1st timeout to Ping from default to 2s
 Changed: STM32 HAL UART, now without IRQ but with DMA
 
 Added: PHY's RFM69/SX1231 and RS485
@@ -12,5 +18,5 @@ Added: configs S2Mn13, S2Qn13, S2SM13, S2SQ13, S3SQ10, S5Qn11
 Added: for devices with PLC, predefined variable "InMute" - don't send unused variables to server
 
 Cleaned and updated Configs
-
+====================================================================================================
 
