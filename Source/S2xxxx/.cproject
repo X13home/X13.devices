@@ -1782,19 +1782,10 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="S2Sn10d">
-			<resource resourceType="PROJECT" workspacePath="/S2xxxx"/>
-		</configuration>
-		<configuration configurationName="S2Sn10">
-			<resource resourceType="PROJECT" workspacePath="/S2xxxx"/>
-		</configuration>
-		<configuration configurationName="S2SR10">
+		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/S2xxxx"/>
 		</configuration>
 		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/S2xxxx"/>
-		</configuration>
-		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/S2xxxx"/>
 		</configuration>
 	</storageModule>
