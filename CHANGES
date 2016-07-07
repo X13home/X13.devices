@@ -1,0 +1,28 @@
+Version 3.1.3 from 07.07.2016
+
+STM32 - Main IDE - Eclipse, CooCox no more used
+
+Bugfix: EEPROM, overlapped variables
+Bugfix: MQTTSN, Advertise message, bad broadcast address
+Bugfix: HAL_RTC F0/F3/L0, Lock on bad source config
+
+Changed: Hardware Layer new API
+Changed: Pin Mapping - Hardware independed
+Changed: PHY CC1101, ENC28J60 - Hardware independed
+Changed: 1st timeout to Ping from default to 2s
+Changed: STM32 HAL UART, now with DMA, without IRQ
+
+Added: PLC, for STM devices and ATMega2560.
+Added: STM32 Hardware RTC.
+Added: More STM's F0/F1/F3/L0
+Added: PHY's RFM69/SX1231, not compatible with another RF chip
+Added: PHY - RS485, Multimaster TDMA, !! NOT Modbus !!. Speed - 250kbps, frame time - 32 ms
+
+Added: configs S2EM13, S2Mn13, S2Qn13, S2SM13, S2SQ13, S3SQ10, S5Qn11, ...
+Added: for devices with PLC, predefined variable "InMute" - don't send unused variables to server
+
+Cleaned and updated Configs
+
+====================================================================================================
+
+Versions 3.0 and Less, No more Supported
