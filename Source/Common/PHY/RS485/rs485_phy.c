@@ -28,6 +28,13 @@ See LICENSE file for license details.
 
 #define RS485_SOF           0xC3        // Start of Frame
 
+// Timeouts and Time Constant
+// Tick Periode = 62,5 uS
+#define TICK2TFRAME         2           // Frame Position tick = 125 uS
+#define SYNC_START_DELAY    256         // Start delay = 16 mS 
+#define FREE_RUN_TIMEOUT    512         // Free Run Sync Timeout = 32 mS
+#define RX_FRAME_WD         40          // 64 bytes, 250kps, timeout = 2.5ms
+
 #ifndef LED_On
 #define LED_On()
 #endif  //  LED_On
@@ -61,9 +68,9 @@ void RS485_Init(void)
 
     rs_token[2] = rs_addr;
 
-    if(rs_state == RS_STATE_INIT)   // Init Hardware
+    if(rs_state == RS_STATE_INIT)                               // Init Hardware
     {
-        hal_uart_init_hw(RS485_PHY_PORT, UART_BAUD_128K, 7);   // init uart 128000, DE + Rx + Tx
+        hal_uart_init_hw(RS485_PHY_PORT, UART_BAUD_250K, 7);    // init uart 250000, DE + Rx + Tx
     }
     rs_state = RS_STATE_RX_IDLE;
 }
@@ -81,12 +88,12 @@ void * RS485_Get(void)
     // Rx Variables
     static uint8_t  rx_CRC, rx_Pos, rx_Len, rx_Src = 0;
     static MQ_t   * pRx_buf;
-    static uint16_t rs_rx_wd = 0;       // Rx Timeout
+    static uint16_t rs_rx_wd = 0;                                   // Rx Timeout
     // Tx Variables
     static uint8_t *pTx_buf;
     // Tx Timeouts
-    static uint16_t rs_tx_wd = 128;     // 32 ms
-    static uint16_t rs_tx_to = 0;       // Timeouts, in 0.25ms
+    static uint16_t rs_tx_wd = SYNC_START_DELAY;                    // Start Delay - 16 ms
+    static uint16_t rs_tx_to = 0;                                   // Tx Timeout
 
     while(hal_uart_datardy(RS485_PHY_PORT))
     {
@@ -96,7 +103,7 @@ void * RS485_Get(void)
         {
             if(ch == RS485_SOF)
             {
-                rs_rx_wd = HAL_get_250us_tick();
+                rs_rx_wd = HAL_get_submstick();
                 rs_state = RS_STATE_RX_HDR;
                 rx_Pos = 0;
             }
@@ -104,28 +111,29 @@ void * RS485_Get(void)
         }
         else if(rs_state == RS_STATE_RX_HDR)
         {
-            if(rx_Pos == 0)                                 // length
+            if(rx_Pos == 0)                                         // Length
             {
-                if((ch == 1) ||                             // Synchro Frame
-                  ((ch >= 4) && (ch < (sizeof(MQ_t) + 2)))) // Standard Frame
+                if((ch == 1) ||                                     // Synchro Frame
+                  ((ch >= 4) && (ch < (sizeof(MQ_t) + 2))))         // Standard Frame
                 {
                     rx_Pos = 1;
                     rx_Len = ch;
                     rx_CRC = ch;
                 }
-                else                                        // Bad Length, Arbitration Lost
+                else                                                // Bad Length, Arbitration Lost
                 {
                     rs_state = RS_STATE_RX_IDLE;
                 }
             }
-            else if(rx_Pos == 1)                            // source address
+            else if(rx_Pos == 1)                                    // Source Address
             {
                 rx_Src = rs_addr - ch;
 
-                if(rx_Len == 1)                             // Synchro Frame
+                if(rx_Len == 1)                                     // Synchro Frame
                 {
-                    rs_tx_wd = HAL_get_250us_tick();
+                    rs_tx_wd = HAL_get_submstick();
                     rs_tx_to = rx_Src;
+                    rs_tx_to *= TICK2TFRAME;
                     rs_state = RS_STATE_RX_IDLE;
                 }
                 else
@@ -134,7 +142,7 @@ void * RS485_Get(void)
                     rx_CRC += ch;
                 }
             }
-            else                                            // destination address
+            else                                                    // Destination Address
             {
                 rx_CRC += ch;
 
@@ -162,13 +170,14 @@ void * RS485_Get(void)
                 pRx_buf->m.raw[rx_Pos++] = ch;
                 rx_CRC += ch;
             }
-            else                                    // CRC
+            else                                                    // CRC
             {
                 rs_state = RS_STATE_RX_IDLE;
                 if(ch == rx_CRC)
                 {
-                    rs_tx_wd = HAL_get_250us_tick();
+                    rs_tx_wd = HAL_get_submstick();
                     rs_tx_to = rx_Src;
+                    rs_tx_to *= TICK2TFRAME;                        
                     pRx_buf->Length = rx_Len;
                     return pRx_buf;
                 }
@@ -187,8 +196,9 @@ void * RS485_Get(void)
             {
                 if(ch == rx_CRC)
                 {
-                    rs_tx_wd = HAL_get_250us_tick();
+                    rs_tx_wd = HAL_get_submstick();
                     rs_tx_to = rx_Src;
+                    rs_tx_to *= TICK2TFRAME;
                 }
                 rs_state = RS_STATE_RX_IDLE;
             }
@@ -197,7 +207,7 @@ void * RS485_Get(void)
 
     if(rs_state == RS_STATE_RX_IDLE)
     {
-        uint16_t act_ticks = HAL_get_250us_tick();
+        uint16_t act_ticks = HAL_get_submstick();
         uint16_t diff = act_ticks - rs_tx_wd;
 
         // Tx Task
@@ -206,7 +216,7 @@ void * RS485_Get(void)
             if(hal_uart_free(RS485_PHY_PORT))
             {
                 rs_tx_wd = act_ticks;
-                rs_tx_to = 255;                         // Free Run Sync Timeout 64mS
+                rs_tx_to = FREE_RUN_TIMEOUT;
 
                 if(rs_tx_queue.Size != 0)
                 {
@@ -240,7 +250,7 @@ void * RS485_Get(void)
                         hal_uart_send(RS485_PHY_PORT, out_Pos, pTx_buf);
                     }
                 }
-                else        // Send Synchro Frame
+                else                                                // Send Synchro Frame
                 {
                     hal_uart_send(RS485_PHY_PORT, sizeof(rs_token), rs_token);
                 }
@@ -255,11 +265,11 @@ void * RS485_Get(void)
             rs_state = RS_STATE_RX_IDLE;
         }
     }
-    else    // Rx Watchdog
+    else                                                            // Rx Watchdog
     {
-        uint16_t diff = HAL_get_250us_tick() - rs_rx_wd;
+        uint16_t diff = HAL_get_submstick() - rs_rx_wd;
 
-        if(diff > 20)               // 64 bytes, 128kps, timeout = 5ms // 20 ticks
+        if(diff > RX_FRAME_WD)
         {
             if(rs_state == RS_STATE_RX_DATA)
             {

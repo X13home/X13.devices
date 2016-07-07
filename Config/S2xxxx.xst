@@ -1036,7 +1036,7 @@
             </item>
         </item>
     </item>
-    <item name="S2Mn13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0705">
+    <item name="S2Mn13" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0707">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />
             <item name="long" value="yI" saved="True" type="System.String" />
@@ -1320,8 +1320,11 @@
             </item>
         </item>
     </item>
+    <item name="S2EM13" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0707">
+        <item name="_proto" value="S2Mn13" saved="True" type="System.String" />
+    </item>
     <!-- device description file for GS devices  -->
-    <item name="S2SC14" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0610">
+    <item name="S2SC14" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0707">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />
             <item name="long" value="yI" saved="True" type="System.String" />
@@ -1870,7 +1873,7 @@
             </item>
         </item>
     </item>
-    <item name="S2Cn15" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0610">
+    <item name="S2Cn15" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0707">
         <item name="_proto" value="S2SC15" saved="True" type="System.String" />
         <item name="Digital Pull-Down Inputs">
             <item name="Ip13" value="BzX13" saved="True" type="System.String">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <root head="/etc/declarers/dev">
     <!-- device description file for uNodeV3 with STM32L051K8T devices  -->
-    <item name="S5Cn10" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0606">
+    <item name="S5Cn10" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0707">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />
             <item name="long" value="yI" saved="True" type="System.String" />
