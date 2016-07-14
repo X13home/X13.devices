@@ -60,6 +60,10 @@ See LICENSE file for license details.
 #elif   (defined CFG_S2Cn15)    
 #include "S2xxxx/S2Cn15.h"      // CC1101
 
+// S2Mn10
+#elif   (defined CFG_S2Mn16)
+#include "S2xxxx/S2Mn16.h"      // EXT_RS485
+
 #else
 #error Unknown configuration
 #endif  //  Configuration
@@ -150,6 +154,7 @@ See LICENSE file for license details.
 #define HAL_USART1_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 #define HAL_USART1_PIN_TX       9                       // PA9
 #define HAL_USART1_PIN_RX       10                      // PA10
+#define HAL_USART1_PIN_DE       12                      // PA12
 
 #endif  //  HAL_USART1_REMAP
 #endif  //  HAL_USE_USART1

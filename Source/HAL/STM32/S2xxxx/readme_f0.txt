@@ -1,4 +1,13 @@
-// STM32F051xx
+// STM32F0
+
+// Config;  Board; uC
+// S2xx10; MB1034B - STM32F0 Discovery; STM32F051R8T
+// S2xx11; MB11136 - STM32F0 Nucleo; STM32F091RC
+// S2xx13; S2EC13/S2ER13; STM32F051C8T
+// S2xx14; Proto GS; STM32F051K8T
+// S2xx15; uNode V3.0; STM32F051K8T
+// S2xx16; S2Mn10; STM32F051K8T
+
 
 // PWM
 ((2<<8) |  (2<<3) | 0)}    /* PA0:  AF2, TIM2_CH1  */ \
