@@ -57,6 +57,7 @@ extern "C" {
 
 // Sytem settings
 #define HAL_USE_RTC                 1
+#define MQTTSN_USE_MESH             1
 
 // DIO Section
 #define EXTDIO_USED                 1
