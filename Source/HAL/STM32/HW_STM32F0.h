@@ -182,11 +182,24 @@ See LICENSE file for license details.
 
 #if (defined HAL_USART3_REMAP)
 #define HAL_USART3_AF           ((1<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+
+#if (HAL_USART3_REMAP == 1)
+// Config 1
 #define HAL_USART3_PIN_TX       42                      // PC10
 #define HAL_USART3_PIN_RX       43                      // PC11
+#define HAL_USART3_PIN_DE       50                      // PD2
 
-#else   //  HAL_USART3_REMAP
+#else
+// Config 2
+#define HAL_USART3_PIN_TX       36                      // PC4
+#define HAL_USART3_PIN_RX       37                      // PC5
+
+#endif  //  HAL_USART3_REMAP
+
+#else
+// Config 0
 #define HAL_USART3_AF           ((4<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+#define HAL_USART3_PIN_DE       17                      // PB1
 #define HAL_USART3_PIN_TX       26                      // PB10
 #define HAL_USART3_PIN_RX       27                      // PB11
 
