@@ -115,7 +115,17 @@ uint8_t     hal_spi_exch8(uint8_t port, uint8_t data);
 // SPI Section
 //////////////////////////////////////////////////////////////
 
-#include "HW_ATMega.h"
+#if (defined __AVR_ATmega328P__)
+#include "HW_ATM328P.h"
+#elif (defined __AVR_ATmega2560__)
+#include "HW_ATM2560.h"
+#elif (defined __AVR_ATmega2561__)
+#include "HW_ATM2561.h"
+#else
+#error Unknown uC
+#endif  //  uC
+
+#include <util/delay.h>
 
 #ifdef __cplusplus
 }
