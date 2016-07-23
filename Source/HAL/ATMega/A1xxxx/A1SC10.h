@@ -54,8 +54,6 @@ extern "C" {
 
 #define F_CPU                       16000000UL
 
-#include <util/delay.h>
-
 // PC0-PC5, Gap:Ain6-7, Gap:PD0-PD1, PD2-PD7, PB0-PB1
 // DIO Section
 #define EXTDIO_USED                 1

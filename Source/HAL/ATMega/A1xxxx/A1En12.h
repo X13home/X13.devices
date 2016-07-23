@@ -53,8 +53,6 @@ extern "C" {
 
 #define F_CPU                       12500000UL
 
-#include <util/delay.h>
-
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_PORT_OFFSET          2

@@ -56,8 +56,6 @@ extern "C" {
 #define ASLEEP                      1       // Enable ASleep mode
 #define OD_DEFAULT_TASLEEP          0       // Default ASleep disabled
 
-#include <util/delay.h>
-
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_PORT_OFFSET          2
