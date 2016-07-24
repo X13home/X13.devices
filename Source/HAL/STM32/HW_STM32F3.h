@@ -86,11 +86,21 @@ See LICENSE file for license details.
 #define USART1_RX_DMA           DMA1_Channel5
 #define HAL_USART1_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
-#if   (defined HAL_USART1_REMAP)
+#if   (defined HAL_USART1_REMAP) && (HAL_USART1_REMAP > 0)
+#if (HAL_USART1_REMAP == 1)
+// Config 1
 #define HAL_USART1_PIN_TX       22                      // PB6
 #define HAL_USART1_PIN_RX       23                      // PB7
 
+#else
+// Config 2
+#define HAL_USART3_PIN_TX       36                      // PC4
+#define HAL_USART3_PIN_RX       37                      // PC5
+
+#endif  //  HAL_USART1_REMAP
+
 #else   //  HAL_USART1_REMAP - default
+// Config 0
 #define HAL_USART1_PIN_TX       9                       // PA9
 #define HAL_USART1_PIN_RX       10                      // PA10
 
@@ -102,7 +112,7 @@ See LICENSE file for license details.
 #define HAL_USART2_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 
 #ifndef HAL_USART2_REMAP
-#define HAL_USART2_REMAP        1
+#define HAL_USART2_REMAP        0
 #endif  //  HAL_USART2_REMAP
 
 #if   (HAL_USART2_REMAP == 2)
@@ -122,7 +132,77 @@ See LICENSE file for license details.
 #define HAL_USART2_PIN_RX       3                       // PA3
 
 #endif  //  HAL_USART2_REMAP
+
+// USART 3
+#define HAL_USART3_AF           ((7<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
+
+#if (defined HAL_USART3_REMAP) && (HAL_USART3_REMAP > 0)
+
+#if (HAL_USART3_REMAP == 1)
+// Config 1
+#define HAL_USART3_PIN_TX       26                      // PB8
+#define HAL_USART3_PIN_RX       27                      // PB9
+
+#else
+// Config 2
+#define HAL_USART3_PIN_TX       42                      // PC10
+#define HAL_USART3_PIN_RX       43                      // PC11
+
+#endif  //  HAL_USART3_REMAP
+
+#else
+// Config 0
+#define HAL_USART3_PIN_TX       26                      // PB10
+#define HAL_USART3_PIN_RX       27                      // PB11
+#define HAL_USART3_PIN_DE       30                      // PB14
+
+#endif  //  HAL_USART3_REMAP
+
 //  End UART Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// TWI Section
+// STM32F303K8 / STM32F334K8, Only I2C1
+
+// Alternative function, AF = 4, Open Drain
+#define DIO_MODE_TWI    ((4<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+
+#if (defined HAL_TWI1_REMAP) && (HAL_TWI1_REMAP > 0)
+
+#if (HAL_TWI1_REMAP == 1)
+// Config 1
+// I2C1, PA15 - SCL, PA14 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_15
+#define I2C_PIN_SDA     GPIO_Pin_14
+#define I2C_GPIO        GPIOA
+
+#define I2C_DIO_SCL     15
+#define I2C_DIO_SDA     14
+
+#else
+// Config 2
+// I2C1, PB6 - SCL, PB7 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_8
+#define I2C_PIN_SDA     GPIO_Pin_9
+#define I2C_GPIO        GPIOB
+
+#define I2C_DIO_SCL     24
+#define I2C_DIO_SDA     255555
+#endif  //  HAL_TWI1_REMAP > 0
+
+#else   //  !Remap
+// Config 0
+// I2C1, PB6 - SCL, PB7 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_6
+#define I2C_PIN_SDA     GPIO_Pin_7
+#define I2C_GPIO        GPIOB
+
+#define I2C_DIO_SCL     22
+#define I2C_DIO_SDA     23
+
+#endif  //  HAL_TWI1_REMAP
+// End TWI Section
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////

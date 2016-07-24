@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 #include "EXT/exttwi.h"
 
-#define DIO_MODE_TWI    DIO_MODE_AF_OD          // Alternative function, Open Drain
-#define I2C_GPIO        GPIOB
-
 #if (HAL_TWI_BUS == 1)
     
 void I2C1_EV_IRQHandler(void);
@@ -31,22 +28,6 @@ void I2C1_ER_IRQHandler(void);
 #define I2C_EV_IRQn     I2C1_EV_IRQn
 #define I2C_ER_IRQn     I2C1_ER_IRQn
 
-#if (defined HAL_TWI1_REMAP)
-// I2C1, PB8 - SCL, PB9 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_8
-#define I2C_PIN_SDA     GPIO_Pin_9
-#define I2C_DIO_SCL     24
-#define I2C_DIO_SDA     25
-
-#else
-// I2C1, PB6 - SCL, PB7 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_6
-#define I2C_PIN_SDA     GPIO_Pin_7
-#define I2C_DIO_SCL     22
-#define I2C_DIO_SDA     23
-
-#endif  //  HAL_TWI1_REMAP
-
 #else   //  BUS 2
 
 void I2C2_EV_IRQHandler(void);
@@ -58,12 +39,6 @@ void I2C2_ER_IRQHandler(void);
 #define I2C_BUS         I2C2
 #define I2C_EV_IRQn     I2C2_EV_IRQn
 #define I2C_ER_IRQn     I2C2_ER_IRQn
-
-// I2C2, PB10 - SCL, PB11 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_10
-#define I2C_PIN_SDA     GPIO_Pin_11
-#define I2C_DIO_SCL     26
-#define I2C_DIO_SDA     27
 
 #endif  //  HAL_TWI_BUS
 

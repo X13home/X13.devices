@@ -210,6 +210,105 @@ See LICENSE file for license details.
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
+//  TWI Section
+
+#if (HAL_TWI_BUS == 1)
+
+#if (defined HAL_TWI_REMAP) && (HAL_TWI_REMAP > 0)
+
+#if (HAL_TWI_REMAP == 1)
+// Config 1
+// I2C1, PB8 - SCL, PB9 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_8
+#define I2C_PIN_SDA     GPIO_Pin_9
+#define I2C_DIO_SCL     24
+#define I2C_DIO_SDA     25
+#define I2C_GPIO        GPIOB
+// Alternative function, AF = 1, Open Drain
+#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+
+#else   // HAL_TWI_REMAP = 2
+// Config 2
+// I2C1, PA9 - SCL, PA10 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_9
+#define I2C_PIN_SDA     GPIO_Pin_10
+#define I2C_DIO_SCL     9
+#define I2C_DIO_SDA     10
+#define I2C_GPIO        GPIOA
+// Alternative function, AF = 4, Open Drain
+#define DIO_MODE_TWI    ((4<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+#endif  //  HAL_TWI_REMAP
+
+#else   // HAL_TWI_REMAP = 0 or not defined
+// Config 0
+// I2C1, PB6 - SCL, PB7 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_6
+#define I2C_PIN_SDA     GPIO_Pin_7
+#define I2C_DIO_SCL     22
+#define I2C_DIO_SDA     23
+#define I2C_GPIO        GPIOB
+// Alternative function, AF = 1, Open Drain
+#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+
+#endif  //  HAL_TWI_REMAP
+
+#elif (HAL_TWI_BUS == 2)
+
+#if (defined HAL_TWI_REMAP) && (HAL_TWI_REMAP > 0)
+
+#if (HAL_TWI_REMAP == 1)
+// Config 1
+// I2C2, PB13 - SCL, PB14 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_13
+#define I2C_PIN_SDA     GPIO_Pin_14
+#define I2C_DIO_SCL     29
+#define I2C_DIO_SDA     30
+#define I2C_GPIO        GPIOB
+// Alternative function, AF = 5, Open Drain
+#define DIO_MODE_TWI    ((5<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+
+#elif (HAL_TWI_REMAP == 2)
+// Config 2
+// I2C2, PA11 - SCL, PA12 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_11
+#define I2C_PIN_SDA     GPIO_Pin_12
+#define I2C_DIO_SCL     11
+#define I2C_DIO_SDA     12
+#define I2C_GPIO        GPIOA
+// Alternative function, AF = 5, Open Drain
+#define DIO_MODE_TWI    ((5<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+
+#else   // HAL_TWI_REMAP = 3
+// Config 3
+// I2C2, PF6 - SCL, PF7 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_6
+#define I2C_PIN_SDA     GPIO_Pin_7
+#define I2C_DIO_SCL     86
+#define I2C_DIO_SDA     87
+#define I2C_GPIO        GPIOF
+// Alternative function, AF = 0, Open Drain
+#define DIO_MODE_TWI    DIO_MODE_AF_OD
+
+#endif  //  HAL_TWI_REMAP
+
+#else   // HAL_TWI_REMAP = 0 or not defined
+// Config 0
+// I2C2, PB10 - SCL, PB11 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_10
+#define I2C_PIN_SDA     GPIO_Pin_11
+#define I2C_DIO_SCL     26
+#define I2C_DIO_SDA     27
+#define I2C_GPIO        GPIOB
+// Alternative function, AF = 1, Open Drain
+#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+
+#endif  //  HAL_TWI_REMAP
+#endif  //  HAL_TWI_BUS
+
+//  End TWI Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
 // PWM Section
 
 #if defined(STM32F051x8) || defined(STM32F091xC)

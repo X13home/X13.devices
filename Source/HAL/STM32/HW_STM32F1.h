@@ -115,11 +115,13 @@ See LICENSE file for license details.
 #define USART1_TX_DMA           DMA1_Channel4
 #define USART1_RX_DMA           DMA1_Channel5
 #define HAL_USART1_AF           DIO_MODE_AF_PP
-#if (defined HAL_USART1_REMAP)
+#if (defined HAL_USART1_REMAP) && (HAL_USART1_REMAP > 0)
+// Config 1
 #define HAL_USART1_PIN_RX       23                      // GPIOB PIN7
 #define HAL_USART1_PIN_TX       22                      // GPIOB PIN6
 
 #else
+// Config 0
 #define HAL_USART1_PIN_RX       10                      // GPIOA PIN10
 #define HAL_USART1_PIN_TX       9                       // GPIOA PIN9
 #endif  //  HAL_USART1_REMAP
@@ -136,15 +138,54 @@ See LICENSE file for license details.
 #define USART3_RX_DMA           DMA1_Channel3
 #define HAL_USART3_AF           DIO_MODE_AF_PP
 
-#if (defined HAL_USART3_REMAP)
+#if (defined HAL_USART3_REMAP) && (HAL_USART3_REMAP > 0)
+// Config 1
 #define HAL_USART3_PIN_RX       43                      // GPIOC PIN11
 #define HAL_USART3_PIN_TX       42                      // GPIOC PIN10
 #else
+// Config 0
 #define HAL_USART3_PIN_RX       27                      // GPIOB PIN11
 #define HAL_USART3_PIN_TX       26                      // GPIOB PIN10
 #endif  //  HAL_USART3_REMAP
 
 //  End UART Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+//  TWI Section
+
+#define DIO_MODE_TWI    DIO_MODE_AF_OD          // Alternative function, Open Drain
+#define I2C_GPIO        GPIOB
+
+#if (HAL_TWI_BUS == 1)
+
+#if (defined HAL_TWI1_REMAP)
+// I2C1, PB8 - SCL, PB9 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_8
+#define I2C_PIN_SDA     GPIO_Pin_9
+#define I2C_DIO_SCL     24
+#define I2C_DIO_SDA     25
+
+#else
+// I2C1, PB6 - SCL, PB7 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_6
+#define I2C_PIN_SDA     GPIO_Pin_7
+#define I2C_DIO_SCL     22
+#define I2C_DIO_SDA     23
+
+#endif  //  HAL_TWI1_REMAP
+
+#else   //  BUS 2
+
+// I2C2, PB10 - SCL, PB11 - SDA
+#define I2C_PIN_SCL     GPIO_Pin_10
+#define I2C_PIN_SDA     GPIO_Pin_11
+#define I2C_DIO_SCL     26
+#define I2C_DIO_SDA     27
+
+#endif  //  HAL_TWI_BUS
+
+//  End TWI Section
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
