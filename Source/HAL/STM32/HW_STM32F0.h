@@ -192,7 +192,7 @@ See LICENSE file for license details.
 #define HAL_USART3_PIN_TX       36                      // PC4
 #define HAL_USART3_PIN_RX       37                      // PC5
 
-#else
+#else   //  HAL_USART3_REMAP - default
 // USART3, Config 0
 #define HAL_USART3_AF           ((4<<DIO_AF_OFFS) | DIO_MODE_AF_PP)
 #define HAL_USART3_PIN_DE       17                      // PB1
