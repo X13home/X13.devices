@@ -11,6 +11,7 @@
 
 // SPI1, Config 1, PA5, PA6, PA7
 // SPI1, Config 2, PB3, PB4, PB5
+//
 // SPI2, Config 1, PB13, PB14, PB15
 
 // USART1, Config 0, PA9 - Tx, PA10 - Rx, PA12 - DE
