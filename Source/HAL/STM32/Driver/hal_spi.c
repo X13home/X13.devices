@@ -120,9 +120,9 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 
     SPIx->CRCPR =  7;
 
-#ifndef STM32F3
+#if defined (SPI_I2SCFGR_I2SMOD)
     SPIx->I2SCFGR &= (uint16_t)~((uint16_t)SPI_I2SCFGR_I2SMOD);
-#endif  //  STM32F3
+#endif  //  SPI_I2SCFGR_I2SMOD
 
     SPIx->CR1 |= SPI_CR1_SPE;       // SPI enable
 }
