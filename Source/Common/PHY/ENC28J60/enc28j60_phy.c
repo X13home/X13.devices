@@ -14,7 +14,7 @@ See LICENSE file for license details.
 
 #include "../../config.h"
 
-#ifdef ENC28J60_PHY
+#ifdef ENC_PHY
 
 #include "enc28j60_hw.h"
 #include "enc28j60_net.h"
@@ -113,4 +113,4 @@ void * ENC28J60_GetAddr(void)
     return &ip_addr;
 }
 
-#endif  //  ENC28J60_PHY
+#endif  //  ENC_PHY

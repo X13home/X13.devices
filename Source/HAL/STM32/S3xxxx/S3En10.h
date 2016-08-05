@@ -133,7 +133,7 @@ extern "C" {
 #define ENC_NSS_PIN                 28  // PB12
 #define ENC_SELECT()                GPIOB->BRR = GPIO_Pin_12
 #define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); GPIOB->BSRR = GPIO_Pin_12;}
-#define ENC28J60_PHY                1
+#define ENC_PHY                     1
 #include "PHY/ENC28J60/enc28j60_phy.h"
 // End ENC Section
 

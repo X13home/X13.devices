@@ -93,7 +93,7 @@ extern "C" {
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // CC11 Section
-#define HAL_USE_SPI                 1
+#define HAL_USE_SPI1                1
 #define CC11_USE_SPI                1
 #define CC11_NSS_PIN                10  // PB2
 #define CC11_WAIT_LOW_MISO()        while(PINB & (1<<PB4))

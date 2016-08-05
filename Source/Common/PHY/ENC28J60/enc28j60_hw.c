@@ -12,7 +12,7 @@ See LICENSE file for license details.
 
 #include "../../config.h"
 
-#if (defined ENC28J60_PHY)
+#if (defined ENC_PHY)
 
 #include "enc28j60_def.h"
 #include "enc28j60_hw.h"
@@ -426,4 +426,4 @@ void enc28j60_ClosePacket(void)
   enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_PKTDEC);
 }
 
-#endif
+#endif  // ENC_PHY

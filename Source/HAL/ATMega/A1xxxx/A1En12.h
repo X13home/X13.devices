@@ -90,12 +90,13 @@ extern "C" {
 #define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
 
 // ENC28J60 Section
-#define HAL_USE_SPI                 1
+#define HAL_USE_SPI1                1
 #define ENC_USE_SPI                 1
 #define ENC_NSS_PIN                 10  // PB2
 #define ENC_SELECT()                (PORTB &= ~(1<<PB2))
 #define ENC_RELEASE()               (PORTB |= (1<<PB2))
-#define ENC28J60_PHY                1
+#define ENC_PHY                     1
+#define OD_DEF_DEV_MAC              {0x00,0x04,0xA3,0x00,0x00,0x05}   // MAC MSB->LSB
 #include "PHY/ENC28J60/enc28j60_phy.h"
 // End ENC28J60 Section
 
@@ -107,12 +108,6 @@ extern "C" {
 #define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
-
-#define OD_DEV_MAC                  {0x00,0x04,0xA3,0x00,0x00,0x05}   // MAC MSB->LSB
-//#define OD_DEF_IP_ADDR              inet_addr(192,168,10,205)
-//#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
-//#define OD_DEF_IP_ROUTER            inet_addr(192,168,10,1)
-//#define OD_DEF_IP_BROKER            inet_addr(192,168,20,8)
 
 #ifdef __cplusplus
 }

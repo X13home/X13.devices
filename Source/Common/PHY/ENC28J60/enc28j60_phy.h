@@ -19,7 +19,7 @@ extern "C" {
 
 #define LAN_NODE
 
-#if (ENC28J60_PHY == 1)
+#if (ENC_PHY == 1)
 
 #define PHY1_ADDR_t                 uint32_t
 #define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)inet_addr(255,255,255,255)
@@ -32,7 +32,7 @@ extern "C" {
 #define PHY1_NodeId                 objIPAddr
 #define PHY1_GateId                 objIPBroker
 
-#elif (ENC28J60_PHY == 2)
+#elif (ENC_PHY == 2)
 
 #define PHY2_ADDR_t                 uint32_t
 #define ADDR_BROADCAST_PHY2         (PHY1_ADDR_t)inet_addr(255,255,255,255)
@@ -45,11 +45,26 @@ extern "C" {
 #define PHY2_NodeId                 objIPAddr
 
 #else
-#error ENC28J60_PHY unknown inteface
+#error ENC_PHY unknown inteface
 #endif
 
-
 #define inet_addr(d,c,b,a)          (((uint32_t)a<<24) | ((uint32_t)b << 16) | ((uint32_t)c<<8)  | ((uint32_t)d))
+
+#ifndef OD_DEF_IP_ADDR
+#define OD_DEF_IP_ADDR      0xFFFFFFFF      // Default IP - use DHCP
+#endif  //  OD_DEF_IP_ADDR
+#ifndef OD_DEF_IP_MASK
+#define OD_DEF_IP_MASK      0xFFFFFFFF      // Default IP Mask - use DHCP
+#endif  //  OD_DEF_IP_MASK
+#ifndef OD_DEF_IP_ROUTER
+#define OD_DEF_IP_ROUTER    0xFFFFFFFF      // Default IP Gateway - use DHCP
+#endif  //  OD_DEF_IP_ROUTER
+#ifndef OD_DEF_IP_BROKER
+#define OD_DEF_IP_BROKER    0xFFFFFFFF      // Default IP Broker - auto resolve
+#endif  //  OD_DEF_IP_BROKER
+#ifndef OD_DEF_DEV_MAC
+#define OD_DEF_DEV_MAC      {0x00,0x04,0xA3,0x01,0x02,0x03}
+#endif  //  OD_DEF_DEV_MAC
 
 // API Section
 void ENC28J60_Init(void);

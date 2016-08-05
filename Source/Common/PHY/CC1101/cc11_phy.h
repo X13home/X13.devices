@@ -15,6 +15,10 @@ See LICENSE file for license details.
 
 #define OD_DEFAULT_GROUP        0x2DD4
 
+#ifndef RF_BASE_FREQ
+#define RF_BASE_FREQ                    868300000UL
+#endif  //  RF_BASE_FREQ
+
 // 433 MHz
 #if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
 #define OD_DEFAULT_CHANNEL      ((RF_BASE_FREQ - 433000000UL)/25000)
@@ -61,11 +65,9 @@ See LICENSE file for license details.
 #endif  // CC11_PHY
 
 #ifndef RF_ADDR_t
-
 #define RF_ADDR_t                   uint8_t
 #define RF_ADDR_TYPE                objUInt8
 #define ADDR_UNDEF_RF               (RF_ADDR_t)0xFF
-
 #endif  //  RF_ADDR_t
 
 // API Section
