@@ -38,13 +38,81 @@ See LICENSE file for license details.
 
 //////////////////////////////////////////////////////////////
 // SPI Section
-#define DIO_MODE_SPI1               DIO_MODE_AF_PP_HS    
+#if (defined HAL_USE_SPI1) && (HAL_USE_SPI1 == 1)
+// SPI1, Config 1, PA5, PA6, PA7
+#define DIO_MODE_SPI1           DIO_MODE_AF_PP_HS
+#define SPI1_PORT               GPIOA
+#define SPI1_SCK_PIN            GPIO_Pin_5
+#define SPI1_MISO_PIN           GPIO_Pin_6
+#define SPI1_MOSI_PIN           GPIO_Pin_7
 
-#define SPI1_PORT                   GPIOB
-#define SPI1_SCK_PIN                GPIO_Pin_3
-#define SPI1_MISO_PIN               GPIO_Pin_4
-#define SPI1_MOSI_PIN               GPIO_Pin_5
+#elif (defined HAL_USE_SPI1) && (HAL_USE_SPI1 == 2)
+// SPI1, Config 2, PB3, PB4, PB5
+#define DIO_MODE_SPI1           DIO_MODE_AF_PP_HS
+#define SPI1_PORT               GPIOB
+#define SPI1_SCK_PIN            GPIO_Pin_3
+#define SPI1_MISO_PIN           GPIO_Pin_4
+#define SPI1_MOSI_PIN           GPIO_Pin_5
+
+#endif  //  HAL_USE_SPI1
+
+#if (defined HAL_USE_SPI2) && (HAL_USE_SPI2 == 1)
+// SPI2, Config 1, PB13, PB14, PB15
+#define DIO_MODE_SPI2           DIO_MODE_AF_PP_HS
+#define SPI2_PORT               GPIOB
+#define SPI2_SCK_PIN            GPIO_Pin_13
+#define SPI2_MISO_PIN           GPIO_Pin_14
+#define SPI2_MOSI_PIN           GPIO_Pin_15
+
+#endif  //  HAL_USE_SPI2
 // End SPI Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+//  TWI Section
+#if (defined HAL_TWI_BUS) && (HAL_TWI_BUS == 1)
+#if (defined HAL_TWI_REMAP) && (HAL_TWI_REMAP == 1)
+// I2C1, Config 1, PB8 - SCL, PB9 - SDA, AF1
+#define DIO_MODE_TWI            ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+#define I2C_PIN_SCL             GPIO_Pin_8
+#define I2C_PIN_SDA             GPIO_Pin_9
+#define I2C_GPIO                GPIOB
+#define I2C_DIO_SCL             24
+#define I2C_DIO_SDA             25
+
+#else   //  HAL_TWI_REMAP - default
+// I2C1, Config 0, PB6 - SCL, PB7 - SDA, AF1
+#define DIO_MODE_TWI            ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+#define I2C_PIN_SCL             GPIO_Pin_6
+#define I2C_PIN_SDA             GPIO_Pin_7
+#define I2C_GPIO                GPIOB
+#define I2C_DIO_SCL             22
+#define I2C_DIO_SDA             23
+
+#endif  //  HAL_TWI_REMAP
+
+#elif (defined HAL_TWI_BUS) && (HAL_TWI_BUS == 2)
+#if (defined HAL_TWI_REMAP) && (HAL_TWI_REMAP == 1)
+// I2C2, Config 1, PB13 - SCL, PB14 - SDA, AF5
+#define DIO_MODE_TWI    ((5<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+#define I2C_PIN_SCL     GPIO_Pin_13
+#define I2C_PIN_SDA     GPIO_Pin_14
+#define I2C_GPIO        GPIOB
+#define I2C_DIO_SCL     29
+#define I2C_DIO_SDA     30
+
+#else   //  HAL_TWI_REMAP - default
+// I2C2, Config 0, PB10 - SCL, PB11 - SDA, AF1
+#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
+#define I2C_PIN_SCL     GPIO_Pin_10
+#define I2C_PIN_SDA     GPIO_Pin_11
+#define I2C_GPIO        GPIOB
+#define I2C_DIO_SCL     26
+#define I2C_DIO_SDA     27
+
+#endif  //  HAL_TWI_REMAP
+#endif  //  HAL_TWI_BUS
+//  End TWI Section
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////

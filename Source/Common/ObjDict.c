@@ -568,18 +568,6 @@ void InitOD(void)
 #endif  //  OD_DEFAULT_RF_KEY
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
-#ifndef OD_DEF_IP_ADDR
-#define OD_DEF_IP_ADDR      0xFFFFFFFF      // Default IP - use DHCP
-#endif  //  OD_DEF_IP_ADDR
-#ifndef OD_DEF_IP_MASK
-#define OD_DEF_IP_MASK      0xFFFFFFFF      // Default IP Mask - use DHCP
-#endif  //  OD_DEF_IP_MASK
-#ifndef OD_DEF_IP_ROUTER
-#define OD_DEF_IP_ROUTER    0xFFFFFFFF      // Default IP Gateway - use DHCP
-#endif  //  OD_DEF_IP_ROUTER
-#ifndef OD_DEF_IP_BROKER
-#define OD_DEF_IP_BROKER    0xFFFFFFFF      // Default IP Broker - auto resolve
-#endif  //  OD_DEF_IP_BROKER
         uint32_t ulTmp = OD_DEF_IP_BROKER;
         WriteOD(objIPBroker, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
         ulTmp = OD_DEF_IP_ROUTER;
@@ -588,7 +576,7 @@ void InitOD(void)
         WriteOD(objIPMask,   MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
         ulTmp = OD_DEF_IP_ADDR;
         WriteOD(objIPAddr,   MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
-        uint8_t   defMAC[] = OD_DEV_MAC;
+        uint8_t   defMAC[] = OD_DEF_DEV_MAC;
         WriteOD(objMACAddr, MQTTSN_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);       // Default MAC
 #endif  //  LAN_NODE
 #ifdef EXTAIN_USED

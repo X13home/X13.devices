@@ -21,7 +21,6 @@ See LICENSE file for license details.
 #define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
 #define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)0xFF
 
-
 #define PHY1_Init                   RFM12_Init
 #define PHY1_Send                   RFM12_Send
 #define PHY1_Get                    RFM12_Get
@@ -59,6 +58,10 @@ See LICENSE file for license details.
 // Configuration settings
 
 #define OD_DEFAULT_GROUP        0x2DD4
+
+#ifndef RF_BASE_FREQ
+#define RF_BASE_FREQ                    868300000UL
+#endif  //  RF_BASE_FREQ
 
 // 433 MHz
 #if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)

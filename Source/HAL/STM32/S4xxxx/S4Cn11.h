@@ -31,8 +31,8 @@ See LICENSE file for license details.
 //   8  PA8     --
 //   9  PA9     P2.9    TX1     AF6, TIM1_CH2
 //  10  PA10    P2.8    RX1     AF6, TIM1_CH3
-//  11  PA11    P2.7    DE      AF11, TIM1_CH4
-//  12  PA12    --
+//  11  PA11
+//  12  PA12    P2.7    DE
 //  13  PA13    P2.6    SWDIO
 //  14  PA14    P2.5    SWCLK
 //  15  PA15    --      CC11_SEL
@@ -64,8 +64,8 @@ extern "C" {
 #define EXTDIO_MAXPORT_NR           2
 #define HAL_DIO_MAPPING         { /* PA0 - PA7 */                               \
                                        0,   1,    2,    3,    4,    5,   6, 7,  \
-                                  /* PB7, PB6, PA14, PA13, PA11, PA10, PA9 */   \
-                                      22,  23,   14,   13,   11,   10,   9      \
+                                  /* PB7, PB6, PA14, PA13, PA12, PA10, PA9 */   \
+                                      22,  23,   14,   13,   12,   10,   9      \
                                 }
 // End DIO Section
 
@@ -81,8 +81,7 @@ extern "C" {
                                      ((1<<8)  | (17<<3) | 0),   /* PA7:  AF1, TIM17_CH1 */ \
                                      255,                       /* PB6                  */ \
                                      ((10<<8) |  (3<<3) | 3),   /* PB7:  AF10, TIM3_CH4 */ \
-                                     255, 255,                  /* PA14, PA13,          */ \
-                                     ((11<<8) |  (1<<3) | 3),   /* PA11: AF11, TIM1_CH4 */ \
+                                     255, 255, 255,             /* PA14, PA13, PA12     */ \
                                      ((6<<8)  |  (1<<3) | 2),   /* PA10: AF6, TIM1_CH3  */ \
                                      ((6<<8)  |  (1<<3) | 1)    /* PA9:  AF6, TIM1_CH2  */ \
                                     }

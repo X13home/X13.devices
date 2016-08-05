@@ -31,8 +31,8 @@ See LICENSE file for license details.
 //   8  PA8     --
 //   9  PA9     P2.9  * TX1
 //  10  PA10    P2.8  * RX1
-//  11  PA11    P2.7    DE
-//  12  PA12    --
+//  11  PA11    --
+//  12  PA12    P2.7    DE
 //  13  PA13    P2.6    SWDIO
 //  14  PA14    P2.5    SWCLK
 //  15  PA15    --      CC11_SEL
@@ -64,8 +64,8 @@ extern "C" {
 #define EXTDIO_MAXPORT_NR           1
 #define HAL_DIO_MAPPING         { /* PA0 - PA7 */                               \
                                        0,  1,     2,    3,    4,    5,   6, 7,  \
-                                  /* PB7, PB6, PA14, PA13, PA11, PA10, PA9 */   \
-                                      23,  22, 14,   13,   11                 \
+                                  /* PB7, PB6, PA14, PA13, PA12, PA10, PA9 */   \
+                                      23,  22, 14,   13,   12                 \
                                 }
 // End DIO Section
 
@@ -80,9 +80,7 @@ extern "C" {
                                      ((2<<8)  |  (3<<3) | 0),   /* PA6:  AF2, TIM3_CH1  */ \
                                      ((1<<8)  | (17<<3) | 0),   /* PA7:  AF1, TIM17_CH1 */ \
                                      255,                       /* PB6                  */ \
-                                     ((10<<8) |  (3<<3) | 3),   /* PB7:  AF10, TIM3_CH4 */ \
-                                     255, 255,                  /* PA14, PA13,          */ \
-                                     ((11<<8) |  (1<<3) | 3)    /* PA11: AF11, TIM1_CH4 */ \
+                                     ((10<<8) |  (3<<3) | 3)    /* PB7:  AF10, TIM3_CH4 */ \
                                     }
 // End PWM Section
 

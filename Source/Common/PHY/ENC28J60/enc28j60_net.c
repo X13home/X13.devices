@@ -12,7 +12,7 @@ See LICENSE file for license details.
 
 #include "../../config.h"
 
-#if (defined ENC28J60_PHY)
+#if (defined ENC_PHY)
 
 #include "enc28j60_hw.h"
 #include "enc28j60_net.h"
@@ -702,4 +702,4 @@ void dhcp_poll(void)
 // End DHCP Section
 //////////////////////////////////////////////////////////////////////
 #endif  //  NET_WITH_DHCP
-#endif  //  ENC28J60_PHY
+#endif  //  ENC_PHY

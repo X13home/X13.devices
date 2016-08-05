@@ -13,6 +13,10 @@ See LICENSE file for license details.
 #ifndef _RFM69_PHY_H
 #define _RFM69_PHY_H
 
+#ifndef RF_BASE_FREQ
+#define RF_BASE_FREQ                868300000UL
+#endif  //  RF_BASE_FREQ
+
 // 433 - ISM band
 #if ((RF_BASE_FREQ > 433000000UL) && (RF_BASE_FREQ < 434800000UL))
 #define RFM69_BASE_FREQ             433000000UL

@@ -37,11 +37,6 @@ extern "C" {
 #define OD_DEV_SWVERSM                  '1'
 #define OD_DEV_SWVERSL                  '3'
 
-#define OD_DEF_ADC_AVERAGE              80
-
-#define UART_BaudRate                   38400
-#define RF_BASE_FREQ                    868300000UL
-
 #include "hal.h"
 #include "mqMEM.h"
 #include "mqTypes.h"

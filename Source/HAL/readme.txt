@@ -2,6 +2,7 @@
 
 A1xxxx - ATMega328P
 A4xxxx - ATMega2560, Arduino Mega
+A5xxxx - ATMega2561
 
 S2xxxx  - STM32F051/STM32F091
 S3xxxx  - STM32F103CBT6, Board: Maple Mini
