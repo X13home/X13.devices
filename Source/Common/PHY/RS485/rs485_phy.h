@@ -13,6 +13,8 @@ See LICENSE file for license details.
 #ifndef _RS485_PHY_H
 #define _RS485_PHY_H
 
+#define HAL_USE_SUBMSTICK           1
+
 #if (RS485_PHY == 1)
 
 #define PHY1_ADDR_t                 uint8_t

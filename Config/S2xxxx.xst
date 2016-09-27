@@ -2076,7 +2076,7 @@
                 <item name="_description" value="PWM Output, X2" saved="True" type="System.String" />
             </item>
             <item name="Pp2" value="IiX2" saved="True" type="System.String">
-                <item name="_description" value="PWM Output, X3 saved="True" type="System.String" />
+                <item name="_description" value="PWM Output, X3" saved="True" type="System.String" />
             </item>
             <item name="Pp3" value="IiX3" saved="True" type="System.String">
                 <item name="_description" value="PWM Output, X4" saved="True" type="System.String" />
