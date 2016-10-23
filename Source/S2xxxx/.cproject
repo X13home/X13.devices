@@ -2003,6 +2003,24 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="S2Mn16"/>
+		<configuration configurationName="S2Mn13"/>
+		<configuration configurationName="S2En13"/>
+		<configuration configurationName="S2EM13"/>
+		<configuration configurationName="S2Cn15"/>
+		<configuration configurationName="S2Cn13"/>
+		<configuration configurationName="S2Sn10d"/>
+		<configuration configurationName="S2Sn11"/>
+		<configuration configurationName="S2SM13"/>
+		<configuration configurationName="S2Sn10"/>
+		<configuration configurationName="S2SR10"/>
+		<configuration configurationName="S2Sn13"/>
+		<configuration configurationName="S2SQ13"/>
+		<configuration configurationName="S2Qn13"/>
+		<configuration configurationName="S2SC13"/>
+		<configuration configurationName="S2SC15"/>
+		<configuration configurationName="S2SC14"/>
+		<configuration configurationName="S2EC13"/>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/S2xxxx"/>
 		</configuration>
@@ -2010,4 +2028,5 @@
 			<resource resourceType="PROJECT" workspacePath="/S2xxxx"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>
