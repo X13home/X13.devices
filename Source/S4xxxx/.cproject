@@ -509,4 +509,5 @@
 			<resource resourceType="PROJECT" workspacePath="/S4xxxx"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>

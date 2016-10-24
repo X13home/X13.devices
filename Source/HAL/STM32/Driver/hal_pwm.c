@@ -94,6 +94,13 @@ void hal_pwm_configure(uint16_t base, bool inv)
             tim_clk = hal_pclk1;
             break;
 #endif  // TIM4
+#ifdef TIM8
+        case 8:     // Timer 8
+            RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
+            TIMx = TIM8;
+            tim_clk = hal_pclk2;
+            break;
+#endif  // TIM8
 #ifdef TIM14
         case 14:
             RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
@@ -266,6 +273,11 @@ void hal_pwm_delete(uint16_t base)
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM4EN;
                 break;
 #endif  //  TIM4
+#ifdef TIM8
+            case 8:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM8EN;
+                break;
+#endif  // TIM8
 #ifdef TIM14
             case 14:
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM14EN;
