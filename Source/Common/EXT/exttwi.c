@@ -33,7 +33,7 @@ static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)),
     if(pTWI == NULL)
         return MQTTSN_RET_REJ_CONG;
 
-    *pLen = pTWI->frame.read + sizeof(TWI_FRAME_t);
+    *pLen = pTWI->frame.read + SIZEOF_TWI_FRAME_HDR;
     memcpy(pBuf, (void *)&pTWI->frame, *pLen);
     mqFree((void *)pTWI);
     pTWI = NULL;
@@ -43,7 +43,7 @@ static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)),
 static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx __attribute__ ((unused)),
                                         uint8_t Len, uint8_t *pBuf)
 {
-    if(Len < sizeof(TWI_FRAME_t))
+    if(Len < SIZEOF_TWI_FRAME_HDR)
         return MQTTSN_RET_REJ_NOT_SUPP;
 
     TWI_QUEUE_t * pQueue = mqAlloc(sizeof(MQ_t));
@@ -51,7 +51,7 @@ static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx __attribute__ ((unused))
     memcpy(&pQueue->frame, pBuf, Len);
     
     pQueue->frame.access &= (TWI_WRITE | TWI_READ);
-    pQueue->frame.write = (Len - sizeof(TWI_FRAME_t));
+    pQueue->frame.write = (Len - SIZEOF_TWI_FRAME_HDR);
     if(pQueue->frame.write != 0)
     {
         pQueue->frame.access |= TWI_WRITE;
@@ -61,7 +61,7 @@ static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx __attribute__ ((unused))
         pQueue->frame.access |= TWI_READ;
     }
 
-    if((pQueue->frame.read > (MQTTSN_MSG_SIZE - sizeof(TWI_FRAME_t) - MQTTSN_SIZEOF_MSG_PUBLISH)) ||
+    if((pQueue->frame.read > (MQTTSN_MSG_SIZE - SIZEOF_TWI_FRAME_HDR - MQTTSN_SIZEOF_MSG_PUBLISH)) ||
        ((pQueue->frame.access & (TWI_WRITE | TWI_READ)) == 0))
     {
         mqFree(pQueue);

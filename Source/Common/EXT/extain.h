@@ -31,7 +31,7 @@ void    ainDeleteOD(subidx_t * pSubidx);
 
 void    ainLoadAverage(void);
 int16_t ainRead(subidx_t * pSubidx);
-void  * ainGetPoll(void);
+cbPoll_t ainGetPoll(void);
 
 #ifdef __cplusplus
 }

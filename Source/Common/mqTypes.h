@@ -336,7 +336,7 @@ typedef struct sMQTTSN_MSG_DHCPREQ
 {
     uint8_t     Radius;
     uint8_t     MsgId[2];                   // unique transaction id
-    uint8_t     hlen[];                     // phy's address length(bytes) 
+    uint8_t     hlen[MQTTSN_MSG_SIZE - 3];  // phy's address length(bytes)
 } sMQTTSN_MSG_DHCPREQ_t;
 #define MQTTSN_SIZEOF_MSG_DHCPREQ       5
 
@@ -346,7 +346,7 @@ typedef struct sMQTTSN_MSG_DHCPRESP
 {
     uint8_t     GwId;
     uint8_t     MsgId[2];                   // unique transaction id
-    uint8_t     addr[];
+    uint8_t     addr[MQTTSN_MSG_SIZE - 3];
 } sMQTTSN_MSG_DHCPRESP_t;
 #define MQTTSN_SIZEOF_MSG_DHCPRESP      5
 
