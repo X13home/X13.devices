@@ -112,7 +112,11 @@ void hal_SetSysClock(void)
 
 void hal_prepare_gpio(void)
 {
-    RCC->AHBENR |= RCC_AHBENR_GPIOAEN | RCC_AHBENR_GPIOBEN | RCC_AHBENR_GPIOCEN;
+    RCC->AHBENR |=   RCC_AHBENR_GPIOAEN
+                   | RCC_AHBENR_GPIOBEN
+                   | RCC_AHBENR_GPIOCEN
+                   | RCC_AHBENR_GPIODEN
+                   ;
 }
 
 // HAL GPIO Functions
