@@ -3,6 +3,7 @@
 // Config;  Board; uC
 // S4xx10; uNode V3.0; STM32F303K8
 // S4xx11; Nucleo Nano; STM32F303K8
+// S4xx12; Nucleo; STM32F303RE
 
 // SPI1, Config 1, PA5, PA6, PA7
 // SPI1, Config 2, PB3, PB4, PB5

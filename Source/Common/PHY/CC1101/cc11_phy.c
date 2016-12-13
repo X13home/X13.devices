@@ -66,8 +66,12 @@ See LICENSE file for license details.
 
 static const uint8_t cc11config[][2] =
 {
-    {CC11_IOCFG0,   CC11_GDO_DISABLE},  // High impedance (3-State)
     {CC11_IOCFG2,   CC11_GDO_DISABLE},  // High impedance (3-State)
+#ifdef CC11_IRQ_PIN
+    {CC11_IOCFG0,   CC11_GDO_SYNC},     // GDO0 - Asserts when sync word has been sent/received, and de-asserts at the end of the packet.
+#else   // IRQ Pin not used
+    {CC11_IOCFG0,   CC11_GDO_DISABLE},  // High impedance (3-State)
+#endif  //  CC11_IRQ_PIN
     {CC11_FIFOTHR,  0x47},              // ADC_RETENTION, RX Attenuation: 0 dB, 
                                         // FIFO Threshold 33/32 bytes 
     {CC11_PKTLEN,   0x3D},              // default packet length 61 byte
@@ -79,7 +83,7 @@ static const uint8_t cc11config[][2] =
     {CC11_FREQ0,    CC11_DEFVAL_FREQ0},
     {CC11_MDMCFG4,  0xCA},              // RX filter BW 101,6 kHz
     {CC11_MDMCFG3,  CC11_MDMCFG3_VAL},  // Data Rate
-    {CC11_MDMCFG2,  0x93},              // Current optimized, GFSK, sync word 30/32 bit detected
+    {CC11_MDMCFG2,  0x13},              // Sensitivity optimized, GFSK, sync word 30/32 bit detected
     {CC11_MDMCFG1,  0x00},              // Channel spacing 25 kHz
     {CC11_MDMCFG0,  0x00},
     {CC11_DEVIATN,  CC11_DEVIATN_VAL},  // Deviation 20 kHz
@@ -291,8 +295,13 @@ void CC11_Init(void)
     ReadOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF,  &Len, (uint8_t *)&GroupID);
 
     // Init Hardware
+    // Configure NSS Pin
     hal_dio_configure(CC11_NSS_PIN, DIO_MODE_OUT_PP_HS);
     CC11_RELEASE();
+#ifdef CC11_IRQ_PIN
+    // Configure IRQ Pin
+    hal_dio_configure(CC11_IRQ_PIN, DIO_MODE_IN_PU);
+#endif  //  CC11_IRQ_PIN
     hal_spi_cfg(CC11_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 6500000UL);
 
     // Reset CC1101

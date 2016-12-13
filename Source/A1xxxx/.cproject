@@ -619,11 +619,13 @@
 		<configuration configurationName="A1SC12">
 			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
 		</configuration>
+		<configuration configurationName="A1Cn10"/>
 		<configuration configurationName="A1Rn11">
 			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
 		</configuration>
 		<configuration configurationName="A1Sn12"/>
 		<configuration configurationName="A1SR11"/>
+		<configuration configurationName="A1SC10"/>
 		<configuration configurationName="A1Sn10">
 			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
 		</configuration>

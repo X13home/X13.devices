@@ -676,4 +676,5 @@
 			<resource resourceType="PROJECT" workspacePath="/S3xxxx"/>
 		</configuration>
 	</storageModule>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 </cproject>
