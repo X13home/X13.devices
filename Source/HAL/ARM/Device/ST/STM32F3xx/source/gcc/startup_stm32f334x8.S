@@ -1,10 +1,10 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f303x8.s
+  * @file      startup_stm32f334x8.s
   * @author    MCD Application Team
   * @version   V2.3.0
   * @date      29-April-2015
-  * @brief     STM32F303x6/STM32F303x8 devices vector table for 
+  * @brief     STM32F334x4/STM32F334x6/STM32F334x8 devices vector table for 
   *            Atollic TrueSTUDIO toolchain.
   *            This module performs:
   *                - Set the initial SP
@@ -227,13 +227,13 @@ g_pfnVectors:
 	.word	COMP2_IRQHandler
 	.word	COMP4_6_IRQHandler
 	.word	0
-	.word	0
-	.word	0
-	.word	0
-	.word	0
-	.word	0
-	.word	0
-	.word	0
+	.word	HRTIM1_Master_IRQHandler
+	.word	HRTIM1_TIMA_IRQHandler
+	.word	HRTIM1_TIMB_IRQHandler
+	.word	HRTIM1_TIMC_IRQHandler
+	.word	HRTIM1_TIMD_IRQHandler
+	.word	HRTIM1_TIME_IRQHandler
+	.word	HRTIM1_FLT_IRQHandler
 	.word	0
 	.word	0
 	.word	0
@@ -403,6 +403,27 @@ g_pfnVectors:
 	
 	.weak	COMP4_6_IRQHandler
 	.thumb_set COMP4_6_IRQHandler,Default_Handler
+	
+	.weak	HRTIM1_Master_IRQHandler
+	.thumb_set HRTIM1_Master_IRQHandler,Default_Handler
+	
+	.weak	HRTIM1_TIMA_IRQHandler
+	.thumb_set HRTIM1_TIMA_IRQHandler,Default_Handler
+	
+	.weak	HRTIM1_TIMB_IRQHandler
+	.thumb_set HRTIM1_TIMB_IRQHandler,Default_Handler  
+  
+	.weak	HRTIM1_TIMC_IRQHandler
+	.thumb_set HRTIM1_TIMC_IRQHandler,Default_Handler	
+	
+	.weak	HRTIM1_TIMD_IRQHandler
+	.thumb_set HRTIM1_TIMD_IRQHandler,Default_Handler
+	
+	.weak	HRTIM1_TIME_IRQHandler
+	.thumb_set HRTIM1_TIME_IRQHandler,Default_Handler
+	
+	.weak	HRTIM1_FLT_IRQHandler
+	.thumb_set HRTIM1_FLT_IRQHandler,Default_Handler
 	
 	.weak	FPU_IRQHandler
 	.thumb_set FPU_IRQHandler,Default_Handler
