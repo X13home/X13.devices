@@ -26,6 +26,8 @@ See LICENSE file for license details.
 
 #endif  //  UART_PHY
 
+#define UART_PHY_SLEEP          1
+
 static Queue_t      uart_tx_queue = {NULL, NULL, 4, 0};
 static UART_ADDR_t  uart_addr;
 
