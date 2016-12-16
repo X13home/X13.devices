@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- device configuration file for STM32F1 devices  -->
+<!-- device configuration file for STM32F3 devices  -->
 <root head="/etc/declarers/dev">
     <item name="S4SC11" value="pack://application:,,/CC;component/Images/ty_ugate.png"  saved="True" type="System.String" ver="3.16.0609">
         <item name="Add">

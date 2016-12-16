@@ -26,9 +26,12 @@ See LICENSE file for license details.
 
 #endif  //  UART_PHY
 
+#define UART_PHY_SLEEP          1
+
 static Queue_t      uart_tx_queue = {NULL, NULL, 4, 0};
 static UART_ADDR_t  uart_addr;
 
+#if !(defined UART_PHY_SLEEP)
 static void uart_tx_task(void)
 {
     static MQ_t   * pTx_buf = NULL;
@@ -58,6 +61,73 @@ static void uart_tx_task(void)
         }
     }
 }
+#else   //  SLEEP
+static void uart_tx_task(void)
+{
+    static uint8_t * pTx_buf = NULL;
+
+    if(pTx_buf != NULL)
+    {
+        if(hal_uart_free(UART_PHY_PORT))
+        {
+            mqFree((MQ_t *)pTx_buf);
+            pTx_buf = NULL;
+        }
+        else
+        {
+            return;
+        }
+    }
+
+    if(uart_tx_queue.Size != 0)
+    {
+#ifdef LED_On
+        LED_On();
+#endif  //  LED_On
+        if(hal_uart_free(UART_PHY_PORT))
+        {
+            MQ_t * pTmp = mqDequeue(&uart_tx_queue);
+            // Paranoid check
+            if(pTmp == NULL)
+            {
+                return;
+            }
+
+            pTx_buf = mqAlloc(sizeof(MQ_t));
+            uint8_t pos = 1, pos1, size;
+            size = pTmp->Length;
+            // HiHi size != 0xC0 or 0xDB
+            pTx_buf[0] = size;
+            for(pos1 = 0; (pos1 < size) && (pos < (sizeof(MQ_t)-3)); pos1++)
+            {
+                uint8_t tmp = pTmp->m.raw[pos1];
+                if((tmp == 0xC0) || (tmp == 0xDB))
+                {
+                    pTx_buf[pos++] = 0xDB;
+                    pTx_buf[pos++] = tmp ^ 0x20;
+                }
+                else
+                {
+                    pTx_buf[pos++] = tmp;
+                }
+            }
+
+            mqFree(pTmp);
+
+            if(pos1 == size)
+            {
+                pTx_buf[pos++] = 0xC0;
+                hal_uart_send(UART_PHY_PORT, pos, pTx_buf);
+            }
+            else
+            {
+                mqFree(pTx_buf);
+                pTx_buf = NULL;
+            }
+        }
+    }
+}
+#endif  //  UART_PHY_SLEEP
 
 void UART_Init(void)
 {
@@ -79,6 +149,7 @@ void UART_Send(void *pBuf)
         uart_tx_task();
 }
 
+#if !(defined UART_PHY_SLEEP)
 void * UART_Get(void)
 {
     uart_tx_task();
@@ -130,6 +201,90 @@ void * UART_Get(void)
 
     return NULL;
 }
+#else   //  SLEEP
+void * UART_Get(void)
+{
+    uart_tx_task();
+    
+    // Rx Task
+    static uint8_t  rx_pos = 0;
+    static uint8_t  rx_len = 0;
+    static MQ_t   * pRx_buf;
+    static uint16_t rx_wd = 0;
+    static bool     rx_fl = false;
+
+    while(hal_uart_datardy(UART_PHY_PORT))
+    {
+        uint8_t data = hal_uart_get(UART_PHY_PORT);
+
+        rx_wd = (HAL_get_ms() & 0xFFFF);
+
+        if(rx_len == 0)
+        {
+            if((data >= 2) && (data < sizeof(MQTTSN_MESSAGE_t)))
+            {
+                pRx_buf = mqAlloc(sizeof(MQ_t));
+                rx_len = data;
+                rx_pos = 0;
+                rx_fl = false;
+#ifdef LED_On
+                LED_On();
+#endif  //  LED_On
+            }
+        }
+        else
+        {
+            if(data == 0xC0)
+            {
+                if(rx_pos == rx_len)
+                {
+                    memcpy(pRx_buf->a.phy1addr, (const void *)&uart_addr, sizeof(UART_ADDR_t));
+                    pRx_buf->Length = rx_len;
+                    rx_len = 0;
+
+                    return pRx_buf;
+                }
+                else
+                {
+                    rx_len = 0;
+                    mqFree(pRx_buf);
+                    
+                    return NULL;
+                }
+            }
+            else 
+
+            if(rx_pos < sizeof(MQTTSN_MESSAGE_t))
+            {
+                if(data == 0xDB)
+                {
+                    rx_fl = true;
+                }
+                else
+                {
+                    if(rx_fl)
+                    {
+                        rx_fl = false;
+                        data ^= 0x20;
+                    }
+
+                    pRx_buf->m.raw[rx_pos++] = data;
+                }
+            }
+
+
+        }
+    }
+
+    if((rx_len != 0) && (((HAL_get_ms() & 0xFFFF) - rx_wd) > 100))
+    {
+        rx_len = 0;
+        mqFree(pRx_buf);
+    }
+
+    return NULL;
+}
+#endif  //  UART_PHY_SLEEP
 
 void * UART_GetAddr(void)
 {

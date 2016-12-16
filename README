@@ -4,7 +4,7 @@ X13.devices
 ===========
 
 Firmware section for project X13.Home
-Version 3.1.1
+Version 3.1.4
 
 Automation System oriented to "Smart House" - IoT, over MQTT(SN) protocol
 
@@ -14,6 +14,7 @@ Devices
     S2SC13      PHY1 - UART, PHY2 - CC1101
     S2Cn13      PHY1 - CC1101
     S2EC13      PHY1 - ENC28J60, PHY2 - CC1101
+    S2EM13      PHY1 - ENC28J60, PHY2 - RS485
     S2En13      PHY1 - ENC28J60
     S2Sn13      PHY1 - UART
     S2SQ13      PHY1 - UART, PHY2 - RFM69
@@ -24,16 +25,22 @@ Devices
   Board: uNodeV3, uC: STM32F051K8 - ARM Cortex M0
     S2Cn15      PHY1 - CC1101
     S2SC15      PHY1 - UART, PHY2 - CC1101
-
-  Board: uNodeV3, uC: STM32L051K8 - ARM Cortex M0+
-    S5Cn10      PHY1 - CC1101
-
-  Board: Prototype, uC: STM32L051K8 - ARM Cortex M0+
-    S5Qn10      PHY1 - RFM69
-
+    
   Board: uNodeV3, uC: STM32F303K8/STM32F334K8 - ARM Cortex M4
     S4Cn11      PHY1 - CC1101
     S4SC11      PHY1 - UART, PHY2 - CC1101
+
+  Board: uNodeV3, uC: STM32L051K8 - ARM Cortex M0+
+    S5Cn10      PHY1 - CC1101
+    
+  Board: S2Mn10, uC: STM32L051K8 - ARM Cortex M0+
+    S2Mn16      PHY1 - RS485
+
+  Board S4Mn11, uC: STM32F303K8/STM32F334K8 - ARM Cortex M4
+    S4Mn13      PHY1 - RS485
+
+  Board: Prototype, uC: STM32L051K8 - ARM Cortex M0+
+    S5Qn11      PHY1 - RFM69
 
   Board: uNode v2.0/1.1, uC: ATMega328P, pinout not compatible with Firmware 2.6/3.0
     A1Cn12      PHY1 - CC1101, old name RFNDUP
@@ -50,6 +57,9 @@ Devices
 
   Board: Arduino Mega, uC: ATMega2560
     A4Sn10      PHY1 - Serial Port
+
+  Board: MegaDevice2561, uC: ATMega2561
+    A5En10      PHY1 - ENC28J60
 
   Board: Discovery F0, uC: STM32F051R8 - ARM Cortex M0
     S2Sn10      PHY1 - UART

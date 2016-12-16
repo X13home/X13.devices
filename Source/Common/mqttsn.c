@@ -925,7 +925,7 @@ void MQTTSN_Poll(void)
         }
     }
 #endif  //  PHY2_ADDR_t
-    
+
     // Normal Messages
     if(vMQ_tRetry > 0)
     {

@@ -17,6 +17,8 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+typedef void (*cbEXT_t)(void);
+
 #ifdef EXTDIO_USED
 #include "EXT/extdio.h"
 
@@ -46,7 +48,7 @@ void extInit(void);                                         // Initialise extens
 bool extCheckSubidx(subidx_t * pSubidx);                    // Check Subindex , true -> Ok
 e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx);      // Register Object
 void extDeleteOD(subidx_t * pSubidx);                       // Delete Object
-void extRegProc(void * cb);                                 // register Proc Callback
+void extRegProc(cbEXT_t cb);                                // register Proc Callback
 void extProc(void);                                         // Update IO's
 
 #ifdef EXTPLC_USED
@@ -54,7 +56,7 @@ uint32_t ext_in(subidx_t * pSubidx);                        // PLC read data fro
 void ext_out(subidx_t * pSubidx, uint32_t val);             // PLC write data to IO
 
 uint8_t ext_getDPin(subidx_t * pSubidx);                    // convert subidx to DPin
-void * ext_getPoll(subidx_t * pSubidx);                     // convert subidx to *Poll
+cbPoll_t ext_getPoll(subidx_t * pSubidx);                   // convert subidx to *Poll
 #endif  //  EXTPLC_USED
 
 #ifdef __cplusplus

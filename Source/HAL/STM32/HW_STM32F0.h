@@ -50,7 +50,7 @@ See LICENSE file for license details.
 #elif   (defined CFG_S2SQ13)
 #include "S2xxxx/S2SQ13.h"      // UART ALT + RFM69
 
-// UNode V3.0 - STM32F051K8
+// STM32F051K8
 #elif   (defined CFG_S2SC15)    
 #include "S2xxxx/S2SC15.h"      // UART + CC1101
 #elif   (defined CFG_S2Cn15)    

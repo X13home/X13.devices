@@ -96,7 +96,6 @@ extern "C" {
 #define LED_Init()                  hal_gpio_cfg(GPIOA, GPIO_Pin_4, DIO_MODE_OUT_PP)
 
 // RS485 PHY Section
-#define HAL_USE_SUBMSTICK           1
 #define HAL_USE_USART1              1
 #define RS485_PHY_PORT              1
 #define RS485_PHY                   1

@@ -248,7 +248,7 @@ int16_t ainRead(subidx_t * pSubidx)
     return 0;
 }
 
-void * ainGetPoll(void)
+cbPoll_t ainGetPoll(void)
 {
     return &ainPollOD;
 }

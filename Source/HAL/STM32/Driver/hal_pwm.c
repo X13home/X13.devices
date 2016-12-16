@@ -75,11 +75,13 @@ void hal_pwm_configure(uint16_t base, bool inv)
             tim_clk = hal_pclk2;
             break;
 #endif  //  TIM1
+#ifdef TIM2
         case 2:     // Timer 2
             RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
             TIMx = TIM2;
             tim_clk = hal_pclk1;
             break;
+#endif  //  TIM2
 #ifdef TIM3
         case 3:     // Timer 3
             RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
@@ -94,6 +96,34 @@ void hal_pwm_configure(uint16_t base, bool inv)
             tim_clk = hal_pclk1;
             break;
 #endif  // TIM4
+#ifdef TIM8
+        case 8:     // Timer 8
+            RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
+            TIMx = TIM8;
+            tim_clk = hal_pclk2;
+            break;
+#endif  // TIM8
+#ifdef TIM9
+        case 9:     // Timer 9
+            RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
+            TIMx = TIM9;
+            tim_clk = hal_pclk2;
+            break;
+#endif  // TIM9
+#ifdef TIM10
+        case 10:    // Timer 10
+            RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+            TIMx = TIM10;
+            tim_clk = hal_pclk2;
+            break;
+#endif  // TIM10
+#ifdef TIM11
+        case 11:    // Timer 11
+            RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+            TIMx = TIM11;
+            tim_clk = hal_pclk2;
+            break;
+#endif  // TIM11
 #ifdef TIM14
         case 14:
             RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
@@ -253,9 +283,11 @@ void hal_pwm_delete(uint16_t base)
                 RCC->APB2ENR &= ~RCC_APB2ENR_TIM1EN;
                 break;
 #endif  //  TIM1
+#ifdef TIM2
             case 2:     // Timer 2
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN;
                 break;
+#endif  //  TIM2
 #ifdef TIM3
             case 3:     // Timer 3
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM3EN;
@@ -266,6 +298,26 @@ void hal_pwm_delete(uint16_t base)
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM4EN;
                 break;
 #endif  //  TIM4
+#ifdef TIM8
+            case 8:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM8EN;
+                break;
+#endif  // TIM8
+#ifdef TIM9
+            case 9:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM9EN;
+                break;
+#endif  // TIM9
+#ifdef TIM10
+            case 10:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM10EN;
+                break;
+#endif  // TIM10
+#ifdef TIM11
+            case 11:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM11EN;
+                break;
+#endif  // TIM11
 #ifdef TIM14
             case 14:
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM14EN;

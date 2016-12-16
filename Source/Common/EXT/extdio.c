@@ -311,7 +311,7 @@ void dioWrite(subidx_t * pSubidx, bool sr)
         dio_status[port] &= ~mask;
 }
 
-void * dioGetPoll(void)
+cbPoll_t dioGetPoll(void)
 {
     return &dioPollOD;
 }

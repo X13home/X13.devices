@@ -56,7 +56,7 @@ void HAL_Init(void)
     // Star TIM6, as 62,5us tick counter, used in rs485 & oops
     RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
     TIM6->CR1 = 0;
-    TIM6->PSC = (hal_pclk1/16000UL) - 1UL;
+    TIM6->PSC = (hal_pclk2/16000UL) - 1UL;              // stm32f3 Ftim = pclk1 * 2
     TIM6->CNT = 0;
     TIM6->ARR = 0xFFFF;
     TIM6->CR1 = TIM_CR1_CEN;

@@ -50,6 +50,26 @@ static uint8_t plcvm_lpm_u8(void){
     return plcvm_cache[offset];
 }
 
+static uint8_t plcvm_lpm_u8_i(uint32_t addr)
+{
+    uint32_t act_page = addr & (const uint32_t)(~(EXTPLC_SIZEOF_PRG_CACHE - 1UL));
+    uint32_t offset = addr - act_page;
+
+    if(act_page != plcvm_page)
+    {
+        if(addr >= EXTPLC_SIZEOF_PRG)
+        {
+            plcvm_stat = PLC_ANSWER_ERROR_OFR_PC;
+            return 0xFF;
+        }
+
+        plcvm_page = act_page;
+        eeprom_read(plcvm_cache, eePLCprogram + act_page, EXTPLC_SIZEOF_PRG_CACHE);
+    }
+
+    return plcvm_cache[offset];
+}
+
 // return LPM16[pc+=2]
 static uint16_t plcvm_lpm_u16(void){
     uint16_t retval;
@@ -82,6 +102,109 @@ static uint16_t plcvm_lpm_u16(void){
         eeprom_read(plcvm_cache, eePLCprogram + plcvm_page, EXTPLC_SIZEOF_PRG_CACHE);
     }
     retval |= plcvm_cache[offset] << 8;
+    return retval;
+}
+
+static uint16_t plcvm_lpm_u16_i(uint32_t addr)
+{
+    uint16_t retval;
+    uint32_t act_page = addr & (const uint32_t)(~(EXTPLC_SIZEOF_PRG_CACHE - 1UL));
+    uint32_t offset = addr - act_page;
+
+    if(act_page != plcvm_page)
+    {
+        if(addr >= EXTPLC_SIZEOF_PRG)
+        {
+            plcvm_stat = PLC_ANSWER_ERROR_OFR_PC;
+            return 0xFF;
+        }
+
+        plcvm_page = act_page;
+        eeprom_read(plcvm_cache, eePLCprogram + act_page, EXTPLC_SIZEOF_PRG_CACHE);
+    }
+    retval = plcvm_cache[offset];
+
+    offset++;
+    if(offset == EXTPLC_SIZEOF_PRG_CACHE)
+    {
+        addr++;
+        if(addr > EXTPLC_SIZEOF_PRG)
+        {
+            plcvm_stat = PLC_ANSWER_ERROR_OFR_PC;
+            return 0xFFFF;
+        }
+        offset = 0;
+        plcvm_page += EXTPLC_SIZEOF_PRG_CACHE;
+        eeprom_read(plcvm_cache, eePLCprogram + plcvm_page, EXTPLC_SIZEOF_PRG_CACHE);
+    }
+    retval |= plcvm_cache[offset] << 8;
+    return retval;
+}
+
+static int32_t plcvm_lpm_s32_i(uint32_t addr)
+{
+    int32_t retval;
+    uint32_t act_page = addr & (const uint32_t)(~(EXTPLC_SIZEOF_PRG_CACHE - 1UL));
+    uint32_t offset = addr - act_page;
+
+    if(act_page != plcvm_page)
+    {
+        if(addr >= EXTPLC_SIZEOF_PRG)
+        {
+            plcvm_stat = PLC_ANSWER_ERROR_OFR_PC;
+            return 0xFF;
+        }
+
+        plcvm_page = act_page;
+        eeprom_read(plcvm_cache, eePLCprogram + act_page, EXTPLC_SIZEOF_PRG_CACHE);
+    }
+    retval = plcvm_cache[offset];
+
+    offset++;
+    if(offset == EXTPLC_SIZEOF_PRG_CACHE)
+    {
+        addr++;
+        if(addr > EXTPLC_SIZEOF_PRG)
+        {
+            plcvm_stat = PLC_ANSWER_ERROR_OFR_PC;
+            return 0xFFFF;
+        }
+        offset = 0;
+        plcvm_page += EXTPLC_SIZEOF_PRG_CACHE;
+        eeprom_read(plcvm_cache, eePLCprogram + plcvm_page, EXTPLC_SIZEOF_PRG_CACHE);
+    }
+    retval |= plcvm_cache[offset] << 8;
+
+    offset++;
+    if(offset == EXTPLC_SIZEOF_PRG_CACHE)
+    {
+        addr++;
+        if(addr > EXTPLC_SIZEOF_PRG)
+        {
+            plcvm_stat = PLC_ANSWER_ERROR_OFR_PC;
+            return 0xFFFF;
+        }
+        offset = 0;
+        plcvm_page += EXTPLC_SIZEOF_PRG_CACHE;
+        eeprom_read(plcvm_cache, eePLCprogram + plcvm_page, EXTPLC_SIZEOF_PRG_CACHE);
+    }
+    retval |= plcvm_cache[offset] << 16;
+
+    offset++;
+    if(offset == EXTPLC_SIZEOF_PRG_CACHE)
+    {
+        addr++;
+        if(addr > EXTPLC_SIZEOF_PRG)
+        {
+            plcvm_stat = PLC_ANSWER_ERROR_OFR_PC;
+            return 0xFFFF;
+        }
+        offset = 0;
+        plcvm_page += EXTPLC_SIZEOF_PRG_CACHE;
+        eeprom_read(plcvm_cache, eePLCprogram + plcvm_page, EXTPLC_SIZEOF_PRG_CACHE);
+    }
+    retval |= plcvm_cache[offset] << 24;
+
     return retval;
 }
 
@@ -446,6 +569,13 @@ static void cb_stm_s2_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = 
 static void cb_stm_s4_c16(void){uint16_t addr = plcvm_lpm_u16();uint32_t acc  = plcvm_pop();plcvm_set_u32(addr, acc);}
 // 0xC0 - 0xEF
 static void cb_in(void){if(plcvm_sp > plcvm_stack_bot){uint32_t sidx = plcvm_lpm_u32();plcvm_ram[--plcvm_sp] = ext_in((subidx_t *)&sidx);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+// 0xC9 - 0xCC, LPM - Load from Programm Memory
+static void cb_lpm_s1(void){uint32_t data = plcvm_lpm_u8_i(plcvm_pop() + plcvm_lpm_u16());if(data & 0x00000080){data |= 0xFFFFFF00;}plcvm_push(data);}
+static void cb_lpm_u1(void){uint32_t data = plcvm_lpm_u8_i(plcvm_pop() + plcvm_lpm_u16());plcvm_push(data);}
+static void cb_lpm_s2(void){uint32_t data = plcvm_lpm_u16_i((2*plcvm_pop()) + plcvm_lpm_u16());if(data & 0x00008000){data |= 0xFFFF0000;}plcvm_push(data);}
+static void cb_lpm_u2(void){uint32_t data = plcvm_lpm_u16_i((2*plcvm_pop()) + plcvm_lpm_u16());plcvm_push(data);}
+static void cb_lpm_s4(void){uint32_t data = plcvm_lpm_s32_i((4*plcvm_pop()) + plcvm_lpm_u16());plcvm_push(data);}
+
 //subidx_t IO; IO.Base  = plcvm_lpm_u16(); IO.Type  = plcvm_lpm_u8(); IO.Place = plcvm_lpm_u8(); plcvm_push(ext_in(&IO));}
 static void cb_out(void){if(plcvm_sp < plcvm_sfp){uint32_t sidx = plcvm_lpm_u32();ext_out((subidx_t *)&sidx, plcvm_ram[plcvm_sp++]);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 //subidx_t IO; IO.Base  = plcvm_lpm_u16(); IO.Type  = plcvm_lpm_u8(); IO.Place = plcvm_lpm_u8(); ext_out(&IO, plcvm_pop());}
@@ -477,6 +607,21 @@ static void cb_call(void){
         plcvm_ram[--plcvm_sp] = plcvm_sfp;      // *(--SP) = SFP
         plcvm_sfp = plcvm_sp;                   // SFP = SP
         plcvm_pc = tmp;                         // PC = *(uint16_t *)(PC)  //LPM
+    }
+    else
+    {
+        plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
+    }
+}
+static void cb_check_idx(void)
+{
+    if(plcvm_sp < plcvm_sfp)
+    {
+        int32_t data = plcvm_ram[plcvm_sp];
+        if((data < 0) || (data >= plcvm_lpm_u16()))
+        {
+            plcvm_stat = PLC_ANSWER_ERROR_OFR_IDX;
+        }
     }
     else
     {
@@ -539,14 +684,14 @@ static const cbCOP_t plcvm_cb[] = {
     cb_stm_b1_c16,  cb_stm_s1_c16,  cb_stm_s2_c16,  cb_stm_s4_c16,  cb_unk,         cb_unk,         cb_unk,         cb_unk,
     // 0xC0 - 0xDF
     cb_in,          cb_out,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_api,         cb_unk,
-    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_unk,         cb_lpm_s1,      cb_lpm_s2,      cb_lpm_s4,      cb_lpm_u1,      cb_lpm_u2,      cb_unk,         cb_unk,
     cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
     cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
     // 0xE0 - 0xFF
     cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
     cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
     cb_sjmp,        cb_jz,          cb_jnz,         cb_jmp,         cb_scall,       cb_unk,         cb_unk,         cb_call,
-    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_test_eq,     cb_ret
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_check_idx,   cb_test_eq,     cb_ret
 };
 
 

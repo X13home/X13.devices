@@ -91,7 +91,11 @@ void hal_dio_reset(uint8_t PortNr, uint16_t Mask)
     GPIO_TypeDef * GPIOx = hal_dio_PortNr2GPIOx(PortNr);
     if(GPIOx != NULL)
     {
+#if (defined BRR)
         GPIOx->BRR = Mask;
+#else   // BRR Not defined
+        GPIOx->BSRR = Mask << 16;
+#endif  // BRR
     }
 }
 #endif  //  EXTDIO_USED

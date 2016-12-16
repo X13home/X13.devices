@@ -1,3 +1,12 @@
+Version develop-3.1.4 from 16.12.2016
+
+Added: PLC Arrays (LPM + CheckIDX)
+Fixed: Pedantic warnings
+Changed: UART_PHY default use SLEEP
+Bugfix: RS485_PHY Source address not used
+Bugfix: HAL_STM32 SubMStick, timer clock source
+
+====================================================================================================
 Version develop-3.1.3 from 23.07.2016
 
 Added: Atmel uC - ATMega2561 and Config A5En10 - ATMegaD-2561, prototype ,without device descrition

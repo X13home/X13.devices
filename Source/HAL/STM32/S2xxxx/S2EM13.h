@@ -119,7 +119,6 @@ extern "C" {
 // End ENC PHY Section
 
 // RS485 PHY Section
-#define HAL_USE_SUBMSTICK           1
 #define HAL_USE_USART2              1
 #define RS485_PHY_PORT              1
 #define RS485_PHY                   2

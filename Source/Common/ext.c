@@ -14,9 +14,7 @@ See LICENSE file for license details.
 
 #define EXT_MAX_PROC    8
 
-typedef void (*cbEXT_t)(void);
-
-static void * extProcCB[EXT_MAX_PROC];
+static cbEXT_t extProcCB[EXT_MAX_PROC];
 
 // Initialise extensions
 void extInit(void)
@@ -161,7 +159,7 @@ void extDeleteOD(subidx_t * pSubidx)
     }
 }
 
-void extRegProc(void * cb)
+void extRegProc(cbEXT_t cb)
 {
     uint8_t pos;
     for(pos = 0; pos < EXT_MAX_PROC; pos++)
@@ -256,7 +254,7 @@ uint8_t ext_getDPin(subidx_t * pSubidx)
     return 0xFF;
 }
 
-void * ext_getPoll(subidx_t * pSubidx)
+cbPoll_t ext_getPoll(subidx_t * pSubidx)
 {
     switch(pSubidx->Place)
     {

@@ -18,11 +18,14 @@ See LICENSE file for license details.
 // STM32F303K8T6 - Modified Nucleo
 #if   (defined CFG_S4Sn10)
 #include "S4xxxx/S4Sn10.h"    // UART
-// UNodeV3, STM32F303K8 / STM32F334K8
+// UNodeV3, STM32F303K8
 #elif   (defined CFG_S4Cn11)
 #include "S4xxxx/S4Cn11.h"    // CC1101
 #elif   (defined CFG_S4SC11)
 #include "S4xxxx/S4SC11.h"    // UART + CC1101
+// S4xx13, STM32F334K8
+#elif   (defined CFG_S4Mn13)
+#include "S4xxxx/S4Mn13.h"    // RS485
 #else
 #error Unknown configuration
 #endif  //  Configuration
@@ -87,7 +90,7 @@ See LICENSE file for license details.
 #if (defined HAL_USE_SPI3) && (HAL_USE_SPI3 == 1)
 #if (defined HAL_USE_SPI1) && (HAL_USE_SPI1 == 2)
 #error SPI1 and SPI3 Conflict, used PB3-PB5
-#endif
+#endif  //  HAL_USE_SPI1, Config 2
 // SPI3, Config 1, PB3, PB4, PB5, AF6
 #define DIO_MODE_SPI3           ((6<<DIO_AF_OFFS) | DIO_MODE_AF_PP_HS)
 #define SPI2_PORT               GPIOB
@@ -95,7 +98,15 @@ See LICENSE file for license details.
 #define SPI2_MISO_PIN           GPIO_Pin_4
 #define SPI2_MOSI_PIN           GPIO_Pin_5
 
-#endif  //  HAL_USE_SPI2
+#elif (defined HAL_USE_SPI3) && (HAL_USE_SPI3 == 2)
+// SPI3, Config 2, PC10, PC11, PC12, AF6
+#define DIO_MODE_SPI3           ((6<<DIO_AF_OFFS) | DIO_MODE_AF_PP_HS)
+#define SPI2_PORT               GPIOC
+#define SPI2_SCK_PIN            GPIO_Pin_10
+#define SPI2_MISO_PIN           GPIO_Pin_11
+#define SPI2_MOSI_PIN           GPIO_Pin_12
+
+#endif  //  HAL_USE_SPI3
 // End SPI Section
 //////////////////////////////////////////////////////////////
 
@@ -263,9 +274,16 @@ See LICENSE file for license details.
 
 //////////////////////////////////////////////////////////////
 // PWM Section
+
+#if (defined __STM32F303xC_H)
+#define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3,  TIM4,  NULL,  \
+                             NULL, NULL, TIM8, NULL,  NULL,  NULL,  \
+                             NULL, NULL, NULL, TIM15, TIM16, TIM17}
+#else
 #define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3,  NULL,  NULL,  \
                              NULL, NULL, NULL, NULL,  NULL,  NULL,  \
                              NULL, NULL, NULL, TIM15, TIM16, TIM17}
+#endif  //  __STM32F303xC_H
 // PWM Section
 //////////////////////////////////////////////////////////////
 

@@ -144,15 +144,14 @@ void hal_gpio_cfg(GPIO_TypeDef * GPIOx, uint16_t Mask, uint16_t Mode)
 }
 
 #if (defined HAL_USE_EXTI)
-typedef void (*cbEXTI_t)(void);
-
 void EXTI0_1_IRQHandler(void);
 void EXTI2_3_IRQHandler(void);
 void EXTI4_15_IRQHandler(void);
 
-static void * hal_exti_cb[16] = {[0 ... 15] = NULL};
+static cbEXTI_t hal_exti_cb[16] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+                                   NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 
-void hal_exti_config(uint8_t pin, uint8_t Trigger, void * pCallback)
+void hal_exti_config(uint8_t pin, uint8_t Trigger, cbEXTI_t pCallback)
 {
     // Enable SYSCFG clock
     RCC->APB2ENR |= RCC_APB2ENR_SYSCFGEN;

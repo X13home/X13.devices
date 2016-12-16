@@ -26,13 +26,15 @@ extern "C" {
 #define TWI_SLANACK     0x40    // Slave Addr NACK received
 #define TWI_ERROR       0x80    // Unknown error
 
+#define SIZEOF_TWI_FRAME_HDR    4
+
 typedef struct
 {
     uint8_t     address;
     uint8_t     access;
     uint8_t     write;
     uint8_t     read;
-    uint8_t     data[];
+    uint8_t     data[1];
 } TWI_FRAME_t;
 
 typedef struct sTWI_QUEUE

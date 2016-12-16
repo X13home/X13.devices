@@ -31,7 +31,7 @@ void    dioRelease(uint8_t base);
 // PLC Subroutines
 bool    dioRead(subidx_t * pSubidx);
 void    dioWrite(subidx_t * pSubidx, bool sr);
-void  * dioGetPoll(void);
+cbPoll_t dioGetPoll(void);
 
 #ifdef __cplusplus
 }

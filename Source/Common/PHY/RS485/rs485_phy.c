@@ -86,7 +86,7 @@ void RS485_Send(void *pBuf)
 void * RS485_Get(void)
 {
     // Rx Variables
-    static uint8_t  rx_CRC, rx_Pos, rx_Len, rx_Src = 0;
+    static uint8_t  rx_CRC, rx_Pos, rx_Len, rx_Src = 0, rx_tSrc;
     static MQ_t   * pRx_buf;
     static uint16_t rs_rx_wd = 0;                                   // Rx Timeout
     // Tx Variables
@@ -127,12 +127,13 @@ void * RS485_Get(void)
             }
             else if(rx_Pos == 1)                                    // Source Address
             {
-                rx_Src = rs_addr - ch;
+                rx_Src = ch;
+                rx_tSrc = rs_addr - rx_Src;
 
                 if(rx_Len == 1)                                     // Synchro Frame
                 {
                     rs_tx_wd = HAL_get_submstick();
-                    rs_tx_to = rx_Src;
+                    rs_tx_to = rx_tSrc;
                     rs_tx_to *= TICK2TFRAME;
                     rs_state = RS_STATE_RX_IDLE;
                 }
@@ -151,7 +152,7 @@ void * RS485_Get(void)
                     LED_On();
 
                     pRx_buf = mqAlloc(sizeof(MQ_t));
-                    pRx_buf->a.phy1addr[0] = ch;
+                    pRx_buf->a.phy1addr[0] = rx_Src;
 
                     rs_state = RS_STATE_RX_DATA;
                     rx_Pos = 0;
@@ -176,8 +177,8 @@ void * RS485_Get(void)
                 if(ch == rx_CRC)
                 {
                     rs_tx_wd = HAL_get_submstick();
-                    rs_tx_to = rx_Src;
-                    rs_tx_to *= TICK2TFRAME;                        
+                    rs_tx_to = rx_tSrc;
+                    rs_tx_to *= TICK2TFRAME;
                     pRx_buf->Length = rx_Len;
                     return pRx_buf;
                 }
@@ -197,7 +198,7 @@ void * RS485_Get(void)
                 if(ch == rx_CRC)
                 {
                     rs_tx_wd = HAL_get_submstick();
-                    rs_tx_to = rx_Src;
+                    rs_tx_to = rx_tSrc;
                     rs_tx_to *= TICK2TFRAME;
                 }
                 rs_state = RS_STATE_RX_IDLE;
