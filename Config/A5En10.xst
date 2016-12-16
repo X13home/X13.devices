@@ -1,0 +1,821 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root head="/etc/declarers/dev">
+  <item name="A5En10" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="string" ver="3.16.1216">
+    <item name="Digital inputs">
+      <item name="Ip23" value="BzX1" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.21" saved="True" type="string" />
+      </item>
+      <item name="Ip24" value="BzX2" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.23" saved="True" type="string" />
+      </item>
+      <item name="Ip25" value="BzX3" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.25" saved="True" type="string" />
+      </item>
+      <item name="Ip26" value="BzX4" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.27" saved="True" type="string" />
+      </item>
+      <item name="Ip27" value="BzX5" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.29" saved="True" type="string" />
+      </item>
+      <item name="Ip28" value="BzX6" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.31" saved="True" type="string" />
+      </item>
+      <item name="Ip29" value="BzX7" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.33" saved="True" type="string" />
+      </item>
+      <item name="Ip48" value="BzX8" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.15" saved="True" type="string" />
+      </item>
+      <item name="Ip5" value="AzX9" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.15" saved="True" type="string" />
+      </item>
+      <item name="Ip7" value="AzX10" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.19" saved="True" type="string" />
+      </item>
+      <item name="Ip6" value="AzX12" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.17" saved="True" type="string" />
+      </item>
+      <item name="Ip4" value="AzX14" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.13" saved="True" type="string" />
+      </item>
+      <item name="Ip41" value="BzX16" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.8" saved="True" type="string" />
+      </item>
+      <item name="Ip39" value="BzX17" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.6" saved="True" type="string" />
+      </item>
+      <item name="Ip38" value="BzX18" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.5" saved="True" type="string" />
+      </item>
+      <item name="Ip45" value="BzX19" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.12" saved="True" type="string" />
+      </item>
+      <item name="Ip47" value="BzX20" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.14" saved="True" type="string" />
+      </item>
+      <item name="Ip42" value="BzX21" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.9" saved="True" type="string" />
+      </item>
+      <item name="Ip43" value="BzX22" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.10" saved="True" type="string" />
+      </item>
+      <item name="Ip46" value="BzX23" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.13" saved="True" type="string" />
+      </item>
+      <item name="Ip30" value="BzX24" saved="True" type="string">
+        <item name="_description" value="Digital input, XT2.4" saved="True" type="string" />
+      </item>
+      <item name="Ip31" value="BzX25" saved="True" type="string">
+        <item name="_description" value="Digital input, XT2.5" saved="True" type="string" />
+      </item>
+      <item name="Ip32" value="BzX26" saved="True" type="string">
+        <item name="_description" value="Digital input, XT2.7" saved="True" type="string" />
+      </item>
+      <item name="Ip33" value="BzX32" saved="True" type="string">
+        <item name="_description" value="Digital input, XT2.8" saved="True" type="string" />
+      </item>
+      <item name="Ip34" value="BzX33" saved="True" type="string">
+        <item name="_description" value="Digital input, XT2.10" saved="True" type="string" />
+      </item>
+      <item name="Ip35" value="BzX34" saved="True" type="string">
+        <item name="_description" value="Digital input, XT2.11" saved="True" type="string" />
+      </item>
+      <item name="Ip2" value="AzX35" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.9" saved="True" type="string" />
+      </item>
+      <item name="Ip1" value="AzX36" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.7" saved="True" type="string" />
+      </item>
+      <item name="Ip3" value="AzX37" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.11" saved="True" type="string" />
+      </item>
+      <item name="Ip20" value="BzX43" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.15" saved="True" type="string" />
+      </item>
+      <item name="Ip18" value="BzX44" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.11" saved="True" type="string" />
+      </item>
+      <item name="Ip22" value="BzX45" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.19" saved="True" type="string" />
+      </item>
+      <item name="Ip21" value="BzX47" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.17" saved="True" type="string" />
+      </item>
+      <item name="Ip19" value="BzX49" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.13" saved="True" type="string" />
+      </item>
+      <item name="Ip17" value="BzX51" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.9" saved="True" type="string" />
+      </item>
+      <item name="Ip16" value="BzX52" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.7" saved="True" type="string" />
+      </item>
+      <item name="Ip9" value="AzX53" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.23" saved="True" type="string" />
+      </item>
+      <item name="Ip10" value="BzX55" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.25" saved="True" type="string" />
+      </item>
+      <item name="Ip11" value="BzX57" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.27" saved="True" type="string" />
+      </item>
+      <item name="Ip12" value="BzX59" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.29" saved="True" type="string" />
+      </item>
+      <item name="Ip13" value="BzX61" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.31" saved="True" type="string" />
+      </item>
+      <item name="Ip14" value="BzX63" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.33" saved="True" type="string" />
+      </item>
+      <item name="Ip36" value="BzX65" saved="True" type="string">
+        <item name="_description" value="Digital input, XP5.1" saved="True" type="string" />
+      </item>
+      <item name="Ip37" value="BzX67" saved="True" type="string">
+        <item name="_description" value="Digital input, XP6.1" saved="True" type="string" />
+      </item>
+      <item name="Ip40" value="BzX69" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.7" saved="True" type="string" />
+      </item>
+      <item name="Ip44" value="BzX70" saved="True" type="string">
+        <item name="_description" value="Digital input, XP4.11" saved="True" type="string" />
+      </item>
+      <item name="Ip15" value="BzX71" saved="True" type="string">
+        <item name="_description" value="Digital input, XP2.5" saved="True" type="string" />
+      </item>
+      <item name="Ip0" value="AzX72" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.5" saved="True" type="string" />
+      </item>
+      <item name="Ip8" value="AzX73" saved="True" type="string">
+        <item name="_description" value="Digital input, XP1.21" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="Digital outputs">
+      <item name="Op23" value="DzX1" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.21" saved="True" type="string" />
+      </item>
+      <item name="Op24" value="DzX2" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.23" saved="True" type="string" />
+      </item>
+      <item name="Op25" value="DzX3" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.25" saved="True" type="string" />
+      </item>
+      <item name="Op26" value="DzX4" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.27" saved="True" type="string" />
+      </item>
+      <item name="Op27" value="DzX5" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.29" saved="True" type="string" />
+      </item>
+      <item name="Op28" value="DzX6" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.31" saved="True" type="string" />
+      </item>
+      <item name="Op29" value="DzX7" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.33" saved="True" type="string" />
+      </item>
+      <item name="Op48" value="DzX8" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.15" saved="True" type="string" />
+      </item>
+      <item name="Op5" value="CzX9" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.15" saved="True" type="string" />
+      </item>
+      <item name="Op7" value="CzX10" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.19" saved="True" type="string" />
+      </item>
+      <item name="Op6" value="CzX12" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.17" saved="True" type="string" />
+      </item>
+      <item name="Op4" value="CzX14" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.13" saved="True" type="string" />
+      </item>
+      <item name="Op41" value="DzX16" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.8" saved="True" type="string" />
+      </item>
+      <item name="Op39" value="DzX17" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.6" saved="True" type="string" />
+      </item>
+      <item name="Op38" value="DzX18" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.5" saved="True" type="string" />
+      </item>
+      <item name="Op45" value="DzX19" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.12" saved="True" type="string" />
+      </item>
+      <item name="Op47" value="DzX20" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.14" saved="True" type="string" />
+      </item>
+      <item name="Op42" value="DzX21" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.9" saved="True" type="string" />
+      </item>
+      <item name="Op43" value="DzX22" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.10" saved="True" type="string" />
+      </item>
+      <item name="Op46" value="DzX23" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.13" saved="True" type="string" />
+      </item>
+      <item name="Op30" value="DzX24" saved="True" type="string">
+        <item name="_description" value="Digital output, XT2.4" saved="True" type="string" />
+      </item>
+      <item name="Op31" value="DzX25" saved="True" type="string">
+        <item name="_description" value="Digital output, XT2.5" saved="True" type="string" />
+      </item>
+      <item name="Op32" value="DzX26" saved="True" type="string">
+        <item name="_description" value="Digital output, XT2.7" saved="True" type="string" />
+      </item>
+      <item name="Op33" value="DzX32" saved="True" type="string">
+        <item name="_description" value="Digital output, XT2.8" saved="True" type="string" />
+      </item>
+      <item name="Op34" value="DzX33" saved="True" type="string">
+        <item name="_description" value="Digital output, XT2.10" saved="True" type="string" />
+      </item>
+      <item name="Op35" value="DzX34" saved="True" type="string">
+        <item name="_description" value="Digital output, XT2.11" saved="True" type="string" />
+      </item>
+      <item name="Op2" value="CzX35" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.9" saved="True" type="string" />
+      </item>
+      <item name="Op1" value="CzX36" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.7" saved="True" type="string" />
+      </item>
+      <item name="Op3" value="CzX37" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.11" saved="True" type="string" />
+      </item>
+      <item name="Op20" value="DzX43" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.15" saved="True" type="string" />
+      </item>
+      <item name="Op18" value="DzX44" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.11" saved="True" type="string" />
+      </item>
+      <item name="Op22" value="DzX45" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.19" saved="True" type="string" />
+      </item>
+      <item name="Op21" value="DzX47" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.17" saved="True" type="string" />
+      </item>
+      <item name="Op19" value="DzX49" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.13" saved="True" type="string" />
+      </item>
+      <item name="Op17" value="DzX51" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.9" saved="True" type="string" />
+      </item>
+      <item name="Op16" value="DzX52" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.7" saved="True" type="string" />
+      </item>
+      <item name="Op9" value="CzX53" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.23" saved="True" type="string" />
+      </item>
+      <item name="Op10" value="DzX55" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.25" saved="True" type="string" />
+      </item>
+      <item name="Op11" value="DzX57" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.27" saved="True" type="string" />
+      </item>
+      <item name="Op12" value="DzX59" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.29" saved="True" type="string" />
+      </item>
+      <item name="Op13" value="DzX61" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.31" saved="True" type="string" />
+      </item>
+      <item name="Op14" value="DzX63" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.33" saved="True" type="string" />
+      </item>
+      <item name="Op36" value="DzX65" saved="True" type="string">
+        <item name="_description" value="Digital output, XP5.1" saved="True" type="string" />
+      </item>
+      <item name="Op37" value="DzX67" saved="True" type="string">
+        <item name="_description" value="Digital output, XP6.1" saved="True" type="string" />
+      </item>
+      <item name="Op40" value="DzX69" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.7" saved="True" type="string" />
+      </item>
+      <item name="Op44" value="DzX70" saved="True" type="string">
+        <item name="_description" value="Digital output, XP4.11" saved="True" type="string" />
+      </item>
+      <item name="Op15" value="DzX71" saved="True" type="string">
+        <item name="_description" value="Digital output, XP2.5" saved="True" type="string" />
+      </item>
+      <item name="Op0" value="CzX72" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.5" saved="True" type="string" />
+      </item>
+      <item name="Op8" value="CzX73" saved="True" type="string">
+        <item name="_description" value="Digital output, XP1.21" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="Digital inverted inputs">
+      <item name="In23" value="DzX1" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.21" saved="True" type="string" />
+      </item>
+      <item name="In24" value="DzX2" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.23" saved="True" type="string" />
+      </item>
+      <item name="In25" value="DzX3" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.25" saved="True" type="string" />
+      </item>
+      <item name="In26" value="DzX4" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.27" saved="True" type="string" />
+      </item>
+      <item name="In27" value="DzX5" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.29" saved="True" type="string" />
+      </item>
+      <item name="In28" value="DzX6" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.31" saved="True" type="string" />
+      </item>
+      <item name="In29" value="DzX7" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.33" saved="True" type="string" />
+      </item>
+      <item name="In48" value="DzX8" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.15" saved="True" type="string" />
+      </item>
+      <item name="In5" value="EzX9" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.15" saved="True" type="string" />
+      </item>
+      <item name="In7" value="EzX10" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.19" saved="True" type="string" />
+      </item>
+      <item name="In6" value="EzX12" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.17" saved="True" type="string" />
+      </item>
+      <item name="In4" value="EzX14" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.13" saved="True" type="string" />
+      </item>
+      <item name="In41" value="DzX16" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.8" saved="True" type="string" />
+      </item>
+      <item name="In39" value="DzX17" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.6" saved="True" type="string" />
+      </item>
+      <item name="In38" value="DzX18" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.5" saved="True" type="string" />
+      </item>
+      <item name="In45" value="DzX19" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.12" saved="True" type="string" />
+      </item>
+      <item name="In47" value="DzX20" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.14" saved="True" type="string" />
+      </item>
+      <item name="In42" value="DzX21" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.9" saved="True" type="string" />
+      </item>
+      <item name="In43" value="DzX22" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.10" saved="True" type="string" />
+      </item>
+      <item name="In46" value="DzX23" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.13" saved="True" type="string" />
+      </item>
+      <item name="In30" value="DzX24" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XT2.4" saved="True" type="string" />
+      </item>
+      <item name="In31" value="DzX25" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XT2.5" saved="True" type="string" />
+      </item>
+      <item name="In32" value="DzX26" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XT2.7" saved="True" type="string" />
+      </item>
+      <item name="In33" value="DzX32" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XT2.8" saved="True" type="string" />
+      </item>
+      <item name="In34" value="DzX33" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XT2.10" saved="True" type="string" />
+      </item>
+      <item name="In35" value="DzX34" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XT2.11" saved="True" type="string" />
+      </item>
+      <item name="In2" value="EzX35" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.9" saved="True" type="string" />
+      </item>
+      <item name="In1" value="EzX36" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.7" saved="True" type="string" />
+      </item>
+      <item name="In3" value="EzX37" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.11" saved="True" type="string" />
+      </item>
+      <item name="In20" value="DzX43" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.15" saved="True" type="string" />
+      </item>
+      <item name="In18" value="DzX44" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.11" saved="True" type="string" />
+      </item>
+      <item name="In22" value="DzX45" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.19" saved="True" type="string" />
+      </item>
+      <item name="In21" value="DzX47" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.17" saved="True" type="string" />
+      </item>
+      <item name="In19" value="DzX49" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.13" saved="True" type="string" />
+      </item>
+      <item name="In17" value="DzX51" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.9" saved="True" type="string" />
+      </item>
+      <item name="In16" value="DzX52" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.7" saved="True" type="string" />
+      </item>
+      <item name="In9" value="EzX53" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.23" saved="True" type="string" />
+      </item>
+      <item name="In10" value="DzX55" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.25" saved="True" type="string" />
+      </item>
+      <item name="In11" value="DzX57" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.27" saved="True" type="string" />
+      </item>
+      <item name="In12" value="DzX59" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.29" saved="True" type="string" />
+      </item>
+      <item name="In13" value="DzX61" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.31" saved="True" type="string" />
+      </item>
+      <item name="In14" value="DzX63" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.33" saved="True" type="string" />
+      </item>
+      <item name="In36" value="DzX65" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP5.1" saved="True" type="string" />
+      </item>
+      <item name="In37" value="DzX67" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP6.1" saved="True" type="string" />
+      </item>
+      <item name="In40" value="DzX69" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.7" saved="True" type="string" />
+      </item>
+      <item name="In44" value="DzX70" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP4.11" saved="True" type="string" />
+      </item>
+      <item name="In15" value="DzX71" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP2.5" saved="True" type="string" />
+      </item>
+      <item name="In0" value="EzX72" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.5" saved="True" type="string" />
+      </item>
+      <item name="In8" value="EzX73" saved="True" type="string">
+        <item name="_description" value="Digital inverted input, XP1.21" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="Digital inverted outputs">
+      <item name="On23" value="GzX1" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.21" saved="True" type="string" />
+      </item>
+      <item name="On24" value="GzX2" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.23" saved="True" type="string" />
+      </item>
+      <item name="On25" value="GzX3" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.25" saved="True" type="string" />
+      </item>
+      <item name="On26" value="GzX4" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.27" saved="True" type="string" />
+      </item>
+      <item name="On27" value="GzX5" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.29" saved="True" type="string" />
+      </item>
+      <item name="On28" value="GzX6" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.31" saved="True" type="string" />
+      </item>
+      <item name="On29" value="GzX7" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.33" saved="True" type="string" />
+      </item>
+      <item name="On48" value="GzX8" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.15" saved="True" type="string" />
+      </item>
+      <item name="On5" value="FzX9" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.15" saved="True" type="string" />
+      </item>
+      <item name="On7" value="FzX10" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.19" saved="True" type="string" />
+      </item>
+      <item name="On6" value="FzX12" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.17" saved="True" type="string" />
+      </item>
+      <item name="On4" value="FzX14" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.13" saved="True" type="string" />
+      </item>
+      <item name="On41" value="GzX16" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.8" saved="True" type="string" />
+      </item>
+      <item name="On39" value="GzX17" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.6" saved="True" type="string" />
+      </item>
+      <item name="On38" value="GzX18" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.5" saved="True" type="string" />
+      </item>
+      <item name="On45" value="GzX19" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.12" saved="True" type="string" />
+      </item>
+      <item name="On47" value="GzX20" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.14" saved="True" type="string" />
+      </item>
+      <item name="On42" value="GzX21" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.9" saved="True" type="string" />
+      </item>
+      <item name="On43" value="GzX22" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.10" saved="True" type="string" />
+      </item>
+      <item name="On46" value="GzX23" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.13" saved="True" type="string" />
+      </item>
+      <item name="On30" value="GzX24" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XT2.4" saved="True" type="string" />
+      </item>
+      <item name="On31" value="GzX25" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XT2.5" saved="True" type="string" />
+      </item>
+      <item name="On32" value="GzX26" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XT2.7" saved="True" type="string" />
+      </item>
+      <item name="On33" value="GzX32" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XT2.8" saved="True" type="string" />
+      </item>
+      <item name="On34" value="GzX33" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XT2.10" saved="True" type="string" />
+      </item>
+      <item name="On35" value="GzX34" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XT2.11" saved="True" type="string" />
+      </item>
+      <item name="On2" value="FzX35" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.9" saved="True" type="string" />
+      </item>
+      <item name="On1" value="FzX36" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.7" saved="True" type="string" />
+      </item>
+      <item name="On3" value="FzX37" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.11" saved="True" type="string" />
+      </item>
+      <item name="On20" value="GzX43" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.15" saved="True" type="string" />
+      </item>
+      <item name="On18" value="GzX44" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.11" saved="True" type="string" />
+      </item>
+      <item name="On22" value="GzX45" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.19" saved="True" type="string" />
+      </item>
+      <item name="On21" value="GzX47" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.17" saved="True" type="string" />
+      </item>
+      <item name="On19" value="GzX49" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.13" saved="True" type="string" />
+      </item>
+      <item name="On17" value="GzX51" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.9" saved="True" type="string" />
+      </item>
+      <item name="On16" value="GzX52" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.7" saved="True" type="string" />
+      </item>
+      <item name="On9" value="FzX53" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.23" saved="True" type="string" />
+      </item>
+      <item name="On10" value="GzX55" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.25" saved="True" type="string" />
+      </item>
+      <item name="On11" value="GzX57" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.27" saved="True" type="string" />
+      </item>
+      <item name="On12" value="GzX59" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.29" saved="True" type="string" />
+      </item>
+      <item name="On13" value="GzX61" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.31" saved="True" type="string" />
+      </item>
+      <item name="On14" value="GzX63" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.33" saved="True" type="string" />
+      </item>
+      <item name="On36" value="GzX65" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP5.1" saved="True" type="string" />
+      </item>
+      <item name="On37" value="GzX67" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP6.1" saved="True" type="string" />
+      </item>
+      <item name="On40" value="GzX69" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.7" saved="True" type="string" />
+      </item>
+      <item name="On44" value="GzX70" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP4.11" saved="True" type="string" />
+      </item>
+      <item name="On15" value="GzX71" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP2.5" saved="True" type="string" />
+      </item>
+      <item name="On0" value="FzX72" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.5" saved="True" type="string" />
+      </item>
+      <item name="On8" value="FzX73" saved="True" type="string">
+        <item name="_description" value="Digital inverted output, XP1.21" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="PWM">
+      <item name="Pp7" value="IzX10, X11" saved="True" type="string">
+        <item name="_description" value="PWM output, XP1.19" saved="True" type="string" />
+      </item>
+      <item name="Pp6" value="IzX12, X13" saved="True" type="string">
+        <item name="_description" value="PWM output, XP1.17" saved="True" type="string" />
+      </item>
+      <item name="Pp4" value="IzX14, X15" saved="True" type="string">
+        <item name="_description" value="PWM output, XP1.13" saved="True" type="string" />
+      </item>
+      <item name="Pp22" value="JzX45, X46" saved="True" type="string">
+        <item name="_description" value="PWM output, XP2.19" saved="True" type="string" />
+      </item>
+      <item name="Pp21" value="JzX47, X48" saved="True" type="string">
+        <item name="_description" value="PWM output, XP2.17" saved="True" type="string" />
+      </item>
+      <item name="Pp19" value="JzX49, X50" saved="True" type="string">
+        <item name="_description" value="PWM output, XP2.13" saved="True" type="string" />
+      </item>
+      <item name="Pp8" value="IzX73, X74" saved="True" type="string">
+        <item name="_description" value="PWM output, XP1.21" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="PWM inverted">
+      <item name="Pn7" value="KzX10, X11" saved="True" type="string">
+        <item name="_description" value="PWM inverted output, XP1.19" saved="True" type="string" />
+      </item>
+      <item name="Pn6" value="KzX12, X13" saved="True" type="string">
+        <item name="_description" value="PWM inverted output, XP1.17" saved="True" type="string" />
+      </item>
+      <item name="Pn4" value="KzX14, X15" saved="True" type="string">
+        <item name="_description" value="PWM inverted output, XP1.13" saved="True" type="string" />
+      </item>
+      <item name="Pn22" value="LzX45, X46" saved="True" type="string">
+        <item name="_description" value="PWM inverted output, XP2.19" saved="True" type="string" />
+      </item>
+      <item name="Pn21" value="LzX47, X48" saved="True" type="string">
+        <item name="_description" value="PWM inverted output, XP2.17" saved="True" type="string" />
+      </item>
+      <item name="Pn19" value="LzX49, X50" saved="True" type="string">
+        <item name="_description" value="PWM inverted output, XP2.13" saved="True" type="string" />
+      </item>
+      <item name="Pn8" value="KzX73, X74" saved="True" type="string">
+        <item name="_description" value="PWM inverted output, XP1.21" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="Analog inputs">
+      <item name="Ae9" value="MiX53, X54" saved="True" type="string">
+        <item name="_description" value="Analog input external reference, XP1.23" saved="True" type="string" />
+      </item>
+      <item name="Av9" value="MiX53, X54" saved="True" type="string">
+        <item name="_description" value="Analog input AVcc reference, XP1.23" saved="True" type="string" />
+      </item>
+      <item name="Ai9" value="MiX53, X54" saved="True" type="string">
+        <item name="_description" value="Analog input internal reference, XP1.23" saved="True" type="string" />
+      </item>
+      <item name="AI9" value="MiX53, X54" saved="True" type="string">
+        <item name="_description" value="Analog input internal2 reference, XP1.23" saved="True" type="string" />
+      </item>
+      <item name="Ae10" value="NiX55, X56" saved="True" type="string">
+        <item name="_description" value="Analog input external reference, XP1.25" saved="True" type="string" />
+      </item>
+      <item name="Av10" value="NiX55, X56" saved="True" type="string">
+        <item name="_description" value="Analog input AVcc reference, XP1.25" saved="True" type="string" />
+      </item>
+      <item name="Ai10" value="NiX55, X56" saved="True" type="string">
+        <item name="_description" value="Analog input internal reference, XP1.25" saved="True" type="string" />
+      </item>
+      <item name="AI10" value="NiX55, X56" saved="True" type="string">
+        <item name="_description" value="Analog input internal2 reference, XP1.25" saved="True" type="string" />
+      </item>
+      <item name="Ae11" value="NiX57, X58" saved="True" type="string">
+        <item name="_description" value="Analog input external reference, XP1.27" saved="True" type="string" />
+      </item>
+      <item name="Av11" value="NiX57, X58" saved="True" type="string">
+        <item name="_description" value="Analog input AVcc reference, XP1.27" saved="True" type="string" />
+      </item>
+      <item name="Ai11" value="NiX57, X58" saved="True" type="string">
+        <item name="_description" value="Analog input internal reference, XP1.27" saved="True" type="string" />
+      </item>
+      <item name="AI11" value="NiX57, X58" saved="True" type="string">
+        <item name="_description" value="Analog input internal2 reference, XP1.27" saved="True" type="string" />
+      </item>
+      <item name="Ae12" value="NiX59, X60" saved="True" type="string">
+        <item name="_description" value="Analog input external reference, XP1.29" saved="True" type="string" />
+      </item>
+      <item name="Av12" value="NiX59, X60" saved="True" type="string">
+        <item name="_description" value="Analog input AVcc reference, XP1.29" saved="True" type="string" />
+      </item>
+      <item name="Ai12" value="NiX59, X60" saved="True" type="string">
+        <item name="_description" value="Analog input internal reference, XP1.29" saved="True" type="string" />
+      </item>
+      <item name="AI12" value="NiX59, X60" saved="True" type="string">
+        <item name="_description" value="Analog input internal2 reference, XP1.29" saved="True" type="string" />
+      </item>
+      <item name="Ae13" value="NiX61, X62" saved="True" type="string">
+        <item name="_description" value="Analog input external reference, XP1.31" saved="True" type="string" />
+      </item>
+      <item name="Av13" value="NiX61, X62" saved="True" type="string">
+        <item name="_description" value="Analog input AVcc reference, XP1.31" saved="True" type="string" />
+      </item>
+      <item name="Ai13" value="NiX61, X62" saved="True" type="string">
+        <item name="_description" value="Analog input internal reference, XP1.31" saved="True" type="string" />
+      </item>
+      <item name="AI13" value="NiX61, X62" saved="True" type="string">
+        <item name="_description" value="Analog input internal2 reference, XP1.31" saved="True" type="string" />
+      </item>
+      <item name="Ae14" value="NiX63, X64" saved="True" type="string">
+        <item name="_description" value="Analog input external reference, XP1.33" saved="True" type="string" />
+      </item>
+      <item name="Av14" value="NiX63, X64" saved="True" type="string">
+        <item name="_description" value="Analog input AVcc reference, XP1.33" saved="True" type="string" />
+      </item>
+      <item name="Ai14" value="NiX63, X64" saved="True" type="string">
+        <item name="_description" value="Analog input internal reference, XP1.33" saved="True" type="string" />
+      </item>
+      <item name="AI14" value="NiX63, X64" saved="True" type="string">
+        <item name="_description" value="Analog input internal2 reference, XP1.33" saved="True" type="string" />
+      </item>
+      <item name="Ae36" value="NiX65, X66" saved="True" type="string">
+        <item name="_description" value="Analog input external reference, XP5.1" saved="True" type="string" />
+      </item>
+      <item name="Av36" value="NiX65, X66" saved="True" type="string">
+        <item name="_description" value="Analog input AVcc reference, XP5.1" saved="True" type="string" />
+      </item>
+      <item name="Ai36" value="NiX65, X66" saved="True" type="string">
+        <item name="_description" value="Analog input internal reference, XP5.1" saved="True" type="string" />
+      </item>
+      <item name="AI36" value="NiX65, X66" saved="True" type="string">
+        <item name="_description" value="Analog input internal2 reference, XP5.1" saved="True" type="string" />
+      </item>
+      <item name="Ae37" value="NiX67, X68" saved="True" type="string">
+        <item name="_description" value="Analog input external reference, XP6.1" saved="True" type="string" />
+      </item>
+      <item name="Av37" value="NiX67, X68" saved="True" type="string">
+        <item name="_description" value="Analog input AVcc reference, XP6.1" saved="True" type="string" />
+      </item>
+      <item name="Ai37" value="NiX67, X68" saved="True" type="string">
+        <item name="_description" value="Analog input internal reference, XP6.1" saved="True" type="string" />
+      </item>
+      <item name="AI37" value="NiX67, X68" saved="True" type="string">
+        <item name="_description" value="Analog input internal2 reference, XP6.1" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="Serial 0">
+      <item name="Sr0" value="ObX26,S27,B28,B29,B30,B31" saved="True" type="string">
+        <item name="_description" value="RxD 2400, XT2.7" saved="True" type="string" />
+      </item>
+      <item name="Sr16" value="ObX26,B27,S28,B29,B30,B31" saved="True" type="string">
+        <item name="_description" value="RxD 4800, XT2.7" saved="True" type="string" />
+      </item>
+      <item name="Sr32" value="ObX26,B27,B28,S29,B30,B31" saved="True" type="string">
+        <item name="_description" value="RxD 9600, XT2.7" saved="True" type="string" />
+      </item>
+      <item name="Sr48" value="ObX26,B27,B28,B29,S30,B31" saved="True" type="string">
+        <item name="_description" value="RxD 19200, XT2.7" saved="True" type="string" />
+      </item>
+      <item name="Sr64" value="ObX26,B27,B28,B29,B30,S31" saved="True" type="string">
+        <item name="_description" value="RxD 38400, XT2.7" saved="True" type="string" />
+      </item>
+      <item name="St0" value="ObX32,S27,B28,B29,B30,B31" saved="True" type="string">
+        <item name="_description" value="TxD 2400, XT2.8" saved="True" type="string" />
+      </item>
+      <item name="St16" value="ObX32,B27,S28,B29,B30,B31" saved="True" type="string">
+        <item name="_description" value="TxD 4800, XT2.8" saved="True" type="string" />
+      </item>
+      <item name="St32" value="ObX32,B27,B28,S29,B30,B31" saved="True" type="string">
+        <item name="_description" value="TxD 9600, XT2.8" saved="True" type="string" />
+      </item>
+      <item name="St48" value="ObX32,B27,B28,B29,S30,B31" saved="True" type="string">
+        <item name="_description" value="TxD 19200, XT2.8" saved="True" type="string" />
+      </item>
+      <item name="St64" value="ObX32,B27,B28,B29,B30,S31" saved="True" type="string">
+        <item name="_description" value="TxD 38400, XT2.8" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="Serial 1">
+      <item name="Sr1" value="ObX37,S38,B39,B40,B41,B42" saved="True" type="string">
+        <item name="_description" value="RxD 2400, XP1.11" saved="True" type="string" />
+      </item>
+      <item name="Sr17" value="ObX37,B38,S39,B40,B41,B42" saved="True" type="string">
+        <item name="_description" value="RxD 4800, XP1.11" saved="True" type="string" />
+      </item>
+      <item name="Sr33" value="ObX37,B38,B39,S40,B41,B42" saved="True" type="string">
+        <item name="_description" value="RxD 9600, XP1.11" saved="True" type="string" />
+      </item>
+      <item name="Sr49" value="ObX37,B38,B39,B40,S41,B42" saved="True" type="string">
+        <item name="_description" value="RxD 19200, XP1.11" saved="True" type="string" />
+      </item>
+      <item name="Sr65" value="ObX37,B38,B39,B40,B41,S42" saved="True" type="string">
+        <item name="_description" value="RxD 38400, XP1.11" saved="True" type="string" />
+      </item>
+      <item name="St1" value="ObX43,S38,B39,B40,B41,B42" saved="True" type="string">
+        <item name="_description" value="TxD 2400, XP2.15" saved="True" type="string" />
+      </item>
+      <item name="St17" value="ObX43,B38,S39,B40,B41,B42" saved="True" type="string">
+        <item name="_description" value="TxD 4800, XP2.15" saved="True" type="string" />
+      </item>
+      <item name="St33" value="ObX43,B38,B39,S40,B41,B42" saved="True" type="string">
+        <item name="_description" value="TxD 9600, XP2.15" saved="True" type="string" />
+      </item>
+      <item name="St49" value="ObX43,B38,B39,B40,S41,B42" saved="True" type="string">
+        <item name="_description" value="TxD 19200, XP2.15" saved="True" type="string" />
+      </item>
+      <item name="St65" value="ObX43,B38,B39,B40,B41,S42" saved="True" type="string">
+        <item name="_description" value="TxD 38400, XP2.15" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="TWI">
+      <item name="Ta0" value="ZbX25, X24" saved="True" type="string">
+        <item name="_description" value="TWI devices" saved="True" type="string" />
+      </item>
+    </item>
+    <item name="Add">
+      <item name="bool" value="yZ" saved="True" type="string" />
+      <item name="long" value="yI" saved="True" type="string" />
+      <item name="string" value="yS" saved="True" type="string" />
+      <item name="Byte array" value="yB" saved="True" type="string" />
+    </item>
+    <item name="remove" value="zD" saved="True" type="string" />
+  </item>
+</root>
