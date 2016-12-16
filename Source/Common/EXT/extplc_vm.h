@@ -613,6 +613,21 @@ static void cb_call(void){
         plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
     }
 }
+static void cb_check_idx(void)
+{
+    if(plcvm_sp < plcvm_sfp)
+    {
+        int32_t data = plcvm_ram[plcvm_sp];
+        if((data < 0) || (data >= plcvm_lpm_u16()))
+        {
+            plcvm_stat = PLC_ANSWER_ERROR_OFR_IDX;
+        }
+    }
+    else
+    {
+        plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;
+    }
+}
 static void cb_test_eq(void){if(plcvm_sp < plcvm_sfp){if(plcvm_ram[plcvm_sp] != plcvm_lpm_u32()){plcvm_stat = PLC_ANSWER_ERROR_TEST;}else{plcvm_sp++;}}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_ret(void){
     if(plcvm_sfp < (const uint32_t)(EXTPLC_SIZEOF_RAM - 1))
@@ -676,7 +691,7 @@ static const cbCOP_t plcvm_cb[] = {
     cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
     cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
     cb_sjmp,        cb_jz,          cb_jnz,         cb_jmp,         cb_scall,       cb_unk,         cb_unk,         cb_call,
-    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_test_eq,     cb_ret
+    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_check_idx,   cb_test_eq,     cb_ret
 };
 
 
