@@ -110,8 +110,8 @@ extern "C" {
 // End Analogue Inputs
 
 // UART Section
-#define HAL_USE_USART1              0           // Mapping to logical port
-#define HAL_USE_USART2              1
+#define HAL_USE_USART2              0           // Mapping to logical port
+#define HAL_USE_USART1              1
 #define EXTSER_USED                 2
 // End UART Section
 
