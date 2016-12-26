@@ -309,7 +309,7 @@ void CC11_Init(void)
 
     // verify that SPI is working and the correct radio is installed
 
-    uint8_t pn = 0xFF, vers = 0xFF;
+    uint8_t pn = 0xFF, vers = 0x00;
     uint16_t cnt = 0;
     
     while((pn != 0) && (vers < 3))
