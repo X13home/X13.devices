@@ -47,9 +47,11 @@ bool hal_pwm_busy(uint16_t base)
             {
                 return ((TCCR0A & (3<<COM0B0)) != 0);
             }
+#ifndef HAL_USE_SUBMSTICK
         case 1:         //  Timer 1
             pTIM = &TCCR1A;
             break;
+#endif  //  HAL_USE_SUBMSTICK
 #ifdef TCCR3A
         case 3:         //  Timer 3
             pTIM = &TCCR3A;
@@ -124,9 +126,11 @@ void hal_pwm_configure(uint16_t base, bool inv)
             TCCR0B = (4<<CS00);             // Clock = Fcpu/256
                                             // Fpwm = Clock/512
             return;
+#ifndef HAL_USE_SUBMSTICK
         case 1:         //  Timer 1
             pTIM = &TCCR1A;
             break;
+#endif  //  HAL_USE_SUBMSTICK
 #ifdef TCCR3A
         case 3:         //  Timer 3
             pTIM = &TCCR3A;
@@ -210,9 +214,11 @@ void hal_pwm_delete(uint16_t base)
             }
             pTIM = NULL;
             break;
+#ifndef HAL_USE_SUBMSTICK
         case 1:         //  Timer 1
             pTIM = &TCCR1A;
             break;
+#endif  //  HAL_USE_SUBMSTICK
 #ifdef TCCR3A
         case 3:         //  Timer 3
             pTIM = &TCCR3A;
@@ -298,9 +304,11 @@ void hal_pwm_write(uint16_t base, uint16_t value)
                 OCR0B = value>>8;
             }
             return;
+#ifndef HAL_USE_SUBMSTICK
         case 1:         //  Timer 1
             pTIM = &TCCR1A;
             break;
+#endif  //  HAL_USE_SUBMSTICK
 #ifdef TCCR3A
         case 3:         //  Timer 3
             pTIM = &TCCR3A;
