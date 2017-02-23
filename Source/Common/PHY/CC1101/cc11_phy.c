@@ -79,7 +79,7 @@ static const uint8_t cc11config[][2] =
     {CC11_FREQ0,    CC11_DEFVAL_FREQ0},
     {CC11_MDMCFG4,  0xCA},              // RX filter BW 101,6 kHz
     {CC11_MDMCFG3,  CC11_MDMCFG3_VAL},  // Data Rate
-    {CC11_MDMCFG2,  0x93},              // Current optimized, GFSK, sync word 30/32 bit detected
+    {CC11_MDMCFG2,  0x13},              // Sensitivity optimized, GFSK, sync word 30/32 bit detected
     {CC11_MDMCFG1,  0x00},              // Channel spacing 25 kHz
     {CC11_MDMCFG0,  0x00},
     {CC11_DEVIATN,  CC11_DEVIATN_VAL},  // Deviation 20 kHz
@@ -309,7 +309,7 @@ void CC11_Init(void)
 
     // verify that SPI is working and the correct radio is installed
 
-    uint8_t pn = 0xFF, vers = 0xFF;
+    uint8_t pn = 0xFF, vers = 0x00;
     uint16_t cnt = 0;
     
     while((pn != 0) && (vers < 3))

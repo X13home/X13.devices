@@ -34,6 +34,15 @@ void HAL_Init(void)
     MCUSR &= ~(1<<WDRF);
     wdt_reset();
     wdt_disable();
+#ifdef HAL_USE_SUBMSTICK
+#if (F_CPU != 16000000UL)
+#error F_CPU should be 16M
+#endif
+    TCCR1B = 0;
+    TCCR1A = 0;
+    TCNT1 = 0;
+    TCCR1B = 5;     //  Prescaler = 1024, Normal Mode
+#endif  //  HAL_USE_SUBMSTICK
 }
 
 void HAL_StartSystemTick(void)
@@ -107,6 +116,13 @@ uint32_t HAL_RNG32(void)
     return lfsr;
 }
 #endif  //  EXTPLC_USED
+
+#ifdef HAL_USE_SUBMSTICK
+uint16_t HAL_get_submstick(void)
+{
+    return TCNT1;
+}
+#endif  //  HAL_USE_SUBMSTICK
 
 static volatile uint32_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;        // Max Uptime 136 Jr.

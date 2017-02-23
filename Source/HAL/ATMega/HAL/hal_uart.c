@@ -24,7 +24,9 @@ static const PROGMEM uint16_t hal_baud_list[] =
                                          ((F_CPU/16/4800) - 1),
                                          ((F_CPU/16/9600) - 1),
                                          ((F_CPU/16/19200) - 1),
-                                         ((F_CPU/16/38400) - 1)};
+                                         ((F_CPU/16/38400) - 1),
+                                         ((F_CPU/16/250000) - 1),
+                                         };
 
 static HAL_UART_t * hal_UARTv[HAL_UART_NUM_PORTS] = {NULL,};
 
@@ -52,11 +54,23 @@ ISR(USART0_UDRE_vect)
     {
         pVar->tx_len = 0;
         UCSR0B &= ~(1<<UDRIE0);
+#ifdef RS485_PHY
+        UCSR0B |= (1<<TXCIE0);
+#endif  //  RS485_PHY
         return;
     }
 
     UDR0 = pVar->pTxBuf[pVar->tx_pos++];
 }
+
+#ifdef RS485_PHY
+ISR(USART0_TX_vect)
+{
+    UCSR0B &= ~(1<<TXCIE0);
+    UART0_PORT &= ~(1<<UART0_DE_PIN);
+}
+#endif  //  RS485_PHY
+
 #endif  //  HAL_USE_USART0
 
 #if (defined HAL_USE_USART1)
@@ -253,6 +267,14 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
                 UART0_PORT |= (1<<UART0_TX_PIN);
                 UART0_DDR |= (1<<UART0_TX_PIN);
             }
+
+#ifdef RS485_PHY
+            if(enable & 4)  // DE
+            {
+                UART0_PORT &= ~(1<<UART0_DE_PIN);
+                UART0_DDR |= (1<<UART0_DE_PIN);
+            }
+#endif  //  RS485_PHY
             break;
 #endif  //  HAL_USE_USART0
 #if (defined HAL_USE_USART1)
@@ -355,6 +377,9 @@ void hal_uart_send(uint8_t port, uint8_t len, uint8_t * pBuf)
     {
 #ifdef HAL_USE_USART0
         case HAL_USE_USART0:
+#ifdef RS485_PHY
+            UART0_PORT |= (1<<UART0_DE_PIN);
+#endif
             UDR0 = *pBuf;
             UCSR0B |= (1<<UDRIE0);
             break;

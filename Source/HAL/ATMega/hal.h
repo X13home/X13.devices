@@ -85,6 +85,7 @@ void        hal_twi_start(void);
 #define     UART_BAUD_9K6       2
 #define     UART_BAUD_19K2      3
 #define     UART_BAUD_38K4      4
+#define     UART_BAUD_250K      5
 #define     UART_BAUD_MAX       4
 
 
@@ -113,6 +114,12 @@ void        hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed);
 uint8_t     hal_spi_exch8(uint8_t port, uint8_t data);
 //uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
 // SPI Section
+//////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////
+// HAL API
+uint16_t HAL_get_submstick(void);
+// HAL API
 //////////////////////////////////////////////////////////////
 
 #if (defined __AVR_ATmega328P__)

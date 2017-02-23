@@ -33,6 +33,8 @@ See LICENSE file for license details.
 #include "A1xxxx/A1SC10.h"
 #elif   (defined CFG_A1Cn10)        // Arduino Nano/Uno + CC1101
 #include "A1xxxx/A1Cn10.h"
+#elif   (defined CFG_A1Mn10)        // Arduino Nano/Uno + RS485
+#include "A1xxxx/A1Mn10.h"
 // Unknown
 #else
 #error Unknown configuration
@@ -55,11 +57,13 @@ See LICENSE file for license details.
 #define I2C_DIO_SCL                 21
 // UART
 #define USART0_RX_vect              USART_RX_vect
+#define USART0_TX_vect              USART_TX_vect
 #define USART0_UDRE_vect            USART_UDRE_vect
 #define UART0_PORT                  PORTD
 #define UART0_DDR                   DDRD
 #define UART0_RX_PIN                PD0
 #define UART0_TX_PIN                PD1
+#define UART0_DE_PIN                PD2
 // SPI
 #define SPI_DDR                     DDRB
 #define SPI_PIN_SS                  PB2
