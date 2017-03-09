@@ -34,6 +34,10 @@ See LICENSE file for license details.
 #elif   (defined CFG_A1Cn10)        // Arduino Nano/Uno + CC1101
 #include "A1xxxx/A1Cn10.h"
 // Untested
+#elif   (defined CFG_A1SR10)        // JeeNode + UART + RFM12
+#include "A1xxxx/A1SR10.h"
+#elif   (defined CFG_A1Rn10)        // JeeNode + RFM12
+#include "A1xxxx/A1Rn10.h"
 #elif   (defined CFG_A1Mn10)        // RS485, OSC 16MHz
 #include "A1xxxx/A1Mn10.h"
 // Unknown
