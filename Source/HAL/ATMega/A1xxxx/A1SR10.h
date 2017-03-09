@@ -53,10 +53,16 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define EXTDIO_PORT_OFFSET          1
+#define EXTDIO_PORT_OFFSET          2
 #define EXTDIO_MAXPORT_NR           2         // Number of used physical digital Ports
 #define HAL_DIO_MAPPING             {16, 17, 18, 19, 28, 29, 30, 31}
 // End DIO Section
+
+// PWM Section
+#define EXTPWM_USED                 1
+#define HAL_PWM_BASE_OFFSET         5
+#define HAL_PWM_PORT2CFG            {0x01, 0x00}
+// End PWM Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
@@ -88,7 +94,7 @@ extern "C" {
 //  End RF Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           21      // Size of identificators list,
+#define OD_MAX_INDEX_LIST           8      // Size of identificators list,
                                             // PC0-PC5 + ADC6/7 + Vbg + PD2-PD7 + PB0-PB4
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'
