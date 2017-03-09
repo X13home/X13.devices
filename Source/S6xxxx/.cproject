@@ -107,7 +107,7 @@
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs">
-				<option id="cmsis.device.name" value="STM32L152RB"/>
+				<option id="cmsis.device.name" value="STM32L152RE"/>
 				<option id="cmsis.subfamily.name" value="STM32L152"/>
 				<option id="cmsis.family.name" value="STM32L1 Series"/>
 				<option id="cmsis.device.vendor.name" value="STMicroelectronics"/>
@@ -116,9 +116,9 @@
 				<option id="cmsis.device.pack.name" value="STM32L1xx_DFP"/>
 				<option id="cmsis.device.pack.version" value="1.2.0"/>
 				<option id="cmsis.core.name" value="Cortex-M3"/>
-				<option id="cmsis.compiler.define" value="STM32L152xB"/>
-				<memory section="IRAM1" size="0x00004000" start="0x20000000" startup="0"/>
-				<memory section="IROM1" size="0x00020000" start="0x08000000" startup="1"/>
+				<option id="cmsis.compiler.define" value="STM32L152xE"/>
+				<memory section="IRAM1" size="0x00014000" start="0x20000000" startup="0"/>
+				<memory section="IROM1" size="0x00080000" start="0x08000000" startup="1"/>
 			</storageModule>
 		</cconfiguration>
 		<cconfiguration id="ilg.gnuarmeclipse.managedbuild.cross.config.elf.release.996818000">

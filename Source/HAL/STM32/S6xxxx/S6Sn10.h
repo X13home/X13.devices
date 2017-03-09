@@ -10,13 +10,13 @@
 // == GPIOA
 // 14	GPIOA.00		| PWM 02.0	
 // 15	GPIOA.01		| PWM 02.1	
-// 16	GPIOA.02		| PWM 02.2	| UART_TX 0	
-// 17	GPIOA.03		| PWM 02.3	| UART_RX 0	
+// 16	GPIOA.02		| phy1_TX
+// 17	GPIOA.03		| phy1_RX
 // 20	GPIOA.04		
 // 21	GPIOA.05		| PWM 02.0	
 // 41	GPIOA.08		
-// 42	GPIOA.09		
-// 43	GPIOA.10		
+// 42	GPIOA.09		| UART_TX 0	
+// 43	GPIOA.10		| UART_RX 0	
 // 44	GPIOA.11		
 // 45	GPIOA.12		
 // 46	GPIOA.13		| sys_SWDIO
@@ -27,8 +27,6 @@
 // 55	GPIOB.03		| PWM 02.1	
 // 56	GPIOB.04		| PWM 03.0	
 // 57	GPIOB.05		| PWM 03.1	
-// 58	GPIOB.06		| phy1_TX
-// 59	GPIOB.07		| phy1_RX
 // 61	GPIOB.08		| PWM 04.2	
 // 62	GPIOB.09		| PWM 04.3	
 // 29	GPIOB.10		| PWM 02.2	| UART_TX 1	
@@ -64,32 +62,31 @@ extern "C" {
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_MAXPORT_NR           4
-#define HAL_DIO_MAPPING             {32, 33, 34, 35, 0, 1, 2, 3, 4, 5, 18, 26, 27, 28, 29, 30, 31, 38, 39, 40, 41, 8, 9, 10, 11, 12, 0xFF, 0xFF, 15, 42, 43, 44, 50, 19, 20, 21, 0xFF, 0xFF, 24, 25}
+#define HAL_DIO_MAPPING             {32, 33, 34, 35, 0, 1, 0xFF, 0xFF, 4, 5, 18, 26, 27, 28, 29, 30, 31, 38, 39, 40, 41, 8, 9, 10, 11, 12, 0xFF, 0xFF, 15, 42, 43, 44, 50, 19, 20, 21, 0xFF, 0xFF, 24, 25}
 // End DIO Section
 
 // PWM Section
 #define EXTPWM_USED                 1
 #define HAL_PWM_BASE_OFFSET         4
-#define HAL_PWM_PORT2CFG            {0x110, 0x111, 0x112, 0x113, 0xFF, 0x110, 0xFF, 0x112, 0x113, 0x350, 0x348, 0x349, 0x358, 0x218, 0x219, 0x21A, 0x21B, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x110, 0xFF, 0xFF, 0xFF, 0xFF, 0x111, 0x218, 0x219, 0xFF, 0xFF, 0x222, 0x223}
+#define HAL_PWM_PORT2CFG            {0x110, 0x111, 0xFF, 0xFF, 0xFF, 0x110, 0xFF, 0x112, 0x113, 0x350, 0x348, 0x349, 0x358, 0x218, 0x219, 0x21A, 0x21B, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x110, 0xFF, 0xFF, 0xFF, 0xFF, 0x111, 0x218, 0x219, 0xFF, 0xFF, 0x222, 0x223}
 // End PWM Section
 
 // UART Section
-#define HAL_USE_USART2              0
+#define HAL_USE_USART1              0
 #define HAL_USE_USART3              1
 #define EXTSER_USED                 2
 #define HAL_UART_NUM_PORTS          3
 // End UART Section
 
-//UART PHY1 Section	 RX: GPIOB.07, TX: GPIOB.06
-#define HAL_USE_USART1              2
-#define HAL_USART1_REMAP           1
+//UART PHY1 Section	 RX: GPIOA.03, TX: GPIOA.02
+#define HAL_USE_USART2              2
 #define UART_PHY_PORT               2
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
 //End UART PHY1 Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           36
+#define OD_MAX_INDEX_LIST           34
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '6'
 #define OD_DEV_PHY1                 'S'
