@@ -112,7 +112,7 @@ uint8_t     hal_uart_get(uint8_t port);
 
 void        hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed);
 uint8_t     hal_spi_exch8(uint8_t port, uint8_t data);
-//uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
+uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
 // SPI Section
 //////////////////////////////////////////////////////////////
 

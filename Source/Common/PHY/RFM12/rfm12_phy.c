@@ -64,11 +64,73 @@ typedef union
     };
 }RFM12_TX_HDR_t;
 
-static RFM12_TRVSTATE_t    rfm12_state;
+static RFM12_TRVSTATE_t rfm12_state;
 static RFM12_TX_HDR_t   rfm12_tx_hdr;
 static Queue_t          rfm12_tx_queue = {NULL, NULL, 4, 0};
 static MQ_t           * rfm12_pRxBuf = NULL;
 static MQ_t           * rfm12_pTxBuf = NULL;
+
+// HAL Subroutines
+
+static void rfm12_irq(void);
+
+#if defined (_AVR_IO_H_)
+// AVR Uses own solution for IRQ handler
+
+#include <avr/interrupt.h>
+
+#if defined (__AVR_ATmega328P__)
+// Only ATMega328P
+
+#if ((RFM12_IRQ_PIN) == 26)     // ATmega328P - PD2 - INT0
+#define RFM12_INT0
+#endif  //  RFM12_IRQ_PIN
+
+// HAL section
+static void rfm12_enable_irq(void)
+{
+#ifdef RFM12_INT0
+    EICRA = (0<<ISC00);
+    EIMSK = (1<<INT0);          // INT0 int enable
+#else           // IRQ On PBx
+    PCMSK0 = (1<< (RFM12_IRQ_PIN & 0x03));
+    PCICR = (1<<PCIE0);         // PCINTx int enable
+#endif  //  RFM12_INT0
+}
+
+#ifdef RFM12_INT0
+ISR(INT0_vect)
+{
+    rfm12_irq();
+}
+#else           // IRQ On PBx
+ISR(PCINT0_vect)
+{
+    if(RFM12_IRQ_STATE())
+    {
+        rfm12_irq();
+    }
+}
+#endif  //  RFM12_INT0
+
+#endif  //  __AVR_ATmega328P__
+
+#else   // Not AVR
+// Portable Solution
+
+static void rfm12_enable_irq(void)
+{
+    hal_exti_config(RFM12_IRQ_PIN, HAL_EXTI_TRIGGER_FALLING, &rfm12_irq);
+}
+#endif  // _AVR_IO_H_
+
+static inline uint16_t rfm12_spiExch(uint16_t data)
+{
+    RFM12_SELECT();
+    uint16_t retval = hal_spi_exch16(RFM12_USE_SPI, data);
+    RFM12_RELEASE();
+    return retval;
+}
 
 // Local subroutines
 static void rfm12_CalcCRC(uint8_t data, uint16_t *pCRC)     // CRC Calculation compatible with cc1101
@@ -108,7 +170,7 @@ static void rfm12_tx_task(void)
     }
 
     // Carrier ?
-    if((hal_rfm12_spiExch(0) & RFM12_STATUS_RSSI) != 0)   // Channel Busy
+    if((rfm12_spiExch(0) & RFM12_STATUS_RSSI) != 0)   // Channel Busy
     {
         if(rfm12_tx_retry > 0)
         {
@@ -130,20 +192,20 @@ static void rfm12_tx_task(void)
     rfm12_tx_retry = RFM12_TX_RETRYS;
     rfm12_state = RFM12_TRVTXPREAMB;
 
-    hal_rfm12_spiExch(RFM12_IDLE_MODE);         // Switch to Idle state
-    hal_rfm12_spiExch(RFM12_TXFIFO_ENA);        // Enable TX FIFO
+    rfm12_spiExch(RFM12_IDLE_MODE);         // Switch to Idle state
+    rfm12_spiExch(RFM12_TXFIFO_ENA);        // Enable TX FIFO
 
-    hal_rfm12_spiExch(RFM12_TRANSMIT_MODE);
+    rfm12_spiExch(RFM12_TRANSMIT_MODE);
 }
 
 // IRQ subroutine
 void rfm12_irq(void)
 {
-    uint16_t intstat = hal_rfm12_spiExch(0);
+    uint16_t intstat = rfm12_spiExch(0);
 
     if(intstat & (uint16_t)RFM12_STATUS_POR)        // Power-on reset
     {
-        hal_rfm12_spiExch(RFM12_SLEEP_MODE);
+        rfm12_spiExch(RFM12_SLEEP_MODE);
         rfm12_state = RFM12_TRVPOR;
         return;
     }
@@ -159,7 +221,7 @@ void rfm12_irq(void)
         {
             // Start Rx Section
             case RFM12_TRVRXIDLE:              // Get Packet Length
-                ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
+                ch = rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 if((ch < 4) || (ch > (MQTTSN_MSG_SIZE + 3)))
                     break;
                 rfm12v_RfCRC = 0xFFFF;
@@ -169,7 +231,7 @@ void rfm12_irq(void)
                 rfm12_pRxBuf->Length = rfm12v_RfLen;
                 return;
             case RFM12_TRVRXHDR_DST:           // Destination Address
-                ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
+                ch = rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 if((ch == 0) || (ch == rfm12_tx_hdr.Src))
                 {
 #ifdef LED_On
@@ -181,7 +243,7 @@ void rfm12_irq(void)
                 }
                 break;
             case RFM12_TRVRXHDR_SRC:           // Source Address
-                ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
+                ch = rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
 
                 rfm12_pRxBuf->a.phy1addr[0] = ch;
@@ -189,7 +251,7 @@ void rfm12_irq(void)
                 rfm12_state = RFM12_TRVRXDATA;
                 return;
             case RFM12_TRVRXDATA:
-                ch = hal_rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
+                ch = rfm12_spiExch(RFM12_CMD_READ) & 0xFF;
                 if(rfm12v_Pos < rfm12v_RfLen)
                 {
                     rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
@@ -207,8 +269,8 @@ void rfm12_irq(void)
                 }
                 else if(ch == (rfm12v_RfCRC & 0xFF))    // 2nd CRC byte
                 {
-                    hal_rfm12_spiExch(RFM12_IDLE_MODE);
-                    hal_rfm12_spiExch(RFM12_RXFIFO_DIS);
+                    rfm12_spiExch(RFM12_IDLE_MODE);
+                    rfm12_spiExch(RFM12_RXFIFO_DIS);
 
                     rfm12_state = RFM12_TRVRXDONE;
                     //rfm12v_Foffs = (uint8_t)(intstat & 0x1F)<<3;    // int8_t frequency offset
@@ -219,7 +281,7 @@ void rfm12_irq(void)
             // Start Tx Section
             // Send Preamble, initialise variables
             case RFM12_TRVTXPREAMB:
-                hal_rfm12_spiExch(RFM12_CMD_TX | 0xAA);
+                rfm12_spiExch(RFM12_CMD_TX | 0xAA);
                 rfm12v_Pos = 0;
                 rfm12_state = RFM12_TRVTXHDR;
 #ifdef LED_On
@@ -241,7 +303,7 @@ void rfm12_irq(void)
                 }
 
                 rfm12v_Pos++;
-                hal_rfm12_spiExch(RFM12_CMD_TX | ch);
+                rfm12_spiExch(RFM12_CMD_TX | ch);
                 
                 if(rfm12v_Pos == sizeof(RFM12_TX_HDR_t))
                 {
@@ -252,7 +314,7 @@ void rfm12_irq(void)
             // Send Data
             case RFM12_TRVTXDATA:
                 ch = rfm12_pTxBuf->m.raw[rfm12v_Pos++];
-                hal_rfm12_spiExch(RFM12_CMD_TX | ch);
+                rfm12_spiExch(RFM12_CMD_TX | ch);
                 rfm12_CalcCRC(ch, (uint16_t *)&rfm12v_RfCRC);
                 
                 if(rfm12v_Pos == rfm12_pTxBuf->Length)
@@ -271,14 +333,14 @@ void rfm12_irq(void)
                     ch = 0xFF;
                 else
                 {
-                    hal_rfm12_spiExch(RFM12_IDLE_MODE);
-                    hal_rfm12_spiExch(RFM12_TXFIFO_DIS);
+                    rfm12_spiExch(RFM12_IDLE_MODE);
+                    rfm12_spiExch(RFM12_TXFIFO_DIS);
                     rfm12_state = RFM12_TRVTXDONE;
                     rfm12v_Pos = 0;
                     return;
                 }
 
-                hal_rfm12_spiExch(RFM12_CMD_TX | ch);
+                rfm12_spiExch(RFM12_CMD_TX | ch);
                 rfm12v_Pos++;
                 return;
             default:            // Unknown State
@@ -287,12 +349,12 @@ void rfm12_irq(void)
     }
 
     // Switch to Receive mode
-    hal_rfm12_spiExch(RFM12_IDLE_MODE);
-    hal_rfm12_spiExch(RFM12_RXFIFO_DIS);
-    hal_rfm12_spiExch(RFM12_TXFIFO_DIS);
+    rfm12_spiExch(RFM12_IDLE_MODE);
+    rfm12_spiExch(RFM12_RXFIFO_DIS);
+    rfm12_spiExch(RFM12_TXFIFO_DIS);
     
-    hal_rfm12_spiExch(RFM12_RECEIVE_MODE);
-    hal_rfm12_spiExch(RFM12_RXFIFO_ENA);
+    rfm12_spiExch(RFM12_RECEIVE_MODE);
+    rfm12_spiExch(RFM12_RXFIFO_ENA);
     rfm12_state = RFM12_TRVRXIDLE;
 }
 
@@ -391,31 +453,39 @@ void RFM12_Init(void)
     FR = (800 + ((uint16_t)Channel * 10))/3;
 #endif
 
-    hal_rfm12_init_hw();
-    
-    hal_rfm12_spiExch(0);           // initial SPI transfer added to avoid power-up problem
-    hal_rfm12_spiExch(RFM12_SLEEP_MODE);
+    // Configure NSS Pin
+    hal_dio_configure(RFM12_NSS_PIN, DIO_MODE_OUT_PP_HS);
+    RFM12_RELEASE();
+
+    // Configure IRQ Pin
+    hal_dio_configure(RFM12_IRQ_PIN, DIO_MODE_IN_PU);
+
+    // Configure SPI
+    hal_spi_cfg(RFM12_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_16B), 2500000UL);
+
+    rfm12_spiExch(0);           // initial SPI transfer added to avoid power-up problem
+    rfm12_spiExch(RFM12_SLEEP_MODE);
     
     // wait until RFM12B is out of power-up reset, this takes several *seconds*
-    hal_rfm12_spiExch(RFM12_CMD_TX);
+    rfm12_spiExch(RFM12_CMD_TX);
     do
     {
-        hal_rfm12_spiExch(0);
+        rfm12_spiExch(0);
     }
-    while(hal_rfm12_irq_stat());
+    while(RFM12_IRQ_STATE());
     
     uint8_t pos;
     for(pos = 0; pos < (sizeof(rfm12_config)/sizeof(rfm12_config[0])); pos++)
-        hal_rfm12_spiExch(rfm12_config[pos]);
+        rfm12_spiExch(rfm12_config[pos]);
 
-    hal_rfm12_spiExch(RFM12_CMD_FREQUENCY |     // Frequency Setting Command
+    rfm12_spiExch(RFM12_CMD_FREQUENCY |     // Frequency Setting Command
                       FR);
-    hal_rfm12_spiExch(RFM12_CMD_SYNCPATTERN |   // Synchro Pattern = 0x2D[grp]
+    rfm12_spiExch(RFM12_CMD_SYNCPATTERN |   // Synchro Pattern = 0x2D[grp]
                       rfm12_tx_hdr.Group[1]);
 
     rfm12_state = RFM12_TRVIDLE;
-    hal_rfm12_spiExch(RFM12_IDLE_MODE);
-    hal_rfm12_enable_irq();
+    rfm12_spiExch(RFM12_IDLE_MODE);
+    rfm12_enable_irq();
 }
 
 void RFM12_Send(void *pBuf)
@@ -440,8 +510,8 @@ void * RFM12_Get(void)
 
             wd_cnt = 0;
             rfm12_state = RFM12_TRVRXIDLE;
-            hal_rfm12_spiExch(RFM12_RECEIVE_MODE);
-            hal_rfm12_spiExch(RFM12_RXFIFO_ENA);
+            rfm12_spiExch(RFM12_RECEIVE_MODE);
+            rfm12_spiExch(RFM12_RXFIFO_ENA);
             break;
         case RFM12_TRVRXDONE:  // Rx Data Ready
             {
@@ -464,9 +534,9 @@ void * RFM12_Get(void)
             wd_cnt--;
             if(wd_cnt == 0)
             {
-                hal_rfm12_spiExch(RFM12_IDLE_MODE);
-                hal_rfm12_spiExch(RFM12_RXFIFO_DIS);
-                hal_rfm12_spiExch(RFM12_TXFIFO_DIS);
+                rfm12_spiExch(RFM12_IDLE_MODE);
+                rfm12_spiExch(RFM12_RXFIFO_DIS);
+                rfm12_spiExch(RFM12_TXFIFO_DIS);
                 rfm12_state = RFM12_TRVIDLE;
             }
     }
@@ -493,13 +563,13 @@ void RFM12_ASleep(void)
         rfm12_pTxBuf = NULL;
     }
 
-    hal_rfm12_spiExch(RFM12_SLEEP_MODE);
+    rfm12_spiExch(RFM12_SLEEP_MODE);
     rfm12_state = RFM12_TRVASLEEP;
 }
 
 void RFM12_AWake(void)
 {
-    hal_rfm12_spiExch(RFM12_IDLE_MODE);
+    rfm12_spiExch(RFM12_IDLE_MODE);
     rfm12_state = RFM12_TRVIDLE;
 }
 #endif  //  ASLEEP

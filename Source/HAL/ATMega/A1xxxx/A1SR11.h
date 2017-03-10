@@ -91,19 +91,19 @@ extern "C" {
 #include "PHY/UART/uart_phy.h"
 // End UART PHY Section
 
-// RF Section
-#define RFM12_PORT                  PORTB
-#define RFM12_DDR                   DDRB
-#define RFM12_PIN_SS                PB2
-#define RFM12_PIN_MOSI              PB3
-#define RFM12_PIN_MISO              PB4
-#define RFM12_PIN_SCK               PB5
-#define RFM12_IRQ_PORT              PORTB
-#define RFM12_IRQ_PORT_PIN          PINB
-#define RFM12_IRQ_PIN               PB0
+//RFM12 PHY1 Section	 NCS: PORTB.02, CLK: PORTB.05, SO: PORTB.04, SI: PORTB.03, IRQ: PORTB.00
+#define HAL_USE_SPI1                1
+#define HAL_USE_EXTI                1
+#define RFM12_USE_SPI               1
+#define RFM12_NSS_PIN               10
+#define RFM12_SELECT()              PORTB &= ~(1 << 2)
+#define RFM12_RELEASE()             PORTB |= (1 << 2)
+#define RFM12_IRQ_PIN               16
+#define RFM12_IRQ_STATE()           ((PINB & (1 << 0)) == 0)
 #define RFM12_PHY                   2
+#define RFM12_DEFAULT_FREQ          868300000UL
 #include "PHY/RFM12/rfm12_phy.h"
-//  End RF Section
+//End RFM12 PHY1 Section
 
 // Object's Dictionary Section
 #define OD_MAX_INDEX_LIST           15      // Size of identificators list

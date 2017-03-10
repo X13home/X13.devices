@@ -144,6 +144,7 @@ extern "C" {
 #define EXTTWI_USED                 1
 // End TWI Section
 
+/*
 // PLC Section
 #define EXTPLC_USED                     1
 #define EXTPLC_SIZEOF_PRG               2048
@@ -151,7 +152,7 @@ extern "C" {
 #define EXTPLC_SIZEOF_RAM               256     // size in uint32_t
 #define EXTPLC_SIZEOF_RW                16      // size in uint32_t
 // PLC Section
-
+*/
 // End Extensions configuration
 ////////////////////////////////////////////////////////
 
