@@ -293,7 +293,7 @@ bool hal_uart_datardy(uint8_t port)
 
 uint8_t hal_uart_get(uint8_t port)
 {
-    uint16_t retval;
+    uint8_t retval;
 
     switch(port)
     {

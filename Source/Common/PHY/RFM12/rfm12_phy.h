@@ -57,36 +57,28 @@ See LICENSE file for license details.
 ///////////////////////////////////////////////////////////////
 // Configuration settings
 
-#define OD_DEFAULT_GROUP        0x2DD4
+#define OD_DEFAULT_GROUP            0x2DD4
 
-#ifndef RF_BASE_FREQ
-#define RF_BASE_FREQ                    868300000UL
-#endif  //  RF_BASE_FREQ
+#ifndef RFM12_DEFAULT_FREQ
+#define RFM12_DEFAULT_FREQ          868300000UL
+#endif  //  RFM12_DEFAULT_FREQ
 
 // 433 MHz
-#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
-#define RFM12_BAND          RFM12_BAND_433
-#define OD_DEFAULT_CHANNEL  ((RF_BASE_FREQ - 433000000UL)/25000)
+#if (RFM12_DEFAULT_FREQ > 433050000UL) && (RFM12_DEFAULT_FREQ < 434790000UL)
+#define RFM12_BAND                  RFM12_BAND_433
+#define OD_DEFAULT_CHANNEL          ((RFM12_DEFAULT_FREQ - 433000000UL)/25000)
 // 868 MHz
-#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
-#define RFM12_BAND          RFM12_BAND_868
-#define OD_DEFAULT_CHANNEL  ((RF_BASE_FREQ - 868000000UL)/25000)
+#elif (RFM12_DEFAULT_FREQ > 868000000UL) && (RFM12_DEFAULT_FREQ < 870000000UL)
+#define RFM12_BAND                  RFM12_BAND_868
+#define OD_DEFAULT_CHANNEL          ((RFM12_DEFAULT_FREQ - 868000000UL)/25000)
 // 915 MHz
-#elif (RF_BASE_FREQ > 902000000UL) && (RF_BASE_FREQ < 928000000UL)
-#define RFM12_BAND          RFM12_BAND_915
-#define OD_DEFAULT_CHANNEL  ((RF_BASE_FREQ - 902000000UL)/25000)
+#elif (RFM12_DEFAULT_FREQ > 902000000UL) && (RFM12_DEFAULT_FREQ < 928000000UL)
+#define RFM12_BAND                  RFM12_BAND_915
+#define OD_DEFAULT_CHANNEL          ((RFM12_DEFAULT_FREQ - 902000000UL)/25000)
 #else
-#error  RF_BASE_FREQ does not belond to ISM band
-#endif  // RF_BASE_FREQ
+#error  RFM12_DEFAULT_FREQ does not belond to ISM band
+#endif  // RFM12_DEFAULT_FREQ
 
-
-// HAL section
-void        hal_rfm12_init_hw(void);
-uint16_t    hal_rfm12_spiExch(uint16_t data);
-bool        hal_rfm12_irq_stat(void);
-void        hal_rfm12_enable_irq(void);
-
-void        rfm12_irq(void);
 
 // API Section
 void        RFM12_Init(void);

@@ -93,6 +93,7 @@ void deadbeef_srand(uint32_t x) {
     deadbeef_beef = 0xdeadbeef;
 }
 */
+/*
 uint32_t HAL_RNG32(void)
 {
     // LFSR32, tap: 1,5,6,31
@@ -115,6 +116,7 @@ uint32_t HAL_RNG32(void)
 
     return lfsr;
 }
+*/
 #endif  //  EXTPLC_USED
 
 #ifdef HAL_USE_SUBMSTICK
@@ -271,6 +273,19 @@ uint8_t hal_spi_exch8(uint8_t port __attribute__ ((unused)), uint8_t data)
     SPDR = data;
     while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
     return SPDR;
+}
+
+uint16_t hal_spi_exch16(uint8_t port __attribute__ ((unused)), uint16_t data)
+{
+    
+    uint16_t retval;
+    SPDR = data >> 8;
+    while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
+    retval = SPDR<<8;
+    SPDR = data & 0xFF;
+    while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
+    retval |= SPDR;
+    return retval;
 }
 #endif  //  HAL_USE_SPI1
 // End SPI Section

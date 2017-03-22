@@ -35,6 +35,11 @@ See LICENSE file for license details.
 #include "A1xxxx/A1Cn10.h"
 #elif   (defined CFG_A1Mn10)        // Arduino Nano/Uno + RS485
 #include "A1xxxx/A1Mn10.h"
+// Obsolete
+#elif   (defined CFG_A1SR10)        // JeeNode + UART + RFM12
+#include "A1xxxx/A1SR10.h"
+#elif   (defined CFG_A1Rn10)        // JeeNode + RFM12
+#include "A1xxxx/A1Rn10.h"
 // Unknown
 #else
 #error Unknown configuration
