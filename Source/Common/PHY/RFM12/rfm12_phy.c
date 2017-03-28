@@ -443,10 +443,10 @@ void RFM12_Init(void)
     rfm12_tx_hdr.Group[1] = Group & 0xFF;
     
 // 433 MHz
-#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
+#if (RFM12_DEFAULT_FREQ > 433050000UL) && (RFM12_DEFAULT_FREQ < 434790000UL)
     FR = 1200 + ((uint16_t)Channel * 10);
 // 868 MHz
-#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
+#elif (RFM12_DEFAULT_FREQ > 868000000UL) && (RFM12_DEFAULT_FREQ < 870000000UL)
     FR = 1600 + ((uint16_t)Channel * 5);
 // 915 MHz
 #else

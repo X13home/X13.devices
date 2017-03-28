@@ -23,16 +23,16 @@ See LICENSE file for license details.
 #ifndef CC11_ANAREN     // Fosc = 26M
 
 // 433 MHz
-#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
+#if (CC11_DEFAULT_FREQ > 433050000UL) && (CC11_DEFAULT_FREQ < 434790000UL)
 #define CC11_DEFVAL_FREQ2       0x10
 #define CC11_DEFVAL_FREQ1       0xA7
 #define CC11_DEFVAL_FREQ0       0x62
 // 868 MHz
-#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
+#elif (CC11_DEFAULT_FREQ > 868000000UL) && (CC11_DEFAULT_FREQ < 870000000UL)
 #define CC11_DEFVAL_FREQ2       0x21
 #define CC11_DEFVAL_FREQ1       0x62
 #define CC11_DEFVAL_FREQ0       0x76
-#endif  // RF_BASE_FREQ
+#endif  // CC11_DEFAULT_FREQ
 
 #define CC11_MDMCFG3_VAL        0x83    // Data Rate = 38,383 kBaud
 #define CC11_DEVIATN_VAL        0x33    // Deviation 17,46 kHz
@@ -40,16 +40,16 @@ See LICENSE file for license details.
 #else   // Fosc = 27M
 
 // 433 MHz
-#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
+#if (CC11_DEFAULT_FREQ > 433050000UL) && (CC11_DEFAULT_FREQ < 434790000UL)
     #define CC11_DEFVAL_FREQ2       0x10
     #define CC11_DEFVAL_FREQ1       0x09
     #define CC11_DEFVAL_FREQ0       0x7B
 // 868 MHz
-#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
+#elif (CC11_DEFAULT_FREQ > 868000000UL) && (CC11_DEFAULT_FREQ < 870000000UL)
     #define CC11_DEFVAL_FREQ2       0x20
     #define CC11_DEFVAL_FREQ1       0x25
     #define CC11_DEFVAL_FREQ0       0xED
-#endif  //  RF_BASE_FREQ
+#endif  //  CC11_DEFAULT_FREQ
 
 #define CC11_MDMCFG3_VAL        0x75    // Data Rate = 38,4178 kBaud
 #define CC11_DEVIATN_VAL        0x32    // Deviation 16,5 kHz

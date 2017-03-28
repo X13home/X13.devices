@@ -13,44 +13,44 @@ See LICENSE file for license details.
 #ifndef _RFM69_PHY_H
 #define _RFM69_PHY_H
 
-#ifndef RF_BASE_FREQ
-#define RF_BASE_FREQ                868300000UL
-#endif  //  RF_BASE_FREQ
+#ifndef RFM69_DEFAULT_FREQ
+#define RFM69_DEFAULT_FREQ                868300000UL
+#endif  //  RFM69_DEFAULT_FREQ
 
 // 433 - ISM band
-#if ((RF_BASE_FREQ > 433000000UL) && (RF_BASE_FREQ < 434800000UL))
+#if ((RFM69_DEFAULT_FREQ > 433000000UL) && (RFM69_DEFAULT_FREQ < 434800000UL))
 #define RFM69_BASE_FREQ             433000000UL
 #define RFM69_MIN_FREQ              433050000UL
 #define RFM69_MAX_FREQ              434790000UL
 
 // Extended 868 - ISM band
-#elif ((RF_BASE_FREQ >= 865000000UL) && (RF_BASE_FREQ < 868000000UL))
+#elif ((RFM69_DEFAULT_FREQ >= 865000000UL) && (RFM69_DEFAULT_FREQ < 868000000UL))
 #define RFM69_BASE_FREQ             865000000UL
 #define RFM69_MIN_FREQ              865000000UL
 #define RFM69_MAX_FREQ              870000000UL
 
 // Standard 868 - ISM Band
-#elif ((RF_BASE_FREQ >= 868000000UL) && (RF_BASE_FREQ <= 870000000UL))
+#elif ((RFM69_DEFAULT_FREQ >= 868000000UL) && (RFM69_DEFAULT_FREQ <= 870000000UL))
 #define RFM69_BASE_FREQ             868000000UL
 #define RFM69_MIN_FREQ              868000000UL
 #define RFM69_MAX_FREQ              870000000UL
 
 // ARRL Band - Digital communications
-#elif ((RF_BASE_FREQ >= 903000000UL) && (RF_BASE_FREQ <= 906000000UL))
+#elif ((RFM69_DEFAULT_FREQ >= 903000000UL) && (RFM69_DEFAULT_FREQ <= 906000000UL))
 #define RFM69_BASE_FREQ             903000000UL
 #define RFM69_MIN_FREQ              903000000UL
 #define RFM69_MAX_FREQ              906000000UL
 
-#elif ((RF_BASE_FREQ >= 915000000UL) && (RF_BASE_FREQ <= 918000000UL))
+#elif ((RFM69_DEFAULT_FREQ >= 915000000UL) && (RFM69_DEFAULT_FREQ <= 918000000UL))
 #define RFM69_BASE_FREQ             915000000UL
 #define RFM69_MIN_FREQ              915000000UL
 #define RFM69_MAX_FREQ              918000000UL
 
 #else
-#error RF_BASE_FREQ does not belond to ISM band
-#endif  //  RF_BASE_FREQ
+#error RFM69_DEFAULT_FREQ does not belond to ISM band
+#endif  //  RFM69_DEFAULT_FREQ
 
-#define OD_DEFAULT_CHANNEL          ((RF_BASE_FREQ - RFM69_BASE_FREQ)/25000)
+#define OD_DEFAULT_CHANNEL          ((RFM69_DEFAULT_FREQ - RFM69_BASE_FREQ)/25000)
 #define OD_DEFAULT_GROUP            0x2DD4
 #define OD_DEFAULT_RF_PWR           10
 #define OD_DEFAULT_RF_KEY           {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
