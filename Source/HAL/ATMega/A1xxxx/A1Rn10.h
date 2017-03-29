@@ -8,6 +8,8 @@
 // PHY1: RFM12
 
 // == PORTB
+// 12	PORTB.00	ISP.7	
+// 13	PORTB.01	ISP.8	| PWM 01.0	
 // 14	PORTB.02		| phy1_NCS
 // 15	PORTB.03		| phy1_SI
 // 16	PORTB.04		| phy1_SO
@@ -19,8 +21,11 @@
 // 24	PORTC.01	P2.5	| AIN 01	
 // 25	PORTC.02	P3.5	| AIN 02	
 // 26	PORTC.03	P4.5	| AIN 03	
+// 27	PORTC.04	S.5	| AIN 04	| TWI_SDA	
+// 28	PORTC.05	S.6	| AIN 05	| TWI_SCL	
 // == PORTD
 // 32	PORTD.02		| phy1_IRQ
+// 01	PORTD.03	Px.6	
 // 02	PORTD.04	P1.2	
 // 09	PORTD.05	P2.2	| PWM 00.1	
 // 10	PORTD.06	P3.2	| PWM 00.0	
@@ -37,25 +42,30 @@ extern "C" {
 
 // DIO Section
 #define EXTDIO_USED                 1
-#define EXTDIO_PORT_OFFSET          2
-#define EXTDIO_MAXPORT_NR           2
-#define HAL_DIO_MAPPING             {16, 17, 18, 19, 28, 29, 30, 31}
+#define EXTDIO_PORT_OFFSET          1
+#define EXTDIO_MAXPORT_NR           3
+#define HAL_DIO_MAPPING             {16, 17, 18, 19, 28, 29, 30, 31, 27, 20, 21, 8, 9}
 // End DIO Section
 
 // PWM Section
 #define EXTPWM_USED                 1
 #define HAL_PWM_BASE_OFFSET         5
-#define HAL_PWM_PORT2CFG            {0x01, 0x00}
+#define HAL_PWM_PORT2CFG            {0x01, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x08}
 // End PWM Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           4
-#define HAL_AIN_BASE2APIN           {0, 1, 2, 3}
+#define EXTAIN_MAXPORT_NR           6
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 4, 5}
 // End Analogue Inputs
 
 // UART Section
 // End UART Section
+
+// TWI Section
+#define HAL_TWI_BUS                 1
+#define EXTTWI_USED                 1
+// End TWI Section
 
 //RFM12 PHY1 Section	 NCS: PORTB.02, CLK: PORTB.05, SO: PORTB.04, SI: PORTB.03, IRQ: PORTD.02
 #define HAL_USE_SPI1                1
@@ -72,7 +82,7 @@ extern "C" {
 //End RFM12 PHY1 Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           8
+#define OD_MAX_INDEX_LIST           13
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'
 #define OD_DEV_PHY1                 'R'

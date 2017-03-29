@@ -104,7 +104,7 @@ extern "C" {
 #define RFM12_NSS_PIN               10
 #define RFM12_SELECT()              PORTB &= ~(1 << 2)
 #define RFM12_RELEASE()             PORTB |= (1 << 2)
-#define RFM12_IRQ_PIN               16
+#define RFM12_IRQ_PIN               8
 #define RFM12_IRQ_STATE()           ((PINB & (1 << 0)) == 0)
 #define RFM12_PHY                   1
 #define RFM12_DEFAULT_FREQ          868300000UL
@@ -112,7 +112,7 @@ extern "C" {
 //End RFM12 PHY1 Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           17      // Size of identificators list
+#define OD_MAX_INDEX_LIST           16      // Size of identificators list
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'
 #define OD_DEV_PHY1                 'R'

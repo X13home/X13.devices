@@ -88,7 +88,7 @@ extern "C" {
 // End UART PHY Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           21      // Size of identificators list,
+#define OD_MAX_INDEX_LIST           20      // Size of identificators list,
                                             // PC0-PC5 + ADC6/7 + Vbg + PD2-PD7 + PB0-PB4
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'

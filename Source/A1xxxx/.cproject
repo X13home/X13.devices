@@ -814,7 +814,6 @@
 		<configuration configurationName="A1Cn12">
 			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
 		</configuration>
-		<configuration configurationName="A1Mn10"/>
 		<configuration configurationName="A1En12">
 			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
 		</configuration>
@@ -826,11 +825,14 @@
 			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
 		</configuration>
 		<configuration configurationName="A1Sn12"/>
+		<configuration configurationName="A1SR10"/>
 		<configuration configurationName="A1SR11"/>
-		<configuration configurationName="A1SC10"/>
 		<configuration configurationName="A1Sn10">
 			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
 		</configuration>
+		<configuration configurationName="A1Rn10"/>
+		<configuration configurationName="A1Mn10"/>
+		<configuration configurationName="A1SC10"/>
 		<configuration configurationName="Release">
 			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
 		</configuration>

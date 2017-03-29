@@ -96,11 +96,12 @@ extern "C" {
 #define CC11_SELECT()               PORTB &= ~(1<<PB2)
 #define CC11_RELEASE()              PORTB |= (1<<PB2)
 #define CC11_PHY                    2
+#define CC11_DEFAULT_FREQ           868300000UL
 #include "PHY/CC1101/cc11_phy.h"
 //  End CC11 Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           21      // Size of identificators list, 
+#define OD_MAX_INDEX_LIST           16      // Size of identificators list, 
                                             //  PC0-PC5 + ADC6/7 + Vbg + PD2-PD7 + PB0-PB4
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'

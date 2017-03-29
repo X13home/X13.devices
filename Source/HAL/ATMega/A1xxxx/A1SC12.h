@@ -100,6 +100,7 @@ extern "C" {
 #define CC11_SELECT()               PORTB &= ~(1<<PB2)
 #define CC11_RELEASE()              PORTB |= (1<<PB2)
 #define CC11_PHY                    2
+#define CC11_DEFAULT_FREQ           868300000UL
 #include "PHY/CC1101/cc11_phy.h"
 //  End CC11 Section
 

@@ -15,12 +15,12 @@
 // 47	PORTA.04	XP2.29	
 // 46	PORTA.05	XP2.31	
 // 45	PORTA.06	XP2.33	
-// 44	PORTA.07		
+// 44	PORTA.07	XP4.15	
 // == PORTB
-// 10	PORTB.00		| phy1_NSS 1.1
-// 11	PORTB.01		| phy1_SCK 1.1
-// 12	PORTB.02		| phy1_MOSI 1.1
-// 13	PORTB.03		| phy1_MISO 1.1
+// 10	PORTB.00		| phy1_NCS
+// 11	PORTB.01		| phy1_CLK
+// 12	PORTB.02		| phy1_SI
+// 13	PORTB.03		| phy1_SO
 // 14	PORTB.04	XP1.15	
 // 15	PORTB.05	XP1.19	| PWM 01.0	
 // 16	PORTB.06	XP1.17	| PWM 01.1	
@@ -33,7 +33,7 @@
 // 39	PORTC.04	XP4.14	
 // 40	PORTC.05	XP4.9	
 // 41	PORTC.06	XP4.10	
-// 42	PORTC.07	Xp4.13	
+// 42	PORTC.07	XP4.13	
 // == PORTD
 // 25	PORTD.00	XT2.4	| TWI_SCL	
 // 26	PORTD.01	XT2.5	| TWI_SDA	
@@ -62,7 +62,7 @@
 // 55	PORTF.06	XP5.1	| AIN 06	
 // 54	PORTF.07	XP6.1	| AIN 07	
 // == PORTG
-// 33	PORTG.00		| sys_LED
+// 33	PORTG.00		| sys_LED_P
 // 34	PORTG.01	XP4.7	
 // 43	PORTG.02	XP4.11	
 // 18	PORTG.03	XP2.5	
@@ -76,54 +76,58 @@ extern "C" {
 #define F_CPU                       12500000UL
 
 // DIO Section
-#define EXTDIO_USED		1
-#define EXTDIO_MAXPORT_NR	7
-#define HAL_DIO_MAPPING		{52, 31, 30, 32, 15, 12, 14, 13, 53, 40, 41, 42, 43, 44, 45, 51, 39, 38, 34, 37, 33, 36, 35, 0, 1, 2, 3, 4, 5, 6, 24, 25, 26, 27, 28, 29, 46, 47, 18, 17, 49, 16, 21, 22, 50, 19, 23, 20, 7}
+#define EXTDIO_USED                 1
+#define EXTDIO_MAXPORT_NR           7
+#define HAL_DIO_MAPPING             {52, 31, 30, 32, 15, 12, 14, 13, 53, 40, 41, 42, 43, 44, 45, 51, 39, 38, 34, 37, 33, 36, 35, 0, 1, 2, 3, 4, 5, 6, 24, 25, 26, 27, 28, 29, 46, 47, 18, 17, 49, 16, 21, 22, 50, 19, 23, 20, 7}
 // End DIO Section
 
 // PWM Section
-#define EXTPWM_USED		1
-#define HAL_PWM_BASE_OFFSET	4
-#define HAL_PWM_PORT2CFG	{0x0A, 0xFF, 0x09, 0x08, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1A, 0xFF, 0x19, 0x18}
+#define EXTPWM_USED                 1
+#define HAL_PWM_BASE_OFFSET         4
+#define HAL_PWM_PORT2CFG            {0x0A, 0xFF, 0x09, 0x08, 0x01, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x1A, 0xFF, 0x19, 0x18}
 // End PWM Section
 
 // Analogue Inputs
-#define EXTAIN_USED		1
-#define EXTAIN_MAXPORT_NR	8
-#define HAL_AIN_BASE2APIN	{0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 2, 3, 4, 5, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 6, 7}
+#define EXTAIN_USED                 1
+#define EXTAIN_MAXPORT_NR           8
+#define HAL_AIN_BASE2APIN           {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0, 1, 2, 3, 4, 5, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 6, 7}
 // End Analogue Inputs
 
 // UART Section
-#define HAL_USE_USART1		0
-#define HAL_USE_USART0		1
-#define EXTSER_USED		2
-#define HAL_UART_NUM_PORTS	2
+#define HAL_USE_USART1              0
+#define HAL_USE_USART0              1
+#define EXTSER_USED                 2
+#define HAL_UART_NUM_PORTS          2
 // End UART Section
 
 // TWI Section
-#define EXTTWI_USED		1
-#define HAL_TWI_BUS		1
+#define HAL_TWI_BUS                 1
+#define EXTTWI_USED                 1
 // End TWI Section
 
-//ENC PHY1 Section	MOSI: PORTB.02, MISO: PORTB.03, SCK: PORTB.01, NSS: PORTB.00
-#define HAL_USE_SPI1              1
+#define LED_Init()                  hal_dio_configure(48, DIO_MODE_OUT_PP)
+#define LED_On()                    PORTG |= (1 << 0)
+#define LED_Off()                   PORTG &= ~(1 << 0)
+
+//ENC28J60 PHY1 Section	 NCS: PORTB.00, CLK: PORTB.01, SO: PORTB.03, SI: PORTB.02
+#define HAL_USE_SPI1                1
 #define ENC_USE_SPI                 1
 #define ENC_NSS_PIN                 8
 #define ENC_SELECT()                PORTB &= ~(1 << 0)
 #define ENC_RELEASE()               PORTB |= (1 << 0)
 #define ENC_PHY                     1
+#define OD_DEF_DEV_MAC              {0x00,0x04,0xA3,0x00,0x00,0x05}   // MAC MSB->LSB
 #include "PHY/ENC28J60/enc28j60_phy.h"
-//End ENC PHY1 Section
-
+//End ENC28J60 PHY1 Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST	49
-#define OD_DEV_UC_TYPE		'A'
-#define OD_DEV_UC_SUBTYPE	'5'
-#define OD_DEV_PHY1		'E'
-#define OD_DEV_PHY2		'n'
-#define OD_DEV_HW_TYP_H		'1'
-#define OD_DEV_HW_TYP_L		'0'
+#define OD_MAX_INDEX_LIST           49
+#define OD_DEV_UC_TYPE              'A'
+#define OD_DEV_UC_SUBTYPE           '5'
+#define OD_DEV_PHY1                 'E'
+#define OD_DEV_PHY2                 'n'
+#define OD_DEV_HW_TYP_H             '1'
+#define OD_DEV_HW_TYP_L             '0'
 // End Object's Dictionary Section
 
 #ifdef __cplusplus
