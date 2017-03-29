@@ -339,10 +339,15 @@ void mqttsn_parser_phy1(MQ_t * pPHY1outBuf)
 
                         uint16_t index;
                         if(pPHY1outBuf->m.mq.m.regack.ReturnCode == MQTTSN_RET_ACCEPTED)
+                        {
                             index = (pPHY1outBuf->m.mq.m.regack.TopicId[0]<<8) |
                                      pPHY1outBuf->m.mq.m.regack.TopicId[1];
+                        }
                         else
-                            index = 0;
+                        {
+                            // Delete variable
+                            index = 0xFFFF;
+                        }
                         RegAckOD(index);
                         
                         vMQ_tRetry = MQTTSN_T_SHORT;
