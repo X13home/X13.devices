@@ -15,20 +15,12 @@ See LICENSE file for license details.
 
 #include "stm32f1xx.h"
 
-// STM32F103CBT6, Maple Mini
-#if   (defined CFG_S3Sn10)
-#include "S3xxxx/S3Sn10.h"    // UART
-#elif (defined CFG_S3SC10)
-#include "S3xxxx/S3SC10.h"    // UART + CC1101
-#elif (defined CFG_S3En10)
-#include "S3xxxx/S3En10.h"    // ENC28J60
-#elif (defined CFG_S3Cn10)
-#include "S3xxxx/S3Cn10.h"    // CC1101
-#elif (defined CFG_S3SQ10)
-#include "S3xxxx/S3SQ10.h"    // UART + RFM69
+#ifdef CONFIG
+#define CONFIG_INCLUDE < CONFIG.h >
+#include CONFIG_INCLUDE
 #else
 #error Unknown configuration
-#endif  //  Configuration
+#endif
 
 //////////////////////////////////////////////////////////////
 // PLC Section

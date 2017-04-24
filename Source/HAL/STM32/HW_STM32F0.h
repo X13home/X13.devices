@@ -15,58 +15,12 @@ See LICENSE file for license details.
 
 #include "stm32f0xx.h"
 
-// STM32F051R8, Discovery F0
-#if   (defined CFG_S2Sn10)
-#include "S2xxxx/S2Sn10.h"      // UART
-#elif   (defined CFG_S2SR10)
-#include "S2xxxx/S2SR10.h"      // UART + RFM12
-
-// STM32F091RC, Nucleo F091RC
-#elif   (defined CFG_S2Sn11)
-#include "S2xxxx/S2Sn11.h"      // UART
-
-// STM32F051C8
-// Board S2EC13/S2ER13 without RF
-#elif   (defined CFG_S2En13)
-#include "S2xxxx/S2En13.h"      // ENC28J60
-#elif   (defined CFG_S2Sn13)
-#include "S2xxxx/S2Sn13.h"      // UART ALT
-#elif   (defined CFG_S2EM13)
-#include "S2xxxx/S2EM13.h"      // ENC28J60 + EXT_RS485
-#elif   (defined CFG_S2SM13)
-#include "S2xxxx/S2SM13.h"      // UART ALT + EXT_RS485
-#elif   (defined CFG_S2Mn13)
-#include "S2xxxx/S2Mn13.h"      // EXT_RS485
-// Board S2EC13 + CC1101
-#elif   (defined CFG_S2EC13)
-#include "S2xxxx/S2EC13.h"      // ENC28J60 + CC1101
-#elif   (defined CFG_S2Cn13)
-#include "S2xxxx/S2Cn13.h"      // CC1101
-#elif   (defined CFG_S2SC13)
-#include "S2xxxx/S2SC13.h"      // UART ALT + CC1101
-// Board S2ER13 + RFM69CW
-#elif   (defined CFG_S2Qn13)
-#include "S2xxxx/S2Qn13.h"      // RFM69
-#elif   (defined CFG_S2SQ13)
-#include "S2xxxx/S2SQ13.h"      // UART ALT + RFM69
-
-// STM32F051K8
-#elif   (defined CFG_S2SC14)
-#include "S2xxxx/S2SC14.h"      // UART + CC1101
-
-// UNode V3.0 - STM32F051K8
-#elif   (defined CFG_S2SC15)    
-#include "S2xxxx/S2SC15.h"      // UART + CC1101
-#elif   (defined CFG_S2Cn15)    
-#include "S2xxxx/S2Cn15.h"      // CC1101
-
-// S2Mn10
-#elif   (defined CFG_S2Mn16)
-#include "S2xxxx/S2Mn16.h"      // EXT_RS485
-
+#ifdef CONFIG
+#define CONFIG_INCLUDE < CONFIG.h >
+#include CONFIG_INCLUDE
 #else
 #error Unknown configuration
-#endif  //  Configuration
+#endif
 
 //////////////////////////////////////////////////////////////
 // PLC Section

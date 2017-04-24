@@ -15,12 +15,12 @@ See LICENSE file for license details.
 
 #include "stm32l1xx.h"
 
-#if   (defined CFG_S6Sn10)
-#include "S6xxxx/S6Sn10.h"
+#ifdef CONFIG
+#define CONFIG_INCLUDE < CONFIG.h >
+#include CONFIG_INCLUDE
 #else
 #error Unknown configuration
-#endif  //  Configuration
-
+#endif
 
 //////////////////////////////////////////////////////////////
 //  UART Section

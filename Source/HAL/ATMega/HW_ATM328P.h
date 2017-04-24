@@ -13,49 +13,24 @@ See LICENSE file for license details.
 #ifndef HW_ATM328P_H
 #define HW_ATM328P_H
 
-// ATMega328P
-#if     (defined CFG_A1Cn12)        // CC1101
-#include "A1xxxx/A1Cn12.h"
-#elif   (defined CFG_A1SC12)        // UART + CC1101
-#include "A1xxxx/A1SC12.h"
-#elif   (defined CFG_A1En12)        // ENC28J60
-#include "A1xxxx/A1En12.h"
-#elif   (defined CFG_A1Sn12)        // UART
-#include "A1xxxx/A1Sn12.h"
-#elif   (defined CFG_A1SR11)        // RFM12 vers. 1.1
-#include "A1xxxx/A1SR11.h"
-#elif   (defined CFG_A1Rn11)        // RFM12 vers. 1.1, node
-#include "A1xxxx/A1Rn11.h"
-// Arduino Nano/Uno ATMega328P + OSC 16MHz
-#elif   (defined CFG_A1Sn10)        // Arduino Nano/Uno + UART
-#include "A1xxxx/A1Sn10.h"
-#elif   (defined CFG_A1SC10)        // Arduino Nano/Uno + UART + CC1101
-#include "A1xxxx/A1SC10.h"
-#elif   (defined CFG_A1Cn10)        // Arduino Nano/Uno + CC1101
-#include "A1xxxx/A1Cn10.h"
-// Untested
-#elif   (defined CFG_A1SR10)        // JeeNode + UART + RFM12
-#include "A1xxxx/A1SR10.h"
-#elif   (defined CFG_A1Rn10)        // JeeNode + RFM12
-#include "A1xxxx/A1Rn10.h"
-#elif   (defined CFG_A1Mn10)        // RS485, OSC 16MHz
-#include "A1xxxx/A1Mn10.h"
-// Unknown
+#ifdef CONFIG
+#define CONFIG_INCLUDE < CONFIG.h >
+#include CONFIG_INCLUDE
 #else
 #error Unknown configuration
-#endif  //  Configuration
+#endif
 
-#define HAL_SIZEOF_UART_RX_FIFO         32      // Should be 2^n
+#define HAL_SIZEOF_UART_RX_FIFO     32      // Should be 2^n
 
 // DIO
 #define HAL_DIO_PORTNUM2PORT        {0xFFFF, (uint16_t)&PORTB, (uint16_t)&PORTC, (uint16_t)&PORTD}
 // AIn
 #define EXTAIN_REF                  0x06    // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
-#define HAL_AIN_APIN2DIO        {   /* PC0 - PC5, Ain6, Ain7 */                         \
+#define HAL_AIN_APIN2DIO            {/* PC0 - PC5, Ain6, Ain7 */                        \
                                         16,   17,   18,   19,   20,   21,   0xFE, 0xFE, \
                                     /* TempSens, Vbg, GND   */                          \
                                      0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE     \
-                                }
+                                    }
 // TWI
 #define TWIM_SCL_STAT()             (PINC & (1<<PC5))
 #define I2C_DIO_SDA                 20

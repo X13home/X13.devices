@@ -15,16 +15,12 @@ See LICENSE file for license details.
 
 #include "stm32l0xx.h"
 
-// uC: STM32L051K8
-// Board: UNode V3.0
-#if   (defined CFG_S5Cn10)
-#include "S5xxxx/S5Cn10.h"      // CC1101
-// Board: CPUe - prototype
-#elif  (defined CFG_S5Qn11)
-#include "S5xxxx/S5Qn11.h"      // RFM69 at PHY interface
+#ifdef CONFIG
+#define CONFIG_INCLUDE < CONFIG.h >
+#include CONFIG_INCLUDE
 #else
 #error Unknown configuration
-#endif  //  Configuration
+#endif
 
 //////////////////////////////////////////////////////////////
 // PLC Section

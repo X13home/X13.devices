@@ -15,20 +15,12 @@ See LICENSE file for license details.
 
 #include "stm32f3xx.h"
 
-// STM32F303K8T6 - Modified Nucleo
-#if   (defined CFG_S4Sn10)
-#include "S4xxxx/S4Sn10.h"    // UART
-// UNodeV3, STM32F303K8
-#elif   (defined CFG_S4Cn11)
-#include "S4xxxx/S4Cn11.h"    // CC1101
-#elif   (defined CFG_S4SC11)
-#include "S4xxxx/S4SC11.h"    // UART + CC1101
-// S4xx13, STM32F334K8
-#elif   (defined CFG_S4Mn13)
-#include "S4xxxx/S4Mn13.h"    // RS485
+#ifdef CONFIG
+#define CONFIG_INCLUDE < CONFIG.h >
+#include CONFIG_INCLUDE
 #else
 #error Unknown configuration
-#endif  //  Configuration
+#endif
 
 //////////////////////////////////////////////////////////////
 // PLC Section
