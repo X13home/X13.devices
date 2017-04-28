@@ -85,8 +85,11 @@ extern "C" {
 
 // Analog Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           8
-#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7}        // PA0-PA7: 0 - 7
+#define EXTAIN_MAXPORT_NR           18
+#define HAL_AIN_BASE2APIN           {0, 1, 2, 3, 4, 5, 6, 7,    /* PA0-PA7 */ \
+                                     0xFF, 0xFF, 0xFF, 0xFF,    /* Gap */ \
+                                     0xFF, 0xFF, 0xFF, 0xFF,    /* Gap */ \
+                                     17}                        /* Vbg */
 // End Analog Inputs
 
 // TWI Section
