@@ -277,3 +277,16 @@ cbPoll_t ext_getPoll(subidx_t * pSubidx)
 }
 
 #endif  // EXTPLC_USED
+
+
+#ifdef ASLEEP
+void extASleep(void)
+{
+
+}
+
+void extAWake()
+{
+    
+}
+#endif  //  ASLEEP

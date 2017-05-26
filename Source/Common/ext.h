@@ -63,6 +63,11 @@ uint8_t ext_getDPin(subidx_t * pSubidx);                    // convert subidx to
 cbPoll_t ext_getPoll(subidx_t * pSubidx);                   // convert subidx to *Poll
 #endif  //  EXTPLC_USED
 
+#ifdef ASLEEP
+void extASleep(void);
+void extAWake(void);
+#endif  //  ASLEEP
+
 #ifdef __cplusplus
 }
 #endif

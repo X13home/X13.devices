@@ -201,4 +201,41 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
         Len--;
     }
 }
+
+// ASleep Section
+#ifdef ASLEEP
+
+void HAL_PreASleep(void)                // Configure Sleep Clock
+{
+}
+
+void HAL_AWake(void)
+{
+}
+
+/*
+    PWR->CSR |=PWR_CSR_EWUP2;       // Enable WakeUp2
+    SCB->SCR |=SCB_SCR_SLEEPDEEP;   //
+    PWR->CR |= PWR_CR_PDDS;         //Set PDDS bit in Power Control register (PWR_CR)
+                                    //выбрали  способ сна  STANDBY
+    //__WFI();                        //заснули до прерывания
+    __WFE();                        // заснули до события
+*/
+/*
+   // Request to enter STOP mode with regulator in low power mode
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+ 
+    // After wake-up from STOP reconfigure the PLL
+    SetSysClock();
+*/
+
+void HAL_ASleep(uint16_t duration)
+{
+    // ToDo ASleep dummy function
+
+    uint32_t sec_cnt =  HAL_RTC_SecNow() + duration;
+    while(sec_cnt != HAL_RTC_SecNow());
+}
+#endif  //  ASLEEP
+
 #endif  //  STM32L0

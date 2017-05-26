@@ -60,6 +60,7 @@ extern "C" {
 #define HAL_USE_RTC                 1   // Enable Hardware RTC
 //#define HAL_RTC_CHECK_LSE           1   // Check if exist Low Speed External Oscillator,
                                         // then use LSE, else LSI
+#define ASLEEP                      1
 
 // DIO Section
 #define EXTDIO_USED                 1

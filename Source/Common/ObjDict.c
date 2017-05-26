@@ -38,6 +38,9 @@ static uint8_t cbReadRTC(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 
 #ifdef ASLEEP
 static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+#ifndef OD_DEFAULT_TASLEEP
+#define OD_DEFAULT_TASLEEP  0
+#endif  //  OD_DEFAULT_TASLEEP
 #endif  //  ASLEEP
 
 #ifdef EXTPLC_USED

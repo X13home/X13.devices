@@ -170,6 +170,12 @@ ISR(WDT_vect)
     hal_ms_counter += 8000;
 }
 
+void HAL_PreASleep(void)
+{}
+
+void HAL_AWake(void)
+{}
+
 void HAL_ASleep(uint16_t duration)
 {
     duration >>= 3; // Minimal Sleep Time 8S

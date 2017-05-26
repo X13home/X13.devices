@@ -892,15 +892,19 @@ static void mqttsn_send_gwinfo(uint8_t phy)
 #endif  //  ((defined MQTTSN_USE_MESH) || (defined PHY2_ADDR_t))
 
 #ifdef ASLEEP
-void mqttsn_asleep(void)
+static void mqttsn_asleep(void)
 {
+    extASleep();
+    HAL_PreASleep();                // Configure Sleep Clock
 #ifdef PHY1_ASleep
     PHY1_ASleep();                  // Disable PHY
 #endif  //  PHY1_ASleep
-    HAL_ASleep(vMQ_tASleep);    // Enter to Sleep mode
+    HAL_ASleep(vMQ_tASleep);        // Enter to Sleep mode
 #ifdef PHY1_AWake
     PHY1_AWake();                   // Enable PHY
 #endif  //  PHY1_AWake
+    HAL_AWake();
+    extAWake();
 }
 #endif  //  ASLEEP
 
