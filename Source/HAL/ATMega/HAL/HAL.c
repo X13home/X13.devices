@@ -76,6 +76,13 @@ uint16_t HAL_RNG(void)
     return rand16;
 }
 
+// EEPROM Section
+bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
+{
+    eeprom_write_block((const void *)pBuf, (void *)Addr, (size_t)Len);
+    return true;
+}
+
 #if (defined EXTPLC_USED)
 /*
 static uint32_t deadbeef_seed;

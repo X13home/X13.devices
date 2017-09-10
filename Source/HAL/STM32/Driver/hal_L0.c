@@ -161,7 +161,7 @@ void eeprom_init_hw(void)
 }
 
 // Read data from EEPROM
-void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
+void eeprom_read(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
 {
     uint32_t eep_addr = DATA_EEPROM_BASE;
     eep_addr += Addr;
@@ -174,13 +174,13 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 }
 
 // Write data to EEPROM
-void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
+bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
 {
     uint32_t eep_addr = DATA_EEPROM_BASE;
     eep_addr += Addr;
     if((eep_addr + Len) > DATA_EEPROM_END)      // Invalid Address or Length
     {
-        return;
+        return false;
     }
 
     //if(FLASH->PECR & FLASH_PECR_ERASE)
@@ -192,7 +192,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
     {
         if(FLASH->SR & FLASH_SR_WRPERR)         //  Write Error
         {
-            return;
+            return false;
         }
 
         *(uint8_t *)eep_addr = *pBuf;
@@ -200,6 +200,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
         pBuf++;
         Len--;
     }
+    return true;
 }
 
 // ASleep Section

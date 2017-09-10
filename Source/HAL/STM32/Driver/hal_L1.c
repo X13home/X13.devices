@@ -192,7 +192,7 @@ void eeprom_init_hw(void)
 }
 
 // Read data from EEPROM
-void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
+void eeprom_read(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
 {
     uint32_t eep_addr = FLASH_EEPROM_BASE;
     eep_addr += Addr;
@@ -207,13 +207,13 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 #define FLASH_PRG_TIMEOUT   ((uint32_t)0x00008000)
 
 // Write data to EEPROM
-void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
+bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
 {
     uint32_t eep_addr = FLASH_EEPROM_BASE;
     eep_addr += Addr;
     if((eep_addr + Len) > FLASH_EEPROM_END)      // Invalid Address or Length
     {
-        return;
+        return false;
     }
 
     // Convert uint8 to uint32
@@ -227,7 +227,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
                         FLASH_SR_PGAERR |   // Programming Alignment Error
                         FLASH_SR_SIZERR))   // Size error
         {
-            return;
+            return false;
         }
 
         uint32_t timeout = FLASH_PRG_TIMEOUT;
@@ -239,7 +239,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
             }
             else
             {
-                return;
+                return false;
             }
         }
 
@@ -267,6 +267,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
             pos += 8;
         }
     }
+    return true;
 }
 
-#endif  //  STM32L0
+#endif  //  STM32L1

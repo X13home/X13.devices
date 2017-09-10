@@ -305,8 +305,10 @@ static bool fee_check_blank(uint32_t addr)
 }
 
 // Convert virtual EEPROM address to physical FLASH address
-static uint32_t fee_virt2real(uint32_t addr)
+static uint32_t fee_virt2real(uint16_t vAddr)
 {
+    uint32_t addr = vAddr;
+
     addr++;
     addr *= 2;
 
@@ -412,7 +414,7 @@ void eeprom_init_hw(void)
 }
 
 // Read data from EEPROM
-void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
+void eeprom_read(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
 {
     uint32_t fee_addr = 0;
     while(Len > 0)
@@ -424,7 +426,12 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 
         if(fee_addr == 0)       // Page not allocated
         {
-            *(pBuf++) = 0xFF;
+            while(Len > 0)
+            {
+                *(pBuf++) = 0xFF;
+                Len--;
+            }
+            return;
         }
         else
         {
@@ -438,11 +445,16 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 }
 
 // Write data to EEPROM
-void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
+bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
 {
     while(Len > 0)
     {
         uint32_t fee_addr = fee_virt2real(Addr);
+        if(fee_addr == 0)                           // Page not allocated
+        {
+            return false;
+        }
+
         uint32_t length = (FEE_PAGE_SIZE - (fee_addr & (FEE_PAGE_SIZE - 1))) / 2;
         if(Len < length)
         {
@@ -459,9 +471,10 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 
         if(!fee_transfer(fee_addr, length))
         {
-            return;                                 // Flash Error
+            return false;                           // Flash Error
         }
     }
+    return true;
 }
 
 #endif  //  FEE_SIZE

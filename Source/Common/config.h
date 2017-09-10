@@ -35,7 +35,7 @@ extern "C" {
 // Object Dictionary
 #define OD_DEV_SWVERSH                  '3'     // Software Version
 #define OD_DEV_SWVERSM                  '1'
-#define OD_DEV_SWVERSL                  '4'
+#define OD_DEV_SWVERSL                  '5'
 
 #include "hal.h"
 #include "mqMEM.h"

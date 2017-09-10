@@ -32,6 +32,8 @@ typedef enum
     
     PLC_ANSWER_ERROR_OFR_IDX    = 0x90,     // Index out of range
     
+    PLC_ANSWER_ERROR_EEPROM     = 0xA0,     // EEPROM Error
+    
     PLC_ANSWER_ERROR_WRS        = 0xFA,     // Wrong State
     PLC_ANSWER_ERROR_CRC        = 0xFB,     // CRC Error
     PLC_ANSWER_ERROR_OFR        = 0xFC,     // Out of range
@@ -205,8 +207,15 @@ static void plc_control(void)
                 break;
             }
             
-            plc_exchg->data[1] = PLC_ANSWER_OK;
-            eeprom_write(&plc_exchg->data[3], eePLCprogram + addr, len - 5);
+            
+            if(eeprom_write(&plc_exchg->data[3], eePLCprogram + addr, len - 5))
+            {
+                plc_exchg->data[1] = PLC_ANSWER_OK;
+            }
+            else
+            {
+                plc_exchg->data[1] = PLC_ANSWER_ERROR_EEPROM;
+            }
             break;
         }
         

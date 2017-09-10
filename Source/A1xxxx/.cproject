@@ -586,7 +586,7 @@
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL/A1xxxx}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Common}&quot;"/>
 								</option>
-								<option id="de.innot.avreclipse.compiler.option.std.1002545290" superClass="de.innot.avreclipse.compiler.option.std" useByScannerDiscovery="false" value="de.innot.avreclipse.compiler.option.std.c99" valueType="enumerated"/>
+								<option id="de.innot.avreclipse.compiler.option.std.1002545290" name="Language Standard" superClass="de.innot.avreclipse.compiler.option.std" useByScannerDiscovery="false" value="de.innot.avreclipse.compiler.option.std.gnu99" valueType="enumerated"/>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1360862383" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
 							</tool>
 							<tool id="de.innot.avreclipse.tool.cppcompiler.app.release.359947972" name="AVR C++ Compiler" superClass="de.innot.avreclipse.tool.cppcompiler.app.release">

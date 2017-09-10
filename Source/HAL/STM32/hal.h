@@ -186,8 +186,8 @@ void        SysTick_Handler(void);
 //////////////////////////////////////////////////////////////
 // HAL API
 void eeprom_init_hw(void);
-void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
-void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len);
+void eeprom_read(uint8_t *pBuf, uint16_t Addr, uint8_t Len);
+bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len);
 
 void _delay_us(uint16_t us);
 
