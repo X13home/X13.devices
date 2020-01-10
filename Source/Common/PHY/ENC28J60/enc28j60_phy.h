@@ -26,6 +26,7 @@ extern "C" {
 #define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)inet_addr(255,255,255,255)
 
 #define PHY1_Init                   ENC28J60_Init
+#define PHY1_Ready                  ENC28J60_System_Ready
 #define PHY1_Send                   ENC28J60_Send
 #define PHY1_Get                    ENC28J60_Get
 #define PHY1_GetAddr                ENC28J60_GetAddr
@@ -62,12 +63,13 @@ extern "C" {
 #ifndef OD_DEF_IP_BROKER
 #define OD_DEF_IP_BROKER    0xFFFFFFFF      // Default IP Broker - auto resolve
 #endif  //  OD_DEF_IP_BROKER
-#ifndef OD_DEF_DEV_MAC
-#define OD_DEF_DEV_MAC      {0x00,0x04,0xA3,0x01,0x02,0x03}
-#endif  //  OD_DEF_DEV_MAC
+//#ifndef OD_DEF_DEV_MAC
+//#define OD_DEF_DEV_MAC      {0x00,0x04,0xA3,0x01,0x02,0x03}
+//#endif  //  OD_DEF_DEV_MAC
 
 // API Section
 void ENC28J60_Init(void);
+bool ENC28J60_System_Ready(void);
 void ENC28J60_Send(void *pBuf);
 void * ENC28J60_Get(void);
 void * ENC28J60_GetAddr(void);

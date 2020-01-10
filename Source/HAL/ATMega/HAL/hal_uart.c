@@ -25,7 +25,7 @@ static const PROGMEM uint16_t hal_baud_list[] =
                                          ((F_CPU/16/9600) - 1),
                                          ((F_CPU/16/19200) - 1),
                                          ((F_CPU/16/38400) - 1),
-                                         ((F_CPU/16/250000) - 1),
+                                         ((F_CPU/16/200000) - 1),
                                          };
 
 static HAL_UART_t * hal_UARTv[HAL_UART_NUM_PORTS] = {NULL,};

@@ -20,6 +20,8 @@ See LICENSE file for license details.
 #error Unknown configuration
 #endif
 
+#define configTOTAL_HEAP_SIZE       896
+
 #define HAL_SIZEOF_UART_RX_FIFO     32      // Should be 2^n
 
 // DIO

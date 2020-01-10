@@ -144,7 +144,7 @@ extern "C" {
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '3'
 
-#define OD_DEV_MAC                  {0x00,0x04,0xA3,0x00,0x00,0x03}   // MAC MSB->LSB
+//#define OD_DEF_DEV_MAC              {0x00,0x04,0xA3,0x00,0x00,0x03}   // MAC MSB->LSB
 //#define OD_DEF_IP_ADDR              inet_addr(192,168,10,202)
 //#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
 //#define OD_DEF_IP_ROUTER            inet_addr(192,168,10,1)

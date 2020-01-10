@@ -19,27 +19,22 @@ See LICENSE file for license details.
 #include "enc28j60_hw.h"
 #include "enc28j60_net.h"
 
-static Queue_t          enc_out_queue = {NULL, NULL, 4, 0};
+static MQ_t *   enc_in_msg = NULL;
+static uint8_t  enc_exchange_buf[MAX_FRAME_BUF];
 
 // Process MQTT-SN Packet
 void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame)
 {
-    MQ_t * pRx_buf = mqAlloc(sizeof(MQ_t));
-    
 #ifdef LED_On
     LED_On();
 #endif  //  LED_On
 
+    enc_in_msg = mqAlloc(sizeof(MQ_t));
     ip_packet_t *ip = (void*)(pFrame->data);
 
-    enc28j60_GetPacket((void*)pRx_buf->m.raw, len);
-    memcpy(pRx_buf->a.phy1addr, ip->sender_ip, 4);
-    pRx_buf->Length = len;
-    
-    if(!mqEnqueue(&enc_out_queue, pRx_buf))
-    {
-        mqFree(pRx_buf);
-    }
+    enc28j60_GetPacket((void*)enc_in_msg->m.raw, len);
+    memcpy(enc_in_msg->a.phy1addr, ip->sender_ip, 4);
+    enc_in_msg->Length = len;
 }
 
 
@@ -47,18 +42,13 @@ void phy_mqttsn_filter(uint16_t len, eth_frame_t * pFrame)
 // PHY_API
 void ENC28J60_Init(void)
 {
-    MQ_t * pBuf;
-    while((pBuf = mqDequeue(&enc_out_queue)) != NULL)
-        mqFree(pBuf);
-        
+    enc_in_msg = NULL;
     enc28j60_init_net();
 }
 
-extern uint32_t ip_addr;
-
 void ENC28J60_Send(void *pBuf)
 {
-    if(ip_addr == 0)
+    if(!ENC28J60_System_Ready())
     {
         mqFree(pBuf);
         return;
@@ -68,7 +58,7 @@ void ENC28J60_Send(void *pBuf)
     LED_On();
 #endif  //  LED_On
 
-    eth_frame_t * pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
+    eth_frame_t * pFrame = (void *)enc_exchange_buf;
 
     ip_packet_t *ip = (void*)(pFrame->data);
     udp_packet_t *udp = (void*)(ip->data);
@@ -81,14 +71,12 @@ void ENC28J60_Send(void *pBuf)
 
     mqFree(pBuf);
     udp_send(len, pFrame);
-  
-    mqFree(pFrame);
 }
 
 void * ENC28J60_Get(void)
 {
 #ifdef NET_WITH_DHCP
-    dhcp_poll();
+    dhcp_poll((eth_frame_t *)enc_exchange_buf);
 #endif  //  NET_WITH_DHCP
 
     // Rx Section
@@ -97,20 +85,21 @@ void * ENC28J60_Get(void)
         uint16_t len = enc28j60_GetPacketLen();
         if(len > sizeof(eth_frame_t))
         {
-            eth_frame_t * pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
+            eth_frame_t * pFrame = (void *)enc_exchange_buf;
             enc28j60_GetPacket((void *)pFrame,  sizeof(eth_frame_t));
             eth_filter(len, pFrame);
-            mqFree(pFrame);
         }
         enc28j60_ClosePacket();
     }
 
-    return mqDequeue(&enc_out_queue);
-}
+    if(enc_in_msg != NULL)
+    {
+        MQ_t * retval = enc_in_msg;
+        enc_in_msg = NULL;
+        return retval;
+    }
 
-void * ENC28J60_GetAddr(void)
-{
-    return &ip_addr;
+    return NULL;
 }
 
 #endif  //  ENC_PHY

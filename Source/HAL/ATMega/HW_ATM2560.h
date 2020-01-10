@@ -13,22 +13,23 @@ See LICENSE file for license details.
 #ifndef HW_ATM2560_H
 #define HW_ATM2560_H
 
-// Arduino Mega ATMega2560 + OSC 16 MHz
-#if   (defined CFG_A4Sn10)
-#include "A4xxxx/A4Sn10.h"          // Arduino Mega2560 + UART on PE0/PE1
-// Unknown
+#ifdef CONFIG
+#define CONFIG_INCLUDE < CONFIG.h >
+#include CONFIG_INCLUDE
 #else
 #error Unknown configuration
-#endif  //  Configuration
+#endif
 
-#define HAL_SIZEOF_UART_RX_FIFO         32      // Should be 2^n
+#define configTOTAL_HEAP_SIZE       1024
+
+#define HAL_SIZEOF_UART_RX_FIFO     32      // Should be 2^n
 
 // DIO
-#define HAL_DIO_PORTNUM2PORT    {    (uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC,  \
+#define HAL_DIO_PORTNUM2PORT        {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC,  \
                                      (uint16_t)&PORTD, (uint16_t)&PORTE, (uint16_t)&PORTF,  \
                                      (uint16_t)&PORTG, (uint16_t)&PORTH, (uint16_t)&PORTJ,  \
                                      (uint16_t)&PORTK, (uint16_t)&PORTL                     \
-                                }
+                                    }
 // AIN
 #define EXTAIN_REF                  0x0F    // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 #define HAL_AIN_APIN2DIO            {40, 41, 42, 43, 44, 45, 46, 47,              /* PF0 - PF7 */ \
@@ -60,5 +61,12 @@ See LICENSE file for license details.
 #define UART3_DDR                   DDRJ
 #define UART3_RX_PIN                PJ0
 #define UART3_TX_PIN                PJ1
+
+// SPI
+#define SPI_DDR                     DDRB
+#define SPI_PIN_SS                  PB0
+#define SPI_PIN_SCK                 PB1
+#define SPI_PIN_MOSI                PB2
+#define SPI_PIN_MISO                PB3
 
 #endif  //  HW_ATM2560_H

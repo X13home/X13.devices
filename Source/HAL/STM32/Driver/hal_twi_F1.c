@@ -106,7 +106,7 @@ bool hal_twi_configure(uint8_t enable)
 #endif
         // Set Timings
         // I2C Bus = 88 KHz, Standard Mode. Don't use 100 kHz, show uC errata.
-        uint32_t freqrange = hal_pclk1 / 88000UL;
+        uint32_t freqrange = hal_GetClock(I2C_BUS) / 88000UL;
 
         I2C_BUS->CR2 = freqrange;
         I2C_BUS->TRISE = freqrange + 1;
@@ -217,7 +217,8 @@ void I2C_Event_Handler()
                 I2C_BUS->CR1 |= I2C_CR1_STOP;                   // Send Stop
                 // Event & Error Interrupt Disable
                 I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN | I2C_CR2_ITBUFEN);
-                pTWI->frame.access = TWI_RDY;
+                pTWI->frame.access &= TWI_EXT;
+                pTWI->frame.access |= TWI_RDY;
             }
         }
         else if(SR1 & I2C_SR1_BTF)
@@ -239,7 +240,8 @@ void I2C_Event_Handler()
                 // Event & Error Interrupt Disable
                 I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN | I2C_CR2_ITBUFEN);
 
-                pTWI->frame.access = TWI_RDY;
+                pTWI->frame.access &= TWI_EXT;
+                pTWI->frame.access |= TWI_RDY;
             }
         }
         //else    // WTF ?
@@ -293,7 +295,8 @@ void I2C_Event_Handler()
             {
                 // Event & Error Interrupt Disable
                 I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN | I2C_CR2_ITBUFEN);
-                pTWI->frame.access = TWI_RDY;
+                pTWI->frame.access &= TWI_EXT;
+                pTWI->frame.access |= TWI_RDY;
             }
         }
         // else WTF ?
@@ -313,6 +316,7 @@ void I2C_Error_Handler()
             I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN | I2C_CR2_ITBUFEN);
 
             pTWI->frame.access |= TWI_SLANACK;
+            pTWI->frame.read = 0;
             return;
         }
         else if(pTWI->frame.access & TWI_WRITE)
@@ -331,7 +335,8 @@ void I2C_Error_Handler()
                 // Event & Error Interrupt Disable
                 I2C_BUS->CR2 &= ~(I2C_CR2_ITERREN | I2C_CR2_ITEVTEN | I2C_CR2_ITBUFEN);
 
-                pTWI->frame.access = TWI_RDY;
+                pTWI->frame.access &= TWI_EXT;
+                pTWI->frame.access |= TWI_RDY;
             }
             return;
         }

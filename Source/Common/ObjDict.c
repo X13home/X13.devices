@@ -95,6 +95,10 @@ static const indextable_t listPredefOD[] =
     {{objEEMEM, objArray, eeRFkey},
         objRFkey,  (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteRFkey, NULL},
 #endif  //  OD_DEFAULT_RF_KEY
+#if ((defined RF_READ_RSSI_CB) && (defined RF_POLL_RSSI_CB))
+    {{objUsrExt, objInt8, 0},
+        objRSSI,  (cbRead_t)&RF_READ_RSSI_CB, NULL, (cbPoll_t)&RF_POLL_RSSI_CB},
+#endif  //  RF_READ_RSSI_CB & RF_POLL_RSSI_CB
 #endif  //  RF_ADDR_t
     // LAN Settings
 #ifdef LAN_NODE
@@ -116,8 +120,17 @@ static const indextable_t listPredefOD[] =
         objPHY1addr, (cbRead_t)&readDeviceInfo, NULL, NULL},
 #ifdef PHY2_NodeId
     {{objPROGMEM, objArray, 2},
-        objPHY2addr, (cbRead_t)&readDeviceInfo, NULL, NULL}
+        objPHY2addr, (cbRead_t)&readDeviceInfo, NULL, NULL},
 #endif  //  PHY2_NodeId
+#ifdef PHY3_NodeId
+    {{objPROGMEM, objArray, 3},
+        objPHY3addr, (cbRead_t)&readDeviceInfo, NULL, NULL},
+#endif  //  PHY3_NodeId
+#ifdef PHY4_NodeId
+    {{objPROGMEM, objArray, 4},
+        objPHY4addr, (cbRead_t)&readDeviceInfo, NULL, NULL},
+#endif  //  PHY4_NodeId
+
 };
 
 // User objects list
@@ -436,7 +449,15 @@ static const uint8_t psDeviceTyp[] = {
                                 OD_DEV_UC_TYPE,           // uC Family
                                 OD_DEV_UC_SUBTYPE,        // uC SubType
                                 OD_DEV_PHY1,              // PHY1 type
+#ifdef OD_DEV_PHY2
                                 OD_DEV_PHY2,              // PHY2 type
+#endif  // OD_DEV_PHY2
+#ifdef OD_DEV_PHY3
+                                OD_DEV_PHY3,              // PHY3 type
+#endif  // OD_DEV_PHY3
+#ifdef OD_DEV_PHY4
+                                OD_DEV_PHY4,              // PHY4 type
+#endif  // OD_DEV_PHY4
                                 OD_DEV_HW_TYP_H,          // HW Version High
                                 OD_DEV_HW_TYP_L,          // HW Version Low
                                 '.',                      // Delimiter
@@ -446,35 +467,46 @@ static const uint8_t psDeviceTyp[] = {
 
 static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    uint16_t Base = pSubidx->Base;
-
-    if(Base == 0)           // Read Device type
-    {
-        uint8_t Len = sizeof(psDeviceTyp);
-        if(Len > *pLen)
-        {
-            Len = *pLen;
-        }
-
-        memcpy((void *)pBuf, (const void *)psDeviceTyp, Len);
-        *pLen = Len;
-
-        return MQTTSN_RET_ACCEPTED;
-    }
-    
-    // Read PHY address
     uint16_t index = 0xFFFF;
 
-    if(Base == 1)
+    switch(pSubidx->Base)
     {
-        index = PHY1_NodeId;
-    }
+        case 0:
+            {
+            uint8_t Len = sizeof(psDeviceTyp);
+            if(Len > *pLen)
+            {
+                Len = *pLen;
+            }
+
+            memcpy((void *)pBuf, (const void *)psDeviceTyp, Len);
+            *pLen = Len;
+
+            return MQTTSN_RET_ACCEPTED;
+            }
+
+        case 1:
+            index = PHY1_NodeId;
+            break;
 #ifdef PHY2_NodeId
-    else if(Base == 2)
-    {
-        index = PHY2_NodeId;
-    }
+        case 2:
+            index = PHY2_NodeId;
+            break;
 #endif  //  PHY2_NodeId
+#ifdef PHY3_NodeId
+        case 3:
+            index = PHY3_NodeId;
+            break;
+#endif  //  PHY3_NodeId
+#ifdef PHY4_NodeId
+        case 4:
+            index = PHY4_NodeId;
+            break;
+#endif  //  PHY4_NodeId
+
+        default:
+            return MQTTSN_RET_REJ_INV_ID;
+    }
 
     return ReadOD(index, MQTTSN_FL_TOPICID_PREDEF, pLen, pBuf);
 }
@@ -579,7 +611,18 @@ void InitOD(void)
         WriteOD(objIPMask,   MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
         ulTmp = OD_DEF_IP_ADDR;
         WriteOD(objIPAddr,   MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
+#ifndef OD_DEF_DEV_MAC
+        uint8_t   defMAC[6];
+        ulTmp = hal_GetDeviceID();
+        defMAC[0] = 0x00;       // Microchip
+        defMAC[1] = 0x04;
+        defMAC[2] = 0xA3;
+        defMAC[3] = (ulTmp >> 16) & 0xFF;
+        defMAC[4] = (ulTmp >> 8) & 0xFF;
+        defMAC[5] = ulTmp & 0xFF;
+#else   //  OD_DEF_DEV_MAC
         uint8_t   defMAC[] = OD_DEF_DEV_MAC;
+#endif  //  OD_DEF_DEV_MAC
         WriteOD(objMACAddr, MQTTSN_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);       // Default MAC
 #endif  //  LAN_NODE
 #ifdef EXTAIN_USED
@@ -614,18 +657,36 @@ void InitOD(void)
 
     extInit();
 
-    // Load Saved Variables
+    // Load Predefined Callback's
     uint16_t pos = 0;
-    for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
+    // Skip PNP objects
+    while(ListOD[pos].Index != 0xFFFF)
     {
-        // Skip PNP objects
-        while(ListOD[pos].Index != 0xFFFF)
+        pos++;
+        if(pos == OD_MAX_INDEX_LIST)
         {
-            pos++;
+            return;
+        }
+    }
+
+    for(uiTmp = 0; uiTmp < sizeof(listPredefOD)/sizeof(indextable_t); uiTmp++)
+    {
+        if(listPredefOD[uiTmp].cbPoll != NULL)
+        {
             if(pos == OD_MAX_INDEX_LIST)
             {
                 return;
             }
+            memcpy(&ListOD[pos++], &listPredefOD[uiTmp], sizeof(indextable_t));
+        }
+    }
+
+    // Load Saved Variables
+    for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
+    {
+        if(pos == OD_MAX_INDEX_LIST)
+        {
+            return;
         }
 
         RestoreSubindex(uiTmp, &ListOD[pos].sidx);
@@ -1002,9 +1063,18 @@ void OD_Poll(void)
                 if((ListOD[idxUpdate].cbPoll != NULL) &&
                    (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx))
                 {
-                    MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
-                               (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
-                               index);
+                    if(index < 0xFF00)
+                    {
+                        MQTTSN_Send( MQTTSN_MSGTYP_PUBLISH,
+                                    (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
+                                     index);
+                    }
+                    else
+                    {
+                        MQTTSN_Send( MQTTSN_MSGTYP_PUBLISH,
+                                    (MQTTSN_FL_QOS0 | MQTTSN_FL_TOPICID_PREDEF),
+                                     index);
+                    }
                 }
             }
             idxUpdate++;
@@ -1015,7 +1085,7 @@ void OD_Poll(void)
         // Register variables
         if(idxUpdate < OD_MAX_INDEX_LIST)
         {
-            if(ListOD[idxUpdate].Index != 0xFFFF)
+            if(ListOD[idxUpdate].Index < 0xFF00)
             {
                 if(MQTTSN_CanSend())
                 {
@@ -1056,6 +1126,9 @@ void OD_Poll(void)
                 else
                 {
                     idxUpdate = 0xFFFF;
+#ifdef EXTPLC_USED
+                    plcStatPrep();
+#endif  //  EXTPLC_USED
                 }
             }
         }

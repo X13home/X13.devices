@@ -22,7 +22,7 @@ _Min_Stack_Size = 0x200; /* required amount of stack */
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 56K     /* 8K of FLASH - EEPROM Emulation */
+FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 48K     /* 16K of FLASH - EEPROM Emulation */
 RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 12K
 CCMRAM (rw)     : ORIGIN = 0x10000000, LENGTH = 4K
 }

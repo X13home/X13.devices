@@ -19,7 +19,7 @@ See LICENSE file for license details.
 void enc28j60Init(uint8_t* macaddr);
 void enc28j60EnableBroadcast(void);
 void enc28j60DisableBroadcast(void);
-//bool enc28j60linkup(void);
+bool enc28j60linkup(void);
 
 void enc28j60_SendPrep(uint16_t len);
 void enc28j60_PutData(uint16_t len, uint8_t* pBuf);

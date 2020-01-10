@@ -40,10 +40,6 @@ typedef void (*cbEXT_t)(void);
 #include "EXT/extser.h"
 #endif  //  EXTSER_USED
 
-#ifdef EXT_OPS_USED
-#include "EXT/extops.h"
-#endif  //  EXT_OPS_USED
-
 #ifdef EXTPLC_USED
 #include "EXT/extplc.h"
 #endif  //  EXTPLC_USED

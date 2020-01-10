@@ -2,7 +2,7 @@
 <?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.448623520">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520" moduleId="org.eclipse.cdt.core.settings" name="A1Cn12">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520" moduleId="org.eclipse.cdt.core.settings" name="A1C12">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -13,7 +13,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="uNode V2 + RF(CC1101)" id="de.innot.avreclipse.configuration.app.release.448623520" name="A1Cn12" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="uNode V2 + RF(CC1101)" id="de.innot.avreclipse.configuration.app.release.448623520" name="A1C12" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.448623520." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.2145948429" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.1123828026" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release" useByScannerDiscovery="false"/>
@@ -35,7 +35,7 @@
 								<option id="de.innot.avreclipse.compiler.option.def.253554471" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
-									<listOptionValue builtIn="false" value="CONFIG=A1Cn12"/>
+									<listOptionValue builtIn="false" value="CONFIG=A1C12"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.75098204" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -70,7 +70,7 @@
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
 		</cconfiguration>
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.448623520.1957619507">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1957619507" moduleId="org.eclipse.cdt.core.settings" name="A1En12">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1957619507" moduleId="org.eclipse.cdt.core.settings" name="A1E12">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -81,7 +81,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="uNode V2 + LAN(ENC28J60)" id="de.innot.avreclipse.configuration.app.release.448623520.1957619507" name="A1En12" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="uNode V2 + LAN(ENC28J60)" id="de.innot.avreclipse.configuration.app.release.448623520.1957619507" name="A1E12" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.448623520.1957619507." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.1177402562" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.372040359" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release"/>
@@ -103,7 +103,7 @@
 								<option id="de.innot.avreclipse.compiler.option.def.832534417" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
-									<listOptionValue builtIn="false" value="CONFIG=A1En12"/>
+									<listOptionValue builtIn="false" value="CONFIG=A1E12"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1930199984" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -138,7 +138,7 @@
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
 		</cconfiguration>
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.448623520.654999664">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.654999664" moduleId="org.eclipse.cdt.core.settings" name="A1Rn11">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.654999664" moduleId="org.eclipse.cdt.core.settings" name="A1R11">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -149,7 +149,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="uNode V1 + RF (RFM12/MRF49XA)" id="de.innot.avreclipse.configuration.app.release.448623520.654999664" name="A1Rn11" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="uNode V1 + RF (RFM12/MRF49XA)" id="de.innot.avreclipse.configuration.app.release.448623520.654999664" name="A1R11" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.448623520.654999664." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.732659127" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.1957370697" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release"/>
@@ -171,7 +171,7 @@
 								<option id="de.innot.avreclipse.compiler.option.def.1364087671" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
-									<listOptionValue builtIn="false" value="CONFIG=A1Rn11"/>
+									<listOptionValue builtIn="false" value="CONFIG=A1R11"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.143790698" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -274,7 +274,7 @@
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
 		</cconfiguration>
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.448623520.1752821069">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069" moduleId="org.eclipse.cdt.core.settings" name="A1Sn10">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069" moduleId="org.eclipse.cdt.core.settings" name="A1S10">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -285,7 +285,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="Arduino Nano + Onboard USB to UART" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069" name="A1Sn10" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="Arduino Nano + Onboard USB to UART" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069" name="A1S10" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.448623520.1752821069." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.638037312" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.2091093758" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release"/>
@@ -307,7 +307,7 @@
 								<option id="de.innot.avreclipse.compiler.option.def.1361830169" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
-									<listOptionValue builtIn="false" value="CONFIG=A1Sn10"/>
+									<listOptionValue builtIn="false" value="CONFIG=A1S10"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1317776182" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -342,7 +342,7 @@
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
 		</cconfiguration>
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.448623520.1081480683">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1081480683" moduleId="org.eclipse.cdt.core.settings" name="A1Sn12">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1081480683" moduleId="org.eclipse.cdt.core.settings" name="A1S12">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -353,7 +353,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="uNode V2 + UART" id="de.innot.avreclipse.configuration.app.release.448623520.1081480683" name="A1Sn12" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="uNode V2 + UART" id="de.innot.avreclipse.configuration.app.release.448623520.1081480683" name="A1S12" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.448623520.1081480683." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.1314786125" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.1166332610" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release"/>
@@ -375,7 +375,7 @@
 								<option id="de.innot.avreclipse.compiler.option.def.292564911" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
-									<listOptionValue builtIn="false" value="CONFIG=A1Sn12"/>
+									<listOptionValue builtIn="false" value="CONFIG=A1S12"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1845648736" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -546,7 +546,7 @@
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
 		</cconfiguration>
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220" moduleId="org.eclipse.cdt.core.settings" name="A1Cn10">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220" moduleId="org.eclipse.cdt.core.settings" name="A1C10">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -557,7 +557,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="Arduino Uno/Nano + CC1101" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220" name="A1Cn10" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="Arduino Uno/Nano + CC1101" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220" name="A1C10" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.1905141714" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.39592496" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release" useByScannerDiscovery="false"/>
@@ -579,7 +579,7 @@
 								<option id="de.innot.avreclipse.compiler.option.def.573825709" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
-									<listOptionValue builtIn="false" value="CONFIG=A1Cn10"/>
+									<listOptionValue builtIn="false" value="CONFIG=A1C10"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.317003361" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -615,7 +615,7 @@
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
 		</cconfiguration>
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220.888254664">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220.888254664" moduleId="org.eclipse.cdt.core.settings" name="A1Mn10">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220.888254664" moduleId="org.eclipse.cdt.core.settings" name="A1M10">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -626,7 +626,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="Untested, RS485" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220.888254664" name="A1Mn10" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="Untested, RS485" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220.888254664" name="A1M10" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1322805220.888254664." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.94798667" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.1999771977" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release" useByScannerDiscovery="false"/>
@@ -648,7 +648,7 @@
 								<option id="de.innot.avreclipse.compiler.option.def.12617479" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
-									<listOptionValue builtIn="false" value="CONFIG=A1Mn10"/>
+									<listOptionValue builtIn="false" value="CONFIG=A1M10"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1776887837" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -751,7 +751,7 @@
 			<storageModule moduleId="ilg.gnuarmeclipse.managedbuild.packs"/>
 		</cconfiguration>
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1945494536.957991117">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1945494536.957991117" moduleId="org.eclipse.cdt.core.settings" name="A1Rn10">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1945494536.957991117" moduleId="org.eclipse.cdt.core.settings" name="A1R10">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -762,7 +762,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="JeeNode + RFM12" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1945494536.957991117" name="A1Rn10" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="JeeNode + RFM12" id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1945494536.957991117" name="A1R10" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.448623520.1752821069.1945494536.957991117." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.1059724533" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.550143505" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release" useByScannerDiscovery="false"/>
@@ -784,7 +784,7 @@
 								<option id="de.innot.avreclipse.compiler.option.def.1577670924" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__AVR_ATmega328P__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
-									<listOptionValue builtIn="false" value="CONFIG=A1Rn10"/>
+									<listOptionValue builtIn="false" value="CONFIG=A1R10"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1557054001" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
@@ -824,31 +824,18 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="A1Cn12">
-			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
-		</configuration>
-		<configuration configurationName="A1En12">
-			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
-		</configuration>
-		<configuration configurationName="A1SC12">
-			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
-		</configuration>
-		<configuration configurationName="A1Cn10"/>
-		<configuration configurationName="A1Rn11">
-			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
-		</configuration>
-		<configuration configurationName="A1Sn12"/>
+		<configuration configurationName="A1SC12"/>
+		<configuration configurationName="A1M10"/>
+		<configuration configurationName="A1R11"/>
+		<configuration configurationName="A1S10"/>
+		<configuration configurationName="A1C10"/>
 		<configuration configurationName="A1SR10"/>
+		<configuration configurationName="A1R10"/>
 		<configuration configurationName="A1SR11"/>
-		<configuration configurationName="A1Sn10">
-			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
-		</configuration>
-		<configuration configurationName="A1Rn10"/>
-		<configuration configurationName="A1Mn10"/>
 		<configuration configurationName="A1SC10"/>
-		<configuration configurationName="Release">
-			<resource resourceType="PROJECT" workspacePath="/A1xxxx"/>
-		</configuration>
+		<configuration configurationName="A1E12"/>
+		<configuration configurationName="A1C12"/>
+		<configuration configurationName="A1S12"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>

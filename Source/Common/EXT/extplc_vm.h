@@ -740,6 +740,22 @@ static void cb_api(void){
             plcvm_push(HAL_RTC_DateNow());
             break;
 #endif  //  HAL_USE_RTC
+
+#ifdef EXTSER_USED
+        case 20:    // Init UART, parm: port, speed
+            serInitPlc(plcvm_pop(), plcvm_pop());
+            break;
+        case 21:
+            plcvm_push(serBytes2ReadPlc(plcvm_pop()));
+            break;
+        case 22:
+            plcvm_push(serGetBytePlc(plcvm_pop()));
+            break;
+        case 23:
+            plcvm_push(serPutBytePlc(plcvm_pop(), plcvm_pop()));
+            break;
+#endif  //  EXTSER_USED
+
         default:
             plcvm_stat = PLC_ANSWER_ERROR_UNK_API;
             break;

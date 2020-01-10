@@ -169,17 +169,8 @@ typedef struct
 #define DHCP_MESSAGE_RELEASE    7
 #define DHCP_MESSAGE_INFORM     8
 
-typedef enum
-{
-    DHCP_DISABLED,
-    DHCP_INIT,
-    DHCP_ASSIGNED,
-    DHCP_WAITING_OFFER,
-    DHCP_WAITING_ACK
-} dhcp_status_t;
 
-
-void dhcp_poll(void);
+void dhcp_poll(eth_frame_t * pFrame);
 void enc28j60_init_net(void);
 void eth_filter(uint16_t len, eth_frame_t * pFrame);
 void udp_send(uint16_t len, eth_frame_t *pFrame);

@@ -22,16 +22,16 @@ See LICENSE file for license details.
 volatile TWI_QUEUE_t  * pTWI = NULL;
 static uint32_t twi_ms  = 0;
 
-#ifndef EXTPLC_USED
-
 // local queues
 static Queue_t  twi_tx_queue = {NULL, NULL, 4, 0};      // Max Size = 4 records
 
 static e_MQTTSN_RETURNS_t twiReadOD(subidx_t * pSubidx __attribute__ ((unused)),
                                         uint8_t *pLen, uint8_t *pBuf)
 {
-    if(pTWI == NULL)
+    if((pTWI == NULL) || ((pTWI->frame.access & TWI_EXT) == 0))
+    {
         return MQTTSN_RET_REJ_CONG;
+    }
 
     *pLen = pTWI->frame.read + SIZEOF_TWI_FRAME_HDR;
     memcpy(pBuf, (void *)&pTWI->frame, *pLen);
@@ -61,6 +61,8 @@ static e_MQTTSN_RETURNS_t twiWriteOD(subidx_t * pSubidx __attribute__ ((unused))
         pQueue->frame.access |= TWI_READ;
     }
 
+    pQueue->frame.access |= TWI_EXT;
+
     if((pQueue->frame.read > (MQTTSN_MSG_SIZE - SIZEOF_TWI_FRAME_HDR - MQTTSN_SIZEOF_MSG_PUBLISH)) ||
        ((pQueue->frame.access & (TWI_WRITE | TWI_READ)) == 0))
     {
@@ -82,6 +84,11 @@ static uint8_t twiPollOD(subidx_t * pSubidx __attribute__ ((unused)))
     if(pTWI != NULL)
     {
         uint8_t access = pTWI->frame.access;
+        if((access & TWI_EXT) == 0)
+        {
+            return 0;
+        }
+
         if((access & (TWI_ERROR | TWI_SLANACK | TWI_WD)) != 0)      // Error state
         {
             return 1;
@@ -126,7 +133,6 @@ static uint8_t twiPollOD(subidx_t * pSubidx __attribute__ ((unused)))
     return 0;
 }
 
-#endif  //  EXTPLC_USED
 void twiInit()
 {
     uint8_t scl, sda;
@@ -148,7 +154,6 @@ void twiInit()
         pTWI = NULL;
     }
 
-#ifndef EXTPLC_USED
     // Register variable Ta0
     indextable_t * pIndex = getFreeIdxOD();
     if(pIndex == NULL)
@@ -165,7 +170,6 @@ void twiInit()
     pIndex->sidx.Place = objTWI;        // TWI object
     pIndex->sidx.Type  = objArray;      // Variable Type -  Byte Array
     pIndex->sidx.Base  = 0;             // Device address
-#endif  //  EXTPLC_USED
 }
 
 #ifdef EXTPLC_USED
@@ -202,22 +206,30 @@ uint32_t twiStat(void)
         return 0;
 
     uint8_t access = pTWI->frame.access;
+    uint32_t retval;
+
+    if((access & TWI_EXT) != 0)
+    {
+        memcpy(&retval, (void *)&pTWI->frame, 4);
+        return retval;
+    }
 
     if((access & (TWI_WD | TWI_SLANACK | TWI_ERROR)) == 0)
     {
         if((HAL_get_ms() - twi_ms) > TWIM_BUS_TIMEOUT)
         {
-            if(pTWI->frame.access & TWI_BUSY)
+            if(access & TWI_BUSY)
+            {
                 hal_twi_stop();
+            }
             
             pTWI->frame.access |= TWI_WD;
             access |= TWI_WD;
         }
     }
 
-    uint32_t retval;
     memcpy(&retval, (void *)&pTWI->frame, 4);
-    
+
     if(access & (TWI_WD | TWI_SLANACK | TWI_ERROR))     // Error state
     {
         mqFree((void *)pTWI);
@@ -239,9 +251,11 @@ uint32_t twiStat(void)
 void twiWr(uint8_t data)
 {
     if( (pTWI == NULL) || 
-       ((pTWI->frame.access & (TWI_BUSY | TWI_RDY | TWI_WD | TWI_SLANACK | TWI_ERROR)) != 0))
+       ((pTWI->frame.access & (TWI_EXT | TWI_BUSY | TWI_RDY | TWI_WD | TWI_SLANACK | TWI_ERROR)) != 0))
+    {
         return;
-    
+    }
+
     if(twi_pnt < pTWI->frame.write)
     {
         pTWI->frame.data[twi_pnt++] = data;
@@ -254,11 +268,13 @@ uint8_t twiRd(void)
 {
     uint8_t retval = 0;
     
-    if((pTWI != NULL) && (pTWI->frame.access & TWI_RDY))
+    if((pTWI != NULL) && ((pTWI->frame.access & (TWI_EXT | TWI_RDY)) == TWI_RDY))
     {
         if(twi_pnt < pTWI->frame.read)
+        {
             retval = pTWI->frame.data[twi_pnt++];
-        
+        }
+
         if(twi_pnt == pTWI->frame.read)
         {
             mqFree((void *)pTWI);
@@ -271,5 +287,4 @@ uint8_t twiRd(void)
 
 #endif  //  EXTPLC_USED
 
-
-#endif    //  EXTTWI_USED
+#endif  //  EXTTWI_USED

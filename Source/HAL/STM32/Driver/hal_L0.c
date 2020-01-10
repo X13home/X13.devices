@@ -16,9 +16,9 @@ See LICENSE file for license details.
 
 // System Section
 
-uint32_t    hal_hclk  = 2097000UL;
-uint32_t    hal_pclk1 = 2097000UL;
-uint32_t    hal_pclk2 = 2097000UL;
+static uint32_t    hal_hclk  = 2097000UL;
+static uint32_t    hal_pclk1 = 2097000UL;
+static uint32_t    hal_pclk2 = 2097000UL;
 
 void hal_SetSysClock(void)
 {

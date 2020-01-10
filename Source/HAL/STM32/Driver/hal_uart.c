@@ -43,7 +43,7 @@ STM32F103, STM32F334xx
 
 #define HAL_SIZEOF_UART_RX_FIFO     64
 
-static const uint32_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400, 250000};
+static const uint32_t hal_baud_list[] = {2400, 4800, 9600, 19200, 38400, 200000};
 
 #if (defined HAL_USE_USART1)
 static uint8_t  Rx1_FIFO[HAL_SIZEOF_UART_RX_FIFO];
@@ -73,13 +73,15 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             {
                 RCC->APB2ENR |= RCC_APB2ENR_USART1EN;           // Enable UART Clock
                 RCC->AHBENR |= RCC_AHBENR_DMA1EN;               // Enable the peripheral clock DMA1
-
+                
+                USART1->BRR = ((hal_GetClock((uint32_t)USART1) + (baud/2))/baud);
+/*
 #if (defined STM32F3)
                 USART1->BRR = ((hal_pclk1 + (baud/2))/baud);
 #else   //  STM32F0
                 USART1->BRR = ((hal_pclk2 + (baud/2))/baud);
 #endif  //  STM32F3
-
+*/
                 USART1->CR1 = 0;                                // Disable USART
                 USART1->CR2 = 0;                                // 8N1
                 USART1->CR3 = 0;                                // Without flow control
@@ -93,7 +95,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             {
 #if (!defined STM32F1)
                 // Configure DIO
-                hal_dio_configure(HAL_USART1_PIN_RX, HAL_USART1_AF);
+                hal_dio_configure(HAL_USART1_PIN_RX, HAL_USART1_AF | DIO_MODE_IN_PU);
 #endif  //  STM32F1
                 // DMA1 USART1_RX config
                 USART1_RX_DMA->CPAR = (uint32_t)&(USART1->RDR); // Peripheral address
@@ -141,7 +143,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
                 RCC->APB1ENR |= RCC_APB1ENR_USART2EN;           // Enable UART Clock
                 RCC->AHBENR |= RCC_AHBENR_DMA1EN;               // Enable the peripheral clock DMA1
 
-                USART2->BRR = ((hal_pclk1 + (baud/2))/baud);
+                USART2->BRR = ((hal_GetClock((uint32_t)USART2) + (baud/2))/baud);
 
                 USART2->CR1 = 0;                                // Disable USART
                 USART2->CR2 = 0;                                // 8N1
@@ -156,7 +158,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             {
 #if (!defined STM32F1)
                 // Configure DIO
-                hal_dio_configure(HAL_USART2_PIN_RX, HAL_USART2_AF);
+                hal_dio_configure(HAL_USART2_PIN_RX, HAL_USART2_AF | DIO_MODE_IN_PU);
 #endif  //  STM32F1
                 // DMA1 USART2_RX config
                 USART2_RX_DMA->CPAR = (uint32_t)&(USART2->RDR); // Peripheral address
@@ -204,7 +206,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
                 RCC->APB1ENR |= RCC_APB1ENR_USART3EN;           // Enable UART Clock
                 RCC->AHBENR |= RCC_AHBENR_DMA1EN;               // Enable the peripheral clock DMA1
 
-                USART3->BRR = ((hal_pclk1 + (baud/2))/baud);
+                USART3->BRR = ((hal_GetClock((uint32_t)USART3) + (baud/2))/baud);
 
                 USART3->CR1 = 0;                                // Disable USART
                 USART3->CR2 = 0;                                // 8N1
@@ -219,7 +221,7 @@ void hal_uart_init_hw(uint8_t port, uint8_t nBaud, uint8_t enable)
             {
 #if (!defined STM32F1)
                 // Configure DIO
-                hal_dio_configure(HAL_USART3_PIN_RX, HAL_USART3_AF);
+                hal_dio_configure(HAL_USART3_PIN_RX, HAL_USART3_AF | DIO_MODE_IN_PU);
 #endif  //  STM32F1
                 // DMA1 USART3_RX config
                 USART3_RX_DMA->CPAR = (uint32_t)&(USART3->RDR); // Peripheral address

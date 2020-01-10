@@ -2,7 +2,7 @@
 <?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="de.innot.avreclipse.configuration.app.release.383758115.1300521463">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.383758115.1300521463" moduleId="org.eclipse.cdt.core.settings" name="A5En10">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="de.innot.avreclipse.configuration.app.release.383758115.1300521463" moduleId="org.eclipse.cdt.core.settings" name="A5E10">
 				<externalSettings/>
 				<extensions>
 					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
@@ -13,7 +13,7 @@
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="MegaD-2561 + ENC28J60" id="de.innot.avreclipse.configuration.app.release.383758115.1300521463" name="A5En10" parent="de.innot.avreclipse.configuration.app.release">
+				<configuration artifactName="${ConfigName}" buildArtefactType="de.innot.avreclipse.buildArtefactType.app" buildProperties="org.eclipse.cdt.build.core.buildArtefactType=de.innot.avreclipse.buildArtefactType.app,org.eclipse.cdt.build.core.buildType=org.eclipse.cdt.build.core.buildType.release" description="MegaD-2561 + ENC28J60" id="de.innot.avreclipse.configuration.app.release.383758115.1300521463" name="A5E10" parent="de.innot.avreclipse.configuration.app.release">
 					<folderInfo id="de.innot.avreclipse.configuration.app.release.383758115.1300521463." name="/" resourcePath="">
 						<toolChain id="de.innot.avreclipse.toolchain.winavr.app.release.1398859574" name="AVR-GCC Toolchain" superClass="de.innot.avreclipse.toolchain.winavr.app.release">
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release.390243418" name="Generate HEX file for Flash memory" superClass="de.innot.avreclipse.toolchain.options.toolchain.objcopy.flash.app.release" useByScannerDiscovery="false"/>
@@ -22,7 +22,7 @@
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.size.app.release.1430313231" name="Print Size" superClass="de.innot.avreclipse.toolchain.options.toolchain.size.app.release" useByScannerDiscovery="false"/>
 							<option id="de.innot.avreclipse.toolchain.options.toolchain.avrdude.app.release.295755382" name="AVRDude" superClass="de.innot.avreclipse.toolchain.options.toolchain.avrdude.app.release" useByScannerDiscovery="false"/>
 							<targetPlatform id="de.innot.avreclipse.targetplatform.winavr.app.release.1421222780" name="AVR Cross-Target" superClass="de.innot.avreclipse.targetplatform.winavr.app.release"/>
-							<builder buildPath="${workspace_loc:/A4xxxx}/Release" id="de.innot.avreclipse.target.builder.winavr.app.release.1658736694" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="AVR GNU Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="de.innot.avreclipse.target.builder.winavr.app.release"/>
+							<builder buildPath="${workspace_loc:/A5xxxx}/Release" id="de.innot.avreclipse.target.builder.winavr.app.release.1658736694" keepEnvironmentInBuildfile="false" managedBuildOn="true" name="AVR GNU Make Builder" parallelBuildOn="true" parallelizationNumber="optimal" superClass="de.innot.avreclipse.target.builder.winavr.app.release"/>
 							<tool id="de.innot.avreclipse.tool.assembler.winavr.app.release.628011223" name="AVR Assembler" superClass="de.innot.avreclipse.tool.assembler.winavr.app.release">
 								<option id="de.innot.avreclipse.assembler.option.debug.level.1817457110" name="Generate Debugging Info" superClass="de.innot.avreclipse.assembler.option.debug.level" useByScannerDiscovery="false" value="de.innot.avreclipse.assembler.option.debug.level.none" valueType="enumerated"/>
 								<option id="de.innot.avreclipse.asm.option.omitfcpu.468070416" name="Omit F_CPU" superClass="de.innot.avreclipse.asm.option.omitfcpu" useByScannerDiscovery="false" value="true" valueType="boolean"/>
@@ -34,11 +34,12 @@
 								<option id="de.innot.avreclipse.compiler.option.def.747830018" name="Define Syms (-D)" superClass="de.innot.avreclipse.compiler.option.def" useByScannerDiscovery="false" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="__AVR_ATmega2561__"/>
 									<listOptionValue builtIn="false" value="NDEBUG"/>
-									<listOptionValue builtIn="false" value="CFG_A5En10"/>
+									<listOptionValue builtIn="false" value="CONFIG=A5E10"/>
 								</option>
 								<option id="de.innot.avreclipse.compiler.option.omitfcpu.467629107" name="Omit F_CPU" superClass="de.innot.avreclipse.compiler.option.omitfcpu" useByScannerDiscovery="false" value="true" valueType="boolean"/>
 								<option id="de.innot.avreclipse.compiler.option.incpath.1087300967" name="Include Paths (-I)" superClass="de.innot.avreclipse.compiler.option.incpath" useByScannerDiscovery="false" valueType="includePath">
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/HAL/A5xxxx}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/Common}&quot;"/>
 								</option>
 								<inputType id="de.innot.avreclipse.compiler.winavr.input.1206838262" name="C Source Files" superClass="de.innot.avreclipse.compiler.winavr.input"/>
@@ -69,19 +70,11 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="A4xxxx.de.innot.avreclipse.project.winavr.elf_2.1.0.564093657" name="AVR Cross Target Application" projectType="de.innot.avreclipse.project.winavr.elf_2.1.0"/>
+		<project id="A5xxxx.de.innot.avreclipse.project.winavr.elf_2.1.0.564093657" name="AVR Cross Target Application" projectType="de.innot.avreclipse.project.winavr.elf_2.1.0"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="A4Sn10d"/>
-		<configuration configurationName="A4Sn10"/>
-		<configuration configurationName="A5En10"/>
-		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/A4xxxx"/>
-		</configuration>
-		<configuration configurationName="Release">
-			<resource resourceType="PROJECT" workspacePath="/A4xxxx"/>
-		</configuration>
+		<configuration configurationName="A5E10"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="scannerConfiguration">

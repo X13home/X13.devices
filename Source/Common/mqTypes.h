@@ -403,7 +403,13 @@ typedef struct sMQ
         uint8_t             phy1addr[sizeof(PHY1_ADDR_t)];
 #ifdef PHY2_ADDR_t
         uint8_t             phy2addr[sizeof(PHY2_ADDR_t)];
-#endif
+#endif  //  PHY2_ADDR_t
+#ifdef PHY3_ADDR_t
+        uint8_t             phy3addr[sizeof(PHY3_ADDR_t)];
+#endif  //  PHY3_ADDR_t
+#ifdef PHY4_ADDR_t
+        uint8_t             phy4addr[sizeof(PHY4_ADDR_t)];
+#endif  //  PHY4_ADDR_t
     }a;
   
     uint8_t                 Length;

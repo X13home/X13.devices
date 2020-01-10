@@ -232,6 +232,7 @@ void I2C_IRQ_Handler()
         {
             I2C_BUS->CR1 = I2C_CR1_PE;                              // Disable Interrupts
             pTWI->frame.access |= TWI_SLANACK;
+            pTWI->frame.read = 0;
         }
         else if(pTWI->frame.access & TWI_WRITE)
         {
@@ -259,7 +260,9 @@ void I2C_IRQ_Handler()
             else
             {
                 I2C_BUS->CR1 = I2C_CR1_PE;                      // Disable Interrupts
-                pTWI->frame.access = TWI_RDY;                   // Transaction complete
+
+                pTWI->frame.access &= TWI_EXT;
+                pTWI->frame.access |= TWI_RDY;                  // Transaction complete
             }
         }
         // else WTF ?
@@ -273,7 +276,8 @@ void I2C_IRQ_Handler()
         if(twi_pnt >= pTWI->frame.read)
         {
             I2C_BUS->CR1 = I2C_CR1_PE;                          // Disable Interrupts
-            pTWI->frame.access = TWI_RDY;                       // Transaction complete
+            pTWI->frame.access &= TWI_EXT;
+            pTWI->frame.access |= TWI_RDY;                      // Transaction complete
         }
     }
     // Write Data
@@ -307,7 +311,8 @@ void I2C_IRQ_Handler()
     {
         I2C_BUS->ICR = I2C_ICR_STOPCF;                          // Clear Stop Flag
         I2C_BUS->CR1 = I2C_CR1_PE;                              // Disable Interrupts
-        pTWI->frame.access = TWI_RDY;                           // Transaction complete
+        pTWI->frame.access &= TWI_EXT;
+        pTWI->frame.access |= TWI_RDY;                          // Transaction complete
     }
     // else WTF ?
 }

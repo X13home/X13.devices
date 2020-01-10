@@ -28,7 +28,7 @@ bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len);
 // AVR Architecture specifics.
 #define portBYTE_ALIGNMENT          1
 #define portPOINTER_SIZE_TYPE       uint16_t
-#define configTOTAL_HEAP_SIZE       1024
+//#define configTOTAL_HEAP_SIZE       896
 
 //////////////////////////////////////////////////////////////
 // DIO Section
@@ -84,7 +84,7 @@ void        hal_twi_start(void);
 #define     UART_BAUD_9K6       2
 #define     UART_BAUD_19K2      3
 #define     UART_BAUD_38K4      4
-#define     UART_BAUD_250K      5
+#define     UART_BAUD_200K      5
 #define     UART_BAUD_MAX       4
 
 

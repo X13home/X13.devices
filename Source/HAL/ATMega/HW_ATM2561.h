@@ -13,21 +13,20 @@ See LICENSE file for license details.
 #ifndef HW_ATM2561_H
 #define HW_ATM2561_H
 
-// ATMega2561
-#if   (defined CFG_A5En10)
-#include "A5xxxx/A5En10.h"          // Mega2561 + ENC28J60
-// Unknown
+#ifdef CONFIG
+#define CONFIG_INCLUDE < CONFIG.h >
+#include CONFIG_INCLUDE
 #else
 #error Unknown configuration
-#endif  //  Configuration
-
-#define HAL_SIZEOF_UART_RX_FIFO         32      // Should be 2^n
+#endif
+#define configTOTAL_HEAP_SIZE       1024
+#define HAL_SIZEOF_UART_RX_FIFO     32      // Should be 2^n
 
 // DIO
-#define HAL_DIO_PORTNUM2PORT    {    (uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC,  \
+#define HAL_DIO_PORTNUM2PORT        {(uint16_t)&PORTA, (uint16_t)&PORTB, (uint16_t)&PORTC,  \
                                      (uint16_t)&PORTD, (uint16_t)&PORTE, (uint16_t)&PORTF,  \
                                      (uint16_t)&PORTG                                       \
-                                }
+                                    }
 // AIN
 #define EXTAIN_REF                  0x0F    // Bit0 - Ext, Bit1 - Vcc, Bit2 - Int1, Bit3 - Int2
 #define HAL_AIN_APIN2DIO            {40, 41, 42, 43, 44, 45, 46, 47}              /* PF0 - PF7 */

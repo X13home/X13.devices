@@ -25,6 +25,12 @@ bool    serCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t serRegisterOD(indextable_t *pIdx);
 void    serDeleteOD(subidx_t * pSubidx);
 
+// PLC API
+void serInitPlc(uint32_t port, uint32_t speed);
+uint32_t serBytes2ReadPlc(uint32_t port);
+uint32_t serGetBytePlc(uint32_t port);
+uint32_t serPutBytePlc(uint32_t port, uint32_t data);
+
 #ifdef __cplusplus
 }
 #endif

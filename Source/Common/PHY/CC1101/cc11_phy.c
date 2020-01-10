@@ -58,10 +58,8 @@ See LICENSE file for license details.
 
 #if (CC11_PHY == 1)
     #define CC11_RF_POWER           0x50
-#elif (CC11_PHY == 2)
-    #define CC11_RF_POWER           0xC0
 #else
-    #error CC11_PHY unknown inteface
+    #define CC11_RF_POWER           0xC0
 #endif  // CC11_PHY
 
 static const uint8_t cc11config[][2] =
@@ -256,7 +254,7 @@ static MQ_t * cc11_rx_task(void)
         pRxBuf->m.raw[i] = hal_spi_exch8(CC11_USE_SPI, 0);
     }
 
-    cc11_rssi = hal_spi_exch8(CC11_USE_SPI, 0);                         // Read RSSI
+    uint8_t rssi_tmp = hal_spi_exch8(CC11_USE_SPI, 0);                  // Read RSSI
     tmp  = hal_spi_exch8(CC11_USE_SPI, 0);                              // Read LQI 
     CC11_RELEASE();                                                     // Release CC1101
 
@@ -266,6 +264,11 @@ static MQ_t * cc11_rx_task(void)
     {
         mqFree(pRxBuf);
         pRxBuf = NULL;
+    }
+    else if((pRxBuf->m.mq.MsgType == MQTTSN_MSGTYP_PINGRESP) ||
+            (pRxBuf->m.mq.MsgType == MQTTSN_MSGTYP_CONNACK))
+    {
+        cc11_rssi = rssi_tmp;
     }
 
     cc11_cmdStrobe(CC11_SFRX);
@@ -347,6 +350,8 @@ void CC11_Init(void)
     cc11_writeReg(CC11_CHANNR, Channel);
     // Configure PATABLE, No Ramp
     cc11_writeReg(CC11_PATABLE, CC11_RF_POWER);
+
+    cc11_rssi = 0;
 }
 
 void CC11_Send(void *pBuf)
@@ -380,8 +385,14 @@ void * CC11_Get(void)
     return NULL;
 }
 
-#if ((CC11_PHY == 2) && (defined PHY2_GetRSSI))
-uint8_t CC11_GetRSSI(void)
+#if (CC11_PHY == 1)
+uint8_t CC11_PollRssi(void * pUnused __attribute__ ((unused)))
+{
+    return (cc11_rssi != 0);
+}
+
+uint8_t CC11_ReadRssi(void * pUnused __attribute__ ((unused)),
+                      uint8_t *pLen, uint8_t *pBuf)
 {
     if(cc11_rssi & 0x80)
     {
@@ -395,7 +406,15 @@ uint8_t CC11_GetRSSI(void)
         cc11_rssi >>= 1;
         cc11_rssi = 74 - cc11_rssi;
     }
-    return (~cc11_rssi + 1);
+
+    cc11_rssi = ~cc11_rssi + 1;
+
+    *pLen = 1;
+    pBuf[0] = cc11_rssi;
+
+    cc11_rssi = 0;
+
+    return 0;
 }
 #endif  // GetRSSI
 

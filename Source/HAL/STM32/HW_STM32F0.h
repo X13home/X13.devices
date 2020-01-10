@@ -25,9 +25,9 @@ See LICENSE file for license details.
 //////////////////////////////////////////////////////////////
 // PLC Section
 #define EXTPLC_USED             1
-#define EXTPLC_SIZEOF_PRG       2048
+#define EXTPLC_SIZEOF_PRG       4096
 #define EXTPLC_SIZEOF_PRG_CACHE 32      // Must be 2^n, bytes
-#define EXTPLC_SIZEOF_RAM       256     // size in uint32_t
+#define EXTPLC_SIZEOF_RAM       512     // size in uint32_t
 #define EXTPLC_SIZEOF_RW        16      // size in uint32_t
 // PLC Section
 //////////////////////////////////////////////////////////////
@@ -43,8 +43,8 @@ See LICENSE file for license details.
 #define FEE_PAGE_SIZE           (uint32_t)0x00000400    // Size of FLASH Page - 1k
 #endif
 
-#define FEE_SIZE                0x2000                  // 8K
-#define FEE_TRANSFER_PAGES      2                       // Reserved Pages for Transfer
+#define FEE_SIZE                0x4000                  // 16K
+#define FEE_TRANSFER_PAGES      3                       // Reserved Pages for Transfer
 
 // WARNING !! does not check overlapping with program memory
 #define FEE_BASE ((FLASH_BANK1_END + 1) - FEE_SIZE)

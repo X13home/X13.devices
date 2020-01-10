@@ -38,10 +38,6 @@ void extInit(void)
     serInit();
 #endif  //  EXTSER_USED
 
-#ifdef EXT_OPS_USED
-    opsInit();
-#endif  //  EXT_OPS_USED
-
 #ifdef EXTPLC_USED
     plcInit();
 #endif  //  EXTPLC_USED

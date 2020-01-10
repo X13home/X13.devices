@@ -25,22 +25,28 @@ See LICENSE file for license details.
 //////////////////////////////////////////////////////////////
 // PLC Section
 #define EXTPLC_USED                     1
-#define EXTPLC_SIZEOF_PRG               2048
+#define EXTPLC_SIZEOF_PRG               8192
 #define EXTPLC_SIZEOF_PRG_CACHE         32      // Must be 2^n, bytes
-#define EXTPLC_SIZEOF_RAM               256     // size in uint32_t
+#define EXTPLC_SIZEOF_RAM               512     // size in uint32_t
 #define EXTPLC_SIZEOF_RW                16      // size in uint32_t
 // PLC Section
 //////////////////////////////////////////////////////////////
 
 //////////////////////////////////////////////////////////////
 // EEPROM Emulation Section
-#define FEE_SIZE                0x2000                  // 8K
-#define FEE_TRANSFER_PAGES      2                       // Reserved Pages for Transfer
+#define FEE_SIZE                0x4000                  // 16K
+#define FEE_TRANSFER_PAGES      3                       // Reserved Pages for Transfer
 
 #if (defined (STM32F303x8) || defined (STM32F334x8) || defined (STM32F303xC))
 // 64k Version
 #define FEE_PAGE_SIZE           (uint32_t)0x00000800    // Size of FLASH Page - 2k
 #define FEE_BASE                (((uint32_t)0x08010000) - FEE_SIZE)
+
+#elif defined(STM32F303xE)
+// 512k Version
+#define FEE_PAGE_SIZE           (uint32_t)0x00000800    // Size of FLASH Page - 2k
+#define FEE_BASE                (((uint32_t)0x08080000) - FEE_SIZE)
+
 #endif  //  uC
 
 #define FLASH_SR_WRPRTERR       FLASH_SR_WRPERR
@@ -266,16 +272,20 @@ See LICENSE file for license details.
 
 //////////////////////////////////////////////////////////////
 // PWM Section
-
-#if (defined __STM32F303xC_H)
-#define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3,  TIM4,  NULL,  \
-                             NULL, NULL, TIM8, NULL,  NULL,  NULL,  \
-                             NULL, NULL, NULL, TIM15, TIM16, TIM17}
-#else
+#if defined (STM32F303x8)
 #define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3,  NULL,  NULL,  \
                              NULL, NULL, NULL, NULL,  NULL,  NULL,  \
                              NULL, NULL, NULL, TIM15, TIM16, TIM17}
-#endif  //  __STM32F303xC_H
+#elif defined(STM32F303xE)
+#define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3,  TIM4,  NULL,  \
+                             NULL, NULL, TIM8, NULL,  NULL,  NULL,  \
+                             NULL, NULL, NULL, TIM15, TIM16, TIM17, \
+                             NULL, NULL, TIM20}
+#else   // STM32F303xC
+#define HAL_PWM_TIMERS      {NULL, TIM1, TIM2, TIM3,  TIM4,  NULL,  \
+                             NULL, NULL, TIM8, NULL,  NULL,  NULL,  \
+                             NULL, NULL, NULL, TIM15, TIM16, TIM17}
+#endif  //  
 // PWM Section
 //////////////////////////////////////////////////////////////
 
