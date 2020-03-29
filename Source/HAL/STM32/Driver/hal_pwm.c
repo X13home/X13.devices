@@ -28,7 +28,7 @@ bool hal_pwm_checkbase(uint16_t base)
     }
     base -= HAL_PWM_BASE_OFFSET;
 #endif
-    if((base >= sizeof(hal_pwm_port2cfg)) ||
+    if((base >= (sizeof(hal_pwm_port2cfg)/2)) ||
        (hal_pwm_port2cfg[base] == 0xFF))
     {
         return false;

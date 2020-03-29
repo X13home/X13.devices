@@ -12,8 +12,8 @@
 // == GPIOA
 // 14	GPIOA.00		| AIN 00	| PWM 02.0	
 // 15	GPIOA.01		| AIN 01	| PWM 02.1	
-// 16	GPIOA.02		| AIN 02	| PWM 02.2	| UART_TX 0	
-// 17	GPIOA.03		| AIN 03	| PWM 02.3	| UART_RX 0	
+// 16	GPIOA.02		| AIN 02	| PWM 15.0	| UART_TX 0	
+// 17	GPIOA.03		| AIN 03	| PWM 15.1	| UART_RX 0	
 // 20	GPIOA.04		| AIN 04	| PWM 03.1	
 // 21	GPIOA.05		| AIN 05	| PWM 02.0	
 // 22	GPIOA.06		| AIN 06	| PWM 16.0	
@@ -67,7 +67,7 @@ extern "C" {
 // PWM Section
 #define EXTPWM_USED                 1
 #define HAL_PWM_BASE_OFFSET         3
-#define HAL_PWM_PORT2CFG            {0x110, 0x111, 0x112, 0x113, 0x219, 0x110, 0x180, 0x188, 0xFF, 0xFF, 0x222, 0x223, 0xFF, 0xFF, 0x21A, 0x21B, 0x112, 0x113}
+#define HAL_PWM_PORT2CFG            {0x110, 0x111, 0x978, 0x979, 0x219, 0x110, 0x180, 0x188, 0xFF, 0xFF, 0x222, 0x223, 0xFF, 0xFF, 0x21A, 0x21B, 0x112, 0x113}
 // End PWM Section
 
 // Analogue Inputs
