@@ -50,7 +50,8 @@ bool hal_pwm_busy(uint16_t base)
         return true;
     }
 
-    return ((TIMx->CCER & ((TIM_CCER_CC1E | TIM_CCER_CC1P) << ((cfg & 0x03) * 4))) != 0);
+    return (((TIMx->CCER & ((TIM_CCER_CC1E | TIM_CCER_CC1P) << ((cfg & 0x03) * 4))) != 0) |
+             (TIMx->SMCR != 0));
 }
 
 void hal_pwm_configure(uint16_t base, bool inv)

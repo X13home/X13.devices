@@ -8,7 +8,7 @@
 // PHY1: RS485
 
 // == GPIOA
-// 06	GPIOA.00		| AIN 00	| PWM 02.0	
+// 06	GPIOA.00		| AIN 00	| PWM 02.0	| CNT 02	
 // 07	GPIOA.01		| AIN 01	| PWM 02.1	
 // 08	GPIOA.02		| AIN 02	| PWM 02.2	| UART_TX 0	
 // 09	GPIOA.03		| AIN 03	| PWM 02.3	| UART_RX 0	
@@ -49,6 +49,11 @@ extern "C" {
 #define EXTPWM_USED                 1
 #define HAL_PWM_PORT2CFG            {0x110, 0x111, 0x112, 0x113, 0x219, 0x110, 0x180, 0x188, 0x21B, 0x608, 0xB0B}
 // End PWM Section
+
+// Counter Section
+#define EXTCNT_USED                 1
+#define HAL_CNT_PORT2CFG            {0x110}
+// End Counter Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1

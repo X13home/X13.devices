@@ -204,7 +204,7 @@ e_MQTTSN_RETURNS_t dioRegisterOD(indextable_t *pIdx)
     else
     {
         pIdx->cbRead = &dioReadOD;
-        pIdx->cbWrite = &dioWriteOD;
+        //pIdx->cbWrite = &dioWriteOD;
         pIdx->cbPoll = &dioPollOD;
         dio_read_mask[port] |= mask;
 
