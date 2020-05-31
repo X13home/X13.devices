@@ -26,6 +26,10 @@ typedef void (*cbEXT_t)(void);
 #include "EXT/extpwm.h"
 #endif  //  EXTPWM_USED
 
+#ifdef EXTCNT_USED
+#include "EXT/extcnt.h"
+#endif  //  EXTCNT_USED
+
 #ifdef EXTAIN_USED
 #include "EXT/extain.h"
 #endif  //  EXTAIN_USED

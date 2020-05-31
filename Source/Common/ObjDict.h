@@ -65,6 +65,7 @@ typedef enum
     objDin      = 'I',  // Digital Input
     objDout     = 'O',  // Digital Output
     objPWM      = 'P',  // LED PWM out
+	objCNT      = 'C',  // Counter Input
     objSer      = 'S',  // Serial port, S.0-5 (1200-38400)
     objMerker   = 'M',  // PLC variables
     objPLCctrl  = 'p',  // PLC Control

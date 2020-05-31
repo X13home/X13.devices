@@ -58,6 +58,11 @@ bool extCheckSubidx(subidx_t * pSubidx)
             return pwmCheckSubidx(pSubidx);
 #endif  //  EXTPWM_USED
 
+#ifdef EXTCNT_USED
+		case objCNT:
+			return cntCheckSubidx(pSubidx);
+#endif	// EXTCNT_USED
+
 #ifdef EXTAIN_USED
         case objAin:
             return ainCheckSubidx(pSubidx);
@@ -100,6 +105,11 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
             return pwmRegisterOD(pIdx);
 #endif  //  EXTPWM_USED
 
+#ifdef EXTCNT_USED
+		case objCNT:
+			return cntRegisterOD(pIdx);
+#endif	// EXTCNT_USED
+
 #ifdef EXTAIN_USED
         case objAin:        // Analog(int16_t) Input's
             return ainRegisterOD(pIdx);
@@ -140,6 +150,12 @@ void extDeleteOD(subidx_t * pSubidx)
             pwmDeleteOD(pSubidx);
             break;
 #endif  //  EXTPWM_USED
+
+#ifdef EXTCNT_USED
+		case objCNT:
+			cntDeleteOD(pSubidx);
+			break;
+#endif	// EXTCNT_USED
             
 #ifdef EXTAIN_USED
         case objAin:
@@ -207,6 +223,7 @@ uint32_t ext_in(subidx_t * pSubidx)
         case objAin:
             return ainRead(pSubidx);
 #endif  //  EXTAIN_USED
+
         default:
             break;
     }
@@ -230,6 +247,7 @@ void ext_out(subidx_t * pSubidx, uint32_t val)
             hal_pwm_write(pSubidx->Base, val);
             break;
 #endif  //  EXTPWM_USED
+
         default:
             break;
     }

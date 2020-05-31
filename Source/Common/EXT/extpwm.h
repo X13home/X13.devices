@@ -1,5 +1,5 @@
 /*
-Copyright (c) 2011-2016 <comparator@gmx.de>
+Copyright (c) 2011-2020 <comparator@gmx.de>
 
 This file is part of the X13.Home project.
 http://X13home.org
@@ -29,8 +29,3 @@ void  pwmDeleteOD(subidx_t * pSubidx);
 #endif
 
 #endif  //  _EXTPWM_H
-
-
-
-
-

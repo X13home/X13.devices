@@ -52,6 +52,7 @@ extern "C" {
 
 // Counter Section
 #define EXTCNT_USED                 1
+#define EXTCNT_MAXPORT_NR           1
 #define HAL_CNT_PORT2CFG            {0x110}
 // End Counter Section
 
