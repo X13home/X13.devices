@@ -23,25 +23,37 @@ static uint16_t cnt_old[EXTCNT_MAXPORT_NR];
 
 static e_MQTTSN_RETURNS_t cntReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-	//uint16_t    base = pSubidx->Base;
-	
+	uint16_t base = pSubidx->Base;
+	uint16_t val = hal_cnt_read(base);
+	cnt_old[base] = val;
+	*pLen = 2;
+    pBuf[0] = (uint8_t)(val & 0xFF);
+    pBuf[1] = (uint8_t)(val >> 8);
 	return MQTTSN_RET_ACCEPTED;
 }
 
 static uint8_t cntPollOD(subidx_t * pSubidx)
 {
-    //uint16_t    base = pSubidx->Base;
-
+	static uint8_t poll_cnt = 0;
+	
+    uint16_t base = pSubidx->Base;
+	
+	if((poll_cnt == 0) && (hal_cnt_read(base) != cnt_old[base]))
+	{
+		return 1;
+	}
+		
+	poll_cnt--;
     return 0;
 }
-
+/*
 static e_MQTTSN_RETURNS_t cntWriteOD(subidx_t * pSubidx, uint8_t len , uint8_t *pBuf)
 {
-    //uint16_t    base = pSubidx->Base;
+    //uint16_t base = pSubidx->Base;
 
     return MQTTSN_RET_ACCEPTED;
 }
-
+*/
 
 
 
@@ -72,7 +84,7 @@ e_MQTTSN_RETURNS_t cntRegisterOD(indextable_t *pIdx)
 
 	pIdx->cbRead  = &cntReadOD;
 	pIdx->cbPoll  = &cntPollOD;
-    pIdx->cbWrite = &cntWriteOD;
+    //pIdx->cbWrite = &cntWriteOD;
 	
     return MQTTSN_RET_ACCEPTED;
 }
