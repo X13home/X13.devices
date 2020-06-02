@@ -27,16 +27,16 @@
     <BootSegment>2</BootSegment>
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfFrameworkConfig>
-      <framework-data>
-  <options />
-  <configurations />
-  <files />
-  <documentation help="" />
-  <offline-documentation help="" />
-  <dependencies>
-    <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.39.0" />
-  </dependencies>
-</framework-data>
+      <framework-data xmlns="">
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.34.1" />
+        </dependencies>
+      </framework-data>
     </AsfFrameworkConfig>
     <ResetRule>0</ResetRule>
     <EraseKey />
@@ -129,6 +129,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\diag.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\diag.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Common\ext.c">

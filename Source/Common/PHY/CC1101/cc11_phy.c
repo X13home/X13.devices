@@ -35,6 +35,7 @@ See LICENSE file for license details.
 #endif  // CC11_DEFAULT_FREQ
 
 #define CC11_MDMCFG3_VAL        0x83    // Data Rate = 38,383 kBaud
+#define CC11_MDMCFG0_VAL        0xF8
 #define CC11_DEVIATN_VAL        0x33    // Deviation 17,46 kHz
 
 #else   // Fosc = 27M
@@ -52,6 +53,7 @@ See LICENSE file for license details.
 #endif  //  CC11_DEFAULT_FREQ
 
 #define CC11_MDMCFG3_VAL        0x75    // Data Rate = 38,4178 kBaud
+#define CC11_MDMCFG0_VAL        0xE5
 #define CC11_DEVIATN_VAL        0x32    // Deviation 16,5 kHz
 
 #endif  //  CC11_ANAREN
@@ -82,8 +84,8 @@ static const uint8_t cc11config[][2] =
     {CC11_MDMCFG4,  0xCA},              // RX filter BW 101,6 kHz
     {CC11_MDMCFG3,  CC11_MDMCFG3_VAL},  // Data Rate
     {CC11_MDMCFG2,  0x13},              // Sensitivity optimized, GFSK, sync word 30/32 bit detected
-    {CC11_MDMCFG1,  0x00},              // Channel spacing 25 kHz
-    {CC11_MDMCFG0,  0x00},
+    {CC11_MDMCFG1,  0x00},              // Channel spacing 50 kHz
+    {CC11_MDMCFG0,  CC11_MDMCFG0_VAL},
     {CC11_DEVIATN,  CC11_DEVIATN_VAL},  // Deviation 20 kHz
     {CC11_MCSM0,    0x18},              // Automatically calibrate when going from IDLE to RX or TX,
                                         //      PO_TIMEOUT: 150uS
@@ -347,7 +349,7 @@ void CC11_Init(void)
     cc11_writeReg(CC11_SYNC1, GroupID>>8);
     cc11_writeReg(CC11_SYNC0, GroupID & 0xFF);
     // Load Frequency channel
-    cc11_writeReg(CC11_CHANNR, Channel);
+    cc11_writeReg(CC11_CHANNR, (Channel / 2));
     // Configure PATABLE, No Ramp
     cc11_writeReg(CC11_PATABLE, CC11_RF_POWER);
 

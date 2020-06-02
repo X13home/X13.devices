@@ -824,18 +824,18 @@
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
-		<configuration configurationName="A1SC12"/>
-		<configuration configurationName="A1M10"/>
-		<configuration configurationName="A1R11"/>
-		<configuration configurationName="A1S10"/>
-		<configuration configurationName="A1C10"/>
-		<configuration configurationName="A1SR10"/>
-		<configuration configurationName="A1R10"/>
-		<configuration configurationName="A1SR11"/>
-		<configuration configurationName="A1SC10"/>
-		<configuration configurationName="A1E12"/>
 		<configuration configurationName="A1C12"/>
+		<configuration configurationName="A1E12"/>
+		<configuration configurationName="A1SC12"/>
+		<configuration configurationName="A1C10"/>
+		<configuration configurationName="A1R11"/>
 		<configuration configurationName="A1S12"/>
+		<configuration configurationName="A1SR10"/>
+		<configuration configurationName="A1SR11"/>
+		<configuration configurationName="A1S10"/>
+		<configuration configurationName="A1R10"/>
+		<configuration configurationName="A1M10"/>
+		<configuration configurationName="A1SC10"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
 	<storageModule moduleId="org.eclipse.cdt.internal.ui.text.commentOwnerProjectMappings"/>

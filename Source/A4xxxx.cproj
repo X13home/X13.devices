@@ -27,14 +27,14 @@
     <BootSegment>2</BootSegment>
     <eraseonlaunchrule>0</eraseonlaunchrule>
     <AsfFrameworkConfig>
-      <framework-data>
+      <framework-data xmlns="">
         <options />
         <configurations />
         <files />
         <documentation help="" />
         <offline-documentation help="" />
         <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.39.0" />
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.34.1" />
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
@@ -86,94 +86,50 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'A4S10d' ">
     <ToolchainSettings>
       <AvrGcc>
-        <avrgcc.common.Device>-mmcu=atmega2560 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\gcc\dev\atmega2560"</avrgcc.common.Device>
-        <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
-        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
-        <avrgcc.common.outputfiles.eep>False</avrgcc.common.outputfiles.eep>
-        <avrgcc.common.outputfiles.srec>False</avrgcc.common.outputfiles.srec>
-        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
-        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-        <avrgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-            <Value>CONFIG=A4S10</Value>
-          </ListValues>
-        </avrgcc.compiler.symbols.DefSymbols>
-        <avrgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>../HAL/ATMega</Value>
-            <Value>../HAL/ATMega/A4xxxx</Value>
-            <Value>../Common</Value>
-          </ListValues>
-        </avrgcc.compiler.directories.IncludePaths>
-        <avrgcc.compiler.optimization.level>Optimize debugging experience (-Og)</avrgcc.compiler.optimization.level>
-        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
-        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-        <avrgcc.compiler.warnings.ExtraWarnings>True</avrgcc.compiler.warnings.ExtraWarnings>
-        <avrgcc.compiler.warnings.Undefined>True</avrgcc.compiler.warnings.Undefined>
-        <avrgcc.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\include</Value>
-          </ListValues>
-        </avrgcc.assembler.general.IncludePaths>
-        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
-      </AvrGcc>
+  <avrgcc.common.Device>-mmcu=atmega2560 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\gcc\dev\atmega2560"</avrgcc.common.Device>
+  <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+  <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+  <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+  <avrgcc.common.outputfiles.eep>False</avrgcc.common.outputfiles.eep>
+  <avrgcc.common.outputfiles.srec>False</avrgcc.common.outputfiles.srec>
+  <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+  <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+  <avrgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>CONFIG=A4S10</Value>
+    </ListValues>
+  </avrgcc.compiler.symbols.DefSymbols>
+  <avrgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>../HAL/ATMega</Value>
+      <Value>../HAL/ATMega/A4xxxx</Value>
+      <Value>../Common</Value>
+    </ListValues>
+  </avrgcc.compiler.directories.IncludePaths>
+  <avrgcc.compiler.optimization.level>Optimize debugging experience (-Og)</avrgcc.compiler.optimization.level>
+  <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+  <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+  <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+  <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+  <avrgcc.compiler.warnings.ExtraWarnings>True</avrgcc.compiler.warnings.ExtraWarnings>
+  <avrgcc.compiler.warnings.Undefined>True</avrgcc.compiler.warnings.Undefined>
+  <avrgcc.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\include</Value>
+    </ListValues>
+  </avrgcc.assembler.general.IncludePaths>
+  <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+</AvrGcc>
     </ToolchainSettings>
     <OutputFileName>A4S10d</OutputFileName>
     <OutputFileExtension>.elf</OutputFileExtension>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'A4E10' ">
-    <ToolchainSettings>
-      <AvrGcc>
-        <avrgcc.common.Device>-mmcu=atmega2560 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\gcc\dev\atmega2560"</avrgcc.common.Device>
-        <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
-        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
-        <avrgcc.common.outputfiles.lss>False</avrgcc.common.outputfiles.lss>
-        <avrgcc.common.outputfiles.eep>False</avrgcc.common.outputfiles.eep>
-        <avrgcc.common.outputfiles.srec>False</avrgcc.common.outputfiles.srec>
-        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
-        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
-        <avrgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>NDEBUG</Value>
-            <Value>CONFIG=A4E10</Value>
-          </ListValues>
-        </avrgcc.compiler.symbols.DefSymbols>
-        <avrgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>../HAL/ATMega</Value>
-            <Value>../HAL/ATMega/A4xxxx</Value>
-            <Value>../Common</Value>
-          </ListValues>
-        </avrgcc.compiler.directories.IncludePaths>
-        <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
-        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
-        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
-        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
-        <avrgcc.compiler.warnings.ExtraWarnings>True</avrgcc.compiler.warnings.ExtraWarnings>
-        <avrgcc.compiler.warnings.Undefined>True</avrgcc.compiler.warnings.Undefined>
-        <avrgcc.linker.general.GenerateMAPFile>False</avrgcc.linker.general.GenerateMAPFile>
-        <avrgcc.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\include</Value>
-          </ListValues>
-        </avrgcc.assembler.general.IncludePaths>
-      </AvrGcc>
-    </ToolchainSettings>
-    <OutputFileName>A4E10</OutputFileName>
-    <OutputFileExtension>.elf</OutputFileExtension>
-    <OutputPath>bin\A4E10\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="Common\EXT" />
     <Folder Include="Common\PHY" />
     <Folder Include="Common\PHY\UART" />
-    <Folder Include="Common\PHY\ENC28J60" />
     <Folder Include="HAL" />
     <Folder Include="HAL\ATMega" />
     <Folder Include="HAL\ATMega\A4xxxx" />
@@ -182,6 +138,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Common\config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\diag.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\diag.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Common\ext.c">
@@ -244,34 +206,10 @@
     <Compile Include="Common\ObjDict.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="Common\PHY\ENC28J60\enc28j60_def.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\PHY\ENC28J60\enc28j60_hw.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\PHY\ENC28J60\enc28j60_hw.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\PHY\ENC28J60\enc28j60_net.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\PHY\ENC28J60\enc28j60_net.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\PHY\ENC28J60\enc28j60_phy.c">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="Common\PHY\ENC28J60\enc28j60_phy.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="Common\PHY\UART\uart_phy.c">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="Common\PHY\UART\uart_phy.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="HAL\ATMega\A4xxxx\A4E10.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="HAL\ATMega\A4xxxx\A4S10.h">
