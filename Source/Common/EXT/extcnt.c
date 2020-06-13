@@ -38,24 +38,28 @@ static uint8_t cntPollOD(subidx_t * pSubidx)
 	
     uint16_t base = pSubidx->Base;
 	
-	if((poll_cnt == 0) && (hal_cnt_read(base) != cnt_old[base]))
+	if(poll_cnt == 0)
 	{
-		return 1;
+		poll_cnt = 96;
+
+		if((hal_cnt_read(base) != cnt_old[base]))
+		{
+			return 1;
+		}
 	}
 		
 	poll_cnt--;
     return 0;
 }
 
-static e_MQTTSN_RETURNS_t cntWriteOD(subidx_t * pSubidx, uint8_t len  __attribute__ ((unused)), uint8_t *pBuf)
+static e_MQTTSN_RETURNS_t cntWriteOD(subidx_t * pSubidx,
+                                     uint8_t len  __attribute__ ((unused)),
+									 uint8_t *pBuf __attribute__ ((unused)))
 {
     uint16_t base = pSubidx->Base;
-	uint16_t value = pBuf[1];
-	value <<= 8;
-	value |= pBuf[0];
 	
-	cnt_old[base] = value;
-	hal_cnt_write(base, value);
+	cnt_old[base] = 0;
+	hal_cnt_write(base, 0);
 
     return MQTTSN_RET_ACCEPTED;
 }
