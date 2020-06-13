@@ -165,7 +165,6 @@ uint16_t hal_cnt_read(uint16_t base)
     return TIMx->CNT;
 }
 
-/*
 void hal_cnt_write(uint16_t base, uint16_t value)
 {
 #ifdef HAL_CNT_BASE_OFFSET
@@ -188,8 +187,9 @@ void hal_cnt_write(uint16_t base, uint16_t value)
         return;
     }
 	
+	TIMx->CR1 &= ~TIM_CR1_CEN;
 	TIMx->CNT = value;
+	TIMx->CR1 |= TIM_CR1_CEN;
 }
-*/
 
 #endif //  EXTDIO_USED && EXTCNT_USED

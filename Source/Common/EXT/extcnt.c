@@ -46,16 +46,19 @@ static uint8_t cntPollOD(subidx_t * pSubidx)
 	poll_cnt--;
     return 0;
 }
-/*
-static e_MQTTSN_RETURNS_t cntWriteOD(subidx_t * pSubidx, uint8_t len , uint8_t *pBuf)
+
+static e_MQTTSN_RETURNS_t cntWriteOD(subidx_t * pSubidx, uint8_t len  __attribute__ ((unused)), uint8_t *pBuf)
 {
-    //uint16_t base = pSubidx->Base;
+    uint16_t base = pSubidx->Base;
+	uint16_t value = pBuf[1];
+	value <<= 8;
+	value |= pBuf[0];
+	
+	cnt_old[base] = value;
+	hal_cnt_write(base, value);
 
     return MQTTSN_RET_ACCEPTED;
 }
-*/
-
-
 
 bool cntCheckSubidx(subidx_t * pSubidx)
 {
@@ -84,7 +87,7 @@ e_MQTTSN_RETURNS_t cntRegisterOD(indextable_t *pIdx)
 
 	pIdx->cbRead  = &cntReadOD;
 	pIdx->cbPoll  = &cntPollOD;
-    //pIdx->cbWrite = &cntWriteOD;
+    pIdx->cbWrite = &cntWriteOD;
 	
     return MQTTSN_RET_ACCEPTED;
 }
