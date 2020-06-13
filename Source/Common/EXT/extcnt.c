@@ -104,4 +104,32 @@ void cntDeleteOD(subidx_t * pSubidx)
     dioRelease(hal_dio_base2pin(base));
 }
 
+#ifdef EXTPLC_USED
+uint16_t cntRead(subidx_t * pSubidx)
+{
+	uint16_t base = pSubidx->Base;
+	if(base < EXTCNT_MAXPORT_NR)
+	{
+		return hal_cnt_read(base);
+	}
+	return 0;
+}
+
+void cntClear(subidx_t * pSubidx)
+{
+	uint16_t base = pSubidx->Base;
+	if(base < EXTCNT_MAXPORT_NR)
+	{
+		cnt_old[base] = 0;
+		hal_cnt_write(base, 0);
+	}
+}
+
+cbPoll_t cntGetPoll(void)
+{
+    return &cntPollOD;
+}
+
+#endif	// EXTPLC_USED
+
 #endif	// EXTDIO_USED & EXTCNT_USED

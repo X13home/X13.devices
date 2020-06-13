@@ -24,6 +24,11 @@ bool  cntCheckSubidx(subidx_t * pSubidx);
 e_MQTTSN_RETURNS_t cntRegisterOD(indextable_t *pIdx);
 void  cntDeleteOD(subidx_t * pSubidx);
 
+// PLC Subroutines
+uint16_t    cntRead(subidx_t * pSubidx);
+void        cntClear(subidx_t * pSubidx);
+cbPoll_t    cntGetPoll(void);
+
 #ifdef __cplusplus
 }
 #endif

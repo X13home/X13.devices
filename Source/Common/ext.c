@@ -223,6 +223,10 @@ uint32_t ext_in(subidx_t * pSubidx)
         case objAin:
             return ainRead(pSubidx);
 #endif  //  EXTAIN_USED
+#ifdef EXTCNT_USED
+		case objCNT:
+			return cntRead(pSubidx);
+#endif	// EXTCNT_USED
 
         default:
             break;
@@ -247,7 +251,10 @@ void ext_out(subidx_t * pSubidx, uint32_t val)
             hal_pwm_write(pSubidx->Base, val);
             break;
 #endif  //  EXTPWM_USED
-
+#ifdef EXTCNT_USED
+		case objCNT:
+			cntClear(pSubidx);
+#endif	// EXTCNT_USED
         default:
             break;
     }
@@ -266,6 +273,10 @@ uint8_t ext_getDPin(subidx_t * pSubidx)
         case objAin:
             return pSubidx->Base & 0xFF;
 #endif  //  EXTAIN_USED
+#ifdef EXTCNT_USED
+		case objCNT:
+			return pSubidx->Base & 0xFF;
+#endif	// EXTCNT_USED
         default:
             break;
     }
@@ -284,6 +295,11 @@ cbPoll_t ext_getPoll(subidx_t * pSubidx)
         case objAin:
             return ainGetPoll();
 #endif  //  EXTAIN_USED
+#ifdef EXTCNT_USED
+		case objCNT:
+			return cntGetPoll();
+#endif	//  EXTCNT_USED
+
         default:
             break;
     }
