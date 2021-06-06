@@ -23,7 +23,7 @@ bool pwmCheckSubidx(subidx_t * pSubidx)
 {
     eObjTyp_t type = pSubidx->Type;
     uint16_t base = pSubidx->Base;
-    if(((type != objPinNPN) && (type != objPinPNP)) ||
+    if(((type != objPinNPN) && (type != objPinPNP) && (type != objPWMfreq)) ||
         (hal_dio_base2pin(base) == 0xFF) ||
         (hal_pwm_checkbase(base) != true))
         return false;
@@ -32,13 +32,27 @@ bool pwmCheckSubidx(subidx_t * pSubidx)
 }
 
 static e_MQTTSN_RETURNS_t pwmWriteOD(subidx_t * pSubidx,
-                                    uint8_t len __attribute__ ((unused)), uint8_t *pBuf)
+                                    uint8_t len, uint8_t *pBuf)
 {
-    // Prevent hard fault on ARM
-    uint16_t value = pBuf[1];
-    value <<= 8;
-    value |= pBuf[0];
-    hal_pwm_write(pSubidx->Base, value);
+	if(len == 2)
+	{
+		// Prevent hard fault on ARM
+		uint16_t value = pBuf[1];
+		value <<= 8;
+		value |= pBuf[0];
+		hal_pwm_write(pSubidx->Base, value);
+	}
+	else if(len == 4)
+	{
+		uint32_t value = pBuf[3];
+		value <<= 8;
+		value |= pBuf[2];
+		value <<= 8;
+		value |= pBuf[1];
+		value <<= 8;
+		value |= pBuf[0];
+		hal_pwm_freq(pSubidx->Base, value);
+	}
 
     return MQTTSN_RET_ACCEPTED;
 }

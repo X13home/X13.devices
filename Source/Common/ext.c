@@ -246,9 +246,15 @@ void ext_out(subidx_t * pSubidx, uint32_t val)
 #endif  //  EXTDIO_USED
 #ifdef EXTPWM_USED
         case objPWM:        // PWM
-            if(val > 0xFFFF)
-                val = 0xFFFF;
-            hal_pwm_write(pSubidx->Base, val);
+			if(pSubidx->Type != objPWMfreq)
+			{
+				if(val > 0xFFFF) val = 0xFFFF;
+				hal_pwm_write(pSubidx->Base, val);
+			}
+			else
+			{
+				hal_pwm_freq(pSubidx->Base, val);
+			}
             break;
 #endif  //  EXTPWM_USED
 #ifdef EXTCNT_USED

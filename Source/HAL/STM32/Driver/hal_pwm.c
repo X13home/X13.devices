@@ -369,4 +369,46 @@ void hal_pwm_write(uint16_t base, uint16_t value)
     *(__IO uint32_t *)timbase = value;
 }
 
+void hal_pwm_freq(uint16_t base, uint32_t value)
+{
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
+#endif
+    if(base > (const uint16_t)(sizeof(hal_pwm_port2cfg)/2))
+    {
+        return;
+    }
+
+    uint16_t cfg = hal_pwm_port2cfg[base];
+    if(cfg == 0xFF)
+    {
+        return;
+    }
+
+    TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
+    if(TIMx == NULL)
+    {
+        return;
+    }
+	
+    uint32_t tim_clk = hal_GetClock((uint32_t)TIMx);
+	tim_clk /= value;
+	uint16_t presc = tim_clk / 65535;
+	uint16_t div = tim_clk / (presc + 1);
+
+
+	TIMx->CR1 &= ~TIM_CR1_CEN;                   // Enable Timer
+	TIMx->PSC = presc;
+	TIMx->ARR = div;
+	
+    uint32_t timbase = (uint32_t)TIMx + 0x34;
+    uint32_t offset = cfg & 0x03;
+    offset *= 4;
+    timbase += offset;
+    *(__IO uint32_t *)timbase = div/2;
+	
+	TIMx->CR1 |= TIM_CR1_CEN;                   	// Enable Timer
+	TIMx->EGR |= TIM_EGR_UG;                    	// Force update generation
+}
+
 #endif  //  (defined EXTDIO_USED) && (defined EXTPWM_USED)

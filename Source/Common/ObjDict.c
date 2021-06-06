@@ -339,8 +339,10 @@ static uint8_t cvtSubidx2Len(subidx_t * pSubIdx)
     switch(pSubIdx->Place)
     {
         case objAin:
-        case objPWM:
             return 2;
+        case objPWM:
+			if(pSubIdx->Type == objPWMfreq) return 4;
+			else return 2;
         case objDin:
         case objDout:
         case objSer:

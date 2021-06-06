@@ -91,6 +91,7 @@ typedef enum
   objPinNPN   = 'n',  // Pin NPN ( Input - PullUp)
   objActPNP   = 'A',  // Node Active  = 1, sleep = 0
   objActNPN   = 'a',  // Node Active = 0, sleep = 1;
+  objPWMfreq  = 'g',  // PWM Set Frequency
 // Analog In
   objArefVcc  = 'v',  // Ref = Vcc(3,3V)
   objArefExt  = 'e',  // Ref = External(not connected)
@@ -127,7 +128,7 @@ typedef struct
 }indextable_t;
 
 // EEPROM Object's
-enum
+typedef enum
 {
 // Global
     eeFlag = 0,
@@ -175,7 +176,7 @@ enum
     eePLCprogram_body = eePLCprogram + EXTPLC_SIZEOF_PRG - 1,
 #endif  //  EXTPLC_USED
     eeNextFreeAddress
-} eEEPROMAddr;
+}eeprom_addr_t;
 
 void InitOD(void);
 e_MQTTSN_RETURNS_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf);
