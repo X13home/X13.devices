@@ -188,18 +188,16 @@ uint32_t hal_GetClock(uint32_t base)
                 return hal_get_pclk2();
             }
 #endif  // TIM1
-#ifdef TIM2
-        case TIM2_BASE:
-            return hal_get_pclk1();
-#endif  //  TIM2
-#ifdef TIM3
-        case TIM3_BASE:
-            return hal_get_pclk1();
-#endif  //  TIM3
 #ifdef TIM4
         case TIM4_BASE:
             return hal_get_pclk1();
 #endif  // TIM4
+#ifdef TIM2
+        case TIM2_BASE:
+#endif  //  TIM2
+#ifdef TIM3
+        case TIM3_BASE:
+#endif  //  TIM3
         case TIM6_BASE:
             if((RCC->CFGR & RCC_CFGR_PPRE1) == RCC_CFGR_PPRE1_DIV1)
             {
@@ -215,11 +213,9 @@ uint32_t hal_GetClock(uint32_t base)
 #endif  // TIM8
 #ifdef TIM15
         case TIM15_BASE:
-            return hal_get_pclk2();
 #endif  //  TIM15
 #ifdef  TIM16
         case TIM16_BASE:
-            return hal_get_pclk2();
 #endif  //  TIM16
 #ifdef  TIM17
         case TIM17_BASE:

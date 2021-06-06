@@ -391,24 +391,31 @@ void hal_pwm_freq(uint16_t base, uint32_t value)
         return;
     }
 	
-    uint32_t tim_clk = hal_GetClock((uint32_t)TIMx);
-	tim_clk /= value;
-	uint16_t presc = tim_clk / 65535;
-	uint16_t div = tim_clk / (presc + 1);
-
-
 	TIMx->CR1 &= ~TIM_CR1_CEN;                   // Enable Timer
-	TIMx->PSC = presc;
-	TIMx->ARR = div;
 	
-    uint32_t timbase = (uint32_t)TIMx + 0x34;
-    uint32_t offset = cfg & 0x03;
-    offset *= 4;
-    timbase += offset;
-    *(__IO uint32_t *)timbase = div/2;
+	if(value > 0)
+	{
+		uint32_t tim_clk = hal_GetClock((uint32_t)TIMx);
+		tim_clk /= value;
+		
+		uint16_t presc = tim_clk / 65535;
+		uint16_t div = tim_clk / (presc + 1);
+
+		if(div < 2) div = 2;
+		else div = div - 1;
+
+		TIMx->PSC = presc;
+		TIMx->ARR = div;
 	
-	TIMx->CR1 |= TIM_CR1_CEN;                   	// Enable Timer
-	TIMx->EGR |= TIM_EGR_UG;                    	// Force update generation
+		uint32_t timbase = (uint32_t)TIMx + 0x34;
+		uint32_t offset = cfg & 0x03;
+		offset *= 4;
+		timbase += offset;
+		*(__IO uint32_t *)timbase = div/2;
+	
+		TIMx->CR1 |= TIM_CR1_CEN;                   	// Enable Timer
+		TIMx->EGR |= TIM_EGR_UG;                    	// Force update generation
+	}
 }
 
 #endif  //  (defined EXTDIO_USED) && (defined EXTPWM_USED)
