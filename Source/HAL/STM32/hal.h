@@ -193,8 +193,11 @@ void     hal_twi_start(void);
 #define UART_BAUD_9K6       2
 #define UART_BAUD_19K2      3
 #define UART_BAUD_38K4      4
-#define UART_BAUD_200K      5
-#define UART_BAUD_MAX       4
+#define UART_BAUD_57K6      5
+#define UART_BAUD_115K2     6
+#define UART_BAUD_200K      7
+
+#define UART_BAUD_MAX       6
 
 void     hal_uart_get_pins(uint8_t port, uint8_t * pRx, uint8_t * pTx);
 void     hal_uart_deinit(uint8_t port);

@@ -27,6 +27,7 @@ See LICENSE file for license details.
 #endif  //  UART_PHY
 
 #define UART_PHY_SLEEP          1
+#define UART_PHY_BAUD 			UART_BAUD_38K4
 
 static Queue_t      uart_tx_queue = {NULL, NULL, 4, 0};
 static UART_ADDR_t  uart_addr;
@@ -138,7 +139,7 @@ void UART_Init(void)
     uint8_t Len = sizeof(UART_ADDR_t);
     ReadOD(UART_NODE_ID, MQTTSN_FL_TOPICID_PREDEF, &Len, (uint8_t *)&uart_addr);
 
-    hal_uart_init_hw(UART_PHY_PORT, UART_BAUD_38K4, 3);    // init uart 38400, Rx + Tx
+    hal_uart_init_hw(UART_PHY_PORT, UART_PHY_BAUD, 3);    // init uart, Rx + Tx
 }
 
 void UART_Send(void *pBuf)
