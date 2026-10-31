@@ -418,19 +418,124 @@ static void cb_not(void){if(plcvm_sp < plcvm_sfp){plcvm_ram[plcvm_sp] = ~plcvm_r
 static void cb_and(void){if((plcvm_sp + 1) < plcvm_sfp){uint32_t v1 = plcvm_ram[plcvm_sp++];uint32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = v1 & v2;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_or (void){if((plcvm_sp + 1) < plcvm_sfp){uint32_t v1 = plcvm_ram[plcvm_sp++];uint32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = v1 | v2;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_xor(void){if((plcvm_sp + 1) < plcvm_sfp){uint32_t v1 = plcvm_ram[plcvm_sp++];uint32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = v1 ^ v2;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
-static void cb_lsl(void){if(plcvm_sp < plcvm_sfp){uint32_t v1 = plcvm_ram[plcvm_sp];v1 <<= plcvm_lpm_u8();plcvm_ram[plcvm_sp] = v1;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
-static void cb_lsr(void){if(plcvm_sp < plcvm_sfp){uint32_t v1 = plcvm_ram[plcvm_sp];v1 >>= plcvm_lpm_u8();plcvm_ram[plcvm_sp] = v1;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
-static void cb_asr(void){if(plcvm_sp < plcvm_sfp){int32_t  v1 = plcvm_ram[plcvm_sp];v1 >>= plcvm_lpm_u8();plcvm_ram[plcvm_sp] = v1;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+// Shift counts of 32 and more give 0, ASR the sign - as on ARM
+static void cb_lsl(void){if(plcvm_sp < plcvm_sfp){uint32_t v1 = plcvm_ram[plcvm_sp];uint8_t n = plcvm_lpm_u8();plcvm_ram[plcvm_sp] = (n < 32) ? (v1 << n) : 0;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_lsr(void){if(plcvm_sp < plcvm_sfp){uint32_t v1 = plcvm_ram[plcvm_sp];uint8_t n = plcvm_lpm_u8();plcvm_ram[plcvm_sp] = (n < 32) ? (v1 >> n) : 0;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+static void cb_asr(void){if(plcvm_sp < plcvm_sfp){int32_t  v1 = plcvm_ram[plcvm_sp];uint8_t n = plcvm_lpm_u8();plcvm_ram[plcvm_sp] = (n < 32) ? (uint32_t)(v1 >> n) : ((v1 < 0) ? 0xFFFFFFFFUL : 0UL);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 // 0x10 - 0x17 - Arithmetic Operators
 static void cb_add(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = v2 + v1;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_sub(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = v2 - v1;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_mul(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = v2 * v1;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
-static void cb_div(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];if(v1 != 0){int32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = v2 / v1;}else{plcvm_stat = PLC_ANSWER_ERROR_DIV0;}}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
-static void cb_mod(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = v2 % v1;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+// v1 == -1: the quotient is computed on uint32, INT32_MIN / -1 gives INT32_MIN as on ARM
+static void cb_div(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];if(v1 == 0){plcvm_stat = PLC_ANSWER_ERROR_DIV0;}else if(v1 == -1){plcvm_ram[plcvm_sp] = 0UL - (uint32_t)v2;}else{plcvm_ram[plcvm_sp] = v2 / v1;}}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+// MOD by 0 stops the program as DIV does; v1 == -1 gives 0 without the INT32_MIN overflow
+static void cb_mod(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];if(v1 == 0){plcvm_stat = PLC_ANSWER_ERROR_DIV0;}else if(v1 == -1){plcvm_ram[plcvm_sp] = 0;}else{plcvm_ram[plcvm_sp] = v2 % v1;}}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_inc(void){if(plcvm_sp < plcvm_sfp){plcvm_ram[plcvm_sp]++;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_dec(void){if(plcvm_sp < plcvm_sfp){plcvm_ram[plcvm_sp]--;}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_neg(void){if(plcvm_sp < plcvm_sfp){plcvm_ram[plcvm_sp] = -plcvm_ram[plcvm_sp];}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
-// 0x18 - 0x1F - Reserved
+// 0x18 - 0x1F - Float Arithmetic Operators
+#ifdef EXTPLC_USE_FLOAT
+// A float is the 32 bit IEEE-754 pattern in the same stack cell as an integer, so it is loaded and
+// stored by the ordinary LDM_S4 / STM_S4. Results follow JavaScript, the source language of the
+// programs. Ported from EspNode, components/plc/plc_vm.c
+// The equality below is the semantics of the opcodes, not an accidental comparison of floats:
+// FCEQ / FCNE / FCZE are the JavaScript == and !=, and Math.min / Math.max need it to tell -0
+// from +0. The project builds with -Wfloat-equal, so it is turned off for these blocks.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+static float plcvm_u2f(uint32_t bits){float f;memcpy(&f, &bits, sizeof(f));return f;}
+static uint32_t plcvm_f2u(float f){uint32_t bits;memcpy(&bits, &f, sizeof(bits));return bits;}
+
+// Math.min / Math.max: NaN if either operand is NaN, -0 < +0
+static float plcvm_js_min(float a, float b)
+{
+    if(isnan(a) || isnan(b))
+    {
+        return NAN;
+    }
+    if(a == b)
+    {
+        return signbit(a) ? a : b;
+    }
+    return (a < b) ? a : b;
+}
+
+static float plcvm_js_max(float a, float b)
+{
+    if(isnan(a) || isnan(b))
+    {
+        return NAN;
+    }
+    if(a == b)
+    {
+        return signbit(a) ? b : a;
+    }
+    return (a > b) ? a : b;
+}
+
+// Math.round: halves towards +Infinity, the sign of zero is kept
+static float plcvm_js_round(float a)
+{
+    float r = floorf(a);
+    if((a - r) >= 0.5f)             // Exact for |a| < 2^23, larger floats are integers
+    {
+        r += 1.0f;
+    }
+    if((r == 0.0f) && signbit(a))
+    {
+        r = -0.0f;
+    }
+    return r;
+}
+
+// ToInt32 / ToUint32 (x | 0, x >>> 0): truncate, modulo 2^32, NaN and Infinity give 0.
+// Both give the same 32 bits.
+static uint32_t plcvm_js_to_int32(float f)
+{
+    uint32_t bits = plcvm_f2u(f);
+    int32_t  exp  = (int32_t)((bits >> 23) & 0xFF) - 127;
+
+    if((exp < 0) || (exp == 128))
+    {
+        return 0;                   // |f| < 1, NaN, Infinity
+    }
+
+    uint32_t mant = (bits & 0x007FFFFFUL) | 0x00800000UL;
+    uint32_t mag;
+
+    if(exp <= 23)
+    {
+        mag = mant >> (23 - exp);
+    }
+    else if(exp < (23 + 32))
+    {
+        mag = mant << (exp - 23);   // Bits above 2^31 drop out: modulo 2^32
+    }
+    else
+    {
+        mag = 0;
+    }
+
+    return (bits & 0x80000000UL) ? (0UL - mag) : mag;
+}
+
+// Float operations: a - second, b - top of the stack, as for the integer ones
+#define PLCVM_FUNARY(name, expr)    static void name(void){if(plcvm_sp < plcvm_sfp){float a = plcvm_u2f(plcvm_ram[plcvm_sp]);plcvm_ram[plcvm_sp] = (expr);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+#define PLCVM_FBINARY(name, expr)   static void name(void){if((plcvm_sp + 1) < plcvm_sfp){float b = plcvm_u2f(plcvm_ram[plcvm_sp++]);float a = plcvm_u2f(plcvm_ram[plcvm_sp]);plcvm_ram[plcvm_sp] = (expr);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+// Conversion from the integer in the stack cell
+#define PLCVM_FCONV(name, expr)     static void name(void){if(plcvm_sp < plcvm_sfp){uint32_t v = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = (expr);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
+
+// Division by 0 gives +-Infinity / NaN without an error, unlike the integer DIV
+PLCVM_FBINARY(cb_fadd, plcvm_f2u(a + b))
+PLCVM_FBINARY(cb_fsub, plcvm_f2u(a - b))
+PLCVM_FBINARY(cb_fmul, plcvm_f2u(a * b))
+PLCVM_FBINARY(cb_fdiv, plcvm_f2u(a / b))
+PLCVM_FUNARY (cb_fneg, plcvm_f2u(-a))
+PLCVM_FUNARY (cb_fabs, plcvm_f2u(fabsf(a)))
+PLCVM_FBINARY(cb_fmin, plcvm_f2u(plcvm_js_min(a, b)))
+PLCVM_FBINARY(cb_fmax, plcvm_f2u(plcvm_js_max(a, b)))
+#pragma GCC diagnostic pop
+#endif  //  EXTPLC_USE_FLOAT
 // 0x20 - 0x27 - Compare
 static void cb_ceq(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = (v2 == v1);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_cne(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = (v2 != v1);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
@@ -439,8 +544,30 @@ static void cb_cge(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[p
 static void cb_clt(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = (v2 <  v1);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_cle(void){if((plcvm_sp + 1) < plcvm_sfp){int32_t v1 = plcvm_ram[plcvm_sp++];int32_t v2 = plcvm_ram[plcvm_sp];plcvm_ram[plcvm_sp] = (v2 <= v1);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_cze(void){if(plcvm_sp < plcvm_sfp){plcvm_ram[plcvm_sp] = (plcvm_ram[plcvm_sp] == 0);}else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
-// 0x28 - 0x2F - Reserverd
-// 0x30 - 0x37 - Reserved 
+// 0x28 - 0x2F - Float Compare, result 0/1
+#ifdef EXTPLC_USE_FLOAT
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal"
+// Any comparison with NaN is false, FCNE is the only one true
+PLCVM_FBINARY(cb_fceq, (a == b))
+PLCVM_FBINARY(cb_fcne, (a != b))
+PLCVM_FBINARY(cb_fcgt, (a >  b))
+PLCVM_FBINARY(cb_fcge, (a >= b))
+PLCVM_FBINARY(cb_fclt, (a <  b))
+PLCVM_FBINARY(cb_fcle, (a <= b))
+PLCVM_FUNARY (cb_fcze, (a == 0.0f))                 // True for +-0
+PLCVM_FUNARY (cb_fisfinite, (isfinite(a) ? 1UL : 0UL))
+// 0x30 - 0x37 - Float Conversions
+PLCVM_FCONV  (cb_s32tof, plcvm_f2u((float)(int32_t)v))
+PLCVM_FCONV  (cb_u32tof, plcvm_f2u((float)v))
+PLCVM_FCONV  (cb_ftos32, plcvm_js_to_int32(plcvm_u2f(v)))
+PLCVM_FCONV  (cb_ftou32, plcvm_js_to_int32(plcvm_u2f(v)))   // The same 32 bits as FTOS32
+PLCVM_FUNARY (cb_fround, plcvm_f2u(plcvm_js_round(a)))
+PLCVM_FUNARY (cb_ftrunc, plcvm_f2u(truncf(a)))
+PLCVM_FUNARY (cb_fisnan, (isnan(a) ? 1UL : 0UL))
+PLCVM_FUNARY (cb_fisinf, (isinf(a) ? 1UL : 0UL))
+#pragma GCC diagnostic pop
+#endif  //  EXTPLC_USE_FLOAT
 // 0x38 - 0x3F - Load Constant
 static void cb_ldi_0(void) {if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = 0;}                             else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
 static void cb_ldi_s1(void){if(plcvm_sp > plcvm_stack_bot){plcvm_ram[--plcvm_sp] = (plcvm_lpm_u8() | 0xFFFFFF00);} else{plcvm_stat = PLC_ANSWER_ERROR_OFR_SP;}}
@@ -600,7 +727,7 @@ static void cb_scall(void){
     }
 }
 static void cb_call(void){
-    if((plcvm_sp - 1) > plcvm_stack_bot)
+    if(plcvm_sp > (plcvm_stack_bot + 1))    // (sp - 1) > stack_bot wrapped around at sp == 0
     {
         uint32_t tmp = plcvm_lpm_u16();
         plcvm_ram[--plcvm_sp] = plcvm_pc;       // *(--SP) = PC
@@ -649,6 +776,34 @@ static void cb_ret(void){
 // End API functions
 static void cb_unk(void){plcvm_stat = PLC_ANSWER_ERROR_UNK_COP;}        // Unknown COP
 
+#ifndef EXTPLC_USE_FLOAT
+// Without float the opcodes stay unknown, the table keeps one shape
+#define cb_fadd         cb_unk
+#define cb_fsub         cb_unk
+#define cb_fmul         cb_unk
+#define cb_fdiv         cb_unk
+#define cb_fneg         cb_unk
+#define cb_fabs         cb_unk
+#define cb_fmin         cb_unk
+#define cb_fmax         cb_unk
+#define cb_fceq         cb_unk
+#define cb_fcne         cb_unk
+#define cb_fcgt         cb_unk
+#define cb_fcge         cb_unk
+#define cb_fclt         cb_unk
+#define cb_fcle         cb_unk
+#define cb_fcze         cb_unk
+#define cb_fisfinite    cb_unk
+#define cb_s32tof       cb_unk
+#define cb_u32tof       cb_unk
+#define cb_ftos32       cb_unk
+#define cb_ftou32       cb_unk
+#define cb_fround       cb_unk
+#define cb_ftrunc       cb_unk
+#define cb_fisnan       cb_unk
+#define cb_fisinf       cb_unk
+#endif  //  EXTPLC_USE_FLOAT
+
 // Operators table
 static const cbCOP_t plcvm_cb[] = {
     // 0x00 - 0x1F
@@ -656,11 +811,11 @@ static const cbCOP_t plcvm_cb[] = {
     cb_nop,         cb_unk,         cb_dup,         cb_drop,        cb_nip,         cb_swap,        cb_over,        cb_rot,
     cb_not,         cb_and,         cb_or,          cb_xor,         cb_lsl,         cb_lsr,         cb_asr,         cb_unk,
     cb_add,         cb_sub,         cb_mul,         cb_div,         cb_mod,         cb_inc,         cb_dec,         cb_neg,
-    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
-    // 0x20 - 0x3F 
+    cb_fadd,        cb_fsub,        cb_fmul,        cb_fdiv,        cb_fneg,        cb_fabs,        cb_fmin,        cb_fmax,
+    // 0x20 - 0x3F
     cb_ceq,         cb_cne,         cb_cgt,         cb_cge,         cb_clt,         cb_cle,         cb_cze,         cb_unk,
-    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
-    cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,         cb_unk,
+    cb_fceq,        cb_fcne,        cb_fcgt,        cb_fcge,        cb_fclt,        cb_fcle,        cb_fcze,        cb_fisfinite,
+    cb_s32tof,      cb_u32tof,      cb_ftos32,      cb_ftou32,      cb_fround,      cb_ftrunc,      cb_fisnan,      cb_fisinf,
     cb_ldi_0,       cb_ldi_s1,      cb_ldi_s2,      cb_ldi_s4,      cb_ldi_u1,      cb_ldi_u2,      cb_ldi_1,       cb_ldi_m1,
     // 0x40 - 0x5F 
     cb_ld_p0,       cb_ld_p1,       cb_ld_p2,       cb_ld_p3,       cb_ld_p4,       cb_ld_p5,       cb_ld_p6,       cb_ld_p7,
@@ -695,7 +850,192 @@ static const cbCOP_t plcvm_cb[] = {
 };
 
 
+#ifdef EXTSER_USED
+// Text output for the API functions 24 and 25. The buffer of the port belongs to extser, so the
+// number is formatted here and handed over whole: serPutTextPlc writes all of it or nothing.
+// 1 - written, 0 - no room.
+static uint32_t plcvm_print_int32(uint32_t port, uint32_t value)
+{
+    char     txt[11];                   // -2147483648
+    uint32_t len = 0;
+    uint32_t mag = ((int32_t)value < 0) ? (0UL - value) : value;
+
+    do
+    {
+        txt[(sizeof(txt) - 1) - len] = (char)('0' + (mag % 10));
+        len++;
+        mag /= 10;
+    }
+    while(mag != 0);
+
+    if((int32_t)value < 0)
+    {
+        txt[(sizeof(txt) - 1) - len] = '-';
+        len++;
+    }
+
+    return serPutTextPlc(port, &txt[sizeof(txt) - len], len);
+}
+
+#ifdef EXTPLC_USE_FLOAT
+static const uint32_t plcvm_pow10[9] =
+    {1UL, 10UL, 100UL, 1000UL, 10000UL, 100000UL, 1000000UL, 10000000UL, 100000000UL};
+
+// format - the decimal cba of EspNode docs/plc-api.md:
+//  a - 0: precision not set(6 digits after the point, as "%f"), else a - 1 digits
+//  b - minimum width, 0 - none
+//  c - how to pad to the width: 0 with zeros, 1 with spaces on the left, 2 with spaces on the right
+// NaN gives "nan", infinity "inf" and "-inf", padded with spaces. format above 299, and a magnitude
+// of 2^32 and above, give PLC_ANSWER_ERROR_PARM: the integer part of such a float does not fit
+// uint32_t, and nothing a node measures reaches it(EspNode prints it by snprintf).
+static uint32_t plcvm_print_float(uint32_t port, uint32_t format, uint32_t value)
+{
+    if(format > 299)
+    {
+        plcException(PLC_ANSWER_ERROR_PARM);
+        return 0;
+    }
+
+    uint32_t prec  = ((format % 10) == 0) ? 6 : ((format % 10) - 1);
+    uint32_t width = (format / 10) % 10;
+    uint32_t pad   = format / 100;
+
+    float    f = plcvm_u2f(value);
+    char     txt[24];
+    uint32_t len = 0;
+    uint32_t pos;
+
+    if(isnan(f) || isinf(f))
+    {
+        if(isinf(f) && signbit(f))
+        {
+            txt[len++] = '-';
+        }
+        txt[len++] = isnan(f) ? 'n' : 'i';
+        txt[len++] = isnan(f) ? 'a' : 'n';
+        txt[len++] = isnan(f) ? 'n' : 'f';
+
+        if(pad == 0)                    // Not a number: spaces, never zeros
+        {
+            pad = 1;
+        }
+    }
+    else if(fabsf(f) >= 4294967296.0f)
+    {
+        plcException(PLC_ANSWER_ERROR_PARM);
+        return 0;
+    }
+    else
+    {
+        // Exact and without double: m == ipart + j / 2^23, where ipart is the truncated integer part
+        // and j an integer below 2^23 - the mantissa of a float below 2^32 has no step finer than
+        // 2^-23, so m - ipart and its scaling by 2^23 are both exact. Then j * 10^prec stays below
+        // 2^23 * 10^8 and fits uint64_t exactly: the printed digit is rounded once, from the exact
+        // value, to the nearest and halves to even - the same digits printf gives.
+        float    m     = fabsf(f);
+        uint32_t ipart = (uint32_t)m;
+        uint32_t j     = (uint32_t)((m - (float)ipart) * 8388608.0f);
+        uint64_t num   = (uint64_t)j * plcvm_pow10[prec];
+        uint32_t fpart = (uint32_t)(num >> 23);
+        uint32_t rem   = (uint32_t)(num & 0x007FFFFFUL);
+        char     rev[24];
+        uint32_t nrev = 0;
+
+        // Halves to even: for prec above 0 the printed digit is the last one of fpart, for prec 0
+        // the fraction is dropped altogether and the digit rounded is the last one of ipart
+        uint32_t odd = ((prec == 0) ? (ipart + fpart) : fpart) & 1;
+
+        if((rem > 0x00400000UL) || ((rem == 0x00400000UL) && (odd != 0)))
+        {
+            fpart++;
+        }
+        if(fpart == plcvm_pow10[prec])              // The fraction carried into the integer part
+        {
+            fpart = 0;
+            ipart++;
+        }
+
+        for(pos = 0; pos < prec; pos++)             // Fraction, least significant digit first
+        {
+            rev[nrev++] = (char)('0' + (fpart % 10));
+            fpart /= 10;
+        }
+        if(prec != 0)
+        {
+            rev[nrev++] = '.';
+        }
+        do
+        {
+            rev[nrev++] = (char)('0' + (ipart % 10));
+            ipart /= 10;
+        }
+        while(ipart != 0);
+        if(signbit(f))
+        {
+            rev[nrev++] = '-';
+        }
+
+        while(nrev != 0)
+        {
+            txt[len++] = rev[--nrev];
+        }
+    }
+
+    // Pad to the width
+    char     out[32];
+    uint32_t olen = 0;
+
+    if(width > len)
+    {
+        uint32_t fill = width - len;
+        pos = 0;
+
+        if(pad == 2)                                // Spaces on the right
+        {
+            while(pos < len)
+            {
+                out[olen++] = txt[pos++];
+            }
+            while(fill-- != 0)
+            {
+                out[olen++] = ' ';
+            }
+        }
+        else
+        {
+            if((pad == 0) && (txt[0] == '-'))       // Zeros go after the sign
+            {
+                out[olen++] = txt[pos++];
+            }
+            while(fill-- != 0)
+            {
+                out[olen++] = (pad == 0) ? '0' : ' ';
+            }
+            while(pos < len)
+            {
+                out[olen++] = txt[pos++];
+            }
+        }
+    }
+    else
+    {
+        for(pos = 0; pos < len; pos++)
+        {
+            out[olen++] = txt[pos];
+        }
+    }
+
+    return serPutTextPlc(port, out, olen);
+}
+#endif  //  EXTPLC_USE_FLOAT
+#endif  //  EXTSER_USED
+
 // 0xC6 - API functions
+// Numbers are the contract with the Enviriot compiler, see EspNode docs/plc-api.md. Arguments are
+// pushed last first, so the first one is popped first. Two differences from EspNode: the stream of
+// 23 - 25 here is the UART port in the numbering of extser, not of the chip, and there are no log
+// streams (0xFFE0 - 0xFFE3) - the node has no log. 31 (ConfigPin) and 40 - 43 (TWI bus) are EspNode
+// only: the input and output of X13 is addressed by objects, by the IN and OUT operands.
 static void cb_api(void){
     switch(plcvm_lpm_u8())
     {
@@ -743,7 +1083,11 @@ static void cb_api(void){
 
 #ifdef EXTSER_USED
         case 20:    // Init UART, parm: port, speed
-            serInitPlc(plcvm_pop(), plcvm_pop());
+            {       // One pop per statement: the order of evaluating arguments in C is unspecified
+            uint32_t port = plcvm_pop();
+            uint32_t speed = plcvm_pop();
+            serInitPlc(port, speed);
+            }
             break;
         case 21:
             plcvm_push(serBytes2ReadPlc(plcvm_pop()));
@@ -751,9 +1095,30 @@ static void cb_api(void){
         case 22:
             plcvm_push(serGetBytePlc(plcvm_pop()));
             break;
-        case 23:
-            plcvm_push(serPutBytePlc(plcvm_pop(), plcvm_pop()));
+        case 23:    // UartPutByte(port, data), X13: returns the position in the packet or -1
+            {
+            uint32_t port = plcvm_pop();
+            uint32_t data = plcvm_pop();
+            plcvm_push(serPutBytePlc(port, data));
+            }
             break;
+        case 24:    // PrintInt32(port, value), 1 - written, 0 - no room
+            {
+            uint32_t port = plcvm_pop();
+            uint32_t value = plcvm_pop();
+            plcvm_push(plcvm_print_int32(port, value));
+            }
+            break;
+#ifdef EXTPLC_USE_FLOAT
+        case 25:    // PrintFloat(port, format, value), 1 - written, 0 - no room
+            {
+            uint32_t port = plcvm_pop();
+            uint32_t format = plcvm_pop();
+            uint32_t value = plcvm_pop();
+            plcvm_push(plcvm_print_float(port, format, value));
+            }
+            break;
+#endif  //  EXTPLC_USE_FLOAT
 #endif  //  EXTSER_USED
 
         default:

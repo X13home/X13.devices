@@ -489,6 +489,55 @@ uint32_t serPutBytePlc(uint32_t port, uint32_t data)
 
     return 0xFFFFFFFF;
 }
+
+// Append text to the transmit buffer of the port: the text is written whole or not at all.
+// 1 - written, 0 - no room. Used by the PLC API functions 24 and 25.
+uint32_t serPutTextPlc(uint32_t port, const char * pText, uint32_t len)
+{
+    if(port >= EXTSER_USED)                         // Port Not Exist
+    {
+        plcException(PLC_ANSWER_ERROR_PARM);
+        return 0;
+    }
+
+    if((extSerV[port].flags & (EXTSER_FLAG_EXT | EXTSER_FLAG_TXEN)) != EXTSER_FLAG_TXEN)
+    {
+        plcException(PLC_ANSWER_ERROR_RSC_BUSY);
+        return 0;
+    }
+
+    if(extSerV[port].pTxBuf == NULL)
+    {
+        extSerV[port].pTxBuf = (uint8_t *)mqAlloc(sizeof(MQ_t));
+        extSerV[port].TxBusy = 0;
+        extSerV[port].TxPnt  = 0;
+
+        if(extSerV[port].pTxBuf == NULL)
+        {
+            return 0;
+        }
+    }
+
+    if(extSerV[port].TxBusy != 0)                   // The previous packet is still on the wire
+    {
+        return 0;
+    }
+
+    uint8_t TxPnt = extSerV[port].TxPnt;
+    if((len + (uint32_t)TxPnt) > (uint32_t)sizeof(MQ_t))
+    {
+        return 0;
+    }
+
+    uint32_t pos;
+    for(pos = 0; pos < len; pos++)
+    {
+        extSerV[port].pTxBuf[TxPnt++] = (uint8_t)pText[pos];
+    }
+    extSerV[port].TxPnt = TxPnt;
+
+    return 1;
+}
 #endif  //  EXTPLC_USED
 
 #endif  //  EXTSER_USED

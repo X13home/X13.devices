@@ -25,7 +25,8 @@ See LICENSE file for license details.
 //////////////////////////////////////////////////////////////
 // PLC Section
 #define EXTPLC_USED                     1
-#define EXTPLC_SIZEOF_PRG               8192
+#define EXTPLC_USE_FLOAT                1       // Cortex-M4F, float opcodes 0x18-0x1F, 0x28-0x37
+#define EXTPLC_SIZEOF_PRG               5115
 #define EXTPLC_SIZEOF_PRG_CACHE         32      // Must be 2^n, bytes
 #define EXTPLC_SIZEOF_RAM               512     // size in uint32_t
 #define EXTPLC_SIZEOF_RW                16      // size in uint32_t

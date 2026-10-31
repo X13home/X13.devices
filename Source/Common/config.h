@@ -33,9 +33,9 @@ extern "C" {
 //#define MQTTSN_REBOOT_ON_LOST           1       // Reboot on connection lost
 
 // Object Dictionary
-#define OD_DEV_SWVERSH                  '3'     // Software Version
-#define OD_DEV_SWVERSM                  '2'
-#define OD_DEV_SWVERSL                  '1'
+#define OD_DEV_SWVERSH                  '3'     // Software Version, 3.3.0 - PLC_VM
+#define OD_DEV_SWVERSM                  '3'     //  with float: the opcodes 0x18-0x1F,
+#define OD_DEV_SWVERSL                  '0'     //  0x28-0x37 and the Mf merkers
 
 #include "hal.h"
 #include "mqMEM.h"

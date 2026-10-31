@@ -14,6 +14,11 @@ See LICENSE file for license details.
 
 #ifdef EXTPLC_USED
 
+#ifdef EXTPLC_USE_FLOAT
+#include <math.h>
+#include <string.h>
+#endif  //  EXTPLC_USE_FLOAT
+
 // PLC Control, command and response
 // Response format: [cmd] [stat] [optional]
 typedef enum
@@ -328,6 +333,7 @@ static e_MQTTSN_RETURNS_t merkerReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_
             break;
 
         case objInt32:
+        case objFloat:
             {
             uint32_t data = plcvm_ram[base];
             plc_old[base] = data;
@@ -387,6 +393,7 @@ static e_MQTTSN_RETURNS_t merkerWriteOD(subidx_t * pSubidx, uint8_t len __attrib
             }
             break;
         case objInt32:
+        case objFloat:
             memcpy(&plcvm_ram[base], pBuf, 4);
             memcpy(&plc_old[base], pBuf, 4);
             break;
@@ -420,6 +427,7 @@ static uint8_t merkerPollOD(subidx_t * pSubidx)
             base >>= 1;
             break;
         case objInt32:
+        case objFloat:
             return (plcvm_ram[base] != plc_old[base]);
             
         // supressed warning -Wswitch;
@@ -545,6 +553,7 @@ bool plcCheckSubidx(subidx_t * pSubidx)
             base >>= 1;
             break;
         case objInt32:
+        case objFloat:
             break;
         default:
             return false;
@@ -596,18 +605,21 @@ void plcStatPrep(void)
     if(plc_exchg == NULL)
     {
         plc_exchg = mqAlloc(sizeof(MQ_t));
-        
-        if(plc_run)
+
+        if(plc_exchg != NULL)
         {
-            plc_exchg->data[0] = PLC_CMD_IDLE;
+            if(plc_run)
+            {
+                plc_exchg->data[0] = PLC_CMD_IDLE;
+            }
+            else
+            {
+                plc_exchg->data[0] = PLC_CMD_STOP_RESP;
+            }
+            plc_exchg->data[1] = plcvm_stat;
+            plc_exchg->len = 2;
+            plc_answer = true;
         }
-        else
-        {
-            plc_exchg->data[0] = PLC_CMD_STOP_RESP;
-        }
-        plc_exchg->data[1] = plcvm_stat;
-        plc_exchg->len = 2;
-        plc_answer = true;
     }
 }
 

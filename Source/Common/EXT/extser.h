@@ -30,6 +30,7 @@ void serInitPlc(uint32_t port, uint32_t speed);
 uint32_t serBytes2ReadPlc(uint32_t port);
 uint32_t serGetBytePlc(uint32_t port);
 uint32_t serPutBytePlc(uint32_t port, uint32_t data);
+uint32_t serPutTextPlc(uint32_t port, const char * pText, uint32_t len);
 
 #ifdef __cplusplus
 }

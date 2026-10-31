@@ -83,6 +83,7 @@ typedef enum
   objInt32    = 'd',  // int32
   objUInt32   = 'D',  // uint32
   objInt64    = 'q',  // int64
+  objFloat    = 'f',  // IEEE-754, 4 bytes LE, not packed(cvtSubidx2Len gives 0)
   objString   = 's',  // UTF8 '0' - terminated string
   objArray    = 'a',  // array
   objUnknown  = 'U',  // unknown
