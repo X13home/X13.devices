@@ -850,192 +850,615 @@ static const cbCOP_t plcvm_cb[] = {
 };
 
 
-#ifdef EXTSER_USED
-// Text output for the API functions 24 and 25. The buffer of the port belongs to extser, so the
-// number is formatted here and handed over whole: serPutTextPlc writes all of it or nothing.
-// 1 - written, 0 - no room.
-static uint32_t plcvm_print_int32(uint32_t port, uint32_t value)
+// A stream of PrintF is a UART port or a log object, so the text output belongs here as soon as
+// the node has one of the two: some S4 boards carry the node log and no UART at all(S4SM13 ..)
+#if (defined EXTSER_USED) || (defined EXTPLC_SIZEOF_LOG)
+#define PLCVM_USE_PRINT             1
+#endif  //  (defined EXTSER_USED) || (defined EXTPLC_SIZEOF_LOG)
+
+#ifdef PLCVM_USE_PRINT
+// Text output of PrintF(26). The buffer of a stream belongs to its owner(extser for a UART port), so
+// the text is built here and handed over whole: it is written all or not at all. Ported from EspNode,
+// components/plc/plc_stream.c - the format is parsed by the same rules as the compiler(EP_PrintF),
+// so a program built by something else stops instead of printing what a libc would.
+
+// The text of one call. The transmit buffer of a port is one mqAlloc block, and a log line has to fit
+// in one PUBLISH, so nothing longer than this can ever be written.
+#ifndef EXTPLC_SIZEOF_PRINT
+#define EXTPLC_SIZEOF_PRINT         (sizeof(MQ_t))
+#endif  //  EXTPLC_SIZEOF_PRINT
+
+#define PLCVM_SIZEOF_CONV           24      // One conversion: 10 digits, the point and 8 more
+
+#ifdef EXTPLC_SIZEOF_LOG
+// Lines of the program for the node log, the predefined objects objLogD .. objLogE. Each line goes
+// out as one PUBLISH at QoS0, so it can hold at most MQTTSN_MSG_SIZE - 5 bytes; the gateway turns
+// the topic into a log level(Enviriot, MsDevice.cs). Records are [level][len][bytes] one after
+// another in one buffer: the levels share the memory and the lines keep their order, and only the
+// first record is published. As on EspNode a 0 byte ends a line, so one PrintF can write several,
+// and the last line stays open until the end of the scan - plcProc closes it.
+// A full buffer neither stops the program nor is reported to it, as on EspNode(node_log.c): the
+// lines already in it are kept, the new ones are counted, and the count goes out as a line of its
+// own at Warning. So 0 from PrintF to a log stream means one thing only - a line over the limit.
+#define PLCVM_SIZEOF_LOG_LINE       (MQTTSN_MSG_SIZE - 5)
+#define PLCVM_LOG_WARN              2       // objLogW - objLogD, the level of the report
+
+// "node_log: " and " lines dropped" around at most five digits, as EspNode words it
+#define PLCVM_SIZEOF_LOG_REPORT     (10 + 5 + 14)
+
+#if (EXTPLC_SIZEOF_LOG < 64)
+#error EXTPLC_SIZEOF_LOG is too small, the report of the lost lines has to fit beside a line
+#endif  //  (EXTPLC_SIZEOF_LOG < 64)
+
+static uint8_t  plcvm_log[EXTPLC_SIZEOF_LOG];
+static uint32_t plcvm_log_len;                  // Bytes used, records from the start of the buffer
+static uint32_t plcvm_log_last;                 // Offset of the last record
+static bool     plcvm_log_open;                 // That record can still be appended to
+static uint16_t plcvm_log_dropped;              // Lines lost since the last report
+static bool     plcvm_log_losing;               // The line being written is lost, not just unwritten
+static uint8_t  plcvm_log_lost_lvl;             // Its level, and the length it would have had, so the
+static uint8_t  plcvm_log_lost_len;             //  limit of a line holds whatever room is left
+
+static uint32_t plcvm_fmt_int32(char * pTxt, uint32_t value);   // Below, with the conversions
+
+// What the line of this level already holds, whether it is being written or lost
+static uint32_t plcvm_log_line_len(uint8_t level)
 {
-    char     txt[11];                   // -2147483648
-    uint32_t len = 0;
-    uint32_t mag = ((int32_t)value < 0) ? (0UL - value) : value;
+    if(plcvm_log_losing)
+    {
+        return (plcvm_log_lost_lvl == level) ? plcvm_log_lost_len : 0;
+    }
+
+    return (plcvm_log_open && (plcvm_log[plcvm_log_last] == level))
+            ? plcvm_log[plcvm_log_last + 1] : 0;
+}
+
+// The line ends, by a 0 byte or by the end of the scan. One that was lost is counted here, where its
+// length is final
+static void plcvm_log_close(void)
+{
+    plcvm_log_open = false;
+
+    if(plcvm_log_losing)
+    {
+        plcvm_log_losing = false;
+
+        if(plcvm_log_dropped != 0xFFFF)         // Saturates: it only has to say that lines were lost
+        {
+            plcvm_log_dropped++;
+        }
+    }
+}
+
+// There is no room for the line: what of it is already in the buffer goes too, since half a line
+// published as a whole one is worse than none. The open record is always the last, so it truncates
+static void plcvm_log_lose(uint8_t level)
+{
+    plcvm_log_lost_len = 0;
+
+    if(plcvm_log_open && (plcvm_log[plcvm_log_last] == level))
+    {
+        plcvm_log_lost_len = plcvm_log[plcvm_log_last + 1];
+        plcvm_log_len      = plcvm_log_last;
+    }
+
+    plcvm_log_open     = false;
+    plcvm_log_lost_lvl = level;
+    plcvm_log_losing   = true;
+}
+
+// Queues how many lines were lost, as soon as there is room for the line
+static void plcvm_log_report(void)
+{
+    char     text[PLCVM_SIZEOF_LOG_REPORT];
+    uint32_t len = 10;
+
+    memcpy(text, "node_log: ", 10);
+    len += plcvm_fmt_int32(&text[len], plcvm_log_dropped);
+    memcpy(&text[len], " lines dropped", 14);
+    len += 14;
+
+    if((plcvm_log_len + len + 2) > EXTPLC_SIZEOF_LOG)
+    {
+        return;                                 // No room yet, the next call tries again
+    }
+
+    plcvm_log_last = plcvm_log_len;
+    plcvm_log[plcvm_log_len++] = PLCVM_LOG_WARN;
+    plcvm_log[plcvm_log_len++] = (uint8_t)len;
+    memcpy(&plcvm_log[plcvm_log_len], text, len);
+    plcvm_log_len += len;
+    plcvm_log_open = false;                     // A complete line, nothing is appended to it
+
+    plcvm_log_dropped = 0;
+}
+
+// 1 - the text was taken, 0 - a line of it is longer than one PUBLISH and nothing was written
+static uint32_t plcvm_log_put(uint8_t level, const char * pText, uint32_t len)
+{
+    uint32_t pos;
+    uint32_t line = plcvm_log_line_len(level);
+
+    // The limit of a line first, before anything is written: it does not depend on the room left
+    for(pos = 0; pos < len; pos++)
+    {
+        if(pText[pos] == 0)
+        {
+            line = 0;
+            continue;
+        }
+
+        line++;
+
+        if(line > PLCVM_SIZEOF_LOG_LINE)        // One line has to fit in one PUBLISH
+        {
+            return 0;
+        }
+    }
+
+    for(pos = 0; pos < len; pos++)              // The same walk, now writing
+    {
+        if(pText[pos] == 0)
+        {
+            plcvm_log_close();
+            continue;
+        }
+
+        if(plcvm_log_losing && (plcvm_log_lost_lvl != level))
+        {
+            plcvm_log_close();                  // Another level is another line
+        }
+
+        if(plcvm_log_losing)
+        {
+            plcvm_log_lost_len++;
+            continue;
+        }
+
+        if(!plcvm_log_open || (plcvm_log[plcvm_log_last] != level))
+        {
+            if((plcvm_log_len + 3) > EXTPLC_SIZEOF_LOG)     // The header and one byte
+            {
+                plcvm_log_lose(level);
+                plcvm_log_lost_len++;
+                continue;
+            }
+
+            plcvm_log_last = plcvm_log_len;
+            plcvm_log[plcvm_log_len++] = level;
+            plcvm_log[plcvm_log_len++] = 0;
+            plcvm_log_open = true;
+        }
+        else if(plcvm_log_len == EXTPLC_SIZEOF_LOG)
+        {
+            plcvm_log_lose(level);
+            plcvm_log_lost_len++;
+            continue;
+        }
+
+        plcvm_log[plcvm_log_len++] = (uint8_t)pText[pos];
+        plcvm_log[plcvm_log_last + 1]++;
+    }
+
+    return 1;
+}
+
+// The level of the first line, or PLC_LOG_LEVELS when there is nothing to send. The report of the
+// lost lines is queued here, as node_log_get does on EspNode: the scan is over by now, so no line is
+// open and adding one cannot cut another in half
+static uint8_t plcvm_log_level(void)
+{
+    if(plcvm_log_dropped != 0)
+    {
+        plcvm_log_report();
+    }
+
+    return (plcvm_log_len != 0) ? plcvm_log[0] : PLC_LOG_LEVELS;
+}
+
+// Takes the first line if it is of this level: its length, or 0xFF when it is not there
+static uint8_t plcvm_log_take(uint8_t level, uint8_t * pBuf, uint8_t room)
+{
+    if((plcvm_log_len == 0) || (plcvm_log[0] != level))
+    {
+        return 0xFF;
+    }
+
+    uint8_t  len  = plcvm_log[1];
+    uint32_t used = (uint32_t)len + 2;
+
+    if(len > room)                  // Cannot happen: the length is checked as the line is written
+    {
+        len = room;
+    }
+    memcpy(pBuf, &plcvm_log[2], len);
+
+    plcvm_log_len -= used;          // Drop the record, the ones behind it move up
+    memmove(plcvm_log, &plcvm_log[used], plcvm_log_len);
+    plcvm_log_last = (plcvm_log_last > used) ? (plcvm_log_last - used) : 0;
+
+    return len;
+}
+#endif  //  EXTPLC_SIZEOF_LOG
+
+// One stream: a UART port in the numbering of extser, or a log object objLogD .. objLogE where the
+// node has them. serPutTextPlc raises PARM for a port that does not exist, as the contract asks.
+static uint32_t plcvm_put(uint32_t stream, const char * pText, uint32_t len)
+{
+#ifdef EXTPLC_SIZEOF_LOG
+    if((stream >= objLogD) && (stream <= objLogE))
+    {
+        return plcvm_log_put((uint8_t)(stream - objLogD), pText, len);
+    }
+#endif  //  EXTPLC_SIZEOF_LOG
+
+#ifdef EXTSER_USED
+    return serPutTextPlc(stream, pText, len);
+#else                               // No UART here, so a stream is a log object and nothing else
+    plcException(PLC_ANSWER_ERROR_PARM);
+    return 0;
+#endif  //  EXTSER_USED
+}
+
+// Appends to the text, counting on past the buffer as emit() of EspNode does: a text too long for
+// the stream is refused whole, never cut.
+static void plcvm_emit(char * pOut, uint32_t * pLen, const char * pSrc, uint32_t len)
+{
+    uint32_t pos;
+
+    for(pos = 0; pos < len; pos++, (*pLen)++)
+    {
+        if(*pLen < EXTPLC_SIZEOF_PRINT)
+        {
+            pOut[*pLen] = pSrc[pos];
+        }
+    }
+}
+
+// Width padding, shared by the conversions: flag 0 - spaces on the left, '0' - zeros after the sign,
+// '-' - spaces on the right. The width never cuts the value.
+static uint32_t plcvm_pad(char * pOut, const char * pTxt, uint32_t len, uint32_t width, char flag)
+{
+    uint32_t olen = 0;
+    uint32_t pos  = 0;
+    uint32_t fill;
+
+    if(width <= len)
+    {
+        while(pos < len)
+        {
+            pOut[olen++] = pTxt[pos++];
+        }
+        return olen;
+    }
+
+    fill = width - len;
+
+    if(flag == '-')                                 // Spaces on the right
+    {
+        while(pos < len)
+        {
+            pOut[olen++] = pTxt[pos++];
+        }
+        while(fill-- != 0)
+        {
+            pOut[olen++] = ' ';
+        }
+        return olen;
+    }
+
+    if((flag == '0') && (pTxt[0] == '-'))           // Zeros go after the sign
+    {
+        pOut[olen++] = pTxt[pos++];
+    }
+    while(fill-- != 0)
+    {
+        pOut[olen++] = (flag == '0') ? '0' : ' ';
+    }
+    while(pos < len)
+    {
+        pOut[olen++] = pTxt[pos++];
+    }
+
+    return olen;
+}
+
+// Decimal with the sign, without the width: %d
+static uint32_t plcvm_fmt_int32(char * pTxt, uint32_t value)
+{
+    char     rev[10];                               // 2147483648, the sign goes out first
+    uint32_t nrev = 0;
+    uint32_t len  = 0;
+    uint32_t mag  = ((int32_t)value < 0) ? (0UL - value) : value;
 
     do
     {
-        txt[(sizeof(txt) - 1) - len] = (char)('0' + (mag % 10));
-        len++;
+        rev[nrev++] = (char)('0' + (mag % 10));
         mag /= 10;
     }
     while(mag != 0);
 
     if((int32_t)value < 0)
     {
-        txt[(sizeof(txt) - 1) - len] = '-';
-        len++;
+        pTxt[len++] = '-';
+    }
+    while(nrev != 0)
+    {
+        pTxt[len++] = rev[--nrev];
     }
 
-    return serPutTextPlc(port, &txt[sizeof(txt) - len], len);
+    return len;
+}
+
+// Hexadecimal, without the width: %x and %X
+static uint32_t plcvm_fmt_hex(char * pTxt, uint32_t value, bool upper)
+{
+    char     rev[8];
+    uint32_t nrev = 0;
+    uint32_t len  = 0;
+
+    do
+    {
+        uint32_t digit = value & 0x0F;
+        rev[nrev++] = (char)((digit < 10) ? ('0' + digit) : ((upper ? 'A' : 'a') + (digit - 10)));
+        value >>= 4;
+    }
+    while(value != 0);
+
+    while(nrev != 0)
+    {
+        pTxt[len++] = rev[--nrev];
+    }
+
+    return len;
 }
 
 #ifdef EXTPLC_USE_FLOAT
 static const uint32_t plcvm_pow10[9] =
     {1UL, 10UL, 100UL, 1000UL, 10000UL, 100000UL, 1000000UL, 10000000UL, 100000000UL};
 
-// format - the decimal cba of EspNode docs/plc-api.md:
-//  a - 0: precision not set(6 digits after the point, as "%f"), else a - 1 digits
-//  b - minimum width, 0 - none
-//  c - how to pad to the width: 0 with zeros, 1 with spaces on the left, 2 with spaces on the right
-// NaN gives "nan", infinity "inf" and "-inf", padded with spaces. format above 299, and a magnitude
-// of 2^32 and above, give PLC_ANSWER_ERROR_PARM: the integer part of such a float does not fit
-// uint32_t, and nothing a node measures reaches it(EspNode prints it by snprintf).
-static uint32_t plcvm_print_float(uint32_t port, uint32_t format, uint32_t value)
+// Decimal with prec digits after the point, without the width: %f. NaN and the infinities are the
+// caller's, here only a finite value. A magnitude of 2^32 and above gives PLC_ANSWER_ERROR_PARM: its
+// integer part does not fit uint32_t, and nothing a node measures reaches it(EspNode has snprintf).
+static uint32_t plcvm_fmt_float(char * pTxt, uint32_t prec, float f)
 {
-    if(format > 299)
+    if(fabsf(f) >= 4294967296.0f)
     {
         plcException(PLC_ANSWER_ERROR_PARM);
         return 0;
     }
 
-    uint32_t prec  = ((format % 10) == 0) ? 6 : ((format % 10) - 1);
-    uint32_t width = (format / 10) % 10;
-    uint32_t pad   = format / 100;
-
-    float    f = plcvm_u2f(value);
-    char     txt[24];
-    uint32_t len = 0;
+    // Exact and without double: m == ipart + j / 2^23, where ipart is the truncated integer part and
+    // j an integer below 2^23 - the mantissa of a float below 2^32 has no step finer than 2^-23, so
+    // m - ipart and its scaling by 2^23 are both exact. Then j * 10^prec stays below 2^23 * 10^8 and
+    // fits uint64_t exactly: the printed digit is rounded once, from the exact value, to the nearest
+    // and halves to even - the same digits printf gives.
+    float    m     = fabsf(f);
+    uint32_t ipart = (uint32_t)m;
+    uint32_t j     = (uint32_t)((m - (float)ipart) * 8388608.0f);
+    uint64_t num   = (uint64_t)j * plcvm_pow10[prec];
+    uint32_t fpart = (uint32_t)(num >> 23);
+    uint32_t rem   = (uint32_t)(num & 0x007FFFFFUL);
+    char     rev[PLCVM_SIZEOF_CONV];
+    uint32_t nrev  = 0;
+    uint32_t len   = 0;
     uint32_t pos;
 
-    if(isnan(f) || isinf(f))
-    {
-        if(isinf(f) && signbit(f))
-        {
-            txt[len++] = '-';
-        }
-        txt[len++] = isnan(f) ? 'n' : 'i';
-        txt[len++] = isnan(f) ? 'a' : 'n';
-        txt[len++] = isnan(f) ? 'n' : 'f';
+    // Halves to even: for prec above 0 the printed digit is the last one of fpart, for prec 0 the
+    // fraction is dropped altogether and the digit rounded is the last one of ipart
+    uint32_t odd = ((prec == 0) ? (ipart + fpart) : fpart) & 1;
 
-        if(pad == 0)                    // Not a number: spaces, never zeros
-        {
-            pad = 1;
-        }
+    if((rem > 0x00400000UL) || ((rem == 0x00400000UL) && (odd != 0)))
+    {
+        fpart++;
     }
-    else if(fabsf(f) >= 4294967296.0f)
+    if(fpart == plcvm_pow10[prec])                  // The fraction carried into the integer part
+    {
+        fpart = 0;
+        ipart++;
+    }
+
+    for(pos = 0; pos < prec; pos++)                 // Fraction, least significant digit first
+    {
+        rev[nrev++] = (char)('0' + (fpart % 10));
+        fpart /= 10;
+    }
+    if(prec != 0)
+    {
+        rev[nrev++] = '.';
+    }
+    do
+    {
+        rev[nrev++] = (char)('0' + (ipart % 10));
+        ipart /= 10;
+    }
+    while(ipart != 0);
+
+    if(signbit(f))                                  // -0.0 keeps its sign, as printf
+    {
+        pTxt[len++] = '-';
+    }
+    while(nrev != 0)
+    {
+        pTxt[len++] = rev[--nrev];
+    }
+
+    return len;
+}
+#endif  //  EXTPLC_USE_FLOAT
+
+// One conversion with its width, as convert() of EspNode: kind - the specifier, flag 0, '0' or '-',
+// width 0..9, prec -1 not set or 0..8
+static uint32_t plcvm_convert(char * pOut, char kind, char flag, uint32_t width, int32_t prec,
+                              uint32_t v)
+{
+    char     txt[PLCVM_SIZEOF_CONV];
+    uint32_t len;
+
+    switch(kind)
+    {
+        case 'c':
+            txt[0] = (char)(uint8_t)v;
+            len = 1;
+            break;
+        case 'd':
+            len = plcvm_fmt_int32(txt, v);
+            break;
+        case 'x':
+        case 'X':
+            len = plcvm_fmt_hex(txt, v, (kind == 'X'));
+            break;
+#ifdef EXTPLC_USE_FLOAT
+        default:                                    // 'f'
+            {
+            float f = plcvm_u2f(v);
+
+            if(isnan(f) || isinf(f))                // Padded with spaces, never zeros, as printf
+            {
+                len = 0;
+                if(isinf(f) && signbit(f))
+                {
+                    txt[len++] = '-';
+                }
+                txt[len++] = isnan(f) ? 'n' : 'i';
+                txt[len++] = isnan(f) ? 'a' : 'n';
+                txt[len++] = isnan(f) ? 'n' : 'f';
+
+                if(flag == '0')
+                {
+                    flag = 0;
+                }
+            }
+            else                                    // Not set is the 6 digits of "%f"
+            {
+                len = plcvm_fmt_float(txt, (prec < 0) ? 6 : (uint32_t)prec, f);
+            }
+            }
+            break;
+#else
+        default:                                    // The parser rejects %f without the float opcodes
+            (void)prec;
+            len = 0;
+            break;
+#endif  //  EXTPLC_USE_FLOAT
+    }
+
+    return plcvm_pad(pOut, txt, len, width, flag);
+}
+
+// PrintF(stream, "format", values...). The format lies in the memory of the program and is read
+// byte by byte: on this target it is the emulated EEPROM, there is no pointer to it. Its length is
+// explicit, so a 0 byte is data and does not end it. 1 - written, 0 - no room and nothing written.
+static uint32_t plcvm_printf(uint32_t stream, uint32_t addr, uint32_t flen, uint32_t n)
+{
+    char     out[EXTPLC_SIZEOF_PRINT];
+    char     conv[PLCVM_SIZEOF_CONV];
+    uint32_t olen = 0;                              // All of the text, counted on past the buffer
+    uint32_t used = 0;
+    uint32_t i    = 0;
+
+    while(i < flen)
+    {
+        char c = (char)plcvm_lpm_u8_i(addr + i++);
+
+        if(c != '%')
+        {
+            plcvm_emit(out, &olen, &c, 1);
+            continue;
+        }
+        if((i < flen) && (plcvm_lpm_u8_i(addr + i) == '%'))
+        {
+            i++;
+            plcvm_emit(out, &olen, &c, 1);
+            continue;
+        }
+
+        char flag = 0;
+        if(i < flen)
+        {
+            char f = (char)plcvm_lpm_u8_i(addr + i);
+            if((f == '0') || (f == '-'))
+            {
+                flag = f;
+                i++;
+            }
+        }
+
+        uint32_t width = 0;
+        if(i < flen)
+        {
+            char w = (char)plcvm_lpm_u8_i(addr + i);
+            if((w >= '1') && (w <= '9'))
+            {
+                width = (uint32_t)(w - '0');
+                i++;
+            }
+        }
+
+        int32_t prec = -1;
+        if((i < flen) && (plcvm_lpm_u8_i(addr + i) == '.'))
+        {
+            i++;
+            char p = (i < flen) ? (char)plcvm_lpm_u8_i(addr + i) : 0;
+            if((p < '0') || (p > '8'))
+            {
+                plcException(PLC_ANSWER_ERROR_PARM);
+                return 0;
+            }
+            prec = p - '0';
+            i++;
+        }
+
+        char kind = (i < flen) ? (char)plcvm_lpm_u8_i(addr + i++) : 0;
+        bool num  = (kind == 'd') || (kind == 'x') || (kind == 'X');
+#ifdef EXTPLC_USE_FLOAT
+        bool fp   = (kind == 'f');
+#else
+        bool fp   = false;                          // Without the float opcodes there is no %f
+#endif  //  EXTPLC_USE_FLOAT
+
+        if(!(num || fp || (kind == 'c')) ||         // The rules of EP_PrintF, in its order
+           ((flag != 0) && (width == 0)) ||
+           ((kind == 'c') && ((width != 0) || (prec >= 0))) ||
+           (num && (prec >= 0)) || (used == n))
+        {
+            plcException(PLC_ANSWER_ERROR_PARM);
+            return 0;
+        }
+
+        uint32_t v = plcvm_pop();
+        if(plcvm_stat != PLC_ANSWER_RUN)             // The value is not on the stack: OFR_SP
+        {
+            return 0;
+        }
+        used++;
+
+        uint32_t clen = plcvm_convert(conv, kind, flag, width, prec, v);
+        plcvm_emit(out, &olen, conv, clen);
+    }
+
+    if(used != n)                                   // Not as many conversions as values
     {
         plcException(PLC_ANSWER_ERROR_PARM);
         return 0;
     }
-    else
+    if(olen > EXTPLC_SIZEOF_PRINT)                  // Longer than any stream can take
     {
-        // Exact and without double: m == ipart + j / 2^23, where ipart is the truncated integer part
-        // and j an integer below 2^23 - the mantissa of a float below 2^32 has no step finer than
-        // 2^-23, so m - ipart and its scaling by 2^23 are both exact. Then j * 10^prec stays below
-        // 2^23 * 10^8 and fits uint64_t exactly: the printed digit is rounded once, from the exact
-        // value, to the nearest and halves to even - the same digits printf gives.
-        float    m     = fabsf(f);
-        uint32_t ipart = (uint32_t)m;
-        uint32_t j     = (uint32_t)((m - (float)ipart) * 8388608.0f);
-        uint64_t num   = (uint64_t)j * plcvm_pow10[prec];
-        uint32_t fpart = (uint32_t)(num >> 23);
-        uint32_t rem   = (uint32_t)(num & 0x007FFFFFUL);
-        char     rev[24];
-        uint32_t nrev = 0;
-
-        // Halves to even: for prec above 0 the printed digit is the last one of fpart, for prec 0
-        // the fraction is dropped altogether and the digit rounded is the last one of ipart
-        uint32_t odd = ((prec == 0) ? (ipart + fpart) : fpart) & 1;
-
-        if((rem > 0x00400000UL) || ((rem == 0x00400000UL) && (odd != 0)))
-        {
-            fpart++;
-        }
-        if(fpart == plcvm_pow10[prec])              // The fraction carried into the integer part
-        {
-            fpart = 0;
-            ipart++;
-        }
-
-        for(pos = 0; pos < prec; pos++)             // Fraction, least significant digit first
-        {
-            rev[nrev++] = (char)('0' + (fpart % 10));
-            fpart /= 10;
-        }
-        if(prec != 0)
-        {
-            rev[nrev++] = '.';
-        }
-        do
-        {
-            rev[nrev++] = (char)('0' + (ipart % 10));
-            ipart /= 10;
-        }
-        while(ipart != 0);
-        if(signbit(f))
-        {
-            rev[nrev++] = '-';
-        }
-
-        while(nrev != 0)
-        {
-            txt[len++] = rev[--nrev];
-        }
+        return 0;
     }
 
-    // Pad to the width
-    char     out[32];
-    uint32_t olen = 0;
-
-    if(width > len)
-    {
-        uint32_t fill = width - len;
-        pos = 0;
-
-        if(pad == 2)                                // Spaces on the right
-        {
-            while(pos < len)
-            {
-                out[olen++] = txt[pos++];
-            }
-            while(fill-- != 0)
-            {
-                out[olen++] = ' ';
-            }
-        }
-        else
-        {
-            if((pad == 0) && (txt[0] == '-'))       // Zeros go after the sign
-            {
-                out[olen++] = txt[pos++];
-            }
-            while(fill-- != 0)
-            {
-                out[olen++] = (pad == 0) ? '0' : ' ';
-            }
-            while(pos < len)
-            {
-                out[olen++] = txt[pos++];
-            }
-        }
-    }
-    else
-    {
-        for(pos = 0; pos < len; pos++)
-        {
-            out[olen++] = txt[pos];
-        }
-    }
-
-    return serPutTextPlc(port, out, olen);
+    return plcvm_put(stream, out, olen);
 }
-#endif  //  EXTPLC_USE_FLOAT
-#endif  //  EXTSER_USED
+#endif  //  PLCVM_USE_PRINT
 
 // 0xC6 - API functions
 // Numbers are the contract with the Enviriot compiler, see EspNode docs/plc-api.md. Arguments are
-// pushed last first, so the first one is popped first. Two differences from EspNode: the stream of
-// 23 - 25 here is the UART port in the numbering of extser, not of the chip, and there are no log
-// streams (0xFFE0 - 0xFFE3) - the node has no log. 31 (ConfigPin) and 40 - 43 (TWI bus) are EspNode
-// only: the input and output of X13 is addressed by objects, by the IN and OUT operands.
+// pushed last first, so the first one is popped first. Differences from EspNode: a stream here is a
+// UART port in the numbering of extser, not of the chip; 23 keeps the X13 UartPutByte, which returns
+// the position in the packet or -1, where EspNode returns 1/0; and the text of one PrintF has to fit
+// in the transmit buffer of a port, which is smaller here. 24 and 25 (PrintInt32, PrintFloat) were
+// replaced by 26 and their numbers are free, as on EspNode. 31 (ConfigPin) and 40 - 43 (TWI bus) are
+// EspNode only: the input and output of X13 is addressed by objects, by the IN and OUT operands.
 static void cb_api(void){
     switch(plcvm_lpm_u8())
     {
@@ -1102,24 +1525,30 @@ static void cb_api(void){
             plcvm_push(serPutBytePlc(port, data));
             }
             break;
-        case 24:    // PrintInt32(port, value), 1 - written, 0 - no room
-            {
-            uint32_t port = plcvm_pop();
-            uint32_t value = plcvm_pop();
-            plcvm_push(plcvm_print_int32(port, value));
-            }
-            break;
-#ifdef EXTPLC_USE_FLOAT
-        case 25:    // PrintFloat(port, format, value), 1 - written, 0 - no room
-            {
-            uint32_t port = plcvm_pop();
-            uint32_t format = plcvm_pop();
-            uint32_t value = plcvm_pop();
-            plcvm_push(plcvm_print_float(port, format, value));
-            }
-            break;
-#endif  //  EXTPLC_USE_FLOAT
 #endif  //  EXTSER_USED
+
+#ifdef PLCVM_USE_PRINT
+        case 26:    // PrintF(stream, "format", values...), 1 - written, 0 - no room
+            {       // The format itself stays in the program, only its address and length are here
+            uint32_t stream = plcvm_pop();
+            uint32_t addr   = plcvm_pop();
+            uint32_t flen   = plcvm_pop();
+            uint32_t n      = plcvm_pop();
+
+            if(plcvm_stat != PLC_ANSWER_RUN)        // The four words are not on the stack: OFR_SP
+            {
+                break;
+            }
+            if((flen > EXTPLC_SIZEOF_PRG) ||        // The format must lie inside the program
+               (addr > (EXTPLC_SIZEOF_PRG - flen)))
+            {
+                plcException(PLC_ANSWER_ERROR_PARM);
+                break;
+            }
+            plcvm_push(plcvm_printf(stream, addr, flen, n));
+            }
+            break;
+#endif  //  PLCVM_USE_PRINT
 
         default:
             plcvm_stat = PLC_ANSWER_ERROR_UNK_API;

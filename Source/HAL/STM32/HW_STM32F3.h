@@ -30,6 +30,7 @@ See LICENSE file for license details.
 #define EXTPLC_SIZEOF_PRG_CACHE         32      // Must be 2^n, bytes
 #define EXTPLC_SIZEOF_RAM               512     // size in uint32_t
 #define EXTPLC_SIZEOF_RW                16      // size in uint32_t
+#define EXTPLC_SIZEOF_LOG               128     // Lines of PrintF for the node log, 0xFFE0-0xFFE3
 // PLC Section
 //////////////////////////////////////////////////////////////
 

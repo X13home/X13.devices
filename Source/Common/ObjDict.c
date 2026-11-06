@@ -72,6 +72,20 @@ static const indextable_t listPredefOD[] =
 #ifdef EXTPLC_USED
     {{objEEMEM, objArray, 0},
         objInMute, NULL, (cbWrite_t)&cbWriteInMute, NULL},      // Write Only
+#ifdef EXTPLC_SIZEOF_LOG
+    // The log of the program, PrintF(26): sidx.Base is the level, and objString gives 0 from
+    // cvtSubidx2Len, so the line goes out unpacked. cbPoll stays empty on purpose - that is what
+    // puts an entry into ListOD, and four levels would cost four of its places. OD_Poll drives
+    // these itself, by plcLogLevel()
+    {{objEEMEM, objString, 0},
+        objLogD, (cbRead_t)&plcLogReadOD, NULL, NULL},
+    {{objEEMEM, objString, 1},
+        objLogI, (cbRead_t)&plcLogReadOD, NULL, NULL},
+    {{objEEMEM, objString, 2},
+        objLogW, (cbRead_t)&plcLogReadOD, NULL, NULL},
+    {{objEEMEM, objString, 3},
+        objLogE, (cbRead_t)&plcLogReadOD, NULL, NULL},
+#endif  //  EXTPLC_SIZEOF_LOG
 #endif  //  EXTPLC_USED
     // RF Settings
 #ifdef RF_ADDR_t
@@ -1081,6 +1095,24 @@ void OD_Poll(void)
             }
             idxUpdate++;
         }
+
+#ifdef EXTPLC_SIZEOF_LOG
+        // The lines the PLC program wrote: they are not in ListOD, so they are published here. The
+        // level is only the topic the gateway maps to, the order is the one the program wrote in.
+        // One line per call: MQTTSN_Send takes the only slot there is(vMQ_pMessage), and it is
+        // MQTTSN_Poll that frees it, so a loop here could not send a second line anyway
+        if(MQTTSN_CanSend())
+        {
+            uint8_t level = plcLogLevel();
+
+            if(level < PLC_LOG_LEVELS)
+            {
+                MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
+                            (MQTTSN_FL_QOS0 | MQTTSN_FL_TOPICID_PREDEF),
+                            (uint16_t)(objLogD + level));
+            }
+        }
+#endif  //  EXTPLC_SIZEOF_LOG
     }
     else if(status == MQTTSN_STATUS_PRE_CONNECT)
     {

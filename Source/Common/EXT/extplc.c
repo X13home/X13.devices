@@ -16,7 +16,6 @@ See LICENSE file for license details.
 
 #ifdef EXTPLC_USE_FLOAT
 #include <math.h>
-#include <string.h>
 #endif  //  EXTPLC_USE_FLOAT
 
 // PLC Control, command and response
@@ -485,6 +484,13 @@ static void plcProc(void)
             cbCOP_t cop_proc = plcvm_cb[cop];
             cop_proc();
         }
+
+#ifdef EXTPLC_SIZEOF_LOG
+        // The scan is over, so the last log line is complete - whether the program ran to its end
+        // or stopped on an error. What it wrote before stopping often tells why. A line that was
+        // lost for want of room is counted here, as EspNode counts it in end_line
+        plcvm_log_close();
+#endif  //  EXTPLC_SIZEOF_LOG
     }
     
     if(plcvm_stat != PLC_ANSWER_OK)
@@ -572,6 +578,33 @@ e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx)
     pIdx->cbWrite   = &merkerWriteOD;
     return MQTTSN_RET_ACCEPTED;
 }
+
+#ifdef EXTPLC_SIZEOF_LOG
+// The node log of the program, the predefined objects objLogD .. objLogE. Only the first record of
+// plcvm_log is published, so the lines of all four levels keep the order the program wrote them in.
+// The level of that record, or PLC_LOG_LEVELS when there is nothing to send: OD_Poll publishes the
+// lines itself, because an entry in ListOD would cost one of its places for every level.
+uint8_t plcLogLevel(void)
+{
+    return plcvm_log_level();
+}
+
+// *pLen on entry is what one PUBLISH can take, on return the length of the line. objString gives 0
+// from cvtSubidx2Len, so ReadODpack passes these bytes on without packing them.
+e_MQTTSN_RETURNS_t plcLogReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf)
+{
+    uint8_t len = plcvm_log_take((uint8_t)pSubidx->Base, pBuf, *pLen);
+
+    if(len == 0xFF)                     // Nothing of this level is waiting
+    {
+        *pLen = 0;
+        return MQTTSN_RET_REJ_NOT_SUPP;
+    }
+
+    *pLen = len;
+    return MQTTSN_RET_ACCEPTED;
+}
+#endif  //  EXTPLC_SIZEOF_LOG
 
 void plcInit(void)
 {

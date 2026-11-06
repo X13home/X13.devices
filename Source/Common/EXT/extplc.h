@@ -53,6 +53,15 @@ e_MQTTSN_RETURNS_t plcRegisterOD(indextable_t *pIdx);
 void plcStatPrep(void);
 void plcException(uint8_t exception);
 
+#ifdef EXTPLC_SIZEOF_LOG
+// The node log of the program: the predefined objects objLogD .. objLogE of listPredefOD, where
+// sidx.Base carries the level. PrintF(26) writes the lines, OD_Poll publishes them at QoS0.
+#define PLC_LOG_LEVELS      4       // objLogD .. objLogE: Debug, Info, Warning, Error
+
+uint8_t plcLogLevel(void);
+e_MQTTSN_RETURNS_t plcLogReadOD(subidx_t * pSubidx, uint8_t *pLen, uint8_t *pBuf);
+#endif  //  EXTPLC_SIZEOF_LOG
+
 #ifdef __cplusplus
 }
 #endif
