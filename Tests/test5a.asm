@@ -1,0 +1,26 @@
+	NOP
+	NOP
+	NOP
+    NOP
+
+	LD	19
+	LD	256
+	ADD
+	TEST_EQ	275
+
+	LD	-3
+	LD	-5
+	SUB
+	TEST_EQ	2
+
+	LD	7
+	LD	13
+	MUL
+	TEST_EQ	91
+
+	LD	126
+	LD	13
+	DIV
+	TEST_EQ	9
+	
+	RET

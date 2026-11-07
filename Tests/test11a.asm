@@ -1,0 +1,24 @@
+	JMP	L0
+	NOP
+	RET
+:L0
+
+	LD	W0
+	INC
+	DUP
+	LD	100
+	CEQ
+	JZ	A1
+	LD	1
+	OUT	Op2
+	JMP	A0
+:A1	LD	200
+    OVER
+	CLT
+	JNZ	A0
+	DROP
+	LD	0
+	DUP
+	OUT	Op2
+:A0	ST	W0
+	RET

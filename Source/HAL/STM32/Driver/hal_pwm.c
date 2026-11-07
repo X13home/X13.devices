@@ -28,7 +28,7 @@ bool hal_pwm_checkbase(uint16_t base)
     }
     base -= HAL_PWM_BASE_OFFSET;
 #endif
-    if((base >= sizeof(hal_pwm_port2cfg)) ||
+    if((base >= (sizeof(hal_pwm_port2cfg)/2)) ||
        (hal_pwm_port2cfg[base] == 0xFF))
     {
         return false;
@@ -50,7 +50,8 @@ bool hal_pwm_busy(uint16_t base)
         return true;
     }
 
-    return ((TIMx->CCER & ((TIM_CCER_CC1E | TIM_CCER_CC1P) << ((cfg & 0x03) * 4))) != 0);
+    return (((TIMx->CCER & ((TIM_CCER_CC1E | TIM_CCER_CC1P) << ((cfg & 0x03) * 4))) != 0) |
+             (TIMx->SMCR != 0));
 }
 
 void hal_pwm_configure(uint16_t base, bool inv)
@@ -64,7 +65,7 @@ void hal_pwm_configure(uint16_t base, bool inv)
     hal_dio_configure(pin, DIO_MODE_AF_PP | (cfg & 0x0F00));
 
     TIM_TypeDef * TIMx;
-    uint32_t tim_clk;
+
 
     switch((cfg >> 3) & 0x001F)
     {
@@ -72,74 +73,91 @@ void hal_pwm_configure(uint16_t base, bool inv)
         case 1:     // Timer 1
             RCC->APB2ENR |= RCC_APB2ENR_TIM1EN;
             TIMx = TIM1;
-            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM1
+#ifdef TIM2
         case 2:     // Timer 2
             RCC->APB1ENR |= RCC_APB1ENR_TIM2EN;
             TIMx = TIM2;
-            tim_clk = hal_pclk1;
             break;
+#endif  //  TIM2
 #ifdef TIM3
         case 3:     // Timer 3
             RCC->APB1ENR |= RCC_APB1ENR_TIM3EN;
             TIMx = TIM3;
-            tim_clk = hal_pclk1;
             break;
 #endif  //  TIM3
 #ifdef TIM4
         case 4:     // Timer 4
             RCC->APB1ENR |= RCC_APB1ENR_TIM4EN;
             TIMx = TIM4;
-            tim_clk = hal_pclk1;
             break;
 #endif  // TIM4
+#ifdef TIM8
+        case 8:     // Timer 8
+            RCC->APB2ENR |= RCC_APB2ENR_TIM8EN;
+            TIMx = TIM8;
+            break;
+#endif  // TIM8
+#ifdef TIM9
+        case 9:     // Timer 9
+            RCC->APB2ENR |= RCC_APB2ENR_TIM9EN;
+            TIMx = TIM9;
+            break;
+#endif  // TIM9
+#ifdef TIM10
+        case 10:    // Timer 10
+            RCC->APB2ENR |= RCC_APB2ENR_TIM10EN;
+            TIMx = TIM10;
+            break;
+#endif  // TIM10
+#ifdef TIM11
+        case 11:    // Timer 11
+            RCC->APB2ENR |= RCC_APB2ENR_TIM11EN;
+            TIMx = TIM11;
+            break;
+#endif  // TIM11
 #ifdef TIM14
         case 14:
             RCC->APB1ENR |= RCC_APB1ENR_TIM14EN;
             TIMx = TIM14;
-            tim_clk = hal_pclk1;
             break;
 #endif  //  TIM14
 #ifdef TIM15
         case 15:
             RCC->APB2ENR |= RCC_APB2ENR_TIM15EN;
             TIMx = TIM15;
-            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM15
 #ifdef  TIM16
         case 16:
             RCC->APB2ENR |= RCC_APB2ENR_TIM16EN;
             TIMx = TIM16;
-            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM16
 #ifdef  TIM17
         case 17:
             RCC->APB2ENR |= RCC_APB2ENR_TIM17EN;
             TIMx = TIM17;
-            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM17
 #ifdef  TIM21
         case 21:
             RCC->APB2ENR |= RCC_APB2ENR_TIM21EN;
             TIMx = TIM21;
-            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM21
 #ifdef  TIM22
         case 22:
             RCC->APB2ENR |= RCC_APB2ENR_TIM22EN;
             TIMx = TIM22;
-            tim_clk = hal_pclk2;
             break;
 #endif  //  TIM22
         default:
             return;
     }
 
+    uint32_t tim_clk = hal_GetClock((uint32_t)TIMx);
     tim_clk /= 6553500;                         // Fpwm >= 100 Hz
     if(tim_clk > 0)
     {
@@ -253,9 +271,11 @@ void hal_pwm_delete(uint16_t base)
                 RCC->APB2ENR &= ~RCC_APB2ENR_TIM1EN;
                 break;
 #endif  //  TIM1
+#ifdef TIM2
             case 2:     // Timer 2
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM2EN;
                 break;
+#endif  //  TIM2
 #ifdef TIM3
             case 3:     // Timer 3
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM3EN;
@@ -266,6 +286,26 @@ void hal_pwm_delete(uint16_t base)
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM4EN;
                 break;
 #endif  //  TIM4
+#ifdef TIM8
+            case 8:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM8EN;
+                break;
+#endif  // TIM8
+#ifdef TIM9
+            case 9:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM9EN;
+                break;
+#endif  // TIM9
+#ifdef TIM10
+            case 10:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM10EN;
+                break;
+#endif  // TIM10
+#ifdef TIM11
+            case 11:
+                RCC->APB2ENR &= ~RCC_APB2ENR_TIM11EN;
+                break;
+#endif  // TIM11
 #ifdef TIM14
             case 14:
                 RCC->APB1ENR &= ~RCC_APB1ENR_TIM14EN;
@@ -327,6 +367,55 @@ void hal_pwm_write(uint16_t base, uint16_t value)
     offset *= 4;
     timbase += offset;
     *(__IO uint32_t *)timbase = value;
+}
+
+void hal_pwm_freq(uint16_t base, uint32_t value)
+{
+#ifdef HAL_PWM_BASE_OFFSET
+    base -= HAL_PWM_BASE_OFFSET;
+#endif
+    if(base > (const uint16_t)(sizeof(hal_pwm_port2cfg)/2))
+    {
+        return;
+    }
+
+    uint16_t cfg = hal_pwm_port2cfg[base];
+    if(cfg == 0xFF)
+    {
+        return;
+    }
+
+    TIM_TypeDef * TIMx = (TIM_TypeDef *)hal_pwm_timers[(cfg >> 3) & 0x001F];
+    if(TIMx == NULL)
+    {
+        return;
+    }
+	
+	TIMx->CR1 &= ~TIM_CR1_CEN;                   // Enable Timer
+	
+	if(value > 0)
+	{
+		uint32_t tim_clk = hal_GetClock((uint32_t)TIMx);
+		tim_clk /= value;
+		
+		uint16_t presc = tim_clk / 65535;
+		uint16_t div = tim_clk / (presc + 1);
+
+		if(div < 2) div = 2;
+		else div = div - 1;
+
+		TIMx->PSC = presc;
+		TIMx->ARR = div;
+	
+		uint32_t timbase = (uint32_t)TIMx + 0x34;
+		uint32_t offset = cfg & 0x03;
+		offset *= 4;
+		timbase += offset;
+		*(__IO uint32_t *)timbase = div/2;
+	
+		TIMx->CR1 |= TIM_CR1_CEN;                   	// Enable Timer
+		TIMx->EGR |= TIM_EGR_UG;                    	// Force update generation
+	}
 }
 
 #endif  //  (defined EXTDIO_USED) && (defined EXTPWM_USED)

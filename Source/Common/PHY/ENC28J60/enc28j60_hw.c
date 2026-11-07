@@ -12,7 +12,7 @@ See LICENSE file for license details.
 
 #include "../../config.h"
 
-#if (defined ENC28J60_PHY)
+#if (defined ENC_PHY)
 
 #include "enc28j60_def.h"
 #include "enc28j60_hw.h"
@@ -23,111 +23,122 @@ static int16_t gNextPacketPtr;
 // Generic SPI write command
 static void enc28j60WriteOp(uint8_t op, uint8_t address, uint8_t data)
 {
-  //taskENTER_CRITICAL();
-  ENC_SELECT();
-  op |= (address & ADDR_MASK);
-  hal_spi_exch8(ENC_USE_SPI, op);       // issue write command
-  hal_spi_exch8(ENC_USE_SPI, data);
-  ENC_RELEASE();
-  //taskEXIT_CRITICAL();
+    //taskENTER_CRITICAL();
+    ENC_SELECT();
+    op |= (address & ADDR_MASK);
+    hal_spi_exch8(ENC_USE_SPI, op);       // issue write command
+    hal_spi_exch8(ENC_USE_SPI, data);
+    ENC_RELEASE();
+    //taskEXIT_CRITICAL();
 }
 
 // Set register bank
 static void enc28j60SetBank(uint8_t address)
 {
-  uint8_t tmp;
-  tmp = (address & BANK_MASK);
-  
-  if(tmp != Enc28j60Bank) // set the bank (if needed)
-  {
-    enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, ECON1, (ECON1_BSEL1 | ECON1_BSEL0));
-    enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, tmp>>5);
-    Enc28j60Bank = tmp;
-  }
+    uint8_t tmp;
+    tmp = (address & BANK_MASK);
+
+    if(tmp != Enc28j60Bank) // set the bank (if needed)
+    {
+        enc28j60WriteOp(ENC28J60_BIT_FIELD_CLR, ECON1, (ECON1_BSEL1 | ECON1_BSEL0));
+        enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, tmp>>5);
+        Enc28j60Bank = tmp;
+    }
 }
 
 // Read register
 static uint8_t enc28j60Read(uint8_t address)
 {
-  //taskENTER_CRITICAL();
-  if((address & ADDR_MASK) < EIE)
-    enc28j60SetBank(address); // set the bank
-  uint8_t data;
-  ENC_SELECT();
-  hal_spi_exch8(ENC_USE_SPI, (ENC28J60_READ_CTRL_REG | (address & ADDR_MASK)));     // issue read command
-  if(address & 0x80)                                                                // do dummy read if needed
-    hal_spi_exch8(ENC_USE_SPI, 0);                                                  // (for mac and mii, see datasheet page 29)
-  data = hal_spi_exch8(ENC_USE_SPI, 0);                                             // read data
-  ENC_RELEASE();
-  //taskEXIT_CRITICAL();
-  return data;
+    //taskENTER_CRITICAL();
+    if((address & ADDR_MASK) < EIE)
+    {
+        enc28j60SetBank(address); // set the bank
+    }
+    uint8_t data;
+    ENC_SELECT();
+    hal_spi_exch8(ENC_USE_SPI, (ENC28J60_READ_CTRL_REG | (address & ADDR_MASK)));     // issue read command
+    if(address & 0x80)                                                                // do dummy read if needed
+    {
+        hal_spi_exch8(ENC_USE_SPI, 0);                                                  // (for mac and mii, see datasheet page 29)
+    }
+    data = hal_spi_exch8(ENC_USE_SPI, 0);                                             // read data
+    ENC_RELEASE();
+    //taskEXIT_CRITICAL();
+    return data;
 }
 
 // Write register
 static void enc28j60Write(uint8_t address, uint8_t data)
 {
-  if((address & ADDR_MASK) < EIE)
-    enc28j60SetBank(address); // set the bank
-  enc28j60WriteOp(ENC28J60_WRITE_CTRL_REG, address, data);  // do the write
+    if((address & ADDR_MASK) < EIE)
+    {
+        enc28j60SetBank(address); // set the bank
+    }
+    enc28j60WriteOp(ENC28J60_WRITE_CTRL_REG, address, data);  // do the write
 }
 
 // Write register pair
 static void enc28j60WriteW(uint8_t address, uint16_t data)
 {
-  enc28j60SetBank(address); // set the bank
-  enc28j60WriteOp(ENC28J60_WRITE_CTRL_REG, address, data & 0xFF);  // do the write
-  enc28j60WriteOp(ENC28J60_WRITE_CTRL_REG, address + 1, data>>8);  // do the write
+    enc28j60SetBank(address); // set the bank
+    enc28j60WriteOp(ENC28J60_WRITE_CTRL_REG, address, data & 0xFF);  // do the write
+    enc28j60WriteOp(ENC28J60_WRITE_CTRL_REG, address + 1, data>>8);  // do the write
 }
 
 // Read Rx/Tx buffer (at ERDPT)
 static void enc28j60ReadBuffer(uint16_t len, uint8_t* data)
 {
-  //taskENTER_CRITICAL();
-  ENC_SELECT();
-  hal_spi_exch8(ENC_USE_SPI, ENC28J60_READ_BUF_MEM);            // issue read command
-  while(len--)
-    *(data++) = hal_spi_exch8(ENC_USE_SPI, 0);                  // read data
-  ENC_RELEASE();
-  //taskEXIT_CRITICAL();
+    //taskENTER_CRITICAL();
+    ENC_SELECT();
+    hal_spi_exch8(ENC_USE_SPI, ENC28J60_READ_BUF_MEM);            // issue read command
+    while(len--)
+    {
+        *(data++) = hal_spi_exch8(ENC_USE_SPI, 0);                  // read data
+    }
+    ENC_RELEASE();
+    //taskEXIT_CRITICAL();
 }
 
 // Write Rx/Tx buffer (at EWRPT)
 static void enc28j60WriteBuffer(uint16_t len, uint8_t* data)
 {
-  //taskENTER_CRITICAL();
-  ENC_SELECT();
-  hal_spi_exch8(ENC_USE_SPI, ENC28J60_WRITE_BUF_MEM);           // issue write command
-  while(len--)
-    hal_spi_exch8(ENC_USE_SPI, *(data++));                      // write data
-  ENC_RELEASE();
-  //taskEXIT_CRITICAL();
+    //taskENTER_CRITICAL();
+    ENC_SELECT();
+    hal_spi_exch8(ENC_USE_SPI, ENC28J60_WRITE_BUF_MEM);           // issue write command
+    while(len--)
+    {
+        hal_spi_exch8(ENC_USE_SPI, *(data++));                      // write data
+    }
+    ENC_RELEASE();
+    //taskEXIT_CRITICAL();
 }
 
-/*
-// read 8 bits
-static uint8_t enc28j60PhyRead8(uint8_t address)
+// Read PHY register
+static uint8_t enc28j60PhyRead(uint8_t address)
 {
-  // Set the right address and start the register read operation
-  enc28j60Write(MIREGADR, address);
-  enc28j60Write(MICMD, MICMD_MIIRD);
-  // wait until the PHY read completes
-  while(enc28j60Read(MISTAT) & MISTAT_BUSY);
-  // reset reading bit
-  enc28j60Write(MICMD, 0x00);
-  // get data value from MIRDH
-  return enc28j60Read(MIRDH);
+    // Set the right address and start the register read operation
+    enc28j60Write(MIREGADR, address);
+    enc28j60Write(MICMD, MICMD_MIIRD);
+    // wait until the PHY read completes
+    while(enc28j60Read(MISTAT) & MISTAT_BUSY);
+    // reset reading bit
+    enc28j60Write(MICMD, 0x00);
+    // get data value from MIRDH
+    return enc28j60Read(MIRDH);
 }
-*/
 
+// Write to PHY register
 static void enc28j60PhyWrite(uint8_t address, uint16_t data)
 {
-  // set the PHY register address
-  enc28j60Write(MIREGADR, address);
-  // write the PHY data
-  enc28j60WriteW(MIWR, data);
-  // wait until the PHY write completes
-  while(enc28j60Read(MISTAT) & MISTAT_BUSY)
-    _delay_us(10);
+    // set the PHY register address
+    enc28j60Write(MIREGADR, address);
+    // write the PHY data
+    enc28j60WriteW(MIWR, data);
+    // wait until the PHY write completes
+    while(enc28j60Read(MISTAT) & MISTAT_BUSY)
+    {
+        _delay_us(10);
+    }
 }
 
 void enc28j60Init(uint8_t* macaddr)
@@ -135,18 +146,61 @@ void enc28j60Init(uint8_t* macaddr)
     // Init Hardware
     hal_dio_configure(ENC_NSS_PIN, DIO_MODE_OUT_PP_HS);
     ENC_RELEASE();
-    hal_spi_cfg(ENC_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 20000000UL);
+    hal_spi_cfg(ENC_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 10000000UL);
+
+#ifdef ENC_IRQ_PIN
+    // Not Used, but configured
+    hal_dio_configure(ENC_IRQ_PIN, DIO_MODE_IN_PU);
+#endif  // ENC_IRQ_PIN
 
     // perform system reset
+#ifdef ENC_RST_PIN
+    // Hardware Reset
+    hal_dio_configure(ENC_RST_PIN, DIO_MODE_OUT_PP);
+    ENC_RST_SET();
+    _delay_us(500);
+    ENC_RST_CLR();
+#else
+    // Software Reset
     enc28j60WriteOp(ENC28J60_SOFT_RESET, 0, ENC28J60_SOFT_RESET);
-    _delay_us(20000);
+#endif  // ENC_RST_PIN
+
+    _delay_us(50000);
+    Enc28j60Bank = 0;
+
+    // check CLKRDY bit to see if reset is complete
+    uint8_t timeout = 50;
+    while(((enc28j60Read(ESTAT) & ESTAT_CLKRDY) == 0) && (timeout > 0))
+    {
+        timeout--;
+        if(timeout == 0)
+        {
+            break;
+        }
+        _delay_us(10000);
+    }
 
     // change clkout from 6.25MHz to 12.5MHz
-    enc28j60Write(ECOCON, 2);
-    _delay_us(20000);
-
     // Check connection
-    while(enc28j60Read(ECOCON) != 2);
+    do
+    {
+        _delay_us(2000);
+        enc28j60Write(ECOCON, 2);
+        _delay_us(2000);
+    }while(enc28j60Read(ECOCON) != 2);
+
+    // reset PHY
+    enc28j60PhyWrite(PHCON1, PHCON1_PRST);
+    while((enc28j60PhyRead(PHCON1) & PHCON1_PRST) != 0);
+    // PHY Power Down - disconnect from switch
+    enc28j60PhyWrite(PHCON1, PHCON1_PPWRSV);
+    _delay_us(50000);
+    // reset MAC
+    enc28j60Write(ECON1, (ECON1_TXRST | ECON1_RXRST));
+    _delay_us(50000);
+    enc28j60Write(ECON1, 0);
+    _delay_us(50000);
+
 
     // do bank 0 stuff
     // initialize receive buffer
@@ -173,12 +227,13 @@ void enc28j60Init(uint8_t* macaddr)
     // enable MAC receive
     enc28j60Write(MACON1, (MACON1_MARXEN | MACON1_TXPAUS | MACON1_RXPAUS));
     // bring MAC out of reset
-    enc28j60Write(MACON2, 0x00);
+    //enc28j60Write(MACON2, 0x00);
     // enable automatic padding to 60bytes and CRC operations
     enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, MACON3, (MACON3_PADCFG0 | MACON3_TXCRCEN | MACON3_FRMLNEN | MACON3_FULDPX));
     // set inter-frame gap (non-back-to-back)
-    enc28j60Write(MAIPGL, 0x12);
-    enc28j60Write(MAIPGH, 0x0C);
+    enc28j60WriteW(MAIPGL, 0x0C12);
+    //enc28j60Write(MAIPGL, 0x12);
+    //enc28j60Write(MAIPGH, 0x0C);
     // set inter-frame gap (back-to-back)
     enc28j60Write(MABBIPG, 0x12);
     // Set the maximum packet size which the controller will accept
@@ -200,10 +255,14 @@ void enc28j60Init(uint8_t* macaddr)
     enc28j60PhyWrite(PHLCON, (PHLCON_LACFG2 | 
                               PHLCON_LBCFG2 | PHLCON_LBCFG1 | PHLCON_LBCFG0 |
                               PHLCON_LFRQ0 | PHLCON_STRCH));
+                              
     // Enable Rx packets
-    enc28j60SetBank(ECON1);     // switch to bank 0
+    enc28j60SetBank(0);         // switch to bank 0
+#ifdef ENC_IRQ_PIN
     // enable interrupts
-    // enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
+    //enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, EIE, EIE_INTIE | EIE_PKTIE);
+#endif // ENC_IRQ_PIN
+
     // enable packet reception
     enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON1, ECON1_RXEN);
 }
@@ -226,15 +285,14 @@ void enc28j60DisableBroadcast(void)
 }
 
 
-/*
 // link status
 bool enc28j60linkup(void)
 {
   // The non latching version is LSTAT.
   // PHSTAT2 LSTAT (= bit 10 in upper reg)
-  return ((enc28j60PhyRead8(PHSTAT2) & (1<<2)) != 0);
+  return ((enc28j60PhyRead(PHSTAT2) & (1<<2)) != 0);
 }
-*/
+
 
 void enc28j60_SendPrep(uint16_t len)
 {
@@ -426,4 +484,4 @@ void enc28j60_ClosePacket(void)
   enc28j60WriteOp(ENC28J60_BIT_FIELD_SET, ECON2, ECON2_PKTDEC);
 }
 
-#endif
+#endif  // ENC_PHY

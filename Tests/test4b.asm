@@ -1,0 +1,20 @@
+	NOP
+	NOP
+	NOP
+    NOP
+
+	LD	5
+	LSL	7
+	TEST_EQ	640
+	
+	LD	65536
+	LSR	2
+	TEST_EQ	16384
+
+	LD	-16
+	ASR	3
+	TEST_EQ	-2
+	
+	RET
+	
+	

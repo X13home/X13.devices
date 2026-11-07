@@ -336,7 +336,7 @@ typedef struct sMQTTSN_MSG_DHCPREQ
 {
     uint8_t     Radius;
     uint8_t     MsgId[2];                   // unique transaction id
-    uint8_t     hlen[];                     // phy's address length(bytes) 
+    uint8_t     hlen[MQTTSN_MSG_SIZE - 3];  // phy's address length(bytes)
 } sMQTTSN_MSG_DHCPREQ_t;
 #define MQTTSN_SIZEOF_MSG_DHCPREQ       5
 
@@ -346,7 +346,7 @@ typedef struct sMQTTSN_MSG_DHCPRESP
 {
     uint8_t     GwId;
     uint8_t     MsgId[2];                   // unique transaction id
-    uint8_t     addr[];
+    uint8_t     addr[MQTTSN_MSG_SIZE - 3];
 } sMQTTSN_MSG_DHCPRESP_t;
 #define MQTTSN_SIZEOF_MSG_DHCPRESP      5
 
@@ -403,7 +403,13 @@ typedef struct sMQ
         uint8_t             phy1addr[sizeof(PHY1_ADDR_t)];
 #ifdef PHY2_ADDR_t
         uint8_t             phy2addr[sizeof(PHY2_ADDR_t)];
-#endif
+#endif  //  PHY2_ADDR_t
+#ifdef PHY3_ADDR_t
+        uint8_t             phy3addr[sizeof(PHY3_ADDR_t)];
+#endif  //  PHY3_ADDR_t
+#ifdef PHY4_ADDR_t
+        uint8_t             phy4addr[sizeof(PHY4_ADDR_t)];
+#endif  //  PHY4_ADDR_t
     }a;
   
     uint8_t                 Length;

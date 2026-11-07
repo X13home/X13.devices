@@ -1,3 +1,89 @@
+Version 3.3.0 from 07.11.2026
+
+This release merges the development line that carried the firmware from 3.1.3
+to 3.3.0. Nothing from 3.1.3 was dropped: every device of that release is still
+here, under its new name.
+
+!! Not compatible with 3.1.3 on the wire or in EEPROM, see "Upgrading" below !!
+
+Changed: configuration names. A device without PHY2 used to carry the
+         placeholder letter n (S2Cn13, A1Sn10, S4Cn11). The placeholder is
+         gone: S2Cn13 -> S2C13, A1Sn10 -> A1S10, S4Cn11 -> S4C11 and so on.
+         The _declarer a node reports changes with it, both in the name and in
+         the version, so S2Cn13.313 becomes S2C13.330.
+Changed: MQTTSN, up to 4 PHY per node instead of 2. PHY3 and PHY4 take part in
+         ADVERTISE and DISCONNECT. mqttsn_parser_phy1/phy2 became
+         mqttsn_parser_phyM and mqttsn_parser_phyS(buf, phy).
+Changed: MQTTSN keepalive 300 s, hops to gateway limited to 3.
+Changed: HAL API. eeprom_read/eeprom_write take (uint16_t Addr, uint8_t Len)
+         and eeprom_write returns bool. hal_exti_config takes a typed
+         callback. The hal_hclk/hal_pclk globals were replaced by
+         hal_GetClock(base). PWM moved into hal.h and gained hal_pwm_freq.
+Changed: UART baud table, 250k dropped, 57k6, 115k2 and 200k added.
+Changed: STM32 HAL split per family: hal_F0/F1/F3.c became hal.c plus
+         hal_gpio_Fx.c and hal_rcc_Fx.c. ATMega HW_ATMega.h split into
+         HW_ATM328P.h, HW_ATM2560.h and HW_ATM2561.h.
+Changed: PHY RFM12 uses the common hal_spi API, the dedicated hal_rfm12.c for
+         STM32 and ATMega is gone.
+Changed: Object Dictionary, the predefined index list is macros instead of an
+         enum, so an index can be used in preprocessor expressions.
+Changed: diag.c removed, the node log below replaces it.
+
+Added:   PLC_VM float support, opcodes 0x18-0x1F, 0x28-0x37 and the Mf
+         merkers. Hardware FPU on STM32F3.
+Added:   PLC_VM Print API, PrintF(26).
+Added:   node log, the predefined objects 0xFFE0-0xFFE3 (Debug, Info, Warning,
+         Error), written by PrintF and published by OD_Poll at QoS0.
+Added:   PLC error codes collected in ePLC_ANSWER_t.
+Added:   counter inputs, the object type 'C'. Devices: S4M13, S4SM13.
+Added:   PWM frequency generator, the object type 'g'.
+Added:   object type 'f', IEEE-754 float, 4 bytes little endian.
+Added:   uC family STM32L1 (S6S10) and ATMega2561 (A5E10, MegaD-2561).
+Added:   STM32F3 devices on F303RET: S4C14, S4E14, S4EC14, S4EM14, S4EMC14,
+         S4M14, S4SM14, S4SMC14.
+Added:   STM32F3 devices on F303KT: S4C16, S4CM13, S4M13, S4MC13, S4S13,
+         S4SM13.
+Added:   STM32F0 devices S2C14, S2EMC20, S2M16, S2MC14, S2S14.
+Added:   STM32L0 device S5Q11.
+Added:   ATMega devices A1M10, A1R10, A1SR10.
+Added:   three-interface devices: S2EMC20, S4EMC14, S4SMC14.
+Added:   Tests/, the PLC assembler with 17 test programs.
+
+Bugfix:  hal_GetClock was implemented for F0 and F3 only, so STM32F1 did not
+         compile and STM32L0/STM32L1 did not link. Implemented for all three.
+Bugfix:  hal_GetDeviceID was missing for STM32F1, needed by S3E10 as a LAN
+         node.
+Bugfix:  hal_twi_F1.c passed a pointer to hal_GetClock as uint32_t.
+Bugfix:  TIM2, TIM3 and TIM6 clock update, PWM generator frequency range.
+Bugfix:  EEPROM, write exception added.
+
+Upgrading from 3.1.3
+
+  The EEPROM flag is a checksum over the device type string, and that string
+  carries the software version, so the flag no longer matches after flashing.
+  The node loads its defaults: addresses, RF keys, IP settings and the PLC
+  program are lost. Save the configuration before flashing.
+
+  The server side needs the new declarers. Both the device name and the
+  version inside _declarer changed, and the object types 'C', 'f' and 'g' plus
+  the log objects 0xFFE0-0xFFE3 are new.
+
+Known gaps in this release
+
+  - Config/*.xst has no declarer yet for 20 of the 45 STM32 configurations:
+    S2C14, S2EMC20, S2MC14, S2S14, S4C14, S4C16, S4CM13, S4E14, S4EC14,
+    S4EM14, S4EMC14, S4M13, S4M14, S4MC13, S4S13, S4SM13, S4SM14, S4SMC14,
+    S5Q11, S6S10. The firmware builds, the server cannot describe the device.
+  - The ATMega projects A4xxxx and A5xxxx still list the removed Common/diag.c
+    and do not build. A1xxxx is clean. No ATMega configuration was rebuilt for
+    this release.
+  - HEX/ holds the 3.1.3 firmware under the old names and was not regenerated.
+  - S2SC14 has a board header and a declarer but no build configuration.
+  - STM32F1, STM32L0 and STM32L1 build and link but were not verified on
+    hardware after the hal_GetClock fix.
+
+====================================================================================================
+
 Version 3.1.3 from 07.07.2016
 
 STM32 - Main IDE - Eclipse, CooCox no more used

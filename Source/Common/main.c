@@ -11,7 +11,6 @@ See LICENSE file for license details.
 */
 
 #include "config.h"
-#include "diag.h"
 
 static volatile uint8_t SystemTickCnt;
 
@@ -23,17 +22,23 @@ int main(void)
     mqInit();
     // Initialise Object's Dictionary
     InitOD();
+#ifdef  LED_Init
+    LED_Init();
+#endif  //  LEDsInit
     // Initialise PHY's
     PHY1_Init();
 #ifdef PHY2_ADDR_t
     PHY2_Init();
 #endif  //  PHY2_ADDR_t
+#ifdef PHY3_ADDR_t
+    PHY3_Init();
+#endif  //  PHY3_ADDR_t
+#ifdef PHY4_ADDR_t
+    PHY4_Init();
+#endif  //  PHY4_ADDR_t
     // Initialize MQTTSN
     MQTTSN_Init();
     // Initialise optional components
-#ifdef  LED_Init
-    LED_Init();
-#endif  //  LEDsInit
 
     SystemTickCnt = 0;
 
@@ -51,25 +56,37 @@ int main(void)
             OD_Poll();
 
             MQTTSN_Poll();
-#ifdef DIAG_USED
-            DIAG_Poll();
-#endif  //  USE_DIAG
         }
 
-        MQ_t * pBuf;
-        pBuf = PHY1_Get();
-        if(pBuf != NULL)
+        MQ_t * pBuf1 = PHY1_Get();
+        if(pBuf1 != NULL)
         {
-            mqttsn_parser_phy1(pBuf);
+            mqttsn_parser_phyM(pBuf1);
         }
 
 #ifdef PHY2_Get
-        pBuf = PHY2_Get();
-        if(pBuf != NULL)
+        MQ_t * pBuf2 = PHY2_Get();
+        if(pBuf2 != NULL)
         {
-            mqttsn_parser_phy2(pBuf);
+            mqttsn_parser_phyS(pBuf2, 2);
         }
 #endif  //  PHY2_Get
+
+#ifdef PHY3_Get
+        MQ_t * pBuf3 = PHY3_Get();
+        if(pBuf3 != NULL)
+        {
+            mqttsn_parser_phyS(pBuf3, 3);
+        }
+#endif  //  PHY3_Get
+
+#ifdef PHY4_Get
+        MQ_t * pBuf4 = PHY4_Get();
+        if(pBuf4 != NULL)
+        {
+            mqttsn_parser_phyS(pBuf4, 4);
+        }
+#endif  //  PHY4_Get
     }
 }
 

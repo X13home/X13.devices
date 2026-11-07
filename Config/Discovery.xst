@@ -793,7 +793,7 @@
             </item>
         </item>
     </item>
-    <item name="S2Sn10" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0610">
+    <item name="S2S10" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.17.1015">
         <item name="_proto" value="S2SR10" saved="True" type="System.String" />
         <item name="Digital Pull-Down Inputs">
             <item name="Ip27" value="BzX27" saved="True" type="System.String">

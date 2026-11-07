@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 // System Section
 
-uint32_t    hal_hclk  = 2097000UL;
-uint32_t    hal_pclk1 = 2097000UL;
-uint32_t    hal_pclk2 = 2097000UL;
 
 void hal_SetSysClock(void)
 {
@@ -75,9 +72,6 @@ void hal_SetSysClock(void)
     // Disable MSI
     RCC->CR &= ~RCC_CR_MSION;
 
-    hal_hclk  = 32000000UL;
-    hal_pclk1 = 32000000UL;
-    hal_pclk2 = 32000000UL;
 }
 
 // GPIO Section
@@ -161,7 +155,7 @@ void eeprom_init_hw(void)
 }
 
 // Read data from EEPROM
-void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
+void eeprom_read(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
 {
     uint32_t eep_addr = DATA_EEPROM_BASE;
     eep_addr += Addr;
@@ -174,13 +168,13 @@ void eeprom_read(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
 }
 
 // Write data to EEPROM
-void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
+bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
 {
     uint32_t eep_addr = DATA_EEPROM_BASE;
     eep_addr += Addr;
     if((eep_addr + Len) > DATA_EEPROM_END)      // Invalid Address or Length
     {
-        return;
+        return false;
     }
 
     //if(FLASH->PECR & FLASH_PECR_ERASE)
@@ -192,7 +186,7 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
     {
         if(FLASH->SR & FLASH_SR_WRPERR)         //  Write Error
         {
-            return;
+            return false;
         }
 
         *(uint8_t *)eep_addr = *pBuf;
@@ -200,5 +194,52 @@ void eeprom_write(uint8_t *pBuf, uint32_t Addr, uint32_t Len)
         pBuf++;
         Len--;
     }
+    return true;
 }
+
+// ASleep Section
+#ifdef ASLEEP
+
+void HAL_PreASleep(void)                // Configure Sleep Clock
+{
+}
+
+void HAL_AWake(void)
+{
+}
+
+/*
+    PWR->CSR |=PWR_CSR_EWUP2;       // Enable WakeUp2
+    SCB->SCR |=SCB_SCR_SLEEPDEEP;   //
+    PWR->CR |= PWR_CR_PDDS;         //Set PDDS bit in Power Control register (PWR_CR)
+                                    //выбрали  способ сна  STANDBY
+    //__WFI();                        //заснули до прерывания
+    __WFE();                        // заснули до события
+*/
+/*
+   // Request to enter STOP mode with regulator in low power mode
+    HAL_PWR_EnterSTOPMode(PWR_LOWPOWERREGULATOR_ON, PWR_STOPENTRY_WFI);
+ 
+    // After wake-up from STOP reconfigure the PLL
+    SetSysClock();
+*/
+
+void HAL_ASleep(uint16_t duration)
+{
+    // ToDo ASleep dummy function
+
+    uint32_t sec_cnt =  HAL_RTC_SecNow() + duration;
+    while(sec_cnt != HAL_RTC_SecNow());
+}
+#endif  //  ASLEEP
+
+
+// hal_SetSysClock above leaves HPRE, PPRE1 and PPRE2 at /1, so HCLK, PCLK1 and PCLK2 all equal
+// SYSCLK and every peripheral runs at SystemCoreClock. With both APB prescalers at /1 the timer
+// clock is the APB clock itself, without the doubling the reference manual applies otherwise.
+uint32_t hal_GetClock(uint32_t base __attribute__ ((unused)))
+{
+    return SystemCoreClock;
+}
+
 #endif  //  STM32L0

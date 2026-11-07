@@ -17,47 +17,44 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
-#define OD_DEV_TYP_LEN          6
-
 // Predefined variables
-typedef enum
-{
-    // Global Settings
-    objNodeName         = (uint16_t)0xFF00, // _sName<String>
-    objTASleep          = (uint16_t)0xFF01, // cfg/XD_SleepTime<UIint16>
-    objRTC              = (uint16_t)0xFF07, // internal
-    objADCaverage       = (uint16_t)0xFF08, // cfg/XD_ADCintegrate<UIint16>
-    objInMute           = (uint16_t)0xFF09, // cfg/Xa_InMute
-    // RF Node
-    objRFNodeId         = (uint16_t)0xFF10, // cfg/XD_DeviceAddr<UInt8>
-    objRFGroup          = (uint16_t)0xFF11, // cfg/XD_GroupID<UInt16>
-    objRFChannel        = (uint16_t)0xFF12, // cfg/XD_Channel<UInt8>
-    objRFGateId         = (uint16_t)0xFF14, // cfg/XD_GateId
-    objRFpower          = (uint16_t)0xFF16, // cfg/XD_Power
-    objRFkey            = (uint16_t)0xFF18, // cfg/XA_Key
-    // Lan Node 
-    objMACAddr          = (uint16_t)0xFF20, // cfg/Xa_MACAddr   - Array - Len 6
-    objIPAddr           = (uint16_t)0xFF21, // cfg/Xa_IPAddr    - Array - Len 4
-    objIPMask           = (uint16_t)0xFF22, // cfg/Xa_IPMask    - Array - Len 4
-    objIPRouter         = (uint16_t)0xFF23, // cfg/Xa_IPRouter  - Array - Len 4
-    objIPBroker         = (uint16_t)0xFF24, // cfg/Xa_IPBroker  - Array - Len 4
-    // Read Only Variables
-    objDeviceTyp        = (uint16_t)0xFFC0, // _declarer<String>
-    objPHY1addr         = (uint16_t)0xFFC1, // cfg/_a_phy1
-    objPHY2addr         = (uint16_t)0xFFC2, // cfg/_a_phy2
-    objPHY3addr         = (uint16_t)0xFFC3, // cfg/_a_phy3
-    objPHY4addr         = (uint16_t)0xFFC4, // cfg/_a_phy4
-  
-    objRSSI             = (uint16_t)0xFFC8, // cfg/XD_RSSI<UInt8>
-    /*
-    FFD0 .. FFDF - system variables
-    */  
-    // Debug Variables
-    objLogD             = (uint16_t)0xFFE0, // Data logging, log level - Debug
-    objLogI             = (uint16_t)0xFFE1, // Data logging, log level - Info
-    objLogW             = (uint16_t)0xFFE2, // Data logging, log level - Warning
-    objLogE             = (uint16_t)0xFFE3  // Data logging, log level - Error
-}eObjList_t;
+
+// Global Settings
+#define objNodeName     0xFF00 // _sName<String>
+#define objTASleep      0xFF01 // cfg/XD_SleepTime<UIint16>
+#define objRTC          0xFF07 // internal
+#define objADCaverage   0xFF08 // cfg/XD_ADCintegrate<UIint16>
+#define objInMute       0xFF09 // cfg/Xa_InMute
+// RF Node
+#define objRFNodeId     0xFF10 // cfg/XD_DeviceAddr<UInt8>
+#define objRFGroup      0xFF11 // cfg/XD_GroupID<UInt16>
+#define objRFChannel    0xFF12 // cfg/XD_Channel<UInt8>
+#define objRFGateId     0xFF14 // cfg/XD_GateId
+#define objRFpower      0xFF16 // cfg/XD_Power
+#define objRFkey        0xFF18 // cfg/XA_Key
+// Lan Node 
+#define objMACAddr      0xFF20 // cfg/Xa_MACAddr   - Array - Len 6
+#define objIPAddr       0xFF21 // cfg/Xa_IPAddr    - Array - Len 4
+#define objIPMask       0xFF22 // cfg/Xa_IPMask    - Array - Len 4
+#define objIPRouter     0xFF23 // cfg/Xa_IPRouter  - Array - Len 4
+#define objIPBroker     0xFF24 // cfg/Xa_IPBroker  - Array - Len 4
+// Read Only Variables
+#define objDeviceTyp    0xFFC0 // _declarer<String>
+#define objPHY1addr     0xFFC1 // cfg/_a_phy1
+#define objPHY2addr     0xFFC2 // cfg/_a_phy2
+#define objPHY3addr     0xFFC3 // cfg/_a_phy3
+#define objPHY4addr     0xFFC4 // cfg/_a_phy4
+
+#define objRSSI         0xFFC8 // cfg/XD_RSSI<UInt8>
+/*
+FFD0 .. FFDF - system variables
+*/
+// Debug Variables
+#define objLogD         0xFFE0 // Data logging, log level - Debug
+#define objLogI         0xFFE1 // Data logging, log level - Info
+#define objLogW         0xFFE2 // Data logging, log level - Warning
+#define objLogE         0xFFE3  // Data logging, log level - Error
+
 
 typedef enum
 {
@@ -68,6 +65,7 @@ typedef enum
     objDin      = 'I',  // Digital Input
     objDout     = 'O',  // Digital Output
     objPWM      = 'P',  // LED PWM out
+	objCNT      = 'C',  // Counter Input
     objSer      = 'S',  // Serial port, S.0-5 (1200-38400)
     objMerker   = 'M',  // PLC variables
     objPLCctrl  = 'p',  // PLC Control
@@ -85,6 +83,7 @@ typedef enum
   objInt32    = 'd',  // int32
   objUInt32   = 'D',  // uint32
   objInt64    = 'q',  // int64
+  objFloat    = 'f',  // IEEE-754, 4 bytes LE, not packed(cvtSubidx2Len gives 0)
   objString   = 's',  // UTF8 '0' - terminated string
   objArray    = 'a',  // array
   objUnknown  = 'U',  // unknown
@@ -93,6 +92,7 @@ typedef enum
   objPinNPN   = 'n',  // Pin NPN ( Input - PullUp)
   objActPNP   = 'A',  // Node Active  = 1, sleep = 0
   objActNPN   = 'a',  // Node Active = 0, sleep = 1;
+  objPWMfreq  = 'g',  // PWM Set Frequency
 // Analog In
   objArefVcc  = 'v',  // Ref = Vcc(3,3V)
   objArefExt  = 'e',  // Ref = External(not connected)
@@ -129,7 +129,7 @@ typedef struct
 }indextable_t;
 
 // EEPROM Object's
-enum
+typedef enum
 {
 // Global
     eeFlag = 0,
@@ -177,7 +177,7 @@ enum
     eePLCprogram_body = eePLCprogram + EXTPLC_SIZEOF_PRG - 1,
 #endif  //  EXTPLC_USED
     eeNextFreeAddress
-} eEEPROMAddr;
+}eeprom_addr_t;
 
 void InitOD(void);
 e_MQTTSN_RETURNS_t ReadOD(uint16_t Id, uint8_t Flags, uint8_t *pLen, uint8_t *pBuf);

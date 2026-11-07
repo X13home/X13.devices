@@ -16,13 +16,13 @@ ENTRY(Reset_Handler)
 /* Highest address of the user mode stack */
 _estack = 0x20003000;    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0x400;      /* required amount of heap  */
+_Min_Heap_Size = 0x0000;      /* required amount of heap  */
 _Min_Stack_Size = 0x200; /* required amount of stack */
 
 /* Specify the memory areas */
 MEMORY
 {
-FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 56K     /* 8K of FLASH - EEPROM Emulation */
+FLASH (rx)      : ORIGIN = 0x08000000, LENGTH = 48K     /* 16K of FLASH - EEPROM Emulation */
 RAM (xrw)       : ORIGIN = 0x20000000, LENGTH = 12K
 CCMRAM (rw)     : ORIGIN = 0x10000000, LENGTH = 4K
 }
@@ -71,20 +71,20 @@ SECTIONS
     __exidx_end = .;
   } >FLASH
 
-  .preinit_array     :
+  .preinit_array (READONLY) :
   {
     PROVIDE_HIDDEN (__preinit_array_start = .);
     KEEP (*(.preinit_array*))
     PROVIDE_HIDDEN (__preinit_array_end = .);
   } >FLASH
-  .init_array :
+  .init_array (READONLY) :
   {
     PROVIDE_HIDDEN (__init_array_start = .);
     KEEP (*(SORT(.init_array.*)))
     KEEP (*(.init_array*))
     PROVIDE_HIDDEN (__init_array_end = .);
   } >FLASH
-  .fini_array :
+  .fini_array (READONLY) :
   {
     PROVIDE_HIDDEN (__fini_array_start = .);
     KEEP (*(SORT(.fini_array.*)))

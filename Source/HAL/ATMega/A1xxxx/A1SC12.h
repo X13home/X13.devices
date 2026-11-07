@@ -1,52 +1,40 @@
-/*
-Copyright (c) 2011-2015 <comparator@gmx.de>
-
-This file is part of the X13.Home project.
-http://X13home.org
-http://X13home.net
-http://X13home.github.io/
-
-BSD New License
-See LICENSE file for license details.
-*/
+// This file is part of the https://github.com/X13home project.
 
 #ifndef _A1SC12_H
 #define _A1SC12_H
 
 // uNode Version 2.0
-// uc ATMega328p
+// uC: ATMEGA328P
 // PHY1: UART
 // PHY2: CC1101
 
-// 0 - 7    PORTA - not exist
-// PORTB
-// --   PB0     --          LED
-// --   PB1     --          CC11_GDO
-// --   PB2     --          CC11_CSN
-// --   PB3     ISP-4       CC11_MOSI
-// --   PB4     ISP-1       CC11_MISO
-// --   PB5     ISP-3       CC11_SCK
-// --   PB6     --          OSC
-// --   PB7     --          OSC
-// PORT C
-// 16   PC0     SV1-18      Ain0
-// 17   PC1     SV1-17      Ain1
-// 18   PC2     SV1-16      Ain2
-// 19   PC3     SV1-15      Ain3
-// 20   PC4     SV1-14      SDA
-// 21   PC5     SV1-13      SCL
-// --   PC6     ISP-5       RESET
-// --   --      SV1-20      Ain6
-// --   --      SV1-19      Ain7
-// PORT D
-// 24   PD0     SV1-10      RXD
-// 25   PD1     SV1-9       TXD
-// 26   PD2     SV1-8       IRQ 0 //** RF-GDO
-// 27   PD3     SV1-7       IRQ 1
-// 28   PD4     SV1-6
-// 29   PD5     SV1-5       PWM0
-// 30   PD6     SV1-4       PWM1
-// 31   PD7     SV1-3
+// 19	AIN6	CN20	| AIN 06	
+// 22	AIN7	CN19	| AIN 07	
+// == PORTB
+// 12	PORTB.00		| sys_LED_N
+// 13	PORTB.01		| phy2_GPIO0
+// 14	PORTB.02		| phy2_NCS
+// 15	PORTB.03		| phy2_SI
+// 16	PORTB.04		| phy2_SO
+// 17	PORTB.05		| phy2_CLK
+// 07	PORTB.06		| sys_HSE_IN
+// 08	PORTB.07		| sys_HSE_OUT
+// == PORTC
+// 23	PORTC.00	CN18	| AIN 00	
+// 24	PORTC.01	CN17	| AIN 01	
+// 25	PORTC.02	CN16	| AIN 02	
+// 26	PORTC.03	CN15	| AIN 03	
+// 27	PORTC.04	CN14	| AIN 04	| TWI_SDA	
+// 28	PORTC.05	CN13	| AIN 05	| TWI_SCL	
+// == PORTD
+// 30	PORTD.00		| phy1_RX
+// 31	PORTD.01		| phy1_TX
+// 32	PORTD.02	CN8	
+// 01	PORTD.03	CN7	
+// 02	PORTD.04	CN6	
+// 09	PORTD.05	CN5	| PWM 00.1	
+// 10	PORTD.06	CN4	| PWM 00.0	
+// 11	PORTD.07	CN3	
 
 #ifdef __cplusplus
 extern "C" {
@@ -54,68 +42,71 @@ extern "C" {
 
 #define F_CPU                       8000000UL
 
-#include <util/delay.h>
-
 // DIO Section
 #define EXTDIO_USED                 1
 #define EXTDIO_PORT_OFFSET          2
-#define EXTDIO_MAXPORT_NR           2       // Number of used physical digital Ports
-#define HAL_DIO_MAPPING             {0xFF, 0xFF, 16, 17, 18, 19, 20, 21,    \
-                                     0xFF, 0xFF, 26, 27, 28, 29, 30, 31}
+#define EXTDIO_MAXPORT_NR           2
+#define HAL_DIO_MAPPING             {0xFF, 0xFF, 16, 17, 18, 19, 20, 21, 0xFF, 0xFF, 26, 27, 28, 29, 30, 31}
 // End DIO Section
 
 // PWM Section
 #define EXTPWM_USED                 1
 #define HAL_PWM_BASE_OFFSET         13
-#define HAL_PWM_PORT2CFG            {1, 0}      // Mapping PWM channel to configuration
-                                                // bits 7-3 Timer, bits 2-0 Channel
+#define HAL_PWM_PORT2CFG            {0x01, 0x00}
 // End PWM Section
 
 // Analogue Inputs
 #define EXTAIN_USED                 1
-#define EXTAIN_MAXPORT_NR           15                                   // ADC0-ADC7, Vbg
-#define HAL_AIN_BASE2APIN           {6, 7, 0, 1, 2, 3, 4, 5, 14}
+#define EXTAIN_MAXPORT_NR           15
+#define HAL_AIN_BASE2APIN           {6, 7, 0, 1, 2, 3, 4, 5, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 14}
 // End Analogue Inputs
 
+// UART Section
+#define HAL_UART_NUM_PORTS          1
+// End UART Section
+
 // TWI Section
+#define HAL_TWI_BUS                 1
 #define EXTTWI_USED                 1
 // End TWI Section
 
-// LED
-#define LED_On()                    PORTB &= ~(1<<PB0)
-#define LED_Off()                   PORTB |= (1<<PB0)
-#define LED_Init()                  {DDRB |= (1<<PB0); PORTB |= (1<<PB0);}
+#define LED_Init()                  hal_dio_configure(8, DIO_MODE_OUT_PP)
+#define LED_On()                    PORTB &= ~(1 << 0)
+#define LED_Off()                   PORTB |= (1 << 0)
 
-// UART PHY Section
+//UART PHY1 Section	 RX: PORTD.00, TX: PORTD.01
 #define HAL_USE_USART0              0
-#define HAL_UART_NUM_PORTS          1
 #define UART_PHY_PORT               0
 #define UART_PHY                    1
 #include "PHY/UART/uart_phy.h"
-// End UART PHY Section
+//End UART PHY1 Section
 
-// CC11 Section
-#define HAL_USE_SPI                 1
+//CC1101 PHY2 Section	 NCS: PORTB.02, CLK: PORTB.05, SO: PORTB.04, SI: PORTB.03, GPIO0: PORTB.01
+#define HAL_USE_SPI1                1
 #define CC11_USE_SPI                1
-#define CC11_NSS_PIN                10  // PB2
-#define CC11_WAIT_LOW_MISO()        while(PINB & (1<<PB4))
-#define CC11_SELECT()               PORTB &= ~(1<<PB2)
-#define CC11_RELEASE()              PORTB |= (1<<PB2)
+#define CC11_NSS_PIN                10
+#define CC11_WAIT_LOW_MISO()        while(PINB & (1 << 4))
+#define CC11_SELECT()               PORTB &= ~(1 << 2)
+#define CC11_RELEASE()              PORTB |= (1 << 2)
+#define CC11_IRQ_PIN                9
+#define CC11_IRQ_STATE()            ((PINB & (1 << 1)) != 0)
 #define CC11_PHY                    2
+#define CC11_DEFAULT_FREQ           868300000UL
 #include "PHY/CC1101/cc11_phy.h"
-//  End CC11 Section
+//End CC1101 PHY2 Section
 
 // Object's Dictionary Section
-#define OD_MAX_INDEX_LIST           15      // Size of identificators list
+#define OD_MAX_INDEX_LIST           15
 #define OD_DEV_UC_TYPE              'A'
 #define OD_DEV_UC_SUBTYPE           '1'
 #define OD_DEV_PHY1                 'S'
 #define OD_DEV_PHY2                 'C'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '2'
+// End Object's Dictionary Section
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // _A1SC12_H
+#endif //_A1SC12_H

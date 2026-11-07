@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- device configuration file for Atmel devices  -->
 <root head="/etc/declarers/dev">
-    <item name="A1SC12" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0610">
+    <item name="A1SC12" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.17.1015">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />
             <item name="long" value="yI" saved="True" type="System.String" />
@@ -237,7 +237,7 @@
             </item>
         </item>
     </item>
-    <item name="A1Cn12" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0610">
+    <item name="A1C12" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.17.1015">
         <item name="_proto" value="A1SC12" saved="True" type="System.String" />
         <item name="Digital Inputs">
             <item name="Ip8" value="AzX8" saved="True" type="System.String">
@@ -304,10 +304,10 @@
             </item>
         </item>
     </item>
-    <item name="A1En12" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0610">
-        <item name="_proto" value="A1Cn12" saved="True" type="System.String" />
+    <item name="A1E12" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.17.1015">
+        <item name="_proto" value="A1C12" saved="True" type="System.String" />
     </item>
-    <item name="A1Sn12" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0610">
+    <item name="A1S12" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.17.1015">
         <item name="_proto" value="A1SC12" saved="True" type="System.String" />
         <!-- PB1-PB5: Pin 16 - 20 -->
         <item name="Digital Inputs">
@@ -393,10 +393,10 @@
             </item>
         </item>
     </item>
-    <item name="A1SR11" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.16.0610">
+    <item name="A1SR11" value="pack://application:,,/CC;component/Images/ty_ugate.png" saved="True" type="System.String" ver="3.17.1015">
         <item name="_proto" value="A1SC12" saved="True" type="System.String" />
     </item>
-    <item name="A1Rn11" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0610">
-        <item name="_proto" value="A1Cn12" saved="True" type="System.String" />
+    <item name="A1R11" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.17.1015">
+        <item name="_proto" value="A1C12" saved="True" type="System.String" />
     </item>
 </root>

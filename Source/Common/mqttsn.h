@@ -43,8 +43,8 @@ typedef enum e_TRACE_LEVEL
 
 void mqttsn_trace_msg(uint8_t Level, MQ_t * pMessage);
 
-void mqttsn_parser_phy1(MQ_t * pPHY1outBuf);
-void mqttsn_parser_phy2(MQ_t * pPHY2outBuf);
+void mqttsn_parser_phyM(MQ_t * pPHY1outBuf);
+void mqttsn_parser_phyS(MQ_t * pPHY2outBuf, uint8_t phy);
 
 void MQTTSN_Init(void);
 #ifdef ASLEEP

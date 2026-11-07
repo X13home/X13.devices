@@ -114,12 +114,11 @@ extern "C" {
 #define ENC_NSS_PIN                 22  // PB6
 #define ENC_SELECT()                GPIOB->BRR = GPIO_Pin_6
 #define ENC_RELEASE()               {while(SPI1->SR & SPI_SR_BSY); GPIOB->BSRR = GPIO_Pin_6;}
-#define ENC28J60_PHY                1
+#define ENC_PHY                     1
 #include "PHY/ENC28J60/enc28j60_phy.h"
 // End ENC PHY Section
 
 // RS485 PHY Section
-#define HAL_USE_SUBMSTICK           1
 #define HAL_USE_USART2              1
 #define RS485_PHY_PORT              1
 #define RS485_PHY                   2
@@ -135,7 +134,7 @@ extern "C" {
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '3'
 
-#define OD_DEV_MAC                  {0x00,0x04,0xA3,0x00,0x00,0x12}   // MAC MSB->LSB
+//#define OD_DEF_DEV_MAC              {0x00,0x04,0xA3,0x00,0x00,0x12}   // MAC MSB->LSB
 //#define OD_DEF_IP_ADDR              inet_addr(192,168,10,202)
 //#define OD_DEF_IP_MASK              inet_addr(255,255,255,0)
 //#define OD_DEF_IP_ROUTER            inet_addr(192,168,10,1)

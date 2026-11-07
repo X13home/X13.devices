@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- device configuration file for Nucleo Boards  -->
 <root head="/etc/declarers/dev">
-    <item name="S2Sn11" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.16.0609">
+    <item name="S2S11" value="pack://application:,,/CC;component/Images/ty_unode.png" saved="True" type="System.String" ver="3.17.1015">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />
             <item name="long" value="yI" saved="True" type="System.String" />
@@ -819,7 +819,7 @@
             </item>
         </item>
     </item>
-    <item name="S4Sn10" value="pack://application:,,/CC;component/Images/ty_unode.png"  saved="True" type="System.String" ver="3.16.0609">
+    <item name="S4S10" value="pack://application:,,/CC;component/Images/ty_unode.png"  saved="True" type="System.String" ver="3.17.1015">
         <item name="Add">
             <item name="bool" value="yZ" saved="True" type="System.String" />
             <item name="long" value="yI" saved="True" type="System.String" />

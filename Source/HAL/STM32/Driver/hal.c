@@ -44,6 +44,7 @@ void HAL_Init(void)
 {
     // Set Core Clock
     hal_SetSysClock();
+    SystemCoreClockUpdate();
 #ifdef HAL_USE_RTC
     hal_rtc_init();
 #endif  //  HAL_USE_RTC
@@ -53,10 +54,10 @@ void HAL_Init(void)
     RCC->AHBENR |= RCC_AHBENR_CRCEN;
     CRC->CR = CRC_CR_RESET;
 #ifdef HAL_USE_SUBMSTICK
-    // Star TIM6, as 62,5us tick counter, used in rs485 & oops
+    // Start TIM6, as 50us tick counter, used in rs485
     RCC->APB1ENR |= RCC_APB1ENR_TIM6EN;
     TIM6->CR1 = 0;
-    TIM6->PSC = (hal_pclk1/16000UL) - 1UL;
+    TIM6->PSC = (hal_GetClock((uint32_t)TIM6)/20000UL) - 1UL;
     TIM6->CNT = 0;
     TIM6->ARR = 0xFFFF;
     TIM6->CR1 = TIM_CR1_CEN;
@@ -74,7 +75,7 @@ void HAL_Init(void)
 
 void HAL_StartSystemTick(void)
 {
-    if(SysTick_Config((hal_hclk / 1000) - 1UL))
+    if(SysTick_Config(( SystemCoreClock / 1000) - 1UL))
     {
         while(1);
     }
@@ -124,12 +125,13 @@ void _delay_us(uint16_t us)
 {
 #if (__CORTEX_M >= 0x03U)   // core_cm3, core_cm4
     uint32_t timestamp = DWT->CYCCNT;
-    uint32_t ticks = (const uint32_t)(hal_hclk / 1000000UL);
+    uint32_t ticks = SystemCoreClock;
+    ticks /= 1000000UL;
     ticks *= us;
 
     while(ticks > (DWT->CYCCNT - timestamp));
 #else                       // core_cm0
-    uint32_t ticks = (const uint32_t)(hal_hclk / 12000000UL);
+    uint32_t ticks = (SystemCoreClock / 12000000UL);
     ticks *= us;
 
     while(ticks > 0)

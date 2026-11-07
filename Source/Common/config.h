@@ -33,14 +33,9 @@ extern "C" {
 //#define MQTTSN_REBOOT_ON_LOST           1       // Reboot on connection lost
 
 // Object Dictionary
-#define OD_DEV_SWVERSH                  '3'     // Software Version
-#define OD_DEV_SWVERSM                  '1'
-#define OD_DEV_SWVERSL                  '3'
-
-#define OD_DEF_ADC_AVERAGE              80
-
-#define UART_BaudRate                   38400
-#define RF_BASE_FREQ                    868300000UL
+#define OD_DEV_SWVERSH                  '3'     // Software Version, 3.3.0 - PLC_VM
+#define OD_DEV_SWVERSM                  '3'     //  with float: the opcodes 0x18-0x1F,
+#define OD_DEV_SWVERSL                  '0'     //  0x28-0x37 and the Mf merkers
 
 #include "hal.h"
 #include "mqMEM.h"
@@ -60,7 +55,9 @@ uint16_t    HAL_RNG(void);
 uint32_t    HAL_RNG32(void);
 uint32_t    HAL_get_ms(void);
 uint32_t    HAL_get_sec(void);
+void        HAL_PreASleep(void);
 void        HAL_ASleep(uint16_t duration);
+void        HAL_AWake(void);
 void        HAL_Reboot(void);
 
 // Main Tick's

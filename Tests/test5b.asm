@@ -1,0 +1,23 @@
+	NOP
+	NOP
+	NOP
+    NOP
+
+	LD	165
+	LD	17
+	MOD
+	TEST_EQ	12
+
+	LD	-2
+	INC
+	TEST_EQ	-1
+
+	LD	24
+	DEC
+	TEST_EQ	23
+
+	LD	-14
+	NEG
+	TEST_EQ	14
+
+	RET

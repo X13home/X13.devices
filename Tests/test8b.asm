@@ -1,0 +1,31 @@
+	NOP
+	NOP
+	NOP
+    NOP
+
+	LD	88
+	LD	87
+	CGT
+	TEST_EQ	1	
+    
+	LD	89
+	DUP	
+	CGT
+	TEST_EQ	0
+
+	LD	91
+	LD	90
+	CGE
+	TEST_EQ	1
+	
+	LD	92
+	DUP
+	CGE
+	TEST_EQ	1
+
+	LD	93
+	LD	94
+	CGE
+	TEST_EQ	0
+
+	RET

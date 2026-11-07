@@ -13,11 +13,13 @@ See LICENSE file for license details.
 #ifndef _RS485_PHY_H
 #define _RS485_PHY_H
 
+#define HAL_USE_SUBMSTICK           1
+
 #if (RS485_PHY == 1)
 
 #define PHY1_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY1         (PHY1_ADDR_t)0x00
-#define ADDR_UNDEF_PHY1             (PHY1_ADDR_t)0xFF
+#define ADDR_BROADCAST_PHY1         (uint8_t)0x00
+#define ADDR_UNDEF_PHY1             (uint8_t)0xFF
 
 #define PHY1_Init                   RS485_Init
 #define PHY1_Send                   RS485_Send
@@ -27,16 +29,28 @@ See LICENSE file for license details.
 #define PHY1_GateId                 objRFGateId
 
 #elif (RS485_PHY == 2)
-    
+
 #define PHY2_ADDR_t                 uint8_t
-#define ADDR_BROADCAST_PHY2         (PHY2_ADDR_t)0x00
-#define ADDR_UNDEF_PHY2             (PHY2_ADDR_t)0xFF
+#define ADDR_BROADCAST_PHY2         (uint8_t)0x00
+#define ADDR_UNDEF_PHY2             (uint8_t)0xFF
 
 #define PHY2_Init                   RS485_Init
 #define PHY2_Send                   RS485_Send
 #define PHY2_Get                    RS485_Get
 #define PHY2_GetAddr                RS485_GetAddr
 #define PHY2_NodeId                 objRFNodeId
+
+#elif (RS485_PHY == 3)
+
+#define PHY3_ADDR_t                 uint8_t
+#define ADDR_BROADCAST_PHY3         (uint8_t)0x00
+#define ADDR_UNDEF_PHY3             (uint8_t)0xFF
+
+#define PHY3_Init                   RS485_Init
+#define PHY3_Send                   RS485_Send
+#define PHY3_Get                    RS485_Get
+#define PHY3_GetAddr                RS485_GetAddr
+#define PHY3_NodeId                 objRFNodeId
 
 #else
 #error unknown RS485_PHY interface

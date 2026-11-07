@@ -1,0 +1,65 @@
+A1xxxx.xst, device configuration file for Atmel - X13 devices
+    A1SC12
+    A1C12
+    A1E12
+    A1S12
+    A1SR11
+    A1R11
+
+ArduinoU.xst, device configuration file for Atmel - Arduino Uno devices
+    A1SC10
+    A1S10
+    A1C10
+    A1M10
+
+ArduinoM.xst, device configuration file for Atmel - Arduino Mega devices
+    A4S10
+    A4E10
+
+JeeLabs.xst device configuration file for Atmel - JeeLabs devices
+    A1R10
+    A1SR10
+
+A5E10.xst device configuration file for MegaD-2561 from ab-log.ru
+
+
+
+
+
+Discovery.xst, device configuration file for Discovery Boards
+    S2SR10
+    S2S10
+
+Nucleo.xst, device configuration file for Nucleo Boards
+    S2Sn11
+    S4S10
+
+S2xxxx.xst, device description file for STM32F0 devices
+    S2SC13
+    S2S13
+    S2SQ13
+    S2EC13
+    S2E13
+    S2C13
+    S2Q13
+    S2SM13
+    S2M13
+    S2EM13
+    S2SC14
+    S2SC15
+    S2C15
+    S2M16
+
+S3xxxx.xst, device configuration file for STM32F1 devices
+    S3SC10
+    S3S10
+    S3E10
+    S3C10
+    S3SQ10
+
+S4xxxx.xst, device configuration file for STM32F3 devices
+    S4SC11
+    S4C11
+
+S5xxxx.xst, device configuration file for STM32L0 devices
+    S5C10

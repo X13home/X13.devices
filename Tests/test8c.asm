@@ -1,0 +1,40 @@
+	NOP
+	NOP
+	NOP
+    NOP
+
+	LD	95
+	DUP
+	CLT
+	TEST_EQ	0
+
+	LD	96
+	LD	97
+	CLT
+	TEST_EQ	1
+	
+	LD	99
+	LD	98
+	CLE
+	TEST_EQ	0
+
+	LD	100
+	DUP
+	CLE
+	TEST_EQ	1
+	
+	LD	101
+	LD	102
+	CLE
+	TEST_EQ	1
+
+	LD	17
+	CZE
+	TEST_EQ	0
+
+	LD	0
+	CZE
+	TEST_EQ	1
+
+
+	RET

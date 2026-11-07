@@ -1,0 +1,250 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="14.0">
+  <PropertyGroup>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectVersion>7.0</ProjectVersion>
+    <ToolchainName>com.Atmel.AVRGCC8.C</ToolchainName>
+    <ProjectGuid>dce6c7e3-ee26-4d79-826b-08594b9ad897</ProjectGuid>
+    <avrdevice>ATmega2561</avrdevice>
+    <avrdeviceseries>none</avrdeviceseries>
+    <OutputType>Executable</OutputType>
+    <Language>C</Language>
+    <OutputFileName>$(MSBuildProjectName)</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+    <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
+    <AssemblyName>A5xxxx</AssemblyName>
+    <Name>A5xxxx</Name>
+    <RootNamespace>A5xxxx</RootNamespace>
+    <ToolchainFlavour>Native</ToolchainFlavour>
+    <KeepTimersRunning>true</KeepTimersRunning>
+    <OverrideVtor>false</OverrideVtor>
+    <CacheFlash>true</CacheFlash>
+    <ProgFlashFromRam>true</ProgFlashFromRam>
+    <RamSnippetAddress />
+    <UncachedRange />
+    <preserveEEPROM>true</preserveEEPROM>
+    <OverrideVtorValue />
+    <BootSegment>2</BootSegment>
+    <eraseonlaunchrule>0</eraseonlaunchrule>
+    <AsfFrameworkConfig>
+      <framework-data xmlns="">
+        <options />
+        <configurations />
+        <files />
+        <documentation help="" />
+        <offline-documentation help="" />
+        <dependencies>
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.34.1" />
+        </dependencies>
+      </framework-data>
+    </AsfFrameworkConfig>
+    <ResetRule>0</ResetRule>
+    <EraseKey />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'A5E10' ">
+    <ToolchainSettings>
+      <AvrGcc>
+        <avrgcc.common.Device>-mmcu=atmega2561 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\gcc\dev\atmega2561"</avrgcc.common.Device>
+        <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>CONFIG=A5E10</Value>
+            <Value>NDEBUG</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>../HAL/ATMega</Value>
+            <Value>../HAL/ATMega/A5xxxx</Value>
+            <Value>../Common</Value>
+          </ListValues>
+        </avrgcc.compiler.directories.IncludePaths>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.compiler.warnings.ExtraWarnings>True</avrgcc.compiler.warnings.ExtraWarnings>
+        <avrgcc.compiler.warnings.Undefined>True</avrgcc.compiler.warnings.Undefined>
+        <avrgcc.linker.general.GenerateMAPFile>False</avrgcc.linker.general.GenerateMAPFile>
+        <avrgcc.compiler.optimization.level>Optimize (-O1)</avrgcc.compiler.optimization.level>
+      </AvrGcc>
+    </ToolchainSettings>
+    <OutputFileName>A5E10</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'A5E10d' ">
+    <ToolchainSettings>
+      <AvrGcc>
+        <avrgcc.common.Device>-mmcu=atmega2561 -B "%24(PackRepoDir)\atmel\ATmega_DFP\1.2.132\gcc\dev\atmega2561"</avrgcc.common.Device>
+        <avrgcc.common.optimization.RelaxBranches>True</avrgcc.common.optimization.RelaxBranches>
+        <avrgcc.common.outputfiles.hex>True</avrgcc.common.outputfiles.hex>
+        <avrgcc.common.outputfiles.lss>True</avrgcc.common.outputfiles.lss>
+        <avrgcc.common.outputfiles.eep>True</avrgcc.common.outputfiles.eep>
+        <avrgcc.common.outputfiles.srec>True</avrgcc.common.outputfiles.srec>
+        <avrgcc.common.outputfiles.usersignatures>False</avrgcc.common.outputfiles.usersignatures>
+        <avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</avrgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>True</avrgcc.compiler.general.ChangeDefaultBitFieldUnsigned>
+        <avrgcc.compiler.symbols.DefSymbols>
+          <ListValues>
+            <Value>CONFIG=A5E10</Value>
+            <Value>DEBUG</Value>
+          </ListValues>
+        </avrgcc.compiler.symbols.DefSymbols>
+        <avrgcc.compiler.directories.IncludePaths>
+          <ListValues>
+            <Value>../HAL/ATMega</Value>
+            <Value>../HAL/ATMega/A5xxxx</Value>
+            <Value>../Common</Value>
+          </ListValues>
+        </avrgcc.compiler.directories.IncludePaths>
+        <avrgcc.compiler.optimization.PackStructureMembers>True</avrgcc.compiler.optimization.PackStructureMembers>
+        <avrgcc.compiler.optimization.AllocateBytesNeededForEnum>True</avrgcc.compiler.optimization.AllocateBytesNeededForEnum>
+        <avrgcc.compiler.warnings.AllWarnings>True</avrgcc.compiler.warnings.AllWarnings>
+        <avrgcc.compiler.warnings.ExtraWarnings>True</avrgcc.compiler.warnings.ExtraWarnings>
+        <avrgcc.compiler.warnings.Undefined>True</avrgcc.compiler.warnings.Undefined>
+        <avrgcc.linker.general.GenerateMAPFile>False</avrgcc.linker.general.GenerateMAPFile>
+        <avrgcc.compiler.optimization.level>Optimize debugging experience (-Og)</avrgcc.compiler.optimization.level>
+        <avrgcc.compiler.optimization.DebugLevel>Default (-g2)</avrgcc.compiler.optimization.DebugLevel>
+        <avrgcc.assembler.debugging.DebugLevel>Default (-Wa,-g)</avrgcc.assembler.debugging.DebugLevel>
+      </AvrGcc>
+    </ToolchainSettings>
+    <OutputFileName>A5E10d</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Common\EXT" />
+    <Folder Include="Common\PHY" />
+    <Folder Include="Common\PHY\ENC28J60" />
+    <Folder Include="HAL" />
+    <Folder Include="HAL\ATMega" />
+    <Folder Include="HAL\ATMega\A5xxxx" />
+    <Folder Include="HAL\ATMega\HAL" />
+    <Folder Include="Common" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Common\config.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\diag.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\diag.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\ext.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\ext.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extain.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extain.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extdio.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extdio.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extpwm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extpwm.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extser.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\extser.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\exttwi.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\EXT\exttwi.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\main.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\mqMEM.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\mqMEM.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\mqttsn.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\mqttsn.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\mqTypes.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\ObjDict.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\ObjDict.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\PHY\ENC28J60\enc28j60_def.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\PHY\ENC28J60\enc28j60_hw.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\PHY\ENC28J60\enc28j60_hw.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\PHY\ENC28J60\enc28j60_net.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\PHY\ENC28J60\enc28j60_net.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\PHY\ENC28J60\enc28j60_phy.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="Common\PHY\ENC28J60\enc28j60_phy.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\ATMega\A5xxxx\A5E10.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\ATMega\hal.h">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\ATMega\HAL\HAL.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\ATMega\HAL\hal_ain.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\ATMega\HAL\hal_dio.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\ATMega\HAL\hal_pwm.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\ATMega\HAL\hal_twi.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\ATMega\HAL\hal_uart.c">
+      <SubType>compile</SubType>
+    </Compile>
+    <Compile Include="HAL\ATMega\HW_ATM2561.h">
+      <SubType>compile</SubType>
+    </Compile>
+  </ItemGroup>
+  <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
+</Project>

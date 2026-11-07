@@ -1,0 +1,34 @@
+	NOP
+	NOP
+	NOP
+    NOP
+
+	LD	197121
+	ST	d1
+
+	LD	b6
+	TEST_EQ	3
+	
+	LD	w2
+	TEST_EQ	513
+
+	LD	z41
+	TEST_EQ	1
+
+	LD	z40
+	TEST_EQ	0
+
+	LD	1
+	ST	z42	
+
+	LD	4
+	ST	b4
+
+	LD	2
+	ST	w3
+	
+	LD	d1
+	TEST_EQ	132612
+	
+	RET
+		

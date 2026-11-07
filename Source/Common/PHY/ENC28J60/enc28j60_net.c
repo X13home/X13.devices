@@ -12,7 +12,7 @@ See LICENSE file for license details.
 
 #include "../../config.h"
 
-#if (defined ENC28J60_PHY)
+#if (defined ENC_PHY)
 
 #include "enc28j60_hw.h"
 #include "enc28j60_net.h"
@@ -24,17 +24,27 @@ See LICENSE file for license details.
 #define SUBNET_BROADCAST    (ip_addr | ~ip_mask)
 #define NET_BROADCAST       0xFFFFFFFF
 
+typedef enum
+{
+    DHCP_DISABLED,
+    DHCP_ASSIGNED,
+    DHCP_INIT,
+    DHCP_WAITING_OFFER,
+    DHCP_WAITING_ACK
+} system_status_t;
+
 // node MAC & IP addresses
 static uint8_t          mac_addr[6];
-uint32_t                ip_addr;
+static uint32_t         ip_addr;
 static uint32_t         ip_mask;
 static uint32_t         ip_gateway;
 // ARP record
 static uint32_t         arp_ip_addr;
 static uint8_t          arp_mac_addr[6];
 
+static system_status_t  system_status;
+
 #ifdef NET_WITH_DHCP
-static dhcp_status_t    dhcp_status = DHCP_DISABLED;
 static uint32_t         dhcp_retry_time;
 static uint32_t         dhcp_transaction_id;
 static uint32_t         dhcp_server;
@@ -61,13 +71,13 @@ void enc28j60_init_net(void)
 #ifdef NET_WITH_DHCP
     if(ip_addr != 0xFFFFFFFF)
     {
-        dhcp_status = DHCP_DISABLED;
+        system_status = DHCP_DISABLED;
     }
     else
     {
         ip_addr = 0;
-        dhcp_status = DHCP_INIT;
-        dhcp_retry_time = HAL_get_sec() + 1;
+        system_status = DHCP_INIT;
+        dhcp_retry_time = HAL_get_sec() + 2;
     }
 #endif
 }
@@ -343,6 +353,21 @@ static void icmp_filter(uint16_t len, eth_frame_t * pFrame)
 //////////////////////////////////////////////////////////////////////
 #endif  //  NET_WITH_ICMP
 
+
+//////////////////////////////////////////////////////////////////////
+// System API
+bool ENC28J60_System_Ready(void)
+{
+    return (system_status < DHCP_INIT);
+}
+
+void * ENC28J60_GetAddr(void)
+{
+    return &ip_addr;
+}
+// End System API
+//////////////////////////////////////////////////////////////////////
+
 //////////////////////////////////////////////////////////////////////
 // UDP Section
 
@@ -537,8 +562,12 @@ dhcp_filter_lbl1:
                 phy_get(&opt->len, 1);
                 len--;
                 if(len >= 2)
+                {
                     goto dhcp_filter_lbl1;
-                // no break, It's Ok
+                }
+                opt->len = 0;
+                len = 0;
+                break;
             case DHCP_CODE_END:             // 255
                 opt->len = 0;
                 len = 0;
@@ -582,10 +611,10 @@ dhcp_filter_lbl1:
     if(type == DHCP_MESSAGE_OFFER)
     {
         memcpy(&ulTmp, dhcp->offered_addr, 4);
-        if((dhcp_status != DHCP_WAITING_OFFER) || (ulTmp == 0))
+        if((system_status != DHCP_WAITING_OFFER) || (ulTmp == 0))
             return;
 
-        dhcp_status = DHCP_WAITING_ACK;
+        system_status = DHCP_WAITING_ACK;
 
         uint8_t * pOpt = (void*)(dhcp->options);
         pOpt += 4;
@@ -615,13 +644,13 @@ dhcp_filter_lbl1:
     }
     else if(type == DHCP_MESSAGE_ACK)
     {
-        if((dhcp_status != DHCP_WAITING_ACK) || (lease_time == 0))
+        if((system_status != DHCP_WAITING_ACK) || (lease_time == 0))
             return;
 
         if(renew_time == 0)
             renew_time = lease_time / 2;
 
-        dhcp_status = DHCP_ASSIGNED;
+        system_status = DHCP_ASSIGNED;
         dhcp_server = renew_server;
         dhcp_retry_time = HAL_get_sec() + renew_time;
 
@@ -635,22 +664,31 @@ dhcp_filter_lbl1:
     }
 }
 
-void dhcp_poll(void)
+void dhcp_poll(eth_frame_t * pFrame)
 {
-    if(dhcp_status == DHCP_DISABLED)
+    if(system_status == DHCP_DISABLED)
         return;
 
     uint32_t tick_sec = HAL_get_sec();
 
 #ifdef LED_On
-    if((dhcp_status != DHCP_ASSIGNED) && ((tick_sec & 0x00000001) != 0))
+    if((system_status != DHCP_ASSIGNED) && ((tick_sec & 0x00000001) != 0))
+    {
         LED_On();
+    }
 #endif  //  LED_On
 
     if(dhcp_retry_time > tick_sec)
+    {
         return;
+    }
 
-    eth_frame_t     * pFrame;
+    if(enc28j60linkup() == false)
+    {
+        dhcp_retry_time = tick_sec + 2;
+        return;
+    }
+
     ip_packet_t     * ip;
     udp_packet_t    * udp;
     dhcp_message_t  * dhcp;
@@ -659,8 +697,6 @@ void dhcp_poll(void)
     uint8_t ucTmp;
 
     dhcp_retry_time = tick_sec + 15;
-
-    pFrame = (void *)mqAlloc(MAX_FRAME_BUF);
 
     ip = (void*)(pFrame->data);
     udp = (void*)(ip->data);
@@ -673,11 +709,11 @@ void dhcp_poll(void)
     uint8_t * pOpt = (void*)(dhcp->options);
     pOpt += 4;
 
-    if(dhcp_status != DHCP_ASSIGNED)
+    if(system_status != DHCP_ASSIGNED)
     {
         ucTmp = DHCP_MESSAGE_DISCOVER;
         dhcp_add_option(&pOpt, DHCP_CODE_MESSAGETYPE, 1, &ucTmp);
-        dhcp_status = DHCP_WAITING_OFFER;
+        system_status = DHCP_WAITING_OFFER;
     }
     else
     {
@@ -685,7 +721,7 @@ void dhcp_poll(void)
         dhcp_add_option(&pOpt, DHCP_CODE_MESSAGETYPE, 1, &ucTmp);
         dhcp_add_option(&pOpt, DHCP_CODE_REQUESTEDADDR, 4, &ip_addr);
         dhcp_add_option(&pOpt, DHCP_CODE_DHCPSERVER, 4, &dhcp_server);
-        dhcp_status = DHCP_WAITING_ACK;
+        system_status = DHCP_WAITING_ACK;
     }
 
     *(pOpt++) = DHCP_CODE_END;
@@ -696,10 +732,8 @@ void dhcp_poll(void)
     enc28j60EnableBroadcast();
 
     dhcp_send(length, pFrame);
-
-    mqFree(pFrame);
 }
 // End DHCP Section
 //////////////////////////////////////////////////////////////////////
 #endif  //  NET_WITH_DHCP
-#endif  //  ENC28J60_PHY
+#endif  //  ENC_PHY

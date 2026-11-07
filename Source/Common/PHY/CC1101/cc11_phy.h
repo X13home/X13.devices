@@ -15,18 +15,22 @@ See LICENSE file for license details.
 
 #define OD_DEFAULT_GROUP        0x2DD4
 
+#ifndef CC11_DEFAULT_FREQ
+#define CC11_DEFAULT_FREQ                    868300000UL
+#endif  //  CC11_DEFAULT_FREQ
+
 // 433 MHz
-#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
-#define OD_DEFAULT_CHANNEL      ((RF_BASE_FREQ - 433000000UL)/25000)
+#if (CC11_DEFAULT_FREQ > 433050000UL) && (CC11_DEFAULT_FREQ < 434790000UL)
+#define OD_DEFAULT_CHANNEL      ((CC11_DEFAULT_FREQ - 433000000UL)/25000)
 
 // 868 MHz
-#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
-#define OD_DEFAULT_CHANNEL      ((RF_BASE_FREQ - 868000000UL)/25000)
+#elif (CC11_DEFAULT_FREQ > 868000000UL) && (CC11_DEFAULT_FREQ < 870000000UL)
+#define OD_DEFAULT_CHANNEL      ((CC11_DEFAULT_FREQ - 868000000UL)/25000)
 
 // Bad Frequency
 #else
-#error  RF_BASE_FREQ does not belond to ISM band
-#endif  // RF_BASE_FREQ
+#error  CC11_DEFAULT_FREQ does not belond to ISM band
+#endif  // CC11_DEFAULT_FREQ
 
 #if (CC11_PHY == 1)
 
@@ -42,6 +46,9 @@ See LICENSE file for license details.
 #define PHY1_GateId                 objRFGateId
 #define PHY1_ASleep                 CC11_ASleep
 #define PHY1_AWake                  CC11_AWake
+
+#define RF_POLL_RSSI_CB             CC11_PollRssi
+#define RF_READ_RSSI_CB             CC11_ReadRssi
     
 #elif   (CC11_PHY == 2)
 
@@ -52,28 +59,51 @@ See LICENSE file for license details.
 #define PHY2_Init                   CC11_Init
 #define PHY2_Send                   CC11_Send
 #define PHY2_Get                    CC11_Get
-#define PHY2_GetRSSI                CC11_GetRSSI
 #define PHY2_GetAddr                CC11_GetAddr
 #define PHY2_NodeId                 objRFNodeId
+
+#elif   (CC11_PHY == 3)
+
+#define PHY3_ADDR_t                 uint8_t
+#define ADDR_BROADCAST_PHY3         (PHY3_ADDR_t)0x00
+#define ADDR_UNDEF_PHY3             (PHY3_ADDR_t)0xFF
+
+#define PHY3_Init                   CC11_Init
+#define PHY3_Send                   CC11_Send
+#define PHY3_Get                    CC11_Get
+#define PHY3_GetAddr                CC11_GetAddr
+#define PHY3_NodeId                 objRFNodeId
+
+#elif   (CC11_PHY == 4)
+
+#define PHY4_ADDR_t                 uint8_t
+#define ADDR_BROADCAST_PHY4         (PHY4_ADDR_t)0x00
+#define ADDR_UNDEF_PHY3             (PHY4_ADDR_t)0xFF
+
+#define PHY4_Init                   CC11_Init
+#define PHY4_Send                   CC11_Send
+#define PHY4_Get                    CC11_Get
+#define PHY4_GetAddr                CC11_GetAddr
+#define PHY4_NodeId                 objRFNodeId
 
 #else
 #error CC11_PHY unknown interface
 #endif  // CC11_PHY
 
 #ifndef RF_ADDR_t
-
 #define RF_ADDR_t                   uint8_t
 #define RF_ADDR_TYPE                objUInt8
 #define ADDR_UNDEF_RF               (RF_ADDR_t)0xFF
-
 #endif  //  RF_ADDR_t
 
 // API Section
 void    CC11_Init(void);
 void    CC11_Send(void *pBuf);
 void  * CC11_Get(void);
-uint8_t CC11_GetRSSI(void);
 void *  CC11_GetAddr(void);
+
+uint8_t CC11_PollRssi(void * pUnused);
+uint8_t CC11_ReadRssi(void * pUnused, uint8_t *pLen, uint8_t *pBuf);
 
 void    CC11_ASleep(void);
 void    CC11_AWake(void);

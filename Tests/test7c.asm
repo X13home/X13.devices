@@ -1,0 +1,16 @@
+	NOP
+	NOP
+	NOP
+    NOP
+
+	LD	63
+	LD	A1
+	SCALL
+	TEST_EQ	64
+	RET
+
+:A1	LD	P0
+	TEST_EQ	63
+	LD	64
+	ST	P0
+	RET

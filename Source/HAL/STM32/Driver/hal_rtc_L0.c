@@ -197,15 +197,4 @@ uint32_t HAL_RTC_DateNow(void)
     tmp = wdu | (day << 8) | (month << 16) | (yrs << 24);
     return tmp;
 }
-
-#ifdef ASLEEP
-void HAL_ASleep(uint16_t duration)
-{
-    // ToDo ASleep dummy function
-
-    uint32_t sec_cnt = hal_get_sec() + duration;
-    while(sec_cnt != hal_get_sec());
-}
-#endif  //  ASLEEP
-
 #endif  //  HAL_USE_RTC

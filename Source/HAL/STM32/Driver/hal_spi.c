@@ -36,37 +36,39 @@ static const SPI_TypeDef * hal_spi_port2spi[4] = {NULL, SPI1, SPI2, SPI3};
 void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 {
     SPI_TypeDef * SPIx;
-    uint32_t spi_clock;
 
     switch(port)
     {
 #if (defined HAL_USE_SPI1)
         case 1:
+            RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
+            RCC->APB2RSTR |= RCC_APB2RSTR_SPI1RST;
+            RCC->APB2RSTR &= ~RCC_APB2RSTR_SPI1RST;
 #if ((defined STM32F1) && (HAL_USE_SPI1 == 2))
             AFIO->MAPR |= AFIO_MAPR_SPI1_REMAP;     // Remap SPI1
 #endif  //  STM32F1
-            RCC->APB2ENR |= RCC_APB2ENR_SPI1EN;
             hal_gpio_cfg(SPI1_PORT, (SPI1_SCK_PIN | SPI1_MISO_PIN | SPI1_MOSI_PIN), DIO_MODE_SPI1);
             SPIx = SPI1;
-            spi_clock = hal_pclk2/2;
             break;
 #endif  //  HAL_USE_SPI1
 
 #if (defined HAL_USE_SPI2)
         case 2:
             RCC->APB1ENR |= RCC_APB1ENR_SPI2EN;
+            RCC->APB1RSTR |= RCC_APB1RSTR_SPI2RST;
+            RCC->APB1RSTR &= ~RCC_APB1RSTR_SPI2RST;
             hal_gpio_cfg(SPI2_PORT, (SPI2_SCK_PIN | SPI2_MISO_PIN | SPI2_MOSI_PIN), DIO_MODE_SPI2);
             SPIx = SPI2;
-            spi_clock = hal_pclk1/2;
             break;
 #endif  //  DIO_MODE_SPI2
 
 #if (defined HAL_USE_SPI3)
         case 3:
             RCC->APB1ENR |= RCC_APB1ENR_SPI3EN;
+            RCC->APB1RSTR |= RCC_APB1RSTR_SPI3RST;
+            RCC->APB1RSTR &= ~RCC_APB1RSTR_SPI3RST;
             hal_gpio_cfg(SPI3_PORT, (SPI3_SCK_PIN | SPI3_MISO_PIN | SPI3_MOSI_PIN), DIO_MODE_SPI3);
             SPIx = SPI3;
-            spi_clock = hal_pclk1/2;
             break;
 #endif  //  HAL_USE_SPI3
         default:
@@ -79,6 +81,8 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
     }
 
     uint16_t div = 0;
+    uint32_t spi_clock = hal_GetClock((uint32_t)SPIx)/2;
+    
     while((spi_clock > speed) && (div < 7))
     {
         div++;
@@ -120,9 +124,9 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 
     SPIx->CRCPR =  7;
 
-#ifndef STM32F3
+#if defined (SPI_I2SCFGR_I2SMOD)
     SPIx->I2SCFGR &= (uint16_t)~((uint16_t)SPI_I2SCFGR_I2SMOD);
-#endif  //  STM32F3
+#endif  //  SPI_I2SCFGR_I2SMOD
 
     SPIx->CR1 |= SPI_CR1_SPE;       // SPI enable
 }
@@ -130,11 +134,11 @@ void hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed)
 uint8_t hal_spi_exch8(uint8_t port, uint8_t data)
 {
     SPI_TypeDef * SPIx = (SPI_TypeDef *)hal_spi_port2spi[port];
+
 #if (defined STM32F0) || (defined STM32F3)
-    uint32_t spixbase = (uint32_t)SPIx + 0x0C;
-    *(__IO uint8_t *)spixbase = data;
+    *((__IO uint8_t *)&SPIx->DR) = data;
     while((SPIx->SR & SPI_SR_RXNE) == 0);
-    data = *(__IO uint8_t *)spixbase;
+    data = *((__IO uint8_t *)&SPIx->DR);
     return data;
 #elif (defined STM32F1) || (defined STM32L0)
     SPIx->DR = data;

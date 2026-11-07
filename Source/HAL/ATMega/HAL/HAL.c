@@ -34,6 +34,15 @@ void HAL_Init(void)
     MCUSR &= ~(1<<WDRF);
     wdt_reset();
     wdt_disable();
+#ifdef HAL_USE_SUBMSTICK
+#if (F_CPU != 16000000UL)
+#error F_CPU should be 16M
+#endif
+    TCCR1B = 0;
+    TCCR1A = 0;
+    TCNT1 = 0;
+    TCCR1B = 5;     //  Prescaler = 1024, Normal Mode
+#endif  //  HAL_USE_SUBMSTICK
 }
 
 void HAL_StartSystemTick(void)
@@ -67,6 +76,13 @@ uint16_t HAL_RNG(void)
     return rand16;
 }
 
+// EEPROM Section
+bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
+{
+    eeprom_write_block((const void *)pBuf, (void *)Addr, (size_t)Len);
+    return true;
+}
+
 #if (defined EXTPLC_USED)
 /*
 static uint32_t deadbeef_seed;
@@ -84,6 +100,7 @@ void deadbeef_srand(uint32_t x) {
     deadbeef_beef = 0xdeadbeef;
 }
 */
+/*
 uint32_t HAL_RNG32(void)
 {
     // LFSR32, tap: 1,5,6,31
@@ -106,7 +123,15 @@ uint32_t HAL_RNG32(void)
 
     return lfsr;
 }
+*/
 #endif  //  EXTPLC_USED
+
+#ifdef HAL_USE_SUBMSTICK
+uint16_t HAL_get_submstick(void)
+{
+    return TCNT1;
+}
+#endif  //  HAL_USE_SUBMSTICK
 
 static volatile uint32_t hal_ms_counter = 0;
 static volatile uint32_t hal_sec_counter = 0;        // Max Uptime 136 Jr.
@@ -151,6 +176,12 @@ ISR(WDT_vect)
     hal_sec_counter += 8;
     hal_ms_counter += 8000;
 }
+
+void HAL_PreASleep(void)
+{}
+
+void HAL_AWake(void)
+{}
 
 void HAL_ASleep(uint16_t duration)
 {
@@ -211,7 +242,7 @@ void HAL_Reboot(void)
 }
 
 // SPI Section
-#ifdef HAL_USE_SPI
+#ifdef HAL_USE_SPI1
 void hal_spi_cfg(uint8_t port __attribute__ ((unused)), uint8_t mode, uint32_t speed)
 {
     PRR &= ~(1<<PRSPI);                                          // Enable clock on SPI
@@ -256,5 +287,18 @@ uint8_t hal_spi_exch8(uint8_t port __attribute__ ((unused)), uint8_t data)
     while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
     return SPDR;
 }
-#endif  //  HAL_USE_SPI
+
+uint16_t hal_spi_exch16(uint8_t port __attribute__ ((unused)), uint16_t data)
+{
+    
+    uint16_t retval;
+    SPDR = data >> 8;
+    while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
+    retval = SPDR<<8;
+    SPDR = data & 0xFF;
+    while(!(SPSR &(1<<SPIF)));          // Wait until SPI operation is terminated
+    retval |= SPDR;
+    return retval;
+}
+#endif  //  HAL_USE_SPI1
 // End SPI Section

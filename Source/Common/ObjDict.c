@@ -38,6 +38,9 @@ static uint8_t cbReadRTC(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf);
 
 #ifdef ASLEEP
 static uint8_t cbWriteTASleep(subidx_t * pSubidx, uint8_t Len, uint8_t *pBuf);
+#ifndef OD_DEFAULT_TASLEEP
+#define OD_DEFAULT_TASLEEP  0
+#endif  //  OD_DEFAULT_TASLEEP
 #endif  //  ASLEEP
 
 #ifdef EXTPLC_USED
@@ -69,6 +72,20 @@ static const indextable_t listPredefOD[] =
 #ifdef EXTPLC_USED
     {{objEEMEM, objArray, 0},
         objInMute, NULL, (cbWrite_t)&cbWriteInMute, NULL},      // Write Only
+#ifdef EXTPLC_SIZEOF_LOG
+    // The log of the program, PrintF(26): sidx.Base is the level, and objString gives 0 from
+    // cvtSubidx2Len, so the line goes out unpacked. cbPoll stays empty on purpose - that is what
+    // puts an entry into ListOD, and four levels would cost four of its places. OD_Poll drives
+    // these itself, by plcLogLevel()
+    {{objEEMEM, objString, 0},
+        objLogD, (cbRead_t)&plcLogReadOD, NULL, NULL},
+    {{objEEMEM, objString, 1},
+        objLogI, (cbRead_t)&plcLogReadOD, NULL, NULL},
+    {{objEEMEM, objString, 2},
+        objLogW, (cbRead_t)&plcLogReadOD, NULL, NULL},
+    {{objEEMEM, objString, 3},
+        objLogE, (cbRead_t)&plcLogReadOD, NULL, NULL},
+#endif  //  EXTPLC_SIZEOF_LOG
 #endif  //  EXTPLC_USED
     // RF Settings
 #ifdef RF_ADDR_t
@@ -92,6 +109,10 @@ static const indextable_t listPredefOD[] =
     {{objEEMEM, objArray, eeRFkey},
         objRFkey,  (cbRead_t)&eepromReadOD, (cbWrite_t)&cbWriteRFkey, NULL},
 #endif  //  OD_DEFAULT_RF_KEY
+#if ((defined RF_READ_RSSI_CB) && (defined RF_POLL_RSSI_CB))
+    {{objUsrExt, objInt8, 0},
+        objRSSI,  (cbRead_t)&RF_READ_RSSI_CB, NULL, (cbPoll_t)&RF_POLL_RSSI_CB},
+#endif  //  RF_READ_RSSI_CB & RF_POLL_RSSI_CB
 #endif  //  RF_ADDR_t
     // LAN Settings
 #ifdef LAN_NODE
@@ -113,8 +134,17 @@ static const indextable_t listPredefOD[] =
         objPHY1addr, (cbRead_t)&readDeviceInfo, NULL, NULL},
 #ifdef PHY2_NodeId
     {{objPROGMEM, objArray, 2},
-        objPHY2addr, (cbRead_t)&readDeviceInfo, NULL, NULL}
+        objPHY2addr, (cbRead_t)&readDeviceInfo, NULL, NULL},
 #endif  //  PHY2_NodeId
+#ifdef PHY3_NodeId
+    {{objPROGMEM, objArray, 3},
+        objPHY3addr, (cbRead_t)&readDeviceInfo, NULL, NULL},
+#endif  //  PHY3_NodeId
+#ifdef PHY4_NodeId
+    {{objPROGMEM, objArray, 4},
+        objPHY4addr, (cbRead_t)&readDeviceInfo, NULL, NULL},
+#endif  //  PHY4_NodeId
+
 };
 
 // User objects list
@@ -323,8 +353,10 @@ static uint8_t cvtSubidx2Len(subidx_t * pSubIdx)
     switch(pSubIdx->Place)
     {
         case objAin:
-        case objPWM:
             return 2;
+        case objPWM:
+			if(pSubIdx->Type == objPWMfreq) return 4;
+			else return 2;
         case objDin:
         case objDout:
         case objSer:
@@ -433,7 +465,15 @@ static const uint8_t psDeviceTyp[] = {
                                 OD_DEV_UC_TYPE,           // uC Family
                                 OD_DEV_UC_SUBTYPE,        // uC SubType
                                 OD_DEV_PHY1,              // PHY1 type
+#ifdef OD_DEV_PHY2
                                 OD_DEV_PHY2,              // PHY2 type
+#endif  // OD_DEV_PHY2
+#ifdef OD_DEV_PHY3
+                                OD_DEV_PHY3,              // PHY3 type
+#endif  // OD_DEV_PHY3
+#ifdef OD_DEV_PHY4
+                                OD_DEV_PHY4,              // PHY4 type
+#endif  // OD_DEV_PHY4
                                 OD_DEV_HW_TYP_H,          // HW Version High
                                 OD_DEV_HW_TYP_L,          // HW Version Low
                                 '.',                      // Delimiter
@@ -443,35 +483,46 @@ static const uint8_t psDeviceTyp[] = {
 
 static uint8_t readDeviceInfo(subidx_t *pSubidx, uint8_t *pLen, uint8_t *pBuf)
 {
-    uint16_t Base = pSubidx->Base;
-
-    if(Base == 0)           // Read Device type
-    {
-        uint8_t Len = sizeof(psDeviceTyp);
-        if(Len > *pLen)
-        {
-            Len = *pLen;
-        }
-
-        memcpy((void *)pBuf, (const void *)psDeviceTyp, Len);
-        *pLen = Len;
-
-        return MQTTSN_RET_ACCEPTED;
-    }
-    
-    // Read PHY address
     uint16_t index = 0xFFFF;
 
-    if(Base == 1)
+    switch(pSubidx->Base)
     {
-        index = PHY1_NodeId;
-    }
+        case 0:
+            {
+            uint8_t Len = sizeof(psDeviceTyp);
+            if(Len > *pLen)
+            {
+                Len = *pLen;
+            }
+
+            memcpy((void *)pBuf, (const void *)psDeviceTyp, Len);
+            *pLen = Len;
+
+            return MQTTSN_RET_ACCEPTED;
+            }
+
+        case 1:
+            index = PHY1_NodeId;
+            break;
 #ifdef PHY2_NodeId
-    else if(Base == 2)
-    {
-        index = PHY2_NodeId;
-    }
+        case 2:
+            index = PHY2_NodeId;
+            break;
 #endif  //  PHY2_NodeId
+#ifdef PHY3_NodeId
+        case 3:
+            index = PHY3_NodeId;
+            break;
+#endif  //  PHY3_NodeId
+#ifdef PHY4_NodeId
+        case 4:
+            index = PHY4_NodeId;
+            break;
+#endif  //  PHY4_NodeId
+
+        default:
+            return MQTTSN_RET_REJ_INV_ID;
+    }
 
     return ReadOD(index, MQTTSN_FL_TOPICID_PREDEF, pLen, pBuf);
 }
@@ -568,18 +619,6 @@ void InitOD(void)
 #endif  //  OD_DEFAULT_RF_KEY
 #endif  //  RF_ADDR_t
 #ifdef LAN_NODE
-#ifndef OD_DEF_IP_ADDR
-#define OD_DEF_IP_ADDR      0xFFFFFFFF      // Default IP - use DHCP
-#endif  //  OD_DEF_IP_ADDR
-#ifndef OD_DEF_IP_MASK
-#define OD_DEF_IP_MASK      0xFFFFFFFF      // Default IP Mask - use DHCP
-#endif  //  OD_DEF_IP_MASK
-#ifndef OD_DEF_IP_ROUTER
-#define OD_DEF_IP_ROUTER    0xFFFFFFFF      // Default IP Gateway - use DHCP
-#endif  //  OD_DEF_IP_ROUTER
-#ifndef OD_DEF_IP_BROKER
-#define OD_DEF_IP_BROKER    0xFFFFFFFF      // Default IP Broker - auto resolve
-#endif  //  OD_DEF_IP_BROKER
         uint32_t ulTmp = OD_DEF_IP_BROKER;
         WriteOD(objIPBroker, MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
         ulTmp = OD_DEF_IP_ROUTER;
@@ -588,7 +627,18 @@ void InitOD(void)
         WriteOD(objIPMask,   MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
         ulTmp = OD_DEF_IP_ADDR;
         WriteOD(objIPAddr,   MQTTSN_FL_TOPICID_PREDEF, 4, (uint8_t *)&ulTmp);
-        uint8_t   defMAC[] = OD_DEV_MAC;
+#ifndef OD_DEF_DEV_MAC
+        uint8_t   defMAC[6];
+        ulTmp = hal_GetDeviceID();
+        defMAC[0] = 0x00;       // Microchip
+        defMAC[1] = 0x04;
+        defMAC[2] = 0xA3;
+        defMAC[3] = (ulTmp >> 16) & 0xFF;
+        defMAC[4] = (ulTmp >> 8) & 0xFF;
+        defMAC[5] = ulTmp & 0xFF;
+#else   //  OD_DEF_DEV_MAC
+        uint8_t   defMAC[] = OD_DEF_DEV_MAC;
+#endif  //  OD_DEF_DEV_MAC
         WriteOD(objMACAddr, MQTTSN_FL_TOPICID_PREDEF, 6, (uint8_t *)&defMAC);       // Default MAC
 #endif  //  LAN_NODE
 #ifdef EXTAIN_USED
@@ -623,18 +673,36 @@ void InitOD(void)
 
     extInit();
 
-    // Load Saved Variables
+    // Load Predefined Callback's
     uint16_t pos = 0;
-    for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
+    // Skip PNP objects
+    while(ListOD[pos].Index != 0xFFFF)
     {
-        // Skip PNP objects
-        while(ListOD[pos].Index != 0xFFFF)
+        pos++;
+        if(pos == OD_MAX_INDEX_LIST)
         {
-            pos++;
+            return;
+        }
+    }
+
+    for(uiTmp = 0; uiTmp < sizeof(listPredefOD)/sizeof(indextable_t); uiTmp++)
+    {
+        if(listPredefOD[uiTmp].cbPoll != NULL)
+        {
             if(pos == OD_MAX_INDEX_LIST)
             {
                 return;
             }
+            memcpy(&ListOD[pos++], &listPredefOD[uiTmp], sizeof(indextable_t));
+        }
+    }
+
+    // Load Saved Variables
+    for(uiTmp = 0; uiTmp < OD_MAX_INDEX_LIST; uiTmp++)
+    {
+        if(pos == OD_MAX_INDEX_LIST)
+        {
+            return;
         }
 
         RestoreSubindex(uiTmp, &ListOD[pos].sidx);
@@ -1011,20 +1079,47 @@ void OD_Poll(void)
                 if((ListOD[idxUpdate].cbPoll != NULL) &&
                    (ListOD[idxUpdate].cbPoll)(&ListOD[idxUpdate].sidx))
                 {
-                    MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
-                               (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
-                               index);
+                    if(index < 0xFF00)
+                    {
+                        MQTTSN_Send( MQTTSN_MSGTYP_PUBLISH,
+                                    (MQTTSN_FL_QOS1 | MQTTSN_FL_TOPICID_NORM),
+                                     index);
+                    }
+                    else
+                    {
+                        MQTTSN_Send( MQTTSN_MSGTYP_PUBLISH,
+                                    (MQTTSN_FL_QOS0 | MQTTSN_FL_TOPICID_PREDEF),
+                                     index);
+                    }
                 }
             }
             idxUpdate++;
         }
+
+#ifdef EXTPLC_SIZEOF_LOG
+        // The lines the PLC program wrote: they are not in ListOD, so they are published here. The
+        // level is only the topic the gateway maps to, the order is the one the program wrote in.
+        // One line per call: MQTTSN_Send takes the only slot there is(vMQ_pMessage), and it is
+        // MQTTSN_Poll that frees it, so a loop here could not send a second line anyway
+        if(MQTTSN_CanSend())
+        {
+            uint8_t level = plcLogLevel();
+
+            if(level < PLC_LOG_LEVELS)
+            {
+                MQTTSN_Send(MQTTSN_MSGTYP_PUBLISH,
+                            (MQTTSN_FL_QOS0 | MQTTSN_FL_TOPICID_PREDEF),
+                            (uint16_t)(objLogD + level));
+            }
+        }
+#endif  //  EXTPLC_SIZEOF_LOG
     }
     else if(status == MQTTSN_STATUS_PRE_CONNECT)
     {
         // Register variables
         if(idxUpdate < OD_MAX_INDEX_LIST)
         {
-            if(ListOD[idxUpdate].Index != 0xFFFF)
+            if(ListOD[idxUpdate].Index < 0xFF00)
             {
                 if(MQTTSN_CanSend())
                 {
@@ -1065,6 +1160,9 @@ void OD_Poll(void)
                 else
                 {
                     idxUpdate = 0xFFFF;
+#ifdef EXTPLC_USED
+                    plcStatPrep();
+#endif  //  EXTPLC_USED
                 }
             }
         }

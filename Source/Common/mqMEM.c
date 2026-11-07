@@ -28,11 +28,6 @@ static uint8_t mqMemHeap[configTOTAL_HEAP_SIZE];
 // Create a couple of list links to mark the start and end of the list.
 static BlockLink_t mqMemStart, mqMemEnd;
 
-#ifdef DIAG_USED
-static size_t mqHeapAct, mqHeapMin, mqHeapMax;
-#endif  // DIAG_USED
-
-
 void mqInit(void)
 {
     BlockLink_t * pFirstFreeBlock;
@@ -54,12 +49,6 @@ void mqInit(void)
     pFirstFreeBlock = (void *)pAlignedHeap;
     pFirstFreeBlock->BlockSize = configADJUSTED_HEAP_SIZE;
     pFirstFreeBlock->pNext = &mqMemEnd;
-    
-#ifdef DIAG_USED
-    mqHeapAct = 0;
-    mqHeapMin = 0;
-    mqHeapMax = 0;
-#endif  // DIAG_USED
 }
 
 void * mqAlloc(size_t xWantedSize)
@@ -122,11 +111,6 @@ void * mqAlloc(size_t xWantedSize)
             pNewBlock->pNext = pIterator->pNext;
             pIterator->pNext = pNewBlock;
         }
-#ifdef DIAG_USED
-        mqHeapAct += pBlock->BlockSize;
-        if(mqHeapMax < mqHeapAct)
-            mqHeapMax = mqHeapAct;
-#endif  //  DIAG_USED
     }
     else    //  Memory overflow
         HAL_Reboot();
@@ -153,7 +137,7 @@ void mqFree(void *pBuf)
         pLink = (void *)puc;
 
         ENTER_CRITICAL_SECTION();
-        
+
         // Add this block to the list of free blocks.
         size_t BlockSize = pLink->BlockSize;
         for(pIterator = &mqMemStart;
@@ -162,28 +146,9 @@ void mqFree(void *pBuf)
         pLink->pNext = pIterator->pNext;
         pIterator->pNext = pLink;
 
-#ifdef DIAG_USED
-        mqHeapAct -= pLink->BlockSize;
-        if(mqHeapMin > mqHeapAct)
-            mqHeapMin = mqHeapAct;
-#endif  //  DIAG_USED
-        
         LEAVE_CRITICAL_SECTION();
     }
 }
-
-#ifdef DIAG_USED
-void mqGetHeapStat(uint16_t *pAct, uint16_t *pMax, uint16_t *pMin)
-{
-    *pAct = mqHeapAct;
-    *pMax = mqHeapMax;
-    *pMin = mqHeapMin;
-    
-    mqHeapMax = mqHeapAct;
-    mqHeapMin = mqHeapAct;
-}
-#endif  //  DIAG_USED
-
 
 /*
 Queue_t * MEM_Create_Queue(uint8_t mSize)

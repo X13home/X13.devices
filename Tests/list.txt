@@ -1,0 +1,89 @@
+test1.asm
+LDI_ZERO        Ok      0,86
+LDI_TRUE        Ok      0,86
+LDI_MINUS1      Ok      0,86
+LDI_U1 255      Ok      2,16    1,93
+LDI_S1 -127     Ok      2,27    2,04
+LDI_U2 256      Ok      3,77    3,34    2,25
+LDI_S2 -128     Ok      3,88    3,44    2,36
+LDI_S4 65536    Ok      6,36    5,5     2,8
+LDI_MIN
+
+test2.asm
+TEST_EQ         Ok              5,86    3,14
+
+test3a.asm
+DUP             Ok      1,05
+DROP            Ok      0,71
+NIP             Ok      0,9
+
+test3b.asm
+SWAP            Ok      1,02
+OVER            Ok      4,41
+ROT             Ok      5,26
+
+test4a.asm
+NOT             Ok      0,78
+AND             Ok      0,96
+OR              Ok      0,96
+XOR             Ok      0,96
+
+test4b.asm
+LSL             Ok      2,34
+LSR             Ok      2,34
+ASR             Ok      2,34
+
+test5a.asm
+ADD             Ok      0,98
+SUB             Ok      0,96
+MUL             Ok      0,96
+DIV             Ok      2,24
+
+test5b.asm
+MOD             Ok      2,24
+INC             Ok      0,77
+DEC             Ok      0,77
+NEG             Ok      0,77
+
+test6a.asm
+NOP             Ok      0,25
+SJMP            Ok      1,31
+JZ              Ok      1,46/4,24
+JNZ             Ok      1,46/4,24
+JMP             Ok      3,32
+
+test7a.asm
+LD_L            Ok      1,1
+ST_L            Ok      1,0
+
+test7b.asm
+CALL            Ok      5,18
+LD_P            Ok      1,1
+ST_P            Ok      1,0
+RET             Ok      1,1/0,78
+
+test7c.asm
+SCALL           Ok      3,2
+
+test8a.asm
+CEQ             Ok      1,11/1,128
+CNE             Ok      1,0
+
+test8b.asm
+CGT             Ok      1,15/1,17
+CGE             Ok      1,19
+
+test8c.asm
+CLT             Ok      1,15/1,17
+CLE             Ok      1,19
+CZE             Ok      0,79
+
+test10a.asm
+LDM_B1_C16      Ok      4,7
+LDM_S1_C16      Ok      4,72
+LDM_S2_C16      Ok      4,72
+LDM_S4_C16      Ok      4,24
+STM_B1_C16      Ok      4,82
+STM_S1_C16      Ok      4,65
+STM_S2_C16      Ok      4,68
+STM_S4_C16      Ok      4,26

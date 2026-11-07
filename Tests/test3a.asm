@@ -1,0 +1,23 @@
+	NOP
+	NOP
+	NOP
+    NOP
+
+	LD	17
+	DUP
+	TEST_EQ	17
+	TEST_EQ	17	
+
+	LD	18
+	LD	19
+	DROP
+	TEST_EQ	18
+
+	LD	20
+	LD	21
+	LD	22
+	NIP
+	TEST_EQ	22
+	TEST_EQ	20
+
+	RET

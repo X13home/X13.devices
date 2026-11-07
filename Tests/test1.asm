@@ -1,0 +1,33 @@
+	NOP
+	NOP
+    NOP
+    NOP
+
+	LD	0
+	TEST_EQ	0
+
+	LD	1
+	TEST_EQ	1
+
+	LD	-1
+	TEST_EQ	-1
+
+	LD	255
+	TEST_EQ	255
+
+	LD	-127
+	TEST_EQ	-127
+
+	LD	256
+	TEST_EQ	256
+
+	LD	-128
+	TEST_EQ	-128
+
+	LD	65536
+	TEST_EQ	65536
+
+	RET
+
+	
+	

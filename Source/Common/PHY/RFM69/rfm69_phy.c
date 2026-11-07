@@ -223,7 +223,7 @@ static void rfm69_setFreq(uint8_t chan)
 
     if((frf < RFM69_MIN_FREQ) || (frf > RFM69_MAX_FREQ))
     {
-        frf = RF_BASE_FREQ;
+        frf = RFM69_DEFAULT_FREQ;
     }
 
     // Reg = FREQ / FSTEP

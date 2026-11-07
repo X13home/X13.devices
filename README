@@ -5,66 +5,105 @@ X13.devices
 ===========
 
 Firmware section for project X13.Home
-Version 3.1.3
+Version 3.3.0
 
 Automation System oriented to "Smart House" - IoT, over MQTT(SN) protocol
 
-Devices
+Configuration names
 
-  Board: S2EC13, uC: ST32F051C8 - ARM Cortex M0
-    S2SC13      PHY1 - UART, PHY2 - CC1101
-    S2Cn13      PHY1 - CC1101
+  <uC family><PHY1>[PHY2][PHY3]<hardware version>, for example S4SMC14:
+  STM32F3 (S4), PHY1 - UART (S), PHY2 - RS485 (M), PHY3 - CC1101 (C), hardware 1.4
+
+  uC families: S2 - STM32F0, S3 - STM32F1, S4 - STM32F3, S5 - STM32L0,
+               S6 - STM32L1, A1 - ATMega328P, A4 - ATMega2560, A5 - ATMega2561
+  PHY letters: S - UART, C - CC1101, E - ENC28J60, M - RS485, Q - RFM69, R - RFM12
+
+  Up to version 3.1.3 a device without PHY2 carried the placeholder letter n,
+  as in S2Cn13. The placeholder is gone, so that device is now S2C13 and the
+  _declarer every node reports changed accordingly.
+
+Devices, STM32 - all of the below build with arm-none-eabi-gcc
+
+  uC: STM32F051 - ARM Cortex M0
+    S2C13       PHY1 - CC1101
+    S2C14       PHY1 - CC1101
+    S2C15       PHY1 - CC1101
+    S2E13       PHY1 - ENC28J60
     S2EC13      PHY1 - ENC28J60, PHY2 - CC1101
-    S2En13      PHY1 - ENC28J60
-    S2Sn13      PHY1 - UART
-    S2SQ13      PHY1 - UART, PHY2 - RFM69
-    S2Qn13      PHY1 - RFM69
-    S2SM13      PHY1 - UART, PHY2 - RS485
-    S2Mn13      PHY1 - RS485
-
-  Board: uNodeV3, uC: STM32F051K8 - ARM Cortex M0
-    S2Cn15      PHY1 - CC1101
+    S2EM13      PHY1 - ENC28J60, PHY2 - RS485
+    S2EMC20     PHY1 - ENC28J60, PHY2 - RS485, PHY3 - CC1101
+    S2M13       PHY1 - RS485
+    S2M16       PHY1 - RS485
+    S2MC14      PHY1 - RS485, PHY2 - CC1101
+    S2Q13       PHY1 - RFM69
+    S2S10       PHY1 - UART, Discovery F0
+    S2S11       PHY1 - UART, Nucleo F091
+    S2S13       PHY1 - UART
+    S2S14       PHY1 - UART
+    S2SC13      PHY1 - UART, PHY2 - CC1101
     S2SC15      PHY1 - UART, PHY2 - CC1101
+    S2SM13      PHY1 - UART, PHY2 - RS485
+    S2SQ13      PHY1 - UART, PHY2 - RFM69
+    S2SR10      PHY1 - UART, PHY2 - RFM12, Discovery F0
 
-  Board: uNodeV3, uC: STM32L051K8 - ARM Cortex M0+
-    S5Cn10      PHY1 - CC1101
-
-  Board: Prototype, uC: STM32L051K8 - ARM Cortex M0+
-    S5Qn10      PHY1 - RFM69
-
-  Board: uNodeV3, uC: STM32F303K8/STM32F334K8 - ARM Cortex M4
-    S4Cn11      PHY1 - CC1101
-    S4SC11      PHY1 - UART, PHY2 - CC1101
-
-  Board: uNode v2.0/1.1, uC: ATMega328P, pinout not compatible with Firmware 2.6/3.0
-    A1Cn12      PHY1 - CC1101, old name RFNDUP
-    A1En12      PHY1 - ENC28J60, old name LNNDEN
-    A1Rn11      PHY1 - RFM12(MRF49XA), old name RFNDUN
-    A1SC12      PHY1 - UART, PHY2 - CC1101, old name RFGWUP
-    A1Sn12      PHY1 - UART, old name DMGWDM
-    A1SR11      PHY1 - UART, PHY2 - RFM12(MRF49XA), old name RFGWUN
-
-  Board: Arduino Nano/Uno, uC: ATMega328P, Fosc = 16M
-    A1Sn10      PHY1 - Serial Port
-    A1SC10      PHY1 - Serial Port, PHY2 - CC1101
-    A1Cn10      PHY1 - CC1101
-
-  Board: Arduino Mega, uC: ATMega2560
-    A4Sn10      PHY1 - Serial Port
-
-  Board: Discovery F0, uC: STM32F051R8 - ARM Cortex M0
-    S2Sn10      PHY1 - UART
-    S2SR10      PHY1 - UART, PHY2 - RFM12
-
-  Board: Nucleo, uC: STM32F091RC - ARM Cortex M0
-    S2Sn11      PHY1 - UART
-
-  Board: Maple Mini, uC: STM32F103CB - ARM Cortex M3
-    S3Cn10      PHY1 - CC1101
-    S3En10      PHY1 - ENC28J60
+  uC: STM32F103CB - ARM Cortex M3, Maple Mini
+    S3C10       PHY1 - CC1101
+    S3E10       PHY1 - ENC28J60
+    S3S10       PHY1 - UART
     S3SC10      PHY1 - UART, PHY2 - CC1101
-    S3Sn10      PHY1 - UART
-    S3SQ10      PHY1 - UART, PHY1 - RFM69
+    S3SQ10      PHY1 - UART, PHY2 - RFM69
 
-  Board: Nucleo Nano, uC: STM32F303K8/STM32F334K8 - ARM Cortex M4
-    S4Sn10      PHY1 - UART
+  uC: STM32F303 - ARM Cortex M4, hardware FPU
+    S4C11       PHY1 - CC1101
+    S4C14       PHY1 - CC1101
+    S4C16       PHY1 - CC1101
+    S4CM13      PHY1 - CC1101, PHY2 - RS485
+    S4E14       PHY1 - ENC28J60
+    S4EC14      PHY1 - ENC28J60, PHY2 - CC1101
+    S4EM14      PHY1 - ENC28J60, PHY2 - RS485
+    S4EMC14     PHY1 - ENC28J60, PHY2 - RS485, PHY3 - CC1101
+    S4M13       PHY1 - RS485, counter inputs
+    S4M14       PHY1 - RS485
+    S4MC13      PHY1 - RS485, PHY2 - CC1101
+    S4S10       PHY1 - UART, Nucleo Nano F303
+    S4S13       PHY1 - UART
+    S4SC11      PHY1 - UART, PHY2 - CC1101
+    S4SM13      PHY1 - UART, PHY2 - RS485, counter inputs
+    S4SM14      PHY1 - UART, PHY2 - RS485
+    S4SMC14     PHY1 - UART, PHY2 - RS485, PHY3 - CC1101
+
+  uC: STM32L051K8 - ARM Cortex M0+
+    S5C10       PHY1 - CC1101
+    S5Q11       PHY1 - RFM69
+
+  uC: STM32L151R - ARM Cortex M3
+    S6S10       PHY1 - UART
+
+Devices, ATMega - not rebuilt for this release, see CHANGES
+
+  uC: ATMega328P
+    A1C10       PHY1 - CC1101
+    A1C12       PHY1 - CC1101
+    A1E12       PHY1 - ENC28J60
+    A1M10       PHY1 - RS485
+    A1R10       PHY1 - RFM12
+    A1R11       PHY1 - RFM12
+    A1S10       PHY1 - UART, Arduino Nano/Uno
+    A1S12       PHY1 - UART
+    A1SC10      PHY1 - UART, PHY2 - CC1101, Arduino Nano/Uno
+    A1SC12      PHY1 - UART, PHY2 - CC1101
+    A1SR10      PHY1 - UART, PHY2 - RFM12
+    A1SR11      PHY1 - UART, PHY2 - RFM12
+
+  uC: ATMega2560
+    A4S10       PHY1 - UART, Arduino Mega
+
+  uC: ATMega2561
+    A5E10       PHY1 - ENC28J60, MegaD-2561
+
+Toolchain
+
+  STM32  - Eclipse CDT with the GNU ARM Eclipse plug-in, arm-none-eabi-gcc
+  ATMega - Atmel Studio 7
+
+  Tests/       PLC assembler and its test programs

@@ -23,51 +23,55 @@ See LICENSE file for license details.
 #ifndef CC11_ANAREN     // Fosc = 26M
 
 // 433 MHz
-#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
+#if (CC11_DEFAULT_FREQ > 433050000UL) && (CC11_DEFAULT_FREQ < 434790000UL)
 #define CC11_DEFVAL_FREQ2       0x10
 #define CC11_DEFVAL_FREQ1       0xA7
 #define CC11_DEFVAL_FREQ0       0x62
 // 868 MHz
-#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
+#elif (CC11_DEFAULT_FREQ > 868000000UL) && (CC11_DEFAULT_FREQ < 870000000UL)
 #define CC11_DEFVAL_FREQ2       0x21
 #define CC11_DEFVAL_FREQ1       0x62
 #define CC11_DEFVAL_FREQ0       0x76
-#endif  // RF_BASE_FREQ
+#endif  // CC11_DEFAULT_FREQ
 
 #define CC11_MDMCFG3_VAL        0x83    // Data Rate = 38,383 kBaud
+#define CC11_MDMCFG0_VAL        0xF8
 #define CC11_DEVIATN_VAL        0x33    // Deviation 17,46 kHz
 
 #else   // Fosc = 27M
 
 // 433 MHz
-#if (RF_BASE_FREQ > 433050000UL) && (RF_BASE_FREQ < 434790000UL)
+#if (CC11_DEFAULT_FREQ > 433050000UL) && (CC11_DEFAULT_FREQ < 434790000UL)
     #define CC11_DEFVAL_FREQ2       0x10
     #define CC11_DEFVAL_FREQ1       0x09
     #define CC11_DEFVAL_FREQ0       0x7B
 // 868 MHz
-#elif (RF_BASE_FREQ > 868000000UL) && (RF_BASE_FREQ < 870000000UL)
+#elif (CC11_DEFAULT_FREQ > 868000000UL) && (CC11_DEFAULT_FREQ < 870000000UL)
     #define CC11_DEFVAL_FREQ2       0x20
     #define CC11_DEFVAL_FREQ1       0x25
     #define CC11_DEFVAL_FREQ0       0xED
-#endif  //  RF_BASE_FREQ
+#endif  //  CC11_DEFAULT_FREQ
 
 #define CC11_MDMCFG3_VAL        0x75    // Data Rate = 38,4178 kBaud
+#define CC11_MDMCFG0_VAL        0xE5
 #define CC11_DEVIATN_VAL        0x32    // Deviation 16,5 kHz
 
 #endif  //  CC11_ANAREN
 
 #if (CC11_PHY == 1)
     #define CC11_RF_POWER           0x50
-#elif (CC11_PHY == 2)
-    #define CC11_RF_POWER           0xC0
 #else
-    #error CC11_PHY unknown inteface
+    #define CC11_RF_POWER           0xC0
 #endif  // CC11_PHY
 
 static const uint8_t cc11config[][2] =
 {
-    {CC11_IOCFG0,   CC11_GDO_DISABLE},  // High impedance (3-State)
     {CC11_IOCFG2,   CC11_GDO_DISABLE},  // High impedance (3-State)
+#ifdef CC11_IRQ_PIN
+    {CC11_IOCFG0,   CC11_GDO_SYNC},     // GDO0 - Asserts when sync word has been sent/received, and de-asserts at the end of the packet.
+#else   // IRQ Pin not used
+    {CC11_IOCFG0,   CC11_GDO_DISABLE},  // High impedance (3-State)
+#endif  //  CC11_IRQ_PIN
     {CC11_FIFOTHR,  0x47},              // ADC_RETENTION, RX Attenuation: 0 dB, 
                                         // FIFO Threshold 33/32 bytes 
     {CC11_PKTLEN,   0x3D},              // default packet length 61 byte
@@ -79,9 +83,9 @@ static const uint8_t cc11config[][2] =
     {CC11_FREQ0,    CC11_DEFVAL_FREQ0},
     {CC11_MDMCFG4,  0xCA},              // RX filter BW 101,6 kHz
     {CC11_MDMCFG3,  CC11_MDMCFG3_VAL},  // Data Rate
-    {CC11_MDMCFG2,  0x93},              // Current optimized, GFSK, sync word 30/32 bit detected
-    {CC11_MDMCFG1,  0x00},              // Channel spacing 25 kHz
-    {CC11_MDMCFG0,  0x00},
+    {CC11_MDMCFG2,  0x13},              // Sensitivity optimized, GFSK, sync word 30/32 bit detected
+    {CC11_MDMCFG1,  0x00},              // Channel spacing 50 kHz
+    {CC11_MDMCFG0,  CC11_MDMCFG0_VAL},
     {CC11_DEVIATN,  CC11_DEVIATN_VAL},  // Deviation 20 kHz
     {CC11_MCSM0,    0x18},              // Automatically calibrate when going from IDLE to RX or TX,
                                         //      PO_TIMEOUT: 150uS
@@ -252,7 +256,7 @@ static MQ_t * cc11_rx_task(void)
         pRxBuf->m.raw[i] = hal_spi_exch8(CC11_USE_SPI, 0);
     }
 
-    cc11_rssi = hal_spi_exch8(CC11_USE_SPI, 0);                         // Read RSSI
+    uint8_t rssi_tmp = hal_spi_exch8(CC11_USE_SPI, 0);                  // Read RSSI
     tmp  = hal_spi_exch8(CC11_USE_SPI, 0);                              // Read LQI 
     CC11_RELEASE();                                                     // Release CC1101
 
@@ -262,6 +266,11 @@ static MQ_t * cc11_rx_task(void)
     {
         mqFree(pRxBuf);
         pRxBuf = NULL;
+    }
+    else if((pRxBuf->m.mq.MsgType == MQTTSN_MSGTYP_PINGRESP) ||
+            (pRxBuf->m.mq.MsgType == MQTTSN_MSGTYP_CONNACK))
+    {
+        cc11_rssi = rssi_tmp;
     }
 
     cc11_cmdStrobe(CC11_SFRX);
@@ -291,8 +300,13 @@ void CC11_Init(void)
     ReadOD(objRFGroup, MQTTSN_FL_TOPICID_PREDEF,  &Len, (uint8_t *)&GroupID);
 
     // Init Hardware
+    // Configure NSS Pin
     hal_dio_configure(CC11_NSS_PIN, DIO_MODE_OUT_PP_HS);
     CC11_RELEASE();
+#ifdef CC11_IRQ_PIN
+    // Configure IRQ Pin
+    hal_dio_configure(CC11_IRQ_PIN, DIO_MODE_IN_PU);
+#endif  //  CC11_IRQ_PIN
     hal_spi_cfg(CC11_USE_SPI, (HAL_SPI_MODE_0 | HAL_SPI_MSB | HAL_SPI_8B), 6500000UL);
 
     // Reset CC1101
@@ -309,7 +323,7 @@ void CC11_Init(void)
 
     // verify that SPI is working and the correct radio is installed
 
-    uint8_t pn = 0xFF, vers = 0xFF;
+    uint8_t pn = 0xFF, vers = 0x00;
     uint16_t cnt = 0;
     
     while((pn != 0) && (vers < 3))
@@ -335,9 +349,11 @@ void CC11_Init(void)
     cc11_writeReg(CC11_SYNC1, GroupID>>8);
     cc11_writeReg(CC11_SYNC0, GroupID & 0xFF);
     // Load Frequency channel
-    cc11_writeReg(CC11_CHANNR, Channel);
+    cc11_writeReg(CC11_CHANNR, (Channel / 2));
     // Configure PATABLE, No Ramp
     cc11_writeReg(CC11_PATABLE, CC11_RF_POWER);
+
+    cc11_rssi = 0;
 }
 
 void CC11_Send(void *pBuf)
@@ -371,8 +387,14 @@ void * CC11_Get(void)
     return NULL;
 }
 
-#if ((CC11_PHY == 2) && (defined PHY2_GetRSSI))
-uint8_t CC11_GetRSSI(void)
+#if (CC11_PHY == 1)
+uint8_t CC11_PollRssi(void * pUnused __attribute__ ((unused)))
+{
+    return (cc11_rssi != 0);
+}
+
+uint8_t CC11_ReadRssi(void * pUnused __attribute__ ((unused)),
+                      uint8_t *pLen, uint8_t *pBuf)
 {
     if(cc11_rssi & 0x80)
     {
@@ -386,7 +408,15 @@ uint8_t CC11_GetRSSI(void)
         cc11_rssi >>= 1;
         cc11_rssi = 74 - cc11_rssi;
     }
-    return (~cc11_rssi + 1);
+
+    cc11_rssi = ~cc11_rssi + 1;
+
+    *pLen = 1;
+    pBuf[0] = cc11_rssi;
+
+    cc11_rssi = 0;
+
+    return 0;
 }
 #endif  // GetRSSI
 

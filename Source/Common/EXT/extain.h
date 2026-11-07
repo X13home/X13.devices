@@ -17,6 +17,12 @@ See LICENSE file for license details.
 extern "C" {
 #endif
 
+#include <stdbool.h>
+
+#ifndef OD_DEF_ADC_AVERAGE
+#define OD_DEF_ADC_AVERAGE              80
+#endif // OD_DEF_ADC_AVERAGE
+
 // AIn API
 void    ainInit(void);
 bool    ainCheckSubidx(subidx_t * pSubidx);
@@ -25,7 +31,7 @@ void    ainDeleteOD(subidx_t * pSubidx);
 
 void    ainLoadAverage(void);
 int16_t ainRead(subidx_t * pSubidx);
-void  * ainGetPoll(void);
+cbPoll_t ainGetPoll(void);
 
 #ifdef __cplusplus
 }

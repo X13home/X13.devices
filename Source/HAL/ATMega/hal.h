@@ -23,13 +23,12 @@ extern "C" {
 #define eeprom_init_hw()
 #define eeprom_read(pBuf, Addr, Len)    \
                     eeprom_read_block((void *)pBuf, (const void *)Addr, (size_t)Len)
-#define eeprom_write(pBuf, Addr, Len)   \
-                    eeprom_write_block((const void *)pBuf, (void *)Addr, (size_t)Len)
+bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len);
 
 // AVR Architecture specifics.
 #define portBYTE_ALIGNMENT          1
 #define portPOINTER_SIZE_TYPE       uint16_t
-#define configTOTAL_HEAP_SIZE       1024
+//#define configTOTAL_HEAP_SIZE       896
 
 //////////////////////////////////////////////////////////////
 // DIO Section
@@ -85,6 +84,7 @@ void        hal_twi_start(void);
 #define     UART_BAUD_9K6       2
 #define     UART_BAUD_19K2      3
 #define     UART_BAUD_38K4      4
+#define     UART_BAUD_200K      5
 #define     UART_BAUD_MAX       4
 
 
@@ -111,11 +111,27 @@ uint8_t     hal_uart_get(uint8_t port);
 
 void        hal_spi_cfg(uint8_t port, uint8_t mode, uint32_t speed);
 uint8_t     hal_spi_exch8(uint8_t port, uint8_t data);
-//uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
+uint16_t    hal_spi_exch16(uint8_t port, uint16_t data);
 // SPI Section
 //////////////////////////////////////////////////////////////
 
-#include "HW_ATMega.h"
+//////////////////////////////////////////////////////////////
+// HAL API
+uint16_t HAL_get_submstick(void);
+// HAL API
+//////////////////////////////////////////////////////////////
+
+#if (defined __AVR_ATmega328P__)
+#include "HW_ATM328P.h"
+#elif (defined __AVR_ATmega2560__)
+#include "HW_ATM2560.h"
+#elif (defined __AVR_ATmega2561__)
+#include "HW_ATM2561.h"
+#else
+#error Unknown uC
+#endif  //  uC
+
+#include <util/delay.h>
 
 #ifdef __cplusplus
 }

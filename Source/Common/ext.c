@@ -14,9 +14,7 @@ See LICENSE file for license details.
 
 #define EXT_MAX_PROC    8
 
-typedef void (*cbEXT_t)(void);
-
-static void * extProcCB[EXT_MAX_PROC];
+static cbEXT_t extProcCB[EXT_MAX_PROC];
 
 // Initialise extensions
 void extInit(void)
@@ -60,6 +58,11 @@ bool extCheckSubidx(subidx_t * pSubidx)
             return pwmCheckSubidx(pSubidx);
 #endif  //  EXTPWM_USED
 
+#ifdef EXTCNT_USED
+		case objCNT:
+			return cntCheckSubidx(pSubidx);
+#endif	// EXTCNT_USED
+
 #ifdef EXTAIN_USED
         case objAin:
             return ainCheckSubidx(pSubidx);
@@ -102,6 +105,11 @@ e_MQTTSN_RETURNS_t extRegisterOD(indextable_t * pIdx)
             return pwmRegisterOD(pIdx);
 #endif  //  EXTPWM_USED
 
+#ifdef EXTCNT_USED
+		case objCNT:
+			return cntRegisterOD(pIdx);
+#endif	// EXTCNT_USED
+
 #ifdef EXTAIN_USED
         case objAin:        // Analog(int16_t) Input's
             return ainRegisterOD(pIdx);
@@ -142,6 +150,12 @@ void extDeleteOD(subidx_t * pSubidx)
             pwmDeleteOD(pSubidx);
             break;
 #endif  //  EXTPWM_USED
+
+#ifdef EXTCNT_USED
+		case objCNT:
+			cntDeleteOD(pSubidx);
+			break;
+#endif	// EXTCNT_USED
             
 #ifdef EXTAIN_USED
         case objAin:
@@ -161,7 +175,7 @@ void extDeleteOD(subidx_t * pSubidx)
     }
 }
 
-void extRegProc(void * cb)
+void extRegProc(cbEXT_t cb)
 {
     uint8_t pos;
     for(pos = 0; pos < EXT_MAX_PROC; pos++)
@@ -209,6 +223,11 @@ uint32_t ext_in(subidx_t * pSubidx)
         case objAin:
             return ainRead(pSubidx);
 #endif  //  EXTAIN_USED
+#ifdef EXTCNT_USED
+		case objCNT:
+			return cntRead(pSubidx);
+#endif	// EXTCNT_USED
+
         default:
             break;
     }
@@ -227,11 +246,21 @@ void ext_out(subidx_t * pSubidx, uint32_t val)
 #endif  //  EXTDIO_USED
 #ifdef EXTPWM_USED
         case objPWM:        // PWM
-            if(val > 0xFFFF)
-                val = 0xFFFF;
-            hal_pwm_write(pSubidx->Base, val);
+			if(pSubidx->Type != objPWMfreq)
+			{
+				if(val > 0xFFFF) val = 0xFFFF;
+				hal_pwm_write(pSubidx->Base, val);
+			}
+			else
+			{
+				hal_pwm_freq(pSubidx->Base, val);
+			}
             break;
 #endif  //  EXTPWM_USED
+#ifdef EXTCNT_USED
+		case objCNT:
+			cntClear(pSubidx);
+#endif	// EXTCNT_USED
         default:
             break;
     }
@@ -250,13 +279,17 @@ uint8_t ext_getDPin(subidx_t * pSubidx)
         case objAin:
             return pSubidx->Base & 0xFF;
 #endif  //  EXTAIN_USED
+#ifdef EXTCNT_USED
+		case objCNT:
+			return pSubidx->Base & 0xFF;
+#endif	// EXTCNT_USED
         default:
             break;
     }
     return 0xFF;
 }
 
-void * ext_getPoll(subidx_t * pSubidx)
+cbPoll_t ext_getPoll(subidx_t * pSubidx)
 {
     switch(pSubidx->Place)
     {
@@ -268,6 +301,11 @@ void * ext_getPoll(subidx_t * pSubidx)
         case objAin:
             return ainGetPoll();
 #endif  //  EXTAIN_USED
+#ifdef EXTCNT_USED
+		case objCNT:
+			return cntGetPoll();
+#endif	//  EXTCNT_USED
+
         default:
             break;
     }
@@ -275,3 +313,16 @@ void * ext_getPoll(subidx_t * pSubidx)
 }
 
 #endif  // EXTPLC_USED
+
+
+#ifdef ASLEEP
+void extASleep(void)
+{
+
+}
+
+void extAWake()
+{
+    
+}
+#endif  //  ASLEEP

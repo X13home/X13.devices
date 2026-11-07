@@ -26,28 +26,6 @@ void I2C1_IRQHandler(void);
 #define I2C_BUS         I2C1
 #define I2C_IRQn        I2C1_IRQn
 
-#if (defined HAL_TWI_REMAP)
-// I2C1, PB8 - SCL, PB9 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_8
-#define I2C_PIN_SDA     GPIO_Pin_9
-#define I2C_DIO_SCL     24
-#define I2C_DIO_SDA     25
-#define I2C_GPIO        GPIOB
-// Alternative function, AF = 1, Open Drain
-#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
-
-#else
-// I2C1, PB6 - SCL, PB7 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_6
-#define I2C_PIN_SDA     GPIO_Pin_7
-#define I2C_DIO_SCL     22
-#define I2C_DIO_SDA     23
-#define I2C_GPIO        GPIOB
-// Alternative function, AF = 1, Open Drain
-#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
-
-#endif  //  HAL_TWI_REMAP
-
 #elif (HAL_TWI_BUS == 2)
 
 void I2C2_IRQHandler(void);
@@ -57,28 +35,6 @@ void I2C2_IRQHandler(void);
 #define I2C_TIMING      0x20303E5D
 #define I2C_BUS         I2C2
 #define I2C_IRQn        I2C2_IRQn
-
-#if (defined HAL_TWI_REMAP)
-// I2C2, PF6 - SCL, PF7 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_6
-#define I2C_PIN_SDA     GPIO_Pin_7
-#define I2C_DIO_SCL     86
-#define I2C_DIO_SDA     87
-#define I2C_GPIO        GPIOF
-// Alternative function, AF = 0, Open Drain
-#define DIO_MODE_TWI    ((0<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
-
-#else
-// I2C2, PB10 - SCL, PB11 - SDA
-#define I2C_PIN_SCL     GPIO_Pin_10
-#define I2C_PIN_SDA     GPIO_Pin_11
-#define I2C_DIO_SCL     26
-#define I2C_DIO_SDA     27
-#define I2C_GPIO        GPIOB
-// Alternative function, AF = 1, Open Drain
-#define DIO_MODE_TWI    ((1<<DIO_AF_OFFS) | DIO_MODE_AF_OD)
-
-#endif  //  HAL_TWI_REMAP
 
 #else
 #error HAL_TWI_F0 Unknown HAL_TWI_BUS
@@ -276,6 +232,7 @@ void I2C_IRQ_Handler()
         {
             I2C_BUS->CR1 = I2C_CR1_PE;                              // Disable Interrupts
             pTWI->frame.access |= TWI_SLANACK;
+            pTWI->frame.read = 0;
         }
         else if(pTWI->frame.access & TWI_WRITE)
         {
@@ -303,7 +260,9 @@ void I2C_IRQ_Handler()
             else
             {
                 I2C_BUS->CR1 = I2C_CR1_PE;                      // Disable Interrupts
-                pTWI->frame.access = TWI_RDY;                   // Transaction complete
+
+                pTWI->frame.access &= TWI_EXT;
+                pTWI->frame.access |= TWI_RDY;                  // Transaction complete
             }
         }
         // else WTF ?
@@ -317,7 +276,8 @@ void I2C_IRQ_Handler()
         if(twi_pnt >= pTWI->frame.read)
         {
             I2C_BUS->CR1 = I2C_CR1_PE;                          // Disable Interrupts
-            pTWI->frame.access = TWI_RDY;                       // Transaction complete
+            pTWI->frame.access &= TWI_EXT;
+            pTWI->frame.access |= TWI_RDY;                      // Transaction complete
         }
     }
     // Write Data
@@ -351,7 +311,8 @@ void I2C_IRQ_Handler()
     {
         I2C_BUS->ICR = I2C_ICR_STOPCF;                          // Clear Stop Flag
         I2C_BUS->CR1 = I2C_CR1_PE;                              // Disable Interrupts
-        pTWI->frame.access = TWI_RDY;                           // Transaction complete
+        pTWI->frame.access &= TWI_EXT;
+        pTWI->frame.access |= TWI_RDY;                          // Transaction complete
     }
     // else WTF ?
 }
