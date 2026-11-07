@@ -106,7 +106,7 @@ bool hal_twi_configure(uint8_t enable)
 #endif
         // Set Timings
         // I2C Bus = 88 KHz, Standard Mode. Don't use 100 kHz, show uC errata.
-        uint32_t freqrange = hal_GetClock(I2C_BUS) / 88000UL;
+        uint32_t freqrange = hal_GetClock((uint32_t)I2C_BUS) / 88000UL;
 
         I2C_BUS->CR2 = freqrange;
         I2C_BUS->TRISE = freqrange + 1;

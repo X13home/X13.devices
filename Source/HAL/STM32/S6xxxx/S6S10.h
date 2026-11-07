@@ -1,9 +1,9 @@
 // This file is part of the https://github.com/X13home project.
 
-#ifndef _S6Sn10_H
-#define _S6Sn10_H
+#ifndef _S6S10_H
+#define _S6S10_H
 
-// Board: S6Sn10
+// Board: S6S10
 // uC: STM32L151R
 // PHY1: UART
 
@@ -90,7 +90,6 @@ extern "C" {
 #define OD_DEV_UC_TYPE              'S'
 #define OD_DEV_UC_SUBTYPE           '6'
 #define OD_DEV_PHY1                 'S'
-#define OD_DEV_PHY2                 'n'
 #define OD_DEV_HW_TYP_H             '1'
 #define OD_DEV_HW_TYP_L             '0'
 // End Object's Dictionary Section
@@ -99,4 +98,4 @@ extern "C" {
 }
 #endif
 
-#endif //_S6Sn10_H
+#endif //_S6S10_H

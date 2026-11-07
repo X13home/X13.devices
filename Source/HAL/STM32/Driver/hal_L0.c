@@ -16,9 +16,6 @@ See LICENSE file for license details.
 
 // System Section
 
-static uint32_t    hal_hclk  = 2097000UL;
-static uint32_t    hal_pclk1 = 2097000UL;
-static uint32_t    hal_pclk2 = 2097000UL;
 
 void hal_SetSysClock(void)
 {
@@ -75,9 +72,6 @@ void hal_SetSysClock(void)
     // Disable MSI
     RCC->CR &= ~RCC_CR_MSION;
 
-    hal_hclk  = 32000000UL;
-    hal_pclk1 = 32000000UL;
-    hal_pclk2 = 32000000UL;
 }
 
 // GPIO Section
@@ -238,5 +232,14 @@ void HAL_ASleep(uint16_t duration)
     while(sec_cnt != HAL_RTC_SecNow());
 }
 #endif  //  ASLEEP
+
+
+// hal_SetSysClock above leaves HPRE, PPRE1 and PPRE2 at /1, so HCLK, PCLK1 and PCLK2 all equal
+// SYSCLK and every peripheral runs at SystemCoreClock. With both APB prescalers at /1 the timer
+// clock is the APB clock itself, without the doubling the reference manual applies otherwise.
+uint32_t hal_GetClock(uint32_t base __attribute__ ((unused)))
+{
+    return SystemCoreClock;
+}
 
 #endif  //  STM32L0

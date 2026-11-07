@@ -19,9 +19,6 @@ See LICENSE file for license details.
 
 #define HSE_STARTUP_TIME            0x00005000UL
 
-static uint32_t    hal_hclk  = 2097000UL;
-static uint32_t    hal_pclk1 = 2097000UL;
-static uint32_t    hal_pclk2 = 2097000UL;
 
 void hal_SetSysClock(void)
 {
@@ -103,9 +100,6 @@ void hal_SetSysClock(void)
     /* Wait till PLL is used as system clock source */
     while ((RCC->CFGR & (uint32_t)RCC_CFGR_SWS) != (uint32_t)RCC_CFGR_SWS_PLL) {};
 
-    hal_hclk  = 32000000UL;
-    hal_pclk1 = 32000000UL;
-    hal_pclk2 = 32000000UL;
 }
 
 // GPIO Section
@@ -268,6 +262,15 @@ bool eeprom_write(uint8_t *pBuf, uint16_t Addr, uint8_t Len)
         }
     }
     return true;
+}
+
+
+// hal_SetSysClock above leaves HPRE, PPRE1 and PPRE2 at /1, so HCLK, PCLK1 and PCLK2 all equal
+// SYSCLK and every peripheral runs at SystemCoreClock. With both APB prescalers at /1 the timer
+// clock is the APB clock itself, without the doubling the reference manual applies otherwise.
+uint32_t hal_GetClock(uint32_t base __attribute__ ((unused)))
+{
+    return SystemCoreClock;
 }
 
 #endif  //  STM32L1
