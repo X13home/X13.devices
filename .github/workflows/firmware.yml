@@ -1,0 +1,98 @@
+# Build every STM32 configuration on each push, publish the HEX files as a
+# build artifact, and attach them to the GitHub release when a version tag is
+# pushed.  Tools/build-stm32.sh takes the flags from the Eclipse projects, so
+# this workflow builds what Eclipse builds.
+
+name: firmware
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'V[0-9]*'
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stm32:
+    name: ${{ matrix.project }}
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        project: [S2xxxx, S3xxxx, S4xxxx, S5xxxx, S6xxxx]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # The distribution package keeps the runner self-contained.  To build
+      # with the same toolchain as the Eclipse projects use locally, replace
+      # this step with a pinned xPack release:
+      #   npm install --global @xpack-dev-tools/arm-none-eabi-gcc@<version>
+      - name: Install the Arm toolchain
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            gcc-arm-none-eabi binutils-arm-none-eabi libnewlib-arm-none-eabi
+          arm-none-eabi-gcc --version | head -1
+
+      - name: Build
+        run: Tools/build-stm32.sh '${{ matrix.project }}'
+
+      - name: Flash and RAM usage
+        if: always()
+        run: |
+          {
+            echo "### ${{ matrix.project }}"
+            echo '```'
+            cat build/summary.txt
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Collect the build logs of the failed configurations
+        if: failure()
+        run: |
+          for cfg in $(awk '$2 == "FAIL" { print $1 }' build/summary.txt); do
+            echo "::group::$cfg"
+            cat "build/$cfg.log"
+            echo "::endgroup::"
+          done
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: hex-${{ matrix.project }}
+          path: build/hex/*.hex
+          if-no-files-found: error
+
+  release:
+    name: Attach the HEX files to the release
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: stm32
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: hex-*
+          path: hex
+          merge-multiple: true
+
+      - name: Create the release if it does not exist, then upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$GITHUB_REF_NAME
+          zip -j "X13.devices-$tag-hex.zip" hex/*.hex
+          gh release view "$tag" >/dev/null 2>&1 \
+            || gh release create "$tag" --verify-tag --title "$tag" \
+                 --notes "STM32 firmware built from $tag. See CHANGES for what is in this version."
+          gh release upload "$tag" "X13.devices-$tag-hex.zip" --clobber

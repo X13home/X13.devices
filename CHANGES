@@ -6,6 +6,10 @@ here, under its new name.
 
 !! Not compatible with 3.1.3 on the wire or in EEPROM, see "Upgrading" below !!
 
+Changed: project home. Development continues as Enviriot,
+         https://enviriot.github.io/ . The X13.Home pages and the X13home
+         GitHub organisation, https://github.com/X13home, are deprecated and
+         kept for reference only.
 Changed: configuration names. A device without PHY2 used to carry the
          placeholder letter n (S2Cn13, A1Sn10, S4Cn11). The placeholder is
          gone: S2Cn13 -> S2C13, A1Sn10 -> A1S10, S4Cn11 -> S4C11 and so on.
@@ -39,6 +43,11 @@ Added:   counter inputs, the object type 'C'. Devices: S4M13, S4SM13.
 Added:   PWM frequency generator, the object type 'g'.
 Added:   object type 'f', IEEE-754 float, 4 bytes little endian.
 Added:   uC family STM32L1 (S6S10) and ATMega2561 (A5E10, MegaD-2561).
+Added:   Tools/build-stm32.sh, a command line build of any STM32
+         configuration that takes its flags from the Eclipse projects, and
+         a GitHub Actions workflow that runs it on every push, keeps the HEX
+         files as build artifacts and attaches them to the release when a
+         version tag is pushed.
 Added:   STM32F3 devices on F303RET: S4C14, S4E14, S4EC14, S4EM14, S4EMC14,
          S4M14, S4SM14, S4SMC14.
 Added:   STM32F3 devices on F303KT: S4C16, S4CM13, S4M13, S4MC13, S4S13,

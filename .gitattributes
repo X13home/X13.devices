@@ -1,0 +1,5 @@
+# Keep the shell and workflow files LF so they run on the CI runners,
+# whatever core.autocrlf is set to on the machine that commits them.
+*.sh    text eol=lf
+*.awk   text eol=lf
+*.yml   text eol=lf
