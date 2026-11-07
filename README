@@ -1,4 +1,5 @@
 The Enviriot project: https://enviriot.github.io/
+Firmware repository:  https://github.com/enviriot/Firmware
 
 Deprecated, kept for reference only - the X13.Home project:
     https://github.com/X13home, http://X13Home.org, http://x13home.github.io
@@ -109,3 +110,9 @@ Toolchain
   ATMega - Atmel Studio 7
 
   Tests/       PLC assembler and its test programs
+
+Firmware images
+
+  The HEX files of every STM32 configuration are attached to each release and
+  kept as build artifacts of every CI run. They are no longer stored in the
+  repository.

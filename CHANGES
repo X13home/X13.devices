@@ -10,6 +10,7 @@ Changed: project home. Development continues as Enviriot,
          https://enviriot.github.io/ . The X13.Home pages and the X13home
          GitHub organisation, https://github.com/X13home, are deprecated and
          kept for reference only.
+         The firmware now lives in https://github.com/enviriot/Firmware .
 Changed: configuration names. A device without PHY2 used to carry the
          placeholder letter n (S2Cn13, A1Sn10, S4Cn11). The placeholder is
          gone: S2Cn13 -> S2C13, A1Sn10 -> A1S10, S4Cn11 -> S4C11 and so on.
@@ -86,7 +87,6 @@ Known gaps in this release
   - The ATMega projects A4xxxx and A5xxxx still list the removed Common/diag.c
     and do not build. A1xxxx is clean. No ATMega configuration was rebuilt for
     this release.
-  - HEX/ holds the 3.1.3 firmware under the old names and was not regenerated.
   - S2SC14 has a board header and a declarer but no build configuration.
   - STM32F1, STM32L0 and STM32L1 build and link but were not verified on
     hardware after the hal_GetClock fix.
