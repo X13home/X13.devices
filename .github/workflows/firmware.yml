@@ -91,8 +91,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag=$GITHUB_REF_NAME
-          zip -j "X13.devices-$tag-hex.zip" hex/*.hex
+          name=${GITHUB_REPOSITORY#*/}
+          zip -j "$name-$tag-hex.zip" hex/*.hex
           gh release view "$tag" >/dev/null 2>&1 \
             || gh release create "$tag" --verify-tag --title "$tag" \
                  --notes "STM32 firmware built from $tag. See CHANGES for what is in this version."
-          gh release upload "$tag" "X13.devices-$tag-hex.zip" --clobber
+          gh release upload "$tag" "$name-$tag-hex.zip" --clobber

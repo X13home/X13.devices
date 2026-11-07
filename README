@@ -4,10 +4,10 @@ Firmware repository:  https://github.com/enviriot/Firmware
 Deprecated, kept for reference only - the X13.Home project:
     https://github.com/X13home, http://X13Home.org, http://x13home.github.io
 
-X13.devices
-===========
+Enviriot Firmware
+=================
 
-Firmware section for project X13.Home
+Firmware for the Enviriot automation system, formerly X13.Home
 Version 3.3.0
 
 Automation System oriented to "Smart House" - IoT, over MQTT(SN) protocol
