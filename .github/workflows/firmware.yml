@@ -27,7 +27,7 @@ jobs:
         project: [S2xxxx, S3xxxx, S4xxxx, S5xxxx, S6xxxx]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # The distribution package keeps the runner self-contained.  To build
       # with the same toolchain as the Eclipse projects use locally, replace
@@ -62,7 +62,7 @@ jobs:
             echo "::endgroup::"
           done
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: hex-${{ matrix.project }}
@@ -78,9 +78,9 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: hex-*
           path: hex
